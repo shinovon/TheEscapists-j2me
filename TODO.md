@@ -1,0 +1,54 @@
+# Game
+
+- [x] Sound
+- [x] Sprites
+- [x] Tiles
+- [ ] Menu
+- [x] Player
+- [x] Collision
+- [ ] Controls
+- [x] Inventory
+- [x] Map
+- [x] Items
+- [x] Doors
+- [x] Layers
+- [x] Objects
+- [ ] Desks
+- [x] HUD
+- [x] Pathfinding
+- [x] Inmates
+- [x] Guards
+- [x] Stats
+- [ ] Dialogs
+- [x] NPC fighting
+- [x] Player fighting
+- [x] NPC Gym
+- [ ] Saves
+- [x] Global lighting
+- [ ] Crafting
+- [x] Adaptiveness or scaling
+- [ ] Object interaction (WIP)
+- [ ] NPC interaction
+- [x] Settings
+- [x] Own map format
+- [ ] Digging
+- [x] Other NPCs
+- [ ] Cameras
+- [ ] Localization
+- [x] NPC Jobs
+- [ ] Player jobs
+- [ ] Player training (WIP)
+- [ ] Solitary
+
+# OST
+
+- [x] Theme
+- [x] Generic
+- [x] Lights out
+- [x] Rollcall
+- [x] Canteen
+- [ ] Shower
+- [x] Workout
+- [x] Work
+- [x] Escaped
+- [x] Lockdown (mp3)

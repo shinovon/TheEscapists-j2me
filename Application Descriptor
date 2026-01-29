@@ -1,0 +1,10 @@
+MIDlet-Vendor: shinovon
+MIDlet-Version: 0.1.0
+Manifest-Version: 1.0
+MIDlet-Icon: /icon.png
+MicroEdition-Configuration: CLDC-1.1
+MIDlet-1: The Escapists,/icon.png,TE
+MIDlet-Name: The Escapists
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Jar-URL: TE.jar
+Nokia-MIDlet-On-Screen-Keypad: gameactions
