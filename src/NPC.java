@@ -571,7 +571,7 @@ class NPC implements Constants {
 						aiState = AI_WAYPOINT;
 						pathX = map.guardRollcallPositions[pos];
 						pathY = map.guardRollcallPositions[pos + 1];
-						pathEndDir = DIR_UP;
+						pathEndDir = DIR_UP; // TODO face inmates
 						correctPath = false;
 						break;
 					case SC_BREAKFAST:
@@ -629,7 +629,7 @@ class NPC implements Constants {
 					pos = (pos << 1) + 1;
 					pathX = map.rollcallPositions[pos];
 					pathY = map.rollcallPositions[pos + 1];
-					pathEndDir = DIR_DOWN;
+					pathEndDir = DIR_DOWN; // TODO face guards
 					correctPath = false;
 					break;
 				}
@@ -678,8 +678,8 @@ class NPC implements Constants {
 					correctPath = false;
 					break;
 				case SC_WORK_PERIOD:
-					// TODO if has job, go work
 					if (job != JOB_UNEMPLOYED) {
+						// go to job
 						aiState = AI_WORK;
 						aiWorkState = 0;
 						correctPath = false;

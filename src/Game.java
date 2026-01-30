@@ -965,6 +965,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
+				// TODO randomize stash spawn
+
 				// objects
 				for (int layer = 0; layer < 4; ++layer) {
 					short numObjects = in.readShort();
@@ -2257,22 +2259,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 32:
 		case 33:
 		case 36:
-		case 37:
 		case 38:
 		case 40:
 		case 41:
 		case 42:
+		case 43:
 		case 45:
 		case 46:
+		case 47:
 		case 49:
 		case 50:
+		case 51:
 		case 52:
 		case 53:
-		case 54:
 		case 55:
 		case 56:
 		case 57:
-		case 58:
 		case 60:
 		case 61:
 		case 62:
@@ -2281,16 +2283,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 66:
 		case 68:
 		case 77:
-		case 79:
 		case 81:
-		case 83:
 		case 85:
-		case 87:
 		case 89:
-		case 91:
 		case 92:
 		case 93:
-		case 95:
 		case 96:
 		case 97:
 		case 99:
@@ -2299,6 +2296,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 23:
 		case 34:
 			return COLL_SOLID_TRANSPARENT;
+		case 24:
+		case 94:
+		// water
+		case 37:
+		case 54:
+		case 58:
+		case 79:
+		case 83:
+		case 87:
+		case 90:
+		case 91:
+		case 95:
+			return COLL_SOLID_NO_SHADOW;
 		}
 		return COLL_NONE;
 	}

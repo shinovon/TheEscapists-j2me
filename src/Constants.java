@@ -109,6 +109,7 @@ public interface Constants {
 	static final byte COLL_SHOWER = 10;
 	static final byte COLL_DIGGED_WALL = 11;
 	static final byte COLL_DETECTOR = 12;
+	static final byte COLL_SOLID_NO_SHADOW = 13 | COLL_BIT_SOLID_AI;
 
 // endregion Map
 
