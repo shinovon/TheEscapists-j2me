@@ -880,6 +880,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean cellsClosed = true;
 	boolean entranceOpen = false;
 	boolean lockdown;
+	boolean willLockdown;
 	boolean playerWasOnRollcall;
 	boolean playerWasOnMeal;
 	boolean playerWasOnExcercise;
@@ -1254,11 +1255,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	void startLockdown() {
-		if (lockdown) return;
-		lockdown = true;
+		if (lockdown || willLockdown) return;
 		lockdownTimer = 99;
 		heat = 100;
-		schedule = SC_LOCKDOWN;
+		willLockdown = true;
 		playerSeenByGuards = false;
 		Sound.stopEffect();
 		Sound.stopMusic();
@@ -1431,6 +1431,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					Sound.playEffect(Sound.SFX_BELL);
 					Sound.playMusic(music);
 				}
+				if (willLockdown) {
+					schedule = SC_LOCKDOWN;
+					willLockdown = false;
+					lockdown = true;
+				}
 			} else {
 				if (!cellsClosed && (time == 1 || (time >= 23 * 60 + 20 && player.isInZone(ZONE_PLAYER_CELL)))) {
 					cellsClosed = true;
@@ -1484,6 +1489,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 			}
+		}
+
+		if (willLockdown) {
+			schedule = SC_LOCKDOWN;
+			willLockdown = false;
+			lockdown = true;
 		}
 
 		if (lockdown && tick % TPS == 0) {

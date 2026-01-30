@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Arman Jussupgaliyev
+Copyright (c) 2025-2026 Arman Jussupgaliyev
 */
 /** @noinspection UnnecessaryModifier*/
 public interface Constants {
@@ -34,9 +34,6 @@ public interface Constants {
 	static final boolean USE_M3G = true;
 
 // region Map
-
-	static final int NUM_INMATES = 20;
-	static final int NUM_GUARDS = 10;
 
 	// layers enum
 	static final int LAYER_GROUND = 0,

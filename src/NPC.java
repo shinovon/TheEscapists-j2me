@@ -912,6 +912,7 @@ class NPC implements Constants {
 					correctPath = true;
 					pathStep = 0;
 				} else {
+					if (PROFILER) Profiler.log(debugName() + " cannot pathfind to roam");
 					correctPath = false;
 					nextRoamPos = true;
 					this.targetReached = false;
@@ -929,9 +930,13 @@ class NPC implements Constants {
 					direction = pathEndDir;
 				}
 				correctPath = false;
-			} else if (!correctPath && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-				correctPath = true;
-				pathStep = 0;
+			} else if (!correctPath) {
+				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+					correctPath = true;
+					pathStep = 0;
+				} else if (PROFILER) {
+					Profiler.log(debugName() + " cannot pathfind to waypoint");
+				}
 			}
 		} else if (aiState == AI_SLEEP) {
 			// sleep: go to own bed, sleep
@@ -942,9 +947,13 @@ class NPC implements Constants {
 				animation = ANIM_LYING;
 				xFloat = x = bedX * TILE_SIZE;
 				yFloat = y = bedY * TILE_SIZE + 2;
-			} else if (!correctPath && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-				correctPath = true;
-				pathStep = 0;
+			} else if (!correctPath) {
+				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+					correctPath = true;
+					pathStep = 0;
+				} else if (PROFILER) {
+					Profiler.log(debugName() + " cannot pathfind to sleep");
+				}
 			}
 		} else if (aiState == AI_MEAL) {
 			// meal: go to serving table, take food, go to free seat
@@ -981,9 +990,13 @@ class NPC implements Constants {
 							direction = pathEndDir;
 						}
 					}
-				} else if (!correctPath && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-					correctPath = true;
-					pathStep = 0;
+				} else if (!correctPath) {
+					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						correctPath = true;
+						pathStep = 0;
+					} else if (PROFILER) {
+						Profiler.log(debugName() + " cannot pathfind to seat");
+					}
 				}
 			} else {
 				if (!correctPath) {
@@ -998,9 +1011,13 @@ class NPC implements Constants {
 				if (targetReached) {
 					animation = ANIM_FOOD;
 					correctPath = false;
-				} else if (!correctPath && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-					correctPath = true;
-					pathStep = 0;
+				} else if (!correctPath) {
+					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						correctPath = true;
+						pathStep = 0;
+					} else if (PROFILER) {
+						Profiler.log(debugName() + " cannot pathfind to serving");
+					}
 				}
 			}
 		} else if (aiState == AI_GYM) {
@@ -1061,9 +1078,13 @@ class NPC implements Constants {
 						direction = pathEndDir;
 					}
 				}
-			} else if (!correctPath && !training && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-				correctPath = true;
-				pathStep = 0;
+			} else if (!correctPath && !training) {
+				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+					correctPath = true;
+					pathStep = 0;
+				} else if (PROFILER) {
+					Profiler.log(debugName() + " cannot pathfind to gym");
+				}
 			}
 		} else if (aiState == AI_WORK) {
 			work:
@@ -1083,6 +1104,7 @@ class NPC implements Constants {
 							correctPath = true;
 							pathStep = 0;
 						} else {
+							if (PROFILER) Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 							correctPath = false;
 							nextRoamPos = true;
 							this.targetReached = false;
@@ -1144,6 +1166,8 @@ class NPC implements Constants {
 						if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
+						} else if (PROFILER) {
+							Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 						}
 					} else if (targetReached) {
 						if (++aiWorkState == 3) {
@@ -1198,6 +1222,8 @@ class NPC implements Constants {
 						if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
+						} else if (PROFILER) {
+							Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 						}
 					} else if (targetReached) {
 						if (++aiWorkState == 2) {
@@ -1255,6 +1281,7 @@ class NPC implements Constants {
 						correctPath = true;
 						pathStep = 0;
 					} else {
+						if (PROFILER) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
 						correctPath = false;
 					}
 				}
@@ -1589,6 +1616,11 @@ class NPC implements Constants {
 			}
 		}
 		return false;
+	}
+
+	private String debugName() {
+		if (!PROFILER) return null;
+		return (!ai ? "player" : guard ? "guard" : inmate ? "inmate" : "other") + typedId + '(' + id + ')';
 	}
 
 // region Player
