@@ -1110,12 +1110,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					throw new Exception();
 				}
 
-				if ((jobs[JOB_JANITOR] & JOB_EXISTING_BIT) != 0 || (jobs[JOB_GARDENING] & JOB_EXISTING_BIT) != 0) {
+				boolean gardening = false;
+				if ((jobs[JOB_JANITOR] & JOB_EXISTING_BIT) != 0
+						|| (gardening = (jobs[JOB_GARDENING] & JOB_EXISTING_BIT) != 0)) {
 					dirt = new short[6];
 					dirt[2] = (short) (objects[0][0] << 2);
-					addObject(Objects.FLOOR_DIRT, 47, 1, 1, 0, 0, LAYER_GROUND);
+					addObject(gardening ? Objects.OUTSIDE_DIRT : Objects.FLOOR_DIRT, gardening ? 43 : 47, 1, 1, 0, 0, LAYER_GROUND);
 					dirt[5] = (short) (objects[0][0] << 2);
-					addObject(Objects.FLOOR_DIRT, 47, 1, 1, 0, 0, LAYER_GROUND);
+					addObject(gardening ? Objects.OUTSIDE_DIRT : Objects.FLOOR_DIRT, gardening ? 43 : 47, 1, 1, 0, 0, LAYER_GROUND);
 				}
 
 			} finally {
@@ -1646,6 +1648,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //								g.setColor(0x00FF00);
 //								g.drawRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
 //							}
+							// tiles id debug
+//							if (layer == 0) {
+//								g.setColor(0xFFFFFF);
+//								g.drawString(Integer.toString(tiles[layer][pos]), x, y, 0);
+//							}
 						}
 
 						x += TILE_SIZE;
@@ -1689,6 +1696,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					else sprite += 3;
 				} else if (obj == Objects.SHOWER) {
 					sprite += (short) ((ticks / (TPS >> 3)) % 3);
+				} else if (obj == Objects.OUTSIDE_DIRT) {
+					sprite += (short) ((ticks / (TPS >> 1)) % 4);
 				}
 				int w = (sprite & (3 << 8)) >> 4, h = (sprite & (3 << 10)) >> 6;
 				sprite &= 0xFF;
@@ -2132,7 +2141,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = roamPositions[(pos << 1) + 1];
 			int y = roamPositions[(pos << 1) + 2];
 
-			if (!isFloor(tiles[0][x + y * width])) {
+			if (isFloor(tiles[0][x + y * width]) == (objects[0][objIdx + 1] == Objects.OUTSIDE_DIRT)) {
 				continue;
 			}
 
@@ -2211,22 +2220,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 3:
 		case 5:
 		case 9:
-		case 59:
-		case 63:
-		case 67:
-		case 69:
-		case 70:
-		case 71:
-		case 72:
-		case 73:
-		case 75:
-		case 76:
-		case 78:
-		case 80:
-		case 82:
-		case 84:
-		case 86:
-		case 88:
 			return true;
 		}
 		return false;

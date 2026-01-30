@@ -758,6 +758,7 @@ class NPC implements Constants {
 						} else if (player.isInZone(ZONE_INMATE_CELL) && !player.isInZone(ZONE_PLAYER_CELL)
 								&& !player.isInZone(ZONE_JANITOR) && !player.isInZone(ZONE_GARDENING)
 								&& player.job != JOB_MAILMAN && player.job != JOB_LIBRARY) {
+							// TODO this check still doesn't work well
 							// guard warns player if they're in wrong cell
 							heat("Get out of that cell " + player.name + '!', 10);
 						} else if (map.time % 60 >= 25) {
@@ -1967,6 +1968,7 @@ class NPC implements Constants {
 				}
 				if (map.softPressed) {
 					map.softPressed = false;
+					// TODO pickup items
 					interact:
 					{
 						if (climbed) break interact;
@@ -2099,6 +2101,11 @@ class NPC implements Constants {
 								if (obj == Objects.JOB_CLEANING_SUPPLIES) {
 									// take mop
 									addItem(Items.MOP | Items.ITEM_DEFAULT_DURABILITY, true);
+									break interact;
+								}
+								if (obj == Objects.JOB_GARDENING_TOOLS) {
+									// take hoe
+									addItem(Items.HOE | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
 
