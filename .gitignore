@@ -2,14 +2,15 @@
 /.mtj.tmp/
 /deployed/
 /bin/
-/.idea/
+/.idea/**
+!/.idea/modules.xml
+!/.idea/misc.xml
 .mtj
 build.properties
 proguard-local.cfg
 *.class
 *.jar
 *.zip
-*.iml
 
 /res/*.png
 /res/*.wav
