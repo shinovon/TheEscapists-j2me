@@ -2252,6 +2252,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 32:
 		case 33:
 		case 36:
+		case 37:
 		case 38:
 		case 40:
 		case 41:
@@ -2292,7 +2293,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 24:
 		case 94:
 		// water
-		case 37:
 		case 54:
 		case 58:
 		case 79:
