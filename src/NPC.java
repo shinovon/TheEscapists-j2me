@@ -705,14 +705,17 @@ class NPC implements Constants {
 					xFloat = x = map.npcSpawnX * TILE_SIZE;
 					yFloat = y = map.npcSpawnY * TILE_SIZE;
 					hidden = false;
+					aiState = AI_WAYPOINT;
 				} else if (map.schedule == SC_EVENING_ROLLCALL) {
 					pathX = map.npcSpawnX;
 					pathY = map.npcSpawnY;
 					correctPath = false;
+					aiState = AI_WAYPOINT;
+				} else if (aiState != AI_WAYPOINT) {
+					aiState = AI_IDLE;
 				}
-				aiState = AI_WAYPOINT;
 			}
-			// TODO other npcs, e.g, doctor, warden, employment officer, visitor
+			// TODO other npcs: warden, visitor
 		}
 
 		// guard heat cooldown
