@@ -576,26 +576,35 @@ public class MapCompiler implements Constants {
 						infoSection = false;
 						jobsSection = false;
 						section = sb.toString();
-						if (section.equals("Tiles")) {
+						switch (section) {
+						case "Tiles":
 							layer = LAYER_GROUND;
 							tilesSection = true;
-						} else if (section.equals("Vents")) {
+							break;
+						case "Vents":
 							layer = LAYER_VENT;
 							tilesSection = true;
-						} else if (section.equals("Roof")) {
+							break;
+						case "Roof":
 							layer = LAYER_ROOF;
 							tilesSection = true;
-						} else if (section.equals("Underground")) {
+							break;
+						case "Underground":
 							layer = LAYER_UNDERGROUND;
 							tilesSection = true;
-						} else if (section.equals("Objects")) {
+							break;
+						case "Objects":
 							objectsSection = true;
-						} else if (section.equals("Zones")) {
+							break;
+						case "Zones":
 							zonesSection = true;
-						} else if (section.equals("Info")) {
+							break;
+						case "Info":
 							infoSection = true;
-						} else if (section.equals("Jobs")) {
+							break;
+						case "Jobs":
 							jobsSection = true;
+							break;
 						}
 						continue;
 					}
