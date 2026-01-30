@@ -621,13 +621,7 @@ public class ResourceBuilder implements Constants {
 	
 	static void map(String name) throws IOException {
 		Path path = gameDir.resolve("Data").resolve("Maps").resolve(name);
-		Path temp = Files.createTempFile(null, null);
-		try {
-			Files.write(temp, BlowfishCompatEncryption.decrypt(Files.readAllBytes(path)));
-			MapCompiler.main(new String[] { temp.toString(), resDir.resolve("map").toString()});
-		} finally {
-			Files.deleteIfExists(temp);
-		}
+		MapCompiler.main(new String[] { path.toString(), resDir.resolve("map").toString()});
 	}
 	
 	static Path getImagePath(String name) {

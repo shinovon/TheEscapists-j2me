@@ -1,24 +1,22 @@
 /*
 Copyright (c) 2025-2026 Arman Jussupgaliyev
 */
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 public class MapCompiler implements Constants {
 
 	public static void main(String[] args) {
 		if (args.length < 2) {
-			System.out.println("Parameters: <decrypted map> <output file>");
+			System.out.println("Parameters: <input path> <output path>");
 			return;
 		}
 		
-		File input = new File(args[0]);
-		File output = new File(args[1]);
-
+		Path inputPath = Paths.get(args[0]);
+		Path outputPath = Paths.get(args[1]);
 		
 		int width = 96;
 		int height = 93;
@@ -63,8 +61,8 @@ public class MapCompiler implements Constants {
 		
 		try {
 			// read
-			try (InputStreamReader r = new InputStreamReader(new FileInputStream(input))) {
-	
+			byte[] decrypted = BlowfishCompatEncryption.decrypt(Files.readAllBytes(inputPath));
+			try (InputStreamReader r = new InputStreamReader(new ByteArrayInputStream(decrypted))) {
 				int c;
 				StringBuffer sb = new StringBuffer();
 				boolean sectionLine = false;
@@ -670,7 +668,7 @@ public class MapCompiler implements Constants {
 			
 			// write
 			
-			try (DataOutputStream out = new DataOutputStream(new FileOutputStream(output))) {
+			try (DataOutputStream out = new DataOutputStream(Files.newOutputStream(outputPath))) {
 				// version
 				out.writeInt(1);
 				
