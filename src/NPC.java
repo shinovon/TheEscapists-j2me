@@ -1404,30 +1404,39 @@ class NPC implements Constants {
 			case JOB_LAUNDRY:
 				if (obj == Objects.DOOR_LAUNDRY)
 					return false;
+				break;
 			case JOB_KITCHEN:
 				if (obj == Objects.DOOR_KITCHEN)
 					return false;
+				break;
 			case JOB_WOODSHOP:
 				if (obj == Objects.DOOR_WOODSHOP)
 					return false;
+				break;
 			case JOB_METALSHOP:
 				if (obj == Objects.DOOR_METALSHOP)
 					return false;
+				break;
 			case JOB_TAILOR:
 				if (obj == Objects.DOOR_TAILORSHOP)
 					return false;
+				break;
 			case JOB_DELIVERIES:
 				if (obj == Objects.DOOR_DELIVERIES)
 					return false;
+				break;
 			case JOB_JANITOR:
 				if (obj == Objects.DOOR_JANITOR)
 					return false;
+				break;
 			case JOB_GARDENING:
 				if (obj == Objects.DOOR_GARDENING)
 					return false;
+				break;
 			case JOB_MAILMAN:
 				if (obj == Objects.DOOR_MAILROOM)
 					return false;
+				break;
 			}
 			return !hasItem(Items.WORK_KEY) && !hasItem(Items.PLASTIC_WORK_KEY);
 		}
