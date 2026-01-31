@@ -1,16 +1,16 @@
 
 public interface Constants {
 	
-	static final int TILE_SIZE = 16;
+	int TILE_SIZE = 16;
 	
 	// layers enum
-	static final int LAYER_GROUND = 0,
+	int LAYER_GROUND = 0,
 			LAYER_VENT = 1,
 			LAYER_ROOF = 2,
 			LAYER_UNDERGROUND = 3;
 
 	// zones enum
-	static final int ZONE_PLAYER_CELL = 1,
+	int ZONE_PLAYER_CELL = 1,
 			ZONE_INMATE_CELL = 2,
 			ZONE_ROLLCALL = 3,
 			ZONE_CANTEEN = 4,
@@ -26,7 +26,7 @@ public interface Constants {
 			ZONE_GARDENING = 14;
 
 	// jobs enum
-	static final int JOB_UNEMPLOYED = 0,
+	int JOB_UNEMPLOYED = 0,
 			JOB_LAUNDRY = 1,
 			JOB_GARDENING = 2,
 			JOB_JANITOR = 3,
@@ -38,15 +38,10 @@ public interface Constants {
 			JOB_MAILMAN = 9,
 			JOB_LIBRARY = 10;
 
-	static final int COUNT_JOBS = 11;
-
-	static final int MAX_JOB_QUOTA = 20;
-	static final int NPC_JOB_QUOTA_THRESHOLD = 10;
-	static final int JOB_EXISTING_BIT = 1;
-	static final int JOB_OCCUPIED_BIT = 2;
+	int COUNT_JOBS = 11;
 	
-	static final byte COLL_NONE = 0;
-	static final byte COLL_SOLID = 2;
-	static final byte COLL_SOLID_TRANSPARENT = 3;
+	byte COLL_NONE = 0;
+	byte COLL_SOLID = 2;
+	byte COLL_SOLID_TRANSPARENT = 3;
 
 }

@@ -39,6 +39,7 @@
 - [ ] Player jobs
 - [ ] Player training (WIP)
 - [ ] Solitary
+- [ ] Map schedules
 
 # OST
 

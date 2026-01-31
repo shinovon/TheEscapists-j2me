@@ -20,12 +20,15 @@ public class ResourceBuilder implements Constants {
 	static Path[] unsortedImagesDirs;
 	static Path gameDir;
 	static Path resDir;
+	static boolean force;
 	
 	public static void main(String[] args) {
 		if (args.length < 2) {
 			System.out.println("Parameters: <output res dir> <decompiled dir> <game dir> <map>");
 			return;
 		}
+
+		// TODO better arguments parsing
 
 		resDir = Paths.get(args[0]);
 		decompiledDir = Paths.get(args[1]);
@@ -265,7 +268,7 @@ public class ResourceBuilder implements Constants {
 			g.drawImage(tile, (i % 16) * TILE_SIZE, (i / 16) * TILE_SIZE, null);
 		}
 		
-		ImageIO.write(img, "png", resDir.resolve("items.png").toFile());
+		writePng(img, resDir.resolve("items.png"));
 	}
 	
 	static void objects() throws IOException {
@@ -433,7 +436,7 @@ public class ResourceBuilder implements Constants {
 			g.drawImage(tile, x * TILE_SIZE, y * TILE_SIZE, null);
 		}
 		
-		ImageIO.write(img, "png", resDir.resolve("objects.png").toFile());
+		writePng(img, resDir.resolve("objects.png"));
 	}
 	
 	static void character(String name, String out, int rows) throws IOException {
@@ -509,7 +512,7 @@ public class ResourceBuilder implements Constants {
 			g.drawImage(tile, (i % 8) * TILE_SIZE + x, (i / 8) * TILE_SIZE + y, null);
 		}
 		
-		ImageIO.write(img, "png", resDir.resolve(out).toFile());
+		writePng(img, resDir.resolve(out));
 	}
 	
 	static void ground(String name) throws IOException {
@@ -532,7 +535,7 @@ public class ResourceBuilder implements Constants {
 		g.drawImage(ground.getSubimage(0, 0, 48, 48), 0, 0, null);
 		g.drawImage(soil.getSubimage(0, 0, 48, 48), TILE_SIZE * 3, 0, null);
 		
-		ImageIO.write(img, "png", resDir.resolve("ground.png").toFile());
+		writePng(img, resDir.resolve("ground.png"));
 	}
 	
 	static void tiles(String name, String out) throws IOException {
@@ -554,13 +557,13 @@ public class ResourceBuilder implements Constants {
 		}
 		BufferedImage img = new BufferedImage(TILE_SIZE * 4, TILE_SIZE * 25, BufferedImage.TYPE_INT_ARGB);
 		img.getGraphics().drawImage(tiles, 0, 0, null);
-		ImageIO.write(img, "png", resDir.resolve(out).toFile());
+		writePng(img, resDir.resolve(out));
 	}
 	
 	static void light() throws IOException {
 		BufferedImage img = new BufferedImage(TILE_SIZE * 4, TILE_SIZE * 4, BufferedImage.TYPE_INT_ARGB);
 		img.getGraphics().drawImage(ImageIO.read(getImagePath("Light_0-0_0.png").toFile()), 2, 2, null);
-		ImageIO.write(img, "png", resDir.resolve("light.png").toFile());
+		writePng(img, resDir.resolve("light.png"));
 	}
 	
 	static void huds() throws IOException {
@@ -600,7 +603,7 @@ public class ResourceBuilder implements Constants {
 		g.drawImage(crew, 90, 44, 90 + 9, 44 + 11, 100, 2, 100 + 9, 2 + 11, null);
 		g.drawImage(crew, 100, 44, 100 + 9, 44 + 11, 217, 28, 217 + 9, 28 + 11, null);
 		
-		ImageIO.write(img, "png", resDir.resolve("huds.png").toFile());
+		writePng(img, resDir.resolve("huds.png"));
 	}
 	
 	static void icon() throws IOException {
@@ -610,8 +613,8 @@ public class ResourceBuilder implements Constants {
 		g.fillRect(0, 0, 16, 16);
 		g.drawImage(ImageIO.read(getImagePath("Inmate 4_0-24_0.png").toFile()), 0, 0, null);
 		g.drawImage(ImageIO.read(getImagePath("Outfit - Inmate_0-24_0.png").toFile()), 0, 0, null);
-		
-		ImageIO.write(img, "png", resDir.resolve("icon.png").toFile());
+
+		writePng(img, resDir.resolve("icon.png"));
 	}
 	
 	static void title() throws IOException {
@@ -619,9 +622,19 @@ public class ResourceBuilder implements Constants {
 		Files.copy(titlePath, resDir.resolve("title.png"), StandardCopyOption.REPLACE_EXISTING);
 	}
 	
-	static void map(String name) throws IOException {
+	static void map(String name) throws Exception {
 		Path path = gameDir.resolve("Data").resolve("Maps").resolve(name);
-		MapCompiler.main(new String[] { path.toString(), resDir.resolve("map").toString()});
+		MapCompiler.process(path, resDir.resolve("map"));
+	}
+
+	// utils
+
+	static void writePng(BufferedImage img, Path path) throws IOException {
+		if (!force && Files.exists(path)) {
+			return;
+		}
+		// TODO optimize size
+		ImageIO.write(img, "png", path.toFile());
 	}
 	
 	static Path getImagePath(String name) {
