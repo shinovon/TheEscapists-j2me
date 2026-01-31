@@ -88,6 +88,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int trainingRepeats;
 	boolean trainingBlocked;
 	boolean playerSeenByGuards;
+	int progress;
 
 	boolean debugFreecam;
 
@@ -227,6 +228,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			drawText(g, "FATIGUE " + fatigue, 0, 33, FONT_REGULAR);
 			char[] chars;
 			int x;
+			NPC player = this.player;
 
 			// money
 			g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
@@ -303,17 +305,56 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			drawText(g, s, 5, h - 12, FONT_REGULAR);
 			drawText(g, s, 4, h - 13, FONT_REGULAR);
 			drawText(g, s, 6, h - 13, FONT_REGULAR);
-			fontColor =  FONT_COLOR_GREY_C0;
+			fontColor = FONT_COLOR_GREY_C0;
 			drawText(g, s, 5, h - 13, FONT_REGULAR);
 
-			if (player.training) {
-				// TODO
-				fontColor = FONT_COLOR_WHITE;
-				drawText(g, "Repeats: " + trainingRepeats, 4, h - 60, FONT_REGULAR);
-				g.setColor(0x0000FF);
-				int t = trainingTimer << 1;
-				if (t > 80) t = 80;
-				if (t > 0) g.fillRect(4, h - 40, t, 4);
+			progressbar:
+			{
+				int t;
+				String a;
+				if (player.training) {
+					a = "Repeats: " + trainingRepeats;
+					t = (trainingTimer * 50) / 40;
+				} else if (player.action != NPC.ACT_NONE) {
+					switch (player.action) {
+					case NPC.ACT_READING:
+						a = "Reading";
+						break;
+					case NPC.ACT_CLEANING:
+						a = "Cleaning";
+						break;
+					case NPC.ACT_CHIPPING:
+						a = "Chipping";
+						break;
+					case NPC.ACT_DIGGING:
+						a = "Digging";
+						break;
+					default:
+						break progressbar;
+					}
+					t = (progress * 50) / (TPS * 2);
+				} else if (schedule == SC_WORK_PERIOD && player.job != JOB_UNEMPLOYED) {
+					a = "Job quota";
+					t = (player.jobQuota * 50) / MAX_JOB_QUOTA;
+				} else {
+					break progressbar;
+				}
+
+				g.setColor(0x333333);
+				g.fillRect(4, h - 42, 67, 23);
+				g.setColor(0);
+				g.drawRect(4, h - 42, 66, 22);
+				g.setColor(0x4E4E4E);
+				g.drawRect(11, h - 29, 51, 6);
+				g.setColor(0x1D1D1D);
+				g.fillRect(12, h - 28, 50, 5);
+
+				fontColor = FONT_COLOR_GREY_C0;
+				drawText(g, a, 11, h - 39, FONT_REGULAR);
+
+				g.setColor(0x4172DC);
+				if (t > 50) t = 50;
+				if (t > 0) g.fillRect(12, h - 28, t, 5);
 			}
 
 			// side
@@ -1848,6 +1889,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				g.setColor(0);
 				g.drawRect(x + 8 - (w >> 1) - 3, y - 18, w + 6, 15);
 				drawText(g, s, x + 8 - (w >> 1), y - 15, FONT_REGULAR);
+				fontColor = FONT_COLOR_WHITE;
+			}
+			if (player.interactNPC == npc && npc.name != null) {
+				String s = npc.name;
+				fontColor = npc.bodyId == Textures.GUARD ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_ORANGE;
+				int w = textWidth(s, FONT_REGULAR);
+//				g.setColor(0x212121);
+//				g.fillRect(x + 8 - (w >> 1) - 3, y + 16, w + 6, 13);
+//				g.setColor(0);
+//				g.drawRect(x + 8 - (w >> 1) - 3, y + 16, w + 6, 13);
+				drawText(g, s, x + 8 - (w >> 1), y + 18, FONT_REGULAR);
 				fontColor = FONT_COLOR_WHITE;
 			}
 
