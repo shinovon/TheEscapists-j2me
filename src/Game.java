@@ -1893,13 +1893,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			if (player.interactNPC == npc && npc.name != null) {
 				String s = npc.name;
-				fontColor = npc.bodyId == Textures.GUARD ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_ORANGE;
+				fontColor = npc.bodyId == Textures.GUARD ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_YELLOW;
 				int w = textWidth(s, FONT_REGULAR);
-//				g.setColor(0x212121);
-//				g.fillRect(x + 8 - (w >> 1) - 3, y + 16, w + 6, 13);
-//				g.setColor(0);
-//				g.drawRect(x + 8 - (w >> 1) - 3, y + 16, w + 6, 13);
-				drawText(g, s, x + 8 - (w >> 1), y + 18, FONT_REGULAR);
+				drawText(g, s, x + 8 - (w >> 1), y + 15, FONT_REGULAR);
 				fontColor = FONT_COLOR_WHITE;
 			}
 
@@ -2708,6 +2704,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			0xFFFF8000,
 			0xFF7BA7FF,
 			0xFF9BC4F3,
+			0xFFFFFF00,
 	};
 
 	static int[] fontCharWidth;

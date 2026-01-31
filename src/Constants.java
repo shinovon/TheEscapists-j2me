@@ -24,7 +24,7 @@ public interface Constants {
 
 	static final int SHADOW_COLOR = 0x50000000;
 
-	static final boolean PROFILER = true;
+	static final boolean PROFILER = false;
 	static final boolean SERIAL_LOGS = false;
 
 	static final boolean BUFFER_SCREEN = false;
@@ -166,7 +166,8 @@ public interface Constants {
 			FONT_COLOR_GREY_23 = 7, // 0x232323
 			FONT_COLOR_ORANGE = 8, // 0xFF8000
 			FONT_COLOR_BLUE = 9, // 0x7BA7FF
-			FONT_COLOR_LIGHTBLUE = 10; // 0x9BC4F3
+			FONT_COLOR_LIGHTBLUE = 10, // 0x9BC4F3
+			FONT_COLOR_YELLOW = 11; // 0xFFFF00
 
 	static final String FONT_REGULAR_RES = "/fontr";
 	static final String FONT_BOLD_RES = "/fontb";

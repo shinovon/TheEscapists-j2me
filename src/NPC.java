@@ -163,7 +163,6 @@ class NPC implements Constants {
 		for (int i = 0; i < 6; ++i) {
 			inventory[i] = Items.ITEM_NULL;
 		}
-		inventory[0] = Items.MOP | Items.ITEM_DEFAULT_DURABILITY;
 		outfitItem = (guard ? Items.GUARD_OUTFIT : Items.INMATE_OUTFIT) | Items.ITEM_DEFAULT_DURABILITY;
 		weapon = Items.ITEM_NULL;
 
@@ -526,14 +525,14 @@ class NPC implements Constants {
 			}
 			if (training) {
 				int seat = map.getSeatIndex(map.gymPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
-				if (seat != -1) {
+				if (seat != -1 && map.gymPositions[seat + 1] == id) {
 					map.gymPositions[seat + 1] = 0;
 				}
 				training = false;
 			}
 			if (sitting) {
 				int seat = map.getSeatIndex(map.canteenSeatsPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
-				if (seat != -1) {
+				if (seat != -1 && map.canteenSeatsPositions[seat + 1] == id) {
 					map.canteenSeatsPositions[seat + 1] = 0;
 				}
 				sitting = false;
@@ -998,7 +997,7 @@ class NPC implements Constants {
 					if (!sitting) {
 						int seat = map.getSeatIndex(map.canteenSeatsPositions, pathX, pathY);
 						if (map.canteenSeatsPositions[seat + 1] == 0) {
-							map.canteenSeatsPositions[seat + 1] = 1;
+							map.canteenSeatsPositions[seat + 1] = (short) id;
 							animateToX = pathX * TILE_SIZE;
 							animateToY = pathY * TILE_SIZE;
 							sitting = true;
@@ -1074,7 +1073,7 @@ class NPC implements Constants {
 				if (!training) {
 					int seat = map.getSeatIndex(map.gymPositions, pathX, pathY);
 					if (map.gymPositions[seat + 1] == 0) {
-						map.gymPositions[seat + 1] = 1;
+						map.gymPositions[seat + 1] = (short) id;
 						animateToX = pathX * TILE_SIZE;
 						animateToY = pathY * TILE_SIZE;
 						if (pathEndDir == DIR_RIGHT) {
@@ -1594,22 +1593,20 @@ class NPC implements Constants {
 			}
 			return;
 		}
-		if (source == null) return;
+		if (source == null || aiState == AI_ATTACK)
+			return;
 
-		if (aiState != AI_ATTACK) {
-			if (inmate) {
-				dialog = "LOL!";
-				dialogTimer = (TPS * 2);
-			} else if (guard) {
-				if (visible) {
-					Sound.playEffect(Sound.SFX_LOSE);
-				}
-				if (!source.ai) {
-					map.heat += 10;
-				}
+		if (inmate) {
+			dialog = "LOL!";
+			dialogTimer = (TPS * 2);
+		} else if (guard) {
+			if (visible) {
+				Sound.playEffect(Sound.SFX_LOSE);
+			}
+			if (!source.ai) {
+				map.heat += 10;
 			}
 		}
-		
 		aiState = AI_RESET;
 		chaseTarget = source;
 		correctPath = false;
@@ -1998,8 +1995,8 @@ class NPC implements Constants {
 								Sound.playEffect(Sound.SFX_LOSE);
 							}
 							map.selectedInventory = -1;
-						} else {
-							NPC npc = map.getClosestNPC(this);
+						} else if (interactNPC != null) {
+							NPC npc = interactNPC;
 
 							int dx = npc.x - this.x;
 							int dy = npc.y - this.y;
@@ -2166,7 +2163,7 @@ class NPC implements Constants {
 												}
 											}
 										}
-										map.canteenSeatsPositions[seat + 1] = 1;
+										map.canteenSeatsPositions[seat + 1] = (short) id;
 									}
 									sitting = true;
 									break interact;
@@ -2189,7 +2186,8 @@ class NPC implements Constants {
 								}
 								if (obj == Objects.JOB_CLEANING_SUPPLIES) {
 									// take mop
-									addItem(Items.MOP | Items.ITEM_DEFAULT_DURABILITY, true);
+									addItem((rng.nextInt(2) == 0 ? Items.MOP : Items.BROOM)
+											| Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
 								if (obj == Objects.JOB_GARDENING_TOOLS) {
@@ -2243,16 +2241,14 @@ class NPC implements Constants {
 								}
 								int seat = map.getSeatIndex(map.gymPositions, x, y);
 								if (seat != -1) {
-									int tx = x * TILE_SIZE;
-									int ty = y * TILE_SIZE;
 									if (map.gymPositions[seat + 1] != 0) {
 										// push npc from their seat
 										Sound.playEffect(Sound.SFX_ENHIT);
 										int n = map.npcNum;
 										for (int i = 1; i < n; ++i) {
 											NPC npc = map.chars[i];
-											if (npc != null && npc.sitting
-													&& npc.x == tx&& npc.y == ty) {
+											if (npc != null && npc.training
+													&& npc.x == animateToX && npc.y == animateToY) {
 												// TODO
 												npc.aiState = AI_RESET;
 												npc.aiWaitTimer = TPS;
@@ -2260,7 +2256,7 @@ class NPC implements Constants {
 											}
 										}
 									}
-									map.gymPositions[seat + 1] = 1;
+									map.gymPositions[seat + 1] = (short) id;
 								}
 								map.trainingRepeats = 0;
 								map.trainingTimer = 0;
@@ -2349,23 +2345,21 @@ class NPC implements Constants {
 	NPC getInteractNPC() {
 		NPC[] chars = map.chars;
 		int n = chars.length;
-		NPC res = null;
-		int resDist = 0;
-		boolean resFacing = false;
+		NPC bestFacing = null;
+		int bestFacingDist = Integer.MAX_VALUE;
+
+		NPC bestOther = null;
+		int bestOtherDist = Integer.MAX_VALUE;
 
 		for (int i = 1; i < n; ++i) {
 			NPC other = chars[i];
-			if (other == null || other == this || !canSee(other)) {
-				continue;
-			}
+			if (other == null || other == this || !canSee(other)) continue;
 
-			int tx = other.x, ty = other.y;
-			int dx = tx - x, dy = ty - y;
+			int dx = other.x - x;
+			int dy = other.y - y;
 			int dist = dx * dx + dy * dy;
 
-			if (dist > 4 * TILE_SIZE * TILE_SIZE) {
-				continue;
-			}
+			if (dist > 3 * TILE_SIZE * TILE_SIZE) continue;
 
 			boolean facing = false;
 			switch (this.direction) {
@@ -2383,23 +2377,18 @@ class NPC implements Constants {
 				break;
 			}
 
-			if (res == null) {
-				res = other;
-				resDist = dist;
-				continue;
-			}
-			if (facing && !resFacing) {
-				res = other;
-				resDist = dist;
-				resFacing = true;
-				continue;
-			}
-			if (facing == resFacing && dist < resDist) {
-				res = other;
-				resDist = dist;
+			if (facing) {
+				if (dist < bestFacingDist) {
+					bestFacing = other;
+					bestFacingDist = dist;
+				}
+			} else if (dist < bestOtherDist) {
+				bestOther = other;
+				bestOtherDist = dist;
 			}
 		}
-		return res;
+
+		return bestFacing != null ? bestFacing : bestOther;
 	}
 
 //endregion Player
