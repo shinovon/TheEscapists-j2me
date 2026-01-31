@@ -239,7 +239,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 				}
 			}
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("Sound thread died");
 				Profiler.log(e.toString());
 			}
@@ -263,7 +263,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			setVolume(p, volumeMusic);
 			music[id] = p;
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("loadMusic failed");
 				Profiler.log(res);
 				Profiler.log(e.toString());
@@ -281,7 +281,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			setVolume(p, volumeSfx);
 			effects[id] = p;
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("loadEffect failed");
 				Profiler.log(res);
 				Profiler.log(e.toString());

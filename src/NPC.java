@@ -926,7 +926,7 @@ class NPC implements Constants {
 					correctPath = true;
 					pathStep = 0;
 				} else {
-					if (PROFILER) Profiler.log(debugName() + " cannot pathfind to roam");
+					if (LOGGING) Profiler.log(debugName() + " cannot pathfind to roam");
 					correctPath = false;
 					nextRoamPos = true;
 					this.targetReached = false;
@@ -948,7 +948,7 @@ class NPC implements Constants {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
-				} else if (PROFILER) {
+				} else if (LOGGING) {
 					Profiler.log(debugName() + " cannot pathfind to waypoint");
 				}
 			}
@@ -965,7 +965,7 @@ class NPC implements Constants {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
-				} else if (PROFILER) {
+				} else if (LOGGING) {
 					Profiler.log(debugName() + " cannot pathfind to sleep");
 				}
 			}
@@ -1008,7 +1008,7 @@ class NPC implements Constants {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
-					} else if (PROFILER) {
+					} else if (LOGGING) {
 						Profiler.log(debugName() + " cannot pathfind to seat");
 					}
 				}
@@ -1029,7 +1029,7 @@ class NPC implements Constants {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
-					} else if (PROFILER) {
+					} else if (LOGGING) {
 						Profiler.log(debugName() + " cannot pathfind to serving");
 					}
 				}
@@ -1096,7 +1096,7 @@ class NPC implements Constants {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
-				} else if (PROFILER) {
+				} else if (LOGGING) {
 					Profiler.log(debugName() + " cannot pathfind to gym");
 				}
 			}
@@ -1118,7 +1118,7 @@ class NPC implements Constants {
 							correctPath = true;
 							pathStep = 0;
 						} else {
-							if (PROFILER) Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
+							if (LOGGING) Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 							correctPath = false;
 							nextRoamPos = true;
 							this.targetReached = false;
@@ -1180,7 +1180,7 @@ class NPC implements Constants {
 						if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
-						} else if (PROFILER) {
+						} else if (LOGGING) {
 							Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 						}
 					} else if (targetReached) {
@@ -1236,7 +1236,7 @@ class NPC implements Constants {
 						if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
-						} else if (PROFILER) {
+						} else if (LOGGING) {
 							Profiler.log(debugName() + " cannot pathfind to job " + Game.jobStrings[job]);
 						}
 					} else if (targetReached) {
@@ -1295,7 +1295,7 @@ class NPC implements Constants {
 						correctPath = true;
 						pathStep = 0;
 					} else {
-						if (PROFILER) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+						if (LOGGING) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
 						correctPath = false;
 					}
 				}
@@ -1640,7 +1640,7 @@ class NPC implements Constants {
 	}
 
 	private String debugName() {
-		if (!PROFILER) return null;
+		if (!LOGGING) return null;
 		return (!ai ? "player" : guard ? "guard" : inmate ? "inmate" : "other") + typedId + '(' + id + ')';
 	}
 

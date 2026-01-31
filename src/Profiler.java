@@ -118,7 +118,7 @@ public class Profiler implements Constants {
 	static OutputStreamWriter console;
 
 	static void initLogs() {
-		if (!PROFILER || !SERIAL_LOGS) return;
+		if (!LOGGING || !SERIAL_LOGS) return;
 
 		try {
 			CommConnection c = (CommConnection) Connector.open("comm:USB1;baudrate=9600");
@@ -128,7 +128,7 @@ public class Profiler implements Constants {
 	}
 
 	static void log(String s) {
-		if (!PROFILER) return;
+		if (!LOGGING) return;
 		System.out.println(s);
 
 		if (!SERIAL_LOGS || console == null) return;

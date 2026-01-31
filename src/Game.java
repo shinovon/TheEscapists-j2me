@@ -2653,7 +2653,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			loadSpritesheet(Textures.OUTFIT_GUARD, "/outfit1.png");
 			hudSymbolsTexture = loadTiles("/huds.png");
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("loadTextures failed");
 				Profiler.log(e.toString());
 			}
@@ -2665,7 +2665,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		try {
 			return Image.createImage(res);
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("load texture failed");
 				Profiler.log(res);
 				Profiler.log(e.toString());
@@ -2679,7 +2679,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		try {
 			sprites[id] = Image.createImage(res);
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("load sprite failed");
 				Profiler.log(res);
 				Profiler.log(e.toString());
@@ -2796,7 +2796,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			fontCacheImages[idx] = new Image[FONT_CACHE_SIZE];
 			return true;
 		} catch (Exception e) {
-			if (PROFILER) {
+			if (LOGGING) {
 				Profiler.log("loadFont failed");
 				Profiler.log(res);
 				Profiler.log(e.toString());
@@ -3073,7 +3073,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if (cur == -1) {
 			// no path
-			if (PROFILER) Profiler.log("NO PATH!");
+			if (LOGGING) Profiler.log("NO PATH!");
 			return false;
 		}
 
