@@ -1168,9 +1168,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		allocatePathfind();
 
-		tiledLayer = new TiledLayer[4];
-		for (int i = 0; i < 4; ++i) {
-			tiledLayer[i] = new TiledLayer(width, height, tilesTexture, TILE_SIZE, TILE_SIZE);
+		if (USE_TILED_LAYER) {
+			tiledLayer = new TiledLayer[4];
+			for (int i = 0; i < 4; ++i) {
+				tiledLayer[i] = new TiledLayer(width, height, tilesTexture, TILE_SIZE, TILE_SIZE);
+			}
 		}
 
 
@@ -1227,7 +1229,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	void initMap() {
 		// fill tiled layer
-		{
+		if (USE_TILED_LAYER) {
 			int width = this.width;
 			int height = this.height;
 			for (int layer = 0; layer < 4; ++layer) {
@@ -1572,7 +1574,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int viewy = viewY - yr;
 			int xoff = viewx / TILE_SIZE, yoff = viewy / TILE_SIZE;
 
-//			Image tilesImg = tilesTexture;
+			Image tilesImg = tilesTexture;
 			Image itemsImg = itemsTexture;
 
 			// background
@@ -1609,12 +1611,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			}
 
-			tiledLayer[layer].setPosition(-viewX, -viewY);
-			tiledLayer[layer].paint(g);
+			if (USE_TILED_LAYER) {
+				tiledLayer[layer].setPosition(-viewX, -viewY);
+				tiledLayer[layer].paint(g);
+			}
 
 			// tiles
 			int y = -yr;
-//			byte[] tiles = this.tiles[layer];
+			byte[] tiles = this.tiles[layer];
 			int[] items = this.droppedItems[layer];
 			for (int i = 0; i < viewRows; ++i) {
 				int x = -xr;
@@ -1629,11 +1633,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //								g.drawRegion(shadowsTexture, 0, 0, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
 //							}
 
-//							byte tile = tiles[pos];
-//							if (tile != 0) {
-//								--tile;
-//								g.drawRegion(tilesImg, (tile % 4) * TILE_SIZE, (tile / 4) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
-//							}
+							if (!USE_TILED_LAYER) {
+								byte tile = tiles[pos];
+								if (tile != 0) {
+									--tile;
+									g.drawRegion(tilesImg, (tile % 4) * TILE_SIZE, (tile / 4) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
+								}
+							}
 
 							// wall shadows
 							if (drawShadows && i + yoff > 1 && j + xoff > 1) {
