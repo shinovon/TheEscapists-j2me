@@ -49,6 +49,9 @@ public class ResourceBuilder implements Constants {
 			icon();
 			ground("ground_" + map + ".gif");
 			tiles("tiles_" + map + ".gif", "tiles_ea.png");
+			character("Inmate", "inmate.png", 4);
+			character("Inmate 2", "inmate2.png", 4);
+			character("Inmate 3", "inmate3.png", 4);
 			character("Inmate 4", "inmate4.png", 4);
 			character("Guard", "guard.png", 2);
 			character("Outfit - Inmate", "outfit0.png", 4);
@@ -412,6 +415,9 @@ public class ResourceBuilder implements Constants {
 				"Container - Gardening_0-0_0.png", 0, 12, // 2x1
 				"Truck_0-16_0.png", 4, 12, // 3x2
 				"Truck_0-0_0.png", 7, 12, // 3x2
+				"Shower_0-0_0.png", 0, 13,
+				"Shower_0-0_1.png", 1, 13,
+				"Shower_0-0_2.png", 2, 13,
 				"container - mail_0-0_0.png", 0, 14, // 2x2
 				"Library 2_0-0_0.png", 2, 14, // 2x2
 				"POWER GEN_0-0_0.png", 4, 14, // 2x2
@@ -507,7 +513,7 @@ public class ResourceBuilder implements Constants {
 				tile = tile.getSubimage(0, 2, 16, 16);
 			} else if (h < 16) {
 				x = 3;
-				y = 7;
+				y = 8;
 			}
 			g.drawImage(tile, (i % 8) * TILE_SIZE + x, (i / 8) * TILE_SIZE + y, null);
 		}

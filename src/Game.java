@@ -1055,7 +1055,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								npc.x = (npc.bedX = x) * TILE_SIZE;
 								npc.y = (npc.bedY = (y - 1)) * TILE_SIZE + 2;
 								npc.animation = NPC.ANIM_LYING;
-								npc.load(Textures.INMATE4, Textures.OUTFIT_INMATE);
+								npc.load(NPC.rng.nextInt(Textures.INMATE4 + 1), Textures.OUTFIT_INMATE);
 							}
 							break;
 						}
@@ -2580,10 +2580,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			loadSpritesheet(Textures.INMATE4, "/inmate4.png");
-			// TODO temporary replacement
-			sprites[Textures.INMATE1] = sprites[Textures.INMATE4];
-			sprites[Textures.INMATE2] = sprites[Textures.INMATE4];
-			sprites[Textures.INMATE3] = sprites[Textures.INMATE4];
+			if (MORE_INMATES) {
+				loadSpritesheet(Textures.INMATE1, "/inmate.png");
+				loadSpritesheet(Textures.INMATE2, "/inmate2.png");
+				loadSpritesheet(Textures.INMATE3, "/inmate3.png");
+			} else {
+				sprites[Textures.INMATE1] = sprites[Textures.INMATE4];
+				sprites[Textures.INMATE2] = sprites[Textures.INMATE4];
+				sprites[Textures.INMATE3] = sprites[Textures.INMATE4];
+			}
 			sprites[Textures.INMATE5] = sprites[Textures.INMATE4];
 			sprites[Textures.INMATE6] = sprites[Textures.INMATE4];
 			sprites[Textures.INMATE7] = sprites[Textures.INMATE4];
