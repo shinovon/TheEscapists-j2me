@@ -6,8 +6,6 @@ public interface Constants {
 	
 	// only primitive constants here, no objects or variables,
 	//  so that proguard will omit this class
-
-	static final long FPS_LIMIT = 30; // set 10 for W810i
 	
 	static final int TPS = 30;
 	static final int TIME_TICKS = (TPS * 42 / 60); // ticks per ingame second
@@ -25,17 +23,92 @@ public interface Constants {
 
 	static final int SHADOW_COLOR = 0x50000000;
 
-	static final boolean PROFILER = false;
-	static final boolean LOGGING = false;
+	static final boolean PROFILER = true;
+	static final boolean LOGGING = true;
 	static final boolean SERIAL_LOGS = false;
+	
+//#ifndef PREPROCESSING
+	// default config for development
+	static final long FPS_LIMIT = 30; // set 10 for W810i
 
 	static final boolean BUFFER_SCREEN = false;
 	static final boolean DRAW_SHADOWS = true;
 	static final boolean DRAW_LIGHTS = true;
 	static final boolean NOKIAUI_SHADOWS = false;
 	static final boolean USE_M3G = true;
-	static final boolean USE_TILED_LAYER = true; // more heap, but faster on s40
+	static final boolean USE_TILED_LAYER = true; // more heap usage, but faster on s40
 	static final boolean MORE_INMATES = true;
+
+	static final boolean NO_SFX = false;
+	static final boolean PREFETCH_MUSIC = false;
+	static final boolean PREFETCH_SFX = false;
+//#else
+//#if FPS_LIMIT == ""
+//#	static final long FPS_LIMIT = 30;
+//#else
+//#expand static final long FPS_LIMIT = %FPS_LIMIT%;
+//#endif
+
+//#if BUFFER_SCREEN == ""
+//#	static final boolean BUFFER_SCREEN = false;
+//#else
+//#expand static final boolean BUFFER_SCREEN = %BUFFER_SCREEN%;
+//#endif
+
+//#if DRAW_SHADOWS == ""
+//#	static final boolean DRAW_SHADOWS = true;
+//#else
+//#expand static final boolean DRAW_SHADOWS = %DRAW_SHADOWS%;
+//#endif
+
+//#if DRAW_LIGHTS == ""
+//#	static final boolean DRAW_LIGHTS = true;
+//#else
+//#expand static final boolean DRAW_LIGHTS = %DRAW_LIGHTS%;
+//#endif
+
+//#if NOKIAUI_SHADOWS == ""
+//#	static final boolean NOKIAUI_SHADOWS = false;
+//#else
+//#expand static final boolean NOKIAUI_SHADOWS = %NOKIAUI_SHADOWS%;
+//#endif
+
+//#if USE_M3G == ""
+//#	static final boolean USE_M3G = true;
+//#else
+//#expand static final boolean USE_M3G = %USE_M3G%;
+//#endif
+
+//#if USE_TILED_LAYER == ""
+//#	static final boolean USE_TILED_LAYER = true;
+//#else
+//#expand static final boolean USE_TILED_LAYER = %USE_TILED_LAYER%;
+//#endif
+
+//#if MORE_INMATES == ""
+//#	static final boolean MORE_INMATES = true;
+//#else
+//#expand static final boolean MORE_INMATES = %MORE_INMATES%;
+//#endif
+
+//#if NO_SFX == ""
+//#	static final boolean NO_SFX = false;
+//#else
+//#expand static final boolean NO_SFX = %NO_SFX%;
+//#endif
+
+//#if PREFETCH_MUSIC == ""
+//#	static final boolean PREFETCH_MUSIC = false;
+//#else
+//#expand static final boolean PREFETCH_MUSIC = %PREFETCH_MUSIC%;
+//#endif
+
+//#if PREFETCH_SFX == ""
+//#	static final boolean PREFETCH_SFX = false;
+//#else
+//#expand static final boolean PREFETCH_SFX = %PREFETCH_SFX%;
+//#endif
+//#endif
 
 // region Map
 
@@ -118,10 +191,6 @@ public interface Constants {
 // endregion Map
 
 // region Sound
-
-	static final boolean NO_SFX = false;
-	static final boolean PREFETCH_MUSIC = false;
-	static final boolean PREFETCH_SFX = false;
 
 	static final int MUSIC_THEME = 0,
 			MUSIC_LIGHTSOUT = 1,

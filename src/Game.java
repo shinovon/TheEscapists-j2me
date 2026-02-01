@@ -169,24 +169,25 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			String s = "Settings";
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 20, FONT_BOLD);
 
+			if (!NO_SFX) {
+				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+				drawText(g, "SFX volume: ".concat(Integer.toString(Sound.volumeSfx)), 40, 60 + i * 12, FONT_REGULAR);
+				i++;
+			}
 
 			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-			drawText(g, "SFX volume: " + Sound.volumeSfx, 40, 60 + i * 12, FONT_REGULAR);
-			i++;
-
-			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-			drawText(g, "Music volume: " + Sound.volumeMusic, 40, 60 + i * 12, FONT_REGULAR);
+			drawText(g, "Music volume: ".concat(Integer.toString(Sound.volumeMusic)), 40, 60 + i * 12, FONT_REGULAR);
 			i++;
 
 			if (DRAW_SHADOWS && supportsAlpha) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "Shadows: " + (enableShadows ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+				drawText(g, "Shadows: ".concat(enableShadows ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
 				i++;
 			}
 
 			if (USE_M3G) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "Light effects: " + (use3D ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+				drawText(g, "Light effects: ".concat(use3D ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
 				i++;
 			}
 		} else if (state == 7) {
