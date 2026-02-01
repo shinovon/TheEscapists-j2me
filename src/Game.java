@@ -233,57 +233,63 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			drawText(g, "HP " + player.health, 0, 11, FONT_REGULAR);
 //			drawText(g, "HEAT " + heat, 0, 22, FONT_REGULAR);
 //			drawText(g, "FATIGUE " + fatigue, 0, 33, FONT_REGULAR);
-			char[] chars;
+			int n;
 			int x;
 			NPC player = this.player;
+			char[] s = charBuffer;
 
 			// money
 			g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
-			chars = Integer.toString(money).toCharArray();
+			n = intToCharBuffer(money, 0);
 			x = 13;
-			for (int i = 0; i < chars.length; i++) {
-				g.drawRegion(hudSymbolsTexture, (chars[i] - '0') * 9, 0, 9, 11, 0, x, 2, 0);
+			for (int i = 0; i < n; i++) {
+				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 0, 9, 11, 0, x, 2, 0);
 				x += 9;
 			}
 
 			// health
 			g.drawRegion(hudSymbolsTexture, 90, 11, 9, 11, 0, 3, 14, 0);
-			chars = Integer.toString(player.health).toCharArray();
+			n = intToCharBuffer(player.health, 0);
 			x = 13;
-			for (int i = 0; i < chars.length; i++) {
-				g.drawRegion(hudSymbolsTexture, (chars[i] - '0') * 9, 11, 9, 11, 0, x, 14, 0);
+			for (int i = 0; i < n; i++) {
+				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 11, 9, 11, 0, x, 14, 0);
 				x += 9;
 			}
 
 			// heat
 			g.drawRegion(hudSymbolsTexture, 90, 22, 9, 11, 0, 3, 26, 0);
-			chars = Integer.toString(heat).toCharArray();
+			n = intToCharBuffer(heat, 0);
 			x = 13;
-			for (int i = 0; i < chars.length; i++) {
-				g.drawRegion(hudSymbolsTexture, (chars[i] - '0') * 9, 22, 9, 11, 0, x, 26, 0);
+			for (int i = 0; i < n; i++) {
+				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 22, 9, 11, 0, x, 26, 0);
 				x += 9;
 			}
 			g.drawRegion(hudSymbolsTexture, 100, 22, 9, 11, 0, x, 26, 0);
 
 			// fatigue
 			g.drawRegion(hudSymbolsTexture, 90, 33, 9, 11, 0, 3, 38, 0);
-			chars = Integer.toString(fatigue).toCharArray();
+			n = intToCharBuffer(fatigue, 0);
 			x = 13;
-			for (int i = 0; i < chars.length; i++) {
-				g.drawRegion(hudSymbolsTexture, (chars[i] - '0') * 9, 33, 9, 11, 0, x, 38, 0);
+			for (int i = 0; i < n; i++) {
+				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 33, 9, 11, 0, x, 38, 0);
 				x += 9;
 			}
 			g.drawRegion(hudSymbolsTexture, 100, 33, 9, 11, 0, x, 38, 0);
 
 			// general debug
-			drawText(g, fps + " fps " + tps + " tps", 0, 55, FONT_REGULAR);
-//			Runtime r = Runtime.getRuntime();
-//			drawText(g, ((r.totalMemory() - r.freeMemory()) / 1024) + "k used", 0, 66, FONT_REGULAR);
+			// fps
+			n = intToCharBuffer(fps, 0);
+			drawText(g, s, 0, 55, FONT_REGULAR);
+			// tps
+			intToCharBuffer(tps, 0);
+			drawText(g, s, n * 7 + 4, 55, FONT_REGULAR);
+			// used heap
+			Runtime r = Runtime.getRuntime();
+			intToCharBuffer((int) (r.totalMemory() - r.freeMemory()) / 1024, 0);
 
 			// bottom
 
 			{
-
 				g.setColor(0x333333);
 				g.fillRect(0, h - 17, w, 17);
 
@@ -306,7 +312,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			g.drawLine(w - 23, 0, w - 23, h);
 
 			// schedule
-			char[] s = (n(time / 60) + ':' + n(time % 60) + " - " + scheduleStrings[schedule] + " (Day " + (day + 1) + ')').toCharArray();
+			StringBuffer stringBuffer = Game.stringBuffer;
+			stringBuffer.setLength(0);
+
+			putDigitsToCharBuffer(time / 60, 0);
+			charBuffer[2] = ':';
+			putDigitsToCharBuffer(time % 60, 3);
+			charBuffer[5] = ' ';
+			charBuffer[6] = '-';
+			charBuffer[7] = ' ';
+			
+			stringBuffer.append(scheduleStrings[schedule])
+			.append(" (Day ")
+			.append(day + 1)
+			.append(')');
+			
+			n = stringBuffer.length();
+			stringBuffer.getChars(0, n, charBuffer, 8);
+			s[n + 8] = 0;
 			fontColor = FONT_COLOR_GREY_23;
 			drawText(g, s, 5, h - 14, FONT_REGULAR);
 			drawText(g, s, 5, h - 12, FONT_REGULAR);
@@ -427,12 +450,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			g.fillRect(0, 0,  (w >> 1) - (int) fadeOut, h);
 			g.fillRect((w >> 1) + (int) fadeOut, 0, w, h);
 		}
-	}
-
-	static String n(int n) {
-		String s = Integer.toString(n);
-		if (n < 10) return "0".concat(s);
-		return s;
 	}
 
 	void drawScreen() {
@@ -2737,6 +2754,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	private static int[][] fontCacheChars;
 	private static Image[][] fontCacheImages;
 	private static int[] fontCacheIdx;
+	
+	static char[] charBuffer = new char[100];
+	static StringBuffer stringBuffer = new StringBuffer();
 
 	static void loadFonts() {
 		fontCharWidth = new int[FONTS_COUNT];
@@ -2827,61 +2847,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return false;
 	}
 
-	static int drawChar(Graphics g, char c, int x, int y, int font) {
-		int charWidth = fontCharWidth[font];
-		if (c == ' ') {
-			// space
-			return x + charWidth / 2;
-		}
-		if (c < ' ' || c > '~') return x;
-		c -= '!';
-
-		int w = fontWidths[font][c];
-
-		Image img;
-		img: {
-			int id = (c & 0xFFFF) | (fontColor << 16);
-			int[] cacheChars = fontCacheChars[font];
-
-			// try to get from cache
-			for (int i = 0; i < FONT_CACHE_SIZE; ++i) {
-				if (cacheChars[i] == id) {
-					img = fontCacheImages[font][i];
-					break img;
-				}
-			}
-
-			// create image
-			int color = FONT_COLORS[fontColor];
-			int[] rgb = Game.intBuffer;
-
-			// save some pixels by storing only effective width of chars
-			int h = fontCharHeight[font];
-			byte[] charsData = fontData[font][c];
-			for (int cy = 0; cy < h; ++cy) {
-				for (int cx = 0; cx < w; ++cx) {
-					rgb[cx + cy * w] = charsData[cx + cy * charWidth] != 0 ? color : 0;
-				}
-			}
-
-//			int n = charWidth * charHeight;
-//			for (int i = 0; i < n; ++i) {
-//				rgb[i] = charsData[c][i] != 0 ? color : 0;
-//			}
-			img = Image.createRGBImage(rgb, /*charWidth*/ w, h, true);
-
-			// put to cache
-			int idx = fontCacheIdx[font];
-			cacheChars[idx] = id;
-			fontCacheImages[font][idx] = img;
-			fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
-		}
-
-		g.drawImage(img, x, y, 0);
-
-		return x + w + 1;
-	}
-
 	int textWidth(String text, int font) {
 		char[] chars = text.toCharArray();
 		int i = 0, x = 0;
@@ -2899,22 +2864,106 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static int drawText(Graphics g, String text, int x, int y, int font) {
-		char[] chars = text.toCharArray();
-		int i = 0;
-		while (i < chars.length) {
-			x = drawChar(g, chars[i++], x, y, font);
-		}
-		// return new x position
-		return x;
+		return drawText(g, text.toCharArray(), x, y, font);
 	}
 
 	static int drawText(Graphics g, char[] chars, int x, int y, int font) {
 		int i = 0;
-		while (i < chars.length) {
-			x = drawChar(g, chars[i++], x, y, font);
+		
+		int charWidth = fontCharWidth[font];
+		int charHeight = fontCharHeight[font];
+		
+		int fontColor = Game.fontColor;
+		int color = FONT_COLORS[fontColor];
+		
+		int[] rgb = Game.intBuffer;
+		
+		int[] fontWidths = Game.fontWidths[font];
+		byte[][] fontData = Game.fontData[font];
+		
+		int[] cacheChars = fontCacheChars[font];
+		Image[] fontCacheImages = Game.fontCacheImages[font];
+		int[] fontCacheIdx = Game.fontCacheIdx;
+		
+		while (i < chars.length && chars[i] != 0) {
+			// x = drawChar(g, chars[idx++], x, y, font);
+			char c = chars[i++];
+			if (c == ' ') {
+				// space
+				x += charWidth / 2;
+				continue;
+			}
+			if (c < ' ' || c > '~') return x;
+			c -= '!';
+
+			int w = fontWidths[c];
+
+			Image img;
+			img: {
+				int id = (c & 0xFFFF) | (fontColor << 16);
+
+				// try to get from cache
+				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+					if (cacheChars[j] == id) {
+						img = fontCacheImages[j];
+						break img;
+					}
+				}
+				// not in cache, create image
+				
+				// save some pixels by storing only effective width of chars
+				byte[] charsData = fontData[c];
+				for (int cy = 0; cy < charHeight; ++cy) {
+					for (int cx = 0; cx < w; ++cx) {
+						rgb[cx + cy * w] = charsData[cx + cy * charWidth] != 0 ? color : 0;
+					}
+				}
+
+//				int n = charWidth * charHeight;
+//				for (int i = 0; i < n; ++i) {
+//					rgb[i] = charsData[c][i] != 0 ? color : 0;
+//				}
+				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+
+				// put to cache
+				int idx = fontCacheIdx[font];
+				cacheChars[idx] = id;
+				fontCacheImages[idx] = img;
+				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
+			}
+
+			g.drawImage(img, x, y, 0);
+			x += w + 1;
 		}
 		// return new x position
 		return x;
+	}
+	
+	static int intToCharBuffer(int n, int i) {
+		int start = i;
+		char[] chars = charBuffer;
+		if (n == 0) {
+			chars[0] = '0';
+			chars[1] = 0;
+			return 1;
+		}
+		while (n != 0) {
+			chars[i++] = (char) ((n % 10) + '0');
+			n /= 10;
+		}
+		int k = i - 1;
+		for (; start < k; ++start, --k) {
+			char t = chars[start];
+			chars[start] = chars[k];
+			chars[k] = t;
+		}
+		chars[i] = 0;
+		return i;
+	}
+
+	static void putDigitsToCharBuffer(int n, int i) {
+		charBuffer[i] = (char) ('0' + (n >= 10 ? n / 10 : 0));
+		charBuffer[i + 1] = (char) ('0' + (n % 10));
 	}
 
 // endregion
