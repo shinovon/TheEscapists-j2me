@@ -277,6 +277,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			g.drawRegion(hudSymbolsTexture, 100, 33, 9, 11, 0, x, 38, 0);
 
 			// general debug
+			fontColor = FONT_COLOR_WHITE;
 			// fps
 			n = intToCharBuffer(fps, 0);
 			drawText(g, s, 0, 55, FONT_REGULAR);
@@ -286,6 +287,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// used heap
 			Runtime r = Runtime.getRuntime();
 			intToCharBuffer((int) (r.totalMemory() - r.freeMemory()) / 1024, 0);
+			drawText(g, s, 0, 66, FONT_REGULAR);
 
 			// bottom
 
