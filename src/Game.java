@@ -910,6 +910,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				// limit FPS
 				long delay = (1000L / FPS_LIMIT) - (System.currentTimeMillis() - now);
 				if (delay > 0) Thread.sleep(delay);
+				else Thread.yield();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
