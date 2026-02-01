@@ -742,6 +742,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	public void run() {
 		try {
 			supportsAlpha = TE.midlet.display.numAlphaLevels() > 2;
+			if (!"true".equals(System.getProperty("supports.mixing"))) {
+				Sound.volumeSfx = 0;
+			}
 			loadFonts();
 			bgImg = Image.createImage("/logo.png");
 			Thread.sleep(100);
