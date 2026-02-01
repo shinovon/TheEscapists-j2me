@@ -3,6 +3,8 @@
 /deployed/
 /bin/
 /.idea/**
+!/.idea/artifacts
+!/.idea/artifacts/**
 !/.idea/modules.xml
 !/.idea/misc.xml
 .mtj

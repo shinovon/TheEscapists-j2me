@@ -354,7 +354,6 @@ class NPC implements Constants {
 				attackTimer = 37 - (statSpeed / 5);
 				if (!ai) {
 					if (map.fatigue >= 100) {
-						// TODO
 						Sound.playEffect(Sound.SFX_LOSE);
 						dialog = "You are too fatigued";
 						dialogTimer = TPS * 2;
@@ -495,18 +494,33 @@ class NPC implements Constants {
 		if (inmate) {
 			if (aiState == AI_ROAM) {
 				// if roaming, say random dialogs
-				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(100) == 0) {
+				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(200) == 0) {
 					dialog = "Random text";
 					dialogTimer = (TPS * 2);
-					nextDialogTimer = (TPS * 3) + rng.nextInt(TPS * 5);
+					nextDialogTimer = (TPS * 3) + rng.nextInt(TPS * 7);
 				}
 			} else if (aiState == AI_MEAL && sitting) {
 				// TODO if sitting in canteen, say random canteen dialogs
+				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(500) == 0) {
+					dialog = "Random text";
+					dialogTimer = (TPS * 2);
+					nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 9);
+				}
 			} else if (aiState == AI_GYM && training) {
 				// TODO if exercising, say random gym things
+				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(300) == 0) {
+					dialog = "Random text";
+					dialogTimer = (TPS * 2);
+					nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 7);
+				}
 			} else if (aiState == AI_WAYPOINT && targetReached) {
 				if (map.schedule == SC_SHOWER_BLOCK) {
 					// TODO if taking a shower, say random shower dialogs
+					if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(300) == 0) {
+						dialog = "Random text";
+						dialogTimer = (TPS * 2);
+						nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 7);
+					}
 				}
 			}
 		}
@@ -2218,7 +2232,6 @@ class NPC implements Constants {
 							}
 							if (b == COLL_GYM) {
 								if (map.fatigue >= 100) {
-									// TODO
 									Sound.playEffect(Sound.SFX_LOSE);
 									dialog = "You are too fatigued";
 									dialogTimer = TPS * 2;
@@ -2249,7 +2262,6 @@ class NPC implements Constants {
 											NPC npc = map.chars[i];
 											if (npc != null && npc.training
 													&& npc.x == animateToX && npc.y == animateToY) {
-												// TODO
 												npc.aiState = AI_RESET;
 												npc.aiWaitTimer = TPS;
 												break;
@@ -2264,6 +2276,16 @@ class NPC implements Constants {
 								map.trainingBlocked = false;
 								training = true;
 								break interact;
+							}
+						}
+
+						if (interactNPC != null) {
+							NPC npc = interactNPC;
+
+							if (npc.health <= 0) {
+								// TODO loot
+							} else {
+								// TODO open menu
 							}
 						}
 					}
@@ -2359,7 +2381,7 @@ class NPC implements Constants {
 			int dy = other.y - y;
 			int dist = dx * dx + dy * dy;
 
-			if (dist > 3 * TILE_SIZE * TILE_SIZE) continue;
+			if (dist > NPC_INTERACT_DISTANCE) continue;
 
 			boolean facing = false;
 			switch (this.direction) {

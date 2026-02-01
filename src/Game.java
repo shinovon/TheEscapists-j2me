@@ -1526,10 +1526,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 0; i < n - 1; ++i) {
 				for (int j = 0; j < n - i - 1; ++j) {
 					if (sortedChars[j] != null && sortedChars[j + 1] != null
-							&& (sortedChars[j].y > sortedChars[j + 1].y
-							// FIXME z fighting here
-							|| (sortedChars[j].animation != NPC.ANIM_STUNNED
-							&& sortedChars[j + 1].animation == NPC.ANIM_STUNNED))) {
+							&& ((sortedChars[j].y - (sortedChars[j].animation == NPC.ANIM_STUNNED ? 10000 : 0)) >
+							(sortedChars[j + 1].y - (sortedChars[j + 1].animation == NPC.ANIM_STUNNED ? 10000 : 0)))) {
 						NPC t = sortedChars[j];
 						sortedChars[j] = sortedChars[j + 1];
 						sortedChars[j + 1] = t;

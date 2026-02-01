@@ -36,7 +36,7 @@
 - [ ] Cameras
 - [ ] Localization
 - [x] NPC Jobs
-- [ ] Player jobs
+- [ ] Player jobs (WIP)
 - [ ] Player training (WIP)
 - [ ] Solitary
 - [ ] Map schedules
