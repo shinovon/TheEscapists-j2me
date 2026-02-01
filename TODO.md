@@ -3,17 +3,17 @@
 - [x] Sound
 - [x] Sprites
 - [x] Tiles
-- [ ] Menu
+- [x] Menu
 - [x] Player
 - [x] Collision
-- [ ] Controls
+- [x] Controls
 - [x] Inventory
 - [x] Map
 - [x] Items
 - [x] Doors
 - [x] Layers
 - [x] Objects
-- [ ] Desks
+- [ ] Containers
 - [x] HUD
 - [x] Pathfinding
 - [x] Inmates
@@ -27,8 +27,8 @@
 - [x] Global lighting
 - [ ] Crafting
 - [x] Adaptiveness or scaling
-- [ ] Object interaction (WIP)
-- [ ] NPC interaction
+- [x] Object interaction
+- [ ] NPC interaction (WIP)
 - [x] Settings
 - [x] Own map format
 - [ ] Digging
@@ -38,7 +38,7 @@
 - [x] NPC Jobs
 - [ ] Player jobs (WIP)
 - [ ] Player training (WIP)
-- [ ] Solitary
+- [x] Solitary
 - [ ] Map schedules
 
 # OST

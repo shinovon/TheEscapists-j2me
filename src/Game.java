@@ -10,6 +10,7 @@ import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.TiledLayer;
 import javax.microedition.m3g.*;
 import java.io.*;
+import java.util.Vector;
 
 public class Game extends GameCanvas implements Runnable, Constants {
 
@@ -56,6 +57,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	long globalCounter;
 
 	boolean paused;
+	boolean pausedOverlay;
 	boolean mapLoaded;
 	boolean wasPaused;
 	boolean noTextures;
@@ -90,6 +92,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean trainingBlocked;
 	boolean playerSeenByGuards;
 	int progress;
+	boolean sendToSolitary;
+
+	// ui
+	int containerOpen = -1;
+	NPC inventoryOpen;
+	int note = -1;
+	int containerSlotCol, containerSlotRow;
+	int containerSlotCols, containerSlotRows;
+	String[] noteText;
 
 	boolean debugFreecam;
 
@@ -199,7 +210,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			s = "Press any key to exit";
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
-		} else if (mapLoaded) {
+		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
 			int x = (int) this.x, y = (int) this.y;
 			int layer = player.layer;
@@ -355,6 +366,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					case NPC.ACT_CLEANING:
 						a = "Cleaning";
 						break;
+					case NPC.ACT_SEARCHING:
+						a = "Searching";
+						break;
 					case NPC.ACT_CHIPPING:
 						a = "Chipping";
 						break;
@@ -410,7 +424,68 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (player.inventory[i] == Items.ITEM_NULL)
 					continue;
 				g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 3, y + 3, 0);
+			}
 
+			// overlays
+			if (note != -1) {
+				pausedOverlay = true;
+
+				int nw = Math.min(240, (w * 4) / 5);
+				int nh = Math.min(180, (h * 4) / 5);
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0xEBEBEB);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0x000000);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+				g.setColor(0xFFFFFE);
+				g.drawRect(nx + 1, ny + 1, nw - 3, nh - 3);
+
+				fontColor = FONT_COLOR_DARKBLUE;
+
+				// note messages
+				// TODO scrolling on smaller screens
+				String[] a = noteText;
+				int tx = 9;
+				int ty = 16;
+				if (a == null) {
+					String t;
+					switch (note) {
+					case NOTE_WELCOME:
+						t = "Welcome to Shankton State Pen, your new home for the foreseeable future.\n\nSince I've been warden we've had a few daring escapists among us, but they were promptly scooped back up and punished. No one escapes on my watch, so don't get any ideas!\n\nIf you forget any of the rules around here, the guards batons will be only too glad to remind you!";
+						break;
+					case NOTE_JOB_LOST:
+						t = "Due to your sheer incompetence and inability to reach the quotas we've set, we've taken away your job.\n\nOnce you pull yourself together and decide to try harder you may reapply at the job board.";
+						break;
+					case NOTE_SOLITARY:
+						Sound.playEffect(Sound.SFX_RUMBLE);
+						ingameFadeIn = Integer.MAX_VALUE;
+						t = "Nice try ".concat(player.name).concat("\n\nAs punishment I'm placing you in solitary for a few days, hopefully it'll teach you a hard lesson!");
+						break;
+					default:
+						t = "Error!";
+						break;
+					}
+					a = noteText = getStringArray(t, nw - tx * 2, FONT_REGULAR);
+				}
+				n = a.length;
+				for (int i = 0; i < n; ++i) {
+					drawText(g, a[i], nx + tx, ny + ty, FONT_REGULAR);
+					ty += fontCharHeight[FONT_REGULAR];
+				}
+
+				fontColor = FONT_COLOR_GREY_B4;
+				String t = "PRESS FIRE TO CONTINUE";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, ny + nh - 16, FONT_REGULAR);
+			} else if (inventoryOpen != null) {
+				// looting npc
+				pausedOverlay = true;
+			} else if (containerOpen != -1) {
+				// desk open
+				pausedOverlay = true;
+			} else {
+				pausedOverlay = false;
 			}
 		}
 
@@ -541,53 +616,78 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				gameAction = getGameAction(key);
 			} catch (Exception ignored) {}
 			if (mapLoaded && state == 3 && !paused) {
-				if (key == -6) {
-					softPressed = true;
-				} else if (key == -7) {
-					paused = true;
-					state = 4;
-				} else if (key == '*') {
-				} else if (key == '#') {
-				} else if (key == '0') {
-					// crafting TODO
-				} else if (player.training && (key == '1' || key == '3')) {
-					if (fatigue >= 100) {
-						Sound.playEffect(Sound.SFX_LOSE);
-						player.dialog = "You are too fatigued";
-						player.dialogTimer = TPS * 2;
-					} else if (!trainingBlocked) {
-						if (key != trainingLastKey) {
-							trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? 4 : 8;
+				if (note != -1) {
+					if (key == -5 || key == -6 || key == -7 || gameAction == FIRE) {
+						// close note TODO
+						if (note == NOTE_SOLITARY) {
+							// TODO reset
+							note = -1;
+							sendToSolitary = true;
+						} else {
+							Sound.playEffect(SFX_CLOSE);
+							note = -1;
 						}
-						trainingLastKey = key;
+						noteText = null;
 					}
-				} else if (key >= '1' && key <= '6') {
-					// select inventory
-					int slot = key - '1';
-					if (player.inventory[slot] != Items.ITEM_NULL) {
-						selectedInventory = slot;
-					} else {
-						selectedInventory = -1;
+				} else if (inventoryOpen != null) {
+					if (key == -5 || key == -6 || key == -7) {
+						// close inventory TODO
+						inventoryOpen = null;
 					}
-				} else if (!(key >= '0' && key <= '9')) {
-					// dpad
-					switch (gameAction) {
-					case UP:
-						keyStates |= UP_PRESSED;
-						break;
-					case DOWN:
-						keyStates |= DOWN_PRESSED;
-						break;
-					case LEFT:
-						keyStates |= LEFT_PRESSED;
-						break;
-					case RIGHT:
-						keyStates |= RIGHT_PRESSED;
-						break;
-					case FIRE:
-						firePressed = true;
-						keyStates |= FIRE_PRESSED;
-						break;
+				} else if (containerOpen != -1) {
+					if (key == -5 || key == -6 || key == -7) {
+						// close container TODO
+						containerOpen = -1;
+					}
+				} else {
+					if (key == -6) {
+						softPressed = true;
+					} else if (key == -7) {
+						paused = true;
+						state = 4;
+					} else if (key == '*') {
+					} else if (key == '#') {
+					} else if (key == '0') {
+						// crafting TODO
+					} else if (player.training && (key == '1' || key == '3')) {
+						if (fatigue >= 100) {
+							Sound.playEffect(Sound.SFX_LOSE);
+							player.dialog = "You are too fatigued";
+							player.dialogTimer = TPS * 2;
+						} else if (!trainingBlocked) {
+							if (key != trainingLastKey) {
+								trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? 4 : 8;
+							}
+							trainingLastKey = key;
+						}
+					} else if (key >= '1' && key <= '6') {
+						// select inventory
+						int slot = key - '1';
+						if (player.inventory[slot] != Items.ITEM_NULL) {
+							selectedInventory = slot;
+						} else {
+							selectedInventory = -1;
+						}
+					} else if (!(key >= '0' && key <= '9')) {
+						// dpad
+						switch (gameAction) {
+						case UP:
+							keyStates |= UP_PRESSED;
+							break;
+						case DOWN:
+							keyStates |= DOWN_PRESSED;
+							break;
+						case LEFT:
+							keyStates |= LEFT_PRESSED;
+							break;
+						case RIGHT:
+							keyStates |= RIGHT_PRESSED;
+							break;
+						case FIRE:
+							firePressed = true;
+							keyStates |= FIRE_PRESSED;
+							break;
+						}
 					}
 				}
 			} else if (state == 2) {
@@ -694,7 +794,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
 			}
 			if (key == '7' && mapLoaded) {
-				debugFreecam = !debugFreecam;
+//				debugFreecam = !debugFreecam;
+				note = NOTE_SOLITARY;
 			}
 		} catch (Exception ignored) {}
 	}
@@ -821,7 +922,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					fadeIn -= FADE_SPEED * animDeltaTime;
 					if (fadeIn <= 0) {
 						fadeIn = 0;
-						if (state == 3) paused = false;
+						if (state == 3) {
+							paused = false;
+						}
 					}
 				} else if (fadeOut > 0) {
 					paused = true;
@@ -859,9 +962,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (ticks > 10) ticks = 10;
 					for (int i = 0; i < ticks; ++i) {
 						// tick
-						if ((globalCounter % ANIMATION_TICKS) == 0 && ++animationFrame > 1)
-							animationFrame = 0;
-						if (!paused) {
+						if (!paused && !pausedOverlay) {
+							if ((globalCounter % ANIMATION_TICKS) == 0 && ++animationFrame > 1)
+								animationFrame = 0;
 							ticksC++;
 							tickMap();
 						}
@@ -1383,6 +1486,64 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	void tickMap() {
+		if (sendToSolitary) {
+			sendToSolitary = false;
+			time = 7*60 + 50;
+			day += 3;
+			lockdown = false;
+			schedule = SC_LIGHTSOUT;
+			cellsClosed = true;
+			entranceOpen = false;
+
+			// reset npcs
+			int n = npcNum;
+			int roamPos;
+			short[] arr = guardRoamPositions;
+			for (int i = 1; i < n; ++i) {
+				NPC npc = chars[i];
+				if (npc == null) continue;
+				if (npc.guard) {
+					if ((roamPos = NPC.guardRoamPos++) >= arr[0]) {
+						roamPos = NPC.guardRoamPos = 0;
+					}
+					npc.correctPath = false;
+					npc.xFloat = npc.x = guardRoamPositions[(roamPos << 1) + 1] * TILE_SIZE;
+					npc.yFloat = npc.y = guardRoamPositions[(roamPos << 1) + 2] * TILE_SIZE;
+					npc.aiState = NPC.AI_RESET;
+				} else if (npc.inmate) {
+					npc.correctPath = false;
+					npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
+					npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
+					npc.aiState = NPC.AI_SLEEP;
+				} else if (npc.bodyId != Textures.SNIPER) {
+					npc.correctPath = false;
+					npc.xFloat = npc.x = npcSpawnX * TILE_SIZE;
+					npc.yFloat = npc.y = npcSpawnY * TILE_SIZE;
+					npc.aiState = NPC.AI_RESET;
+				}
+			}
+
+			// TODO reset containers
+
+			// reset player
+			NPC player = this.player;
+			int obj = findObject(Objects.SOLITARY_BED, LAYER_GROUND, 0);
+			player.xFloat = player.x = objects[0][obj + 3] * TILE_SIZE;
+			player.yFloat = player.y = (objects[0][obj + 4] - 1) * TILE_SIZE + 2;
+			ingameFadeIn = viewWidth >> 1;
+			player.animation = NPC.ANIM_LYING;
+			for (int i = 0; i < 6; ++i) {
+				player.inventory[i] = Items.ITEM_NULL;
+			}
+			player.outfitItem = Items.INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+			player.weapon = Items.ITEM_NULL;
+			heat = 0;
+			fatigue = 20;
+			player.job = JOB_UNEMPLOYED;
+
+			initMap();
+		}
+
 		prevSchedule = schedule;
 		if ((tickCounter++ % TIME_TICKS) == 0) {
 			if (++time == 24 * 60) {
@@ -1434,6 +1595,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							// fire player TODO
 							jobs[player.job] &= ~JOB_OCCUPIED_BIT;
 							player.job = 0;
+							note = NOTE_JOB_LOST;
 						}
 						music = Sound.MUSIC_ROLLCALL;
 						schedule = SC_MIDDAY_ROLLCALL;
@@ -1593,8 +1755,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if (lockdown && tick % TPS == 0) {
 			if (lockdownTimer == 0) {
-				// TODO to solitary
-//				return;
+				note = NOTE_SOLITARY;
+				return;
 			}
 			--lockdownTimer;
 		}
@@ -1607,6 +1769,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //				
 //			}
 //		}
+
+		if (day == 0 && tick == TPS) {
+			// welcome note TODO
+			note = NOTE_WELCOME;
+			Sound.playEffect(Sound.SFX_OPEN);
+		}
 	}
 
 	void paintMap(Graphics g, int viewX, int viewY, int viewWidth, int viewHeight, int layer) {
@@ -2171,9 +2339,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 // region Map objects
 
 	short[][] objects; // {count, [object, sprite, x, y], ...} for each layer
-	short[] topObjects; // {count, [objectIdx, speed], ...}
+	short[] topObjects; // {count, [objectIdx, animation], ...}
 	short[] lights; // {count, [x, y], ...}
 	short[] dirt; // {[x, y, idx], ...}
+
+	int[] containers; // {count, [objectIdx, owner/type, itemsCount, items...], ... }
 
 	// inmate waypoints
 	short[] roamPositions;
@@ -2759,6 +2929,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			0xFF7BA7FF,
 			0xFF9BC4F3,
 			0xFFFFFF00,
+			0xFF003D80,
 	};
 
 	static int[] fontCharWidth;
@@ -2863,7 +3034,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return false;
 	}
 
-	int textWidth(String text, int font) {
+	static int textWidth(String text, int font) {
 		char[] chars = text.toCharArray();
 		int i = 0, x = 0;
 		while (i < chars.length) {
@@ -2980,6 +3151,58 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static void putDigitsToCharBuffer(int n, int i) {
 		charBuffer[i] = (char) ('0' + (n >= 10 ? n / 10 : 0));
 		charBuffer[i + 1] = (char) ('0' + (n % 10));
+	}
+
+	static String[] getStringArray(String text, int maxWidth, int font) {
+		if (text == null || text.length() == 0 || text.equals(" ")) {
+			return new String[0];
+		}
+		Vector v = new Vector(3);
+		char[] chars = text.toCharArray();
+		if (text.indexOf('\n') > -1) {
+			int j = 0;
+			for (int i = 0; i < text.length(); i++) {
+				if (chars[i] == '\n') {
+					v.addElement(text.substring(j, i));
+					j = i + 1;
+				}
+			}
+			v.addElement(text.substring(j, text.length()));
+		} else {
+			v.addElement(text);
+		}
+		for (int i = 0; i < v.size(); i++) {
+			String s = (String) v.elementAt(i);
+			if (textWidth(s, font) >= maxWidth) {
+				int i1 = 0;
+				for (int i2 = 0; i2 < s.length(); i2++) {
+					if (textWidth(s.substring(i1, i2+1), font) >= maxWidth) {
+						boolean space = false;
+						for (int j = i2; j > i1; j--) {
+							char c = s.charAt(j);
+							if (c == ' ' || (c >= ',' && c <= '/')) {
+								space = true;
+								v.setElementAt(s.substring(i1, j + 1), i);
+								v.insertElementAt(s.substring(j + 1), i + 1);
+								i += 1;
+								i2 = i1 = j + 1;
+								break;
+							}
+						}
+						if (!space) {
+							i2 = i2 - 2;
+							v.setElementAt(s.substring(i1, i2), i);
+							v.insertElementAt(s.substring(i2), i + 1);
+							i2 = i1 = i2 + 1;
+							i += 1;
+						}
+					}
+				}
+			}
+		}
+		String[] arr = new String[v.size()];
+		v.copyInto(arr);
+		return arr;
 	}
 
 // endregion

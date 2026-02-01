@@ -36,8 +36,9 @@ class NPC implements Constants {
 	static final int ACT_NONE = 0;
 	static final int ACT_READING = 1;
 	static final int ACT_CLEANING = 2;
-	static final int ACT_CHIPPING = 3;
-	static final int ACT_DIGGING = 4;
+	static final int ACT_SEARCHING = 3;
+	static final int ACT_CHIPPING = 4;
+	static final int ACT_DIGGING = 5;
 
 	static Random rng = new Random();
 
@@ -540,18 +541,18 @@ class NPC implements Constants {
 			if (training) {
 				int seat = map.getSeatIndex(map.gymPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 				if (seat != -1 && map.gymPositions[seat + 1] == id) {
-					map.gymPositions[seat + 1] = 0;
+					map.gymPositions[seat + 1] = -1;
 				}
 				training = false;
 			}
 			if (sitting) {
 				int seat = map.getSeatIndex(map.canteenSeatsPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 				if (seat != -1 && map.canteenSeatsPositions[seat + 1] == id) {
-					map.canteenSeatsPositions[seat + 1] = 0;
+					map.canteenSeatsPositions[seat + 1] = -1;
 				}
 				sitting = false;
 			}
-			angerTimer = TPS * 10 + rng.nextInt(TPS * 50);
+//			angerTimer = TPS * 10 + rng.nextInt(TPS * 50);
 //			aiWaitTimer = 0;
 			targetReached = false;
 			pathEndDir = -1;
@@ -756,6 +757,7 @@ class NPC implements Constants {
 					if (map.time < 8 * 60 && !map.lockdown && player.outfitId != Textures.OUTFIT_GUARD
 							&& !player.isInZone(ZONE_PLAYER_CELL)) {
 						// TODO send player to solitary if they're not in cell during lights out
+						map.note = NOTE_SOLITARY;
 					}
 					// TODO attack player if they took sth from others pocket
 					//  or is searching others desk, except their job is mailman
@@ -994,7 +996,7 @@ class NPC implements Constants {
 							pos = canteenSeatPos = 0;
 						}
 						pos = (pos << 1) + 1;
-						if (map.canteenSeatsPositions[pos + 1] != 0) {
+						if (map.canteenSeatsPositions[pos + 1] != -1) {
 							continue;
 						}
 						pos = map.canteenSeatsPositions[pos];
@@ -1010,7 +1012,7 @@ class NPC implements Constants {
 
 					if (!sitting) {
 						int seat = map.getSeatIndex(map.canteenSeatsPositions, pathX, pathY);
-						if (map.canteenSeatsPositions[seat + 1] == 0) {
+						if (map.canteenSeatsPositions[seat + 1] == -1) {
 							map.canteenSeatsPositions[seat + 1] = (short) id;
 							animateToX = pathX * TILE_SIZE;
 							animateToY = pathY * TILE_SIZE;
@@ -1058,7 +1060,7 @@ class NPC implements Constants {
 						pos = gymPos = 0;
 					}
 					pos = (pos << 1) + 1;
-					if (map.gymPositions[pos + 1] != 0) {
+					if (map.gymPositions[pos + 1] != -1) {
 						continue;
 					}
 					pos = map.gymPositions[pos];
@@ -1086,7 +1088,7 @@ class NPC implements Constants {
 
 				if (!training) {
 					int seat = map.getSeatIndex(map.gymPositions, pathX, pathY);
-					if (map.gymPositions[seat + 1] == 0) {
+					if (map.gymPositions[seat + 1] == -1) {
 						map.gymPositions[seat + 1] = (short) id;
 						animateToX = pathX * TILE_SIZE;
 						animateToY = pathY * TILE_SIZE;
@@ -1694,13 +1696,13 @@ class NPC implements Constants {
 			map.ingameFadeOut = map.viewWidth;
 
 			if (map.lockdown) {
-				// TODO send to solitary
 				map.lockdown = false;
+				map.note = NOTE_SOLITARY;
 			}
 			if (sitting) {
 				int seat = map.getSeatIndex(map.canteenSeatsPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 				if (seat != -1) {
-					map.canteenSeatsPositions[seat + 1] = 0;
+					map.canteenSeatsPositions[seat + 1] = -1;
 				}
 				sitting = false;
 			}
@@ -1712,7 +1714,7 @@ class NPC implements Constants {
 			if (training) {
 				int seat = map.getSeatIndex(map.gymPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 				if (seat != -1) {
-					map.gymPositions[seat + 1] = 0;
+					map.gymPositions[seat + 1] = -1;
 				}
 				training = false;
 			}
@@ -1835,7 +1837,7 @@ class NPC implements Constants {
 					// leave seat
 					int seat = map.getSeatIndex(map.canteenSeatsPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 					if (seat != -1) {
-						map.canteenSeatsPositions[seat + 1] = 0;
+						map.canteenSeatsPositions[seat + 1] = -1;
 					}
 				}
 			} else if (training) {
@@ -1926,6 +1928,10 @@ class NPC implements Constants {
 							}
 						}
 						break;
+					case ACT_SEARCHING:
+						// TODO open desk
+						Sound.playEffect(Constants.SFX_OPEN);
+						break;
 					}
 
 					action = ACT_NONE;
@@ -1980,6 +1986,9 @@ class NPC implements Constants {
 					direction = NPC.DIR_LEFT;
 				}
 				if (climb && canClimb && !climbed) {
+					if (direction != NPC.DIR_DOWN) {
+						xFloat = y -= 4;
+					}
 					climbed = true;
 				}
 
@@ -2086,8 +2095,11 @@ class NPC implements Constants {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = map.objects[layer][idx + 1];
 							if (b == COLL_DESK) {
-								// TODO open container
 								Sound.playEffect(Sound.SFX_OPEN);
+								action = ACT_SEARCHING;
+								actionTargetX = x;
+								actionTargetY = y;
+								map.progress = 0;
 								break interact;
 							}
 							if (b == COLL_TABLE) {
@@ -2162,7 +2174,7 @@ class NPC implements Constants {
 									if (seat != -1) {
 										int tx = x * TILE_SIZE;
 										int ty = y * TILE_SIZE;
-										if (map.canteenSeatsPositions[seat + 1] != 0) {
+										if (map.canteenSeatsPositions[seat + 1] != -1) {
 											// push npc from their seat
 											Sound.playEffect(Sound.SFX_ENHIT);
 											int n = map.npcNum;
@@ -2254,7 +2266,7 @@ class NPC implements Constants {
 								}
 								int seat = map.getSeatIndex(map.gymPositions, x, y);
 								if (seat != -1) {
-									if (map.gymPositions[seat + 1] != 0) {
+									if (map.gymPositions[seat + 1] != -1) {
 										// push npc from their seat
 										Sound.playEffect(Sound.SFX_ENHIT);
 										int n = map.npcNum;

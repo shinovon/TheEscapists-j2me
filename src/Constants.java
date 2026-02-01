@@ -162,6 +162,10 @@ public interface Constants {
 			JOB_MAILMAN = 9,
 			JOB_LIBRARY = 10;
 
+	static final int NOTE_WELCOME = 0,
+			NOTE_JOB_LOST = 1,
+			NOTE_SOLITARY = 2;
+
 	static final int COUNT_JOBS = 11;
 
 	static final int MAX_JOB_QUOTA = 20;
@@ -240,7 +244,8 @@ public interface Constants {
 			FONT_COLOR_ORANGE = 8, // 0xFF8000
 			FONT_COLOR_BLUE = 9, // 0x7BA7FF
 			FONT_COLOR_LIGHTBLUE = 10, // 0x9BC4F3
-			FONT_COLOR_YELLOW = 11; // 0xFFFF00
+			FONT_COLOR_YELLOW = 11, // 0xFFFF00
+			FONT_COLOR_DARKBLUE = 12; // 0x003D80
 
 	static final String FONT_REGULAR_RES = "/fontr";
 	static final String FONT_BOLD_RES = "/fontb";
