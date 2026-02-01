@@ -231,7 +231,12 @@ public class Sound implements Runnable, PlayerListener, Constants {
 							try {
 								p.setMediaTime(0);
 							} catch (Exception ignored) {}
-							p.start();
+							try {
+								p.start();
+							} catch (Exception e) {
+								volumeSfx = 0;
+								p = null;
+							}
 						}
 						lastEffectPlayer = p;
 						continue;
