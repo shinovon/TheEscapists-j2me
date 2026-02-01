@@ -100,7 +100,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	Game() {
 		super(false);
-		if (PROFILER && SERIAL_LOGS) Profiler.initLogs();
+		if (LOGGING) Profiler.initLogs();
 		setFullScreenMode(true);
 
 		initBuffer();
@@ -437,6 +437,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.setColor(Profiler.renderColors[i]);
 					g.fillRect(x, h - 24, sw, 2);
 					x += sw;
+				}
+			}
+		}
+		
+		if (LOGGING && SCREEN_LOGS) {
+			fontColor = FONT_COLOR_WHITE;
+			String[] logs = Profiler.logs;
+			if (logs != null) {
+				for (int i = 0; i < logs.length; ++i) {
+					if (logs[i] == null) continue;
+					drawText(g, logs[i], 4, i * 10, FONT_REGULAR);
 				}
 			}
 		}

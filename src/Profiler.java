@@ -116,20 +116,32 @@ public class Profiler implements Constants {
 	}
 
 	static OutputStreamWriter console;
+	static String[] logs;
 
 	static void initLogs() {
-		if (!LOGGING || !SERIAL_LOGS) return;
+		if (!LOGGING) return;
 
-		try {
-			CommConnection c = (CommConnection) Connector.open("comm:USB1;baudrate=9600");
-			console = new OutputStreamWriter(c.openOutputStream());
-			log("TE log started at " + new Date());
-		} catch (Exception ignored) {}
+		if (SERIAL_LOGS) {
+			try {
+				CommConnection c = (CommConnection) Connector.open("comm:USB1;baudrate=9600");
+				console = new OutputStreamWriter(c.openOutputStream());
+				log("TE log started at " + new Date());
+			} catch (Exception ignored) {}
+		}
+		
+		if (SCREEN_LOGS) {
+			logs = new String[20];
+		}
 	}
 
 	static void log(String s) {
 		if (!LOGGING) return;
 		System.out.println(s);
+		
+		if (SCREEN_LOGS) {
+			System.arraycopy(logs, 0, logs, 1, logs.length - 1);
+			logs[0] = s;
+		}
 
 		if (!SERIAL_LOGS || console == null) return;
 		try {

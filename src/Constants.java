@@ -23,9 +23,10 @@ public interface Constants {
 
 	static final int SHADOW_COLOR = 0x50000000;
 
-	static final boolean PROFILER = true;
+	static final boolean PROFILER = false;
 	static final boolean LOGGING = true;
 	static final boolean SERIAL_LOGS = false;
+	static final boolean SCREEN_LOGS = false;
 	
 //#ifndef PREPROCESSING
 	// default config for development
