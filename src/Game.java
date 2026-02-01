@@ -58,6 +58,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean paused;
 	boolean mapLoaded;
 	boolean wasPaused;
+	boolean noTextures;
 
 	float x, y;
 
@@ -125,6 +126,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (state == 0) {
 			g.setColor(0x231F20);
 			g.fillRect(0, 0, viewWidth, viewHeight);
+			if (noTextures) {
+				String s = "Missing textures";
+				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
+				return;
+			}
 			g.drawImage(bgImg, (viewWidth - bgImg.getWidth()) >> 1, (viewHeight - bgImg.getHeight()) >> 1, 0);
 			return;
 		}
@@ -715,6 +721,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			drawScreen();
 
 			loadTextures();
+
+			if (tilesTexture == null) {
+				noTextures = true;
+				if (BUFFER_SCREEN) drawGame();
+				drawScreen();
+				return;
+			}
+
 			Sound.load();
 			Thread.sleep(100);
 
@@ -2074,7 +2088,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 // region Map items
 
-	int[][] droppedItems;
+	int[][] droppedItems; // TODO dynamic array
 
 	int dropItem(int x, int y, int item, int layer) throws IllegalStateException {
 		final int pos = x + y * width;
