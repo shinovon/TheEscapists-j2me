@@ -1855,41 +1855,42 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if (USE_M3G) {
 			setup3D(g, viewWidth, viewHeight);
-			if (!use3D) return;
-			if (DRAW_LIGHTS && layer == LAYER_GROUND && lights != null) {
-				Transform t = transform;
-				short[] lights = this.lights;
-				int n = lights[0];
-				for (int i = 0; i < n; ++i) {
-					int idx = i << 1;
+			if (use3D) {
+				if (DRAW_LIGHTS && layer == LAYER_GROUND && lights != null) {
+					Transform t = transform;
+					short[] lights = this.lights;
+					int n = lights[0];
+					for (int i = 0; i < n; ++i) {
+						int idx = i << 1;
 
-					int x = lights[idx + 1] * TILE_SIZE - viewX, y = lights[idx + 2] * TILE_SIZE - viewY;
-					// off-screen culling
-					if (x < -TILE_SIZE * 3 || y < -TILE_SIZE * 3 || x >= viewWidth + TILE_SIZE * 3 || y >= viewHeight + TILE_SIZE * 3) {
-						continue;
+						int x = lights[idx + 1] * TILE_SIZE - viewX, y = lights[idx + 2] * TILE_SIZE - viewY;
+						// off-screen culling
+						if (x < -TILE_SIZE * 3 || y < -TILE_SIZE * 3 || x >= viewWidth + TILE_SIZE * 3 || y >= viewHeight + TILE_SIZE * 3) {
+							continue;
+						}
+
+						t.setIdentity();
+						t.postTranslate(x + TILE_SIZE - viewWidth / 2f, viewHeight / 2f - y, 5);
+						graphics3D.render(lightVertexBuffer, lightStrip, lightAppearance, t);
 					}
-
-					t.setIdentity();
-					t.postTranslate(x + TILE_SIZE - viewWidth / 2f, viewHeight / 2f - y, 5);
-					graphics3D.render(lightVertexBuffer, lightStrip, lightAppearance, t);
 				}
-			}
 
-			transform.setIdentity();
+				transform.setIdentity();
 
-			// vent tint
-			if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
-				globalVertexBuffer.setDefaultColor(0x7F7F7F);
-				graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
-			}
+				// vent tint
+				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
+					globalVertexBuffer.setDefaultColor(0x7F7F7F);
+					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				}
 
-			// global lighting
-			if ((time < 7 * 60 + 128 || time > 21 * 60)
-					&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
-				globalVertexBuffer.setDefaultColor(globalLightColor);
-				graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				// global lighting
+				if ((time < 7 * 60 + 128 || time > 21 * 60)
+						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
+					globalVertexBuffer.setDefaultColor(globalLightColor);
+					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				}
+				release3D();
 			}
-			release3D();
 		}
 
 		// characters dialogs
