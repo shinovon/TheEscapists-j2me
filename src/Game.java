@@ -83,7 +83,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int fatigue;
 	int money = 10;
 	boolean firePressed, softPressed;
-	boolean searching;
 	int keyStates;
 	int selectedInventory = -1;
 	int trainingTimer = 0;
@@ -93,13 +92,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean playerSeenByGuards;
 	int progress;
 	boolean sendToSolitary;
+	NPC interactNPC;
+	int action = NPC.ACT_NONE;
+	int actionTargetX, actionTargetY;
 
 	// ui
 	int containerOpen = -1;
 	NPC inventoryOpen;
 	int note = -1;
-	int containerSlotCol, containerSlotRow;
-	int containerSlotCols, containerSlotRows;
+	String containterTitle;
+	boolean toilet;
 	String[] noteText;
 
 	boolean debugFreecam;
@@ -239,191 +241,192 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if (state == 3 && mapLoaded) {
 			// HUD
-			fontColor =  FONT_COLOR_WHITE;
-//			drawText(g, "$ " + money, 0, 0, FONT_REGULAR);
-//			drawText(g, "HP " + player.health, 0, 11, FONT_REGULAR);
-//			drawText(g, "HEAT " + heat, 0, 22, FONT_REGULAR);
-//			drawText(g, "FATIGUE " + fatigue, 0, 33, FONT_REGULAR);
-			int n;
-			int x;
-			NPC player = this.player;
-			char[] s = charBuffer;
-
-			// money
-			g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
-			n = intToCharBuffer(money, 0);
-			x = 13;
-			for (int i = 0; i < n; i++) {
-				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 0, 9, 11, 0, x, 2, 0);
-				x += 9;
-			}
-
-			// health
-			g.drawRegion(hudSymbolsTexture, 90, 11, 9, 11, 0, 3, 14, 0);
-			n = intToCharBuffer(player.health, 0);
-			x = 13;
-			for (int i = 0; i < n; i++) {
-				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 11, 9, 11, 0, x, 14, 0);
-				x += 9;
-			}
-
-			// heat
-			g.drawRegion(hudSymbolsTexture, 90, 22, 9, 11, 0, 3, 26, 0);
-			n = intToCharBuffer(heat, 0);
-			x = 13;
-			for (int i = 0; i < n; i++) {
-				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 22, 9, 11, 0, x, 26, 0);
-				x += 9;
-			}
-			g.drawRegion(hudSymbolsTexture, 100, 22, 9, 11, 0, x, 26, 0);
-
-			// fatigue
-			g.drawRegion(hudSymbolsTexture, 90, 33, 9, 11, 0, 3, 38, 0);
-			n = intToCharBuffer(fatigue, 0);
-			x = 13;
-			for (int i = 0; i < n; i++) {
-				g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 33, 9, 11, 0, x, 38, 0);
-				x += 9;
-			}
-			g.drawRegion(hudSymbolsTexture, 100, 33, 9, 11, 0, x, 38, 0);
-
-			// general debug
-			fontColor = FONT_COLOR_WHITE;
-			// fps
-			n = intToCharBuffer(fps, 0);
-			drawText(g, s, 0, 55, FONT_REGULAR);
-			// tps
-			intToCharBuffer(tps, 0);
-			drawText(g, s, n * 7 + 4, 55, FONT_REGULAR);
-			// used heap
-			Runtime r = Runtime.getRuntime();
-			intToCharBuffer((int) (r.totalMemory() - r.freeMemory()) / 1024, 0);
-			drawText(g, s, 0, 66, FONT_REGULAR);
-
-			// bottom
-
 			{
-				g.setColor(0x333333);
-				g.fillRect(0, h - 17, w, 17);
+				fontColor = FONT_COLOR_WHITE;
+	//			drawText(g, "$ " + money, 0, 0, FONT_REGULAR);
+	//			drawText(g, "HP " + player.health, 0, 11, FONT_REGULAR);
+	//			drawText(g, "HEAT " + heat, 0, 22, FONT_REGULAR);
+	//			drawText(g, "FATIGUE " + fatigue, 0, 33, FONT_REGULAR);
+				int n;
+				int x;
+				NPC player = this.player;
+				char[] s = charBuffer;
 
-//				int bw = w - 22;
-//				int bw = w;
-//				g.setColor(0);
-//				g.fillRect(0, h - 17, bw, 17);
-//				g.setColor(0x333333);
-//				g.fillRect(2, h - 15, bw - 4, 13);
-//				g.setColor(0x535353);
-//				g.drawLine(1, h - 15, 1, h - 3);
-//				g.drawLine(2, h - 16, bw - 3, h - 16);
-//				g.setColor(0x1F1F1F);
-//				g.drawLine(bw - 2, h - 15, bw - 2, h - 3);
-//				g.drawLine(2, h - 2, bw - 3, h - 2);
-			}
+				// money
+				g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
+				n = intToCharBuffer(money, 0);
+				x = 13;
+				for (int i = 0; i < n; i++) {
+					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 0, 9, 11, 0, x, 2, 0);
+					x += 9;
+				}
+
+				// health
+				g.drawRegion(hudSymbolsTexture, 90, 11, 9, 11, 0, 3, 14, 0);
+				n = intToCharBuffer(player.health, 0);
+				x = 13;
+				for (int i = 0; i < n; i++) {
+					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 11, 9, 11, 0, x, 14, 0);
+					x += 9;
+				}
+
+				// heat
+				g.drawRegion(hudSymbolsTexture, 90, 22, 9, 11, 0, 3, 26, 0);
+				n = intToCharBuffer(heat, 0);
+				x = 13;
+				for (int i = 0; i < n; i++) {
+					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 22, 9, 11, 0, x, 26, 0);
+					x += 9;
+				}
+				g.drawRegion(hudSymbolsTexture, 100, 22, 9, 11, 0, x, 26, 0);
+
+				// fatigue
+				g.drawRegion(hudSymbolsTexture, 90, 33, 9, 11, 0, 3, 38, 0);
+				n = intToCharBuffer(fatigue, 0);
+				x = 13;
+				for (int i = 0; i < n; i++) {
+					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 33, 9, 11, 0, x, 38, 0);
+					x += 9;
+				}
+				g.drawRegion(hudSymbolsTexture, 100, 33, 9, 11, 0, x, 38, 0);
+
+				// general debug
+				fontColor = FONT_COLOR_WHITE;
+				// fps
+				n = intToCharBuffer(fps, 0);
+				drawText(g, s, 0, 55, FONT_REGULAR);
+				// tps
+				intToCharBuffer(tps, 0);
+				drawText(g, s, n * 7 + 4, 55, FONT_REGULAR);
+				// used heap
+				Runtime r = Runtime.getRuntime();
+				intToCharBuffer((int) (r.totalMemory() - r.freeMemory()) / 1024, 0);
+				drawText(g, s, 0, 66, FONT_REGULAR);
+
+				// bottom
+
+				{
+					g.setColor(0x333333);
+					g.fillRect(0, h - 17, w, 17);
+
+	//				int bw = w - 22;
+	//				int bw = w;
+	//				g.setColor(0);
+	//				g.fillRect(0, h - 17, bw, 17);
+	//				g.setColor(0x333333);
+	//				g.fillRect(2, h - 15, bw - 4, 13);
+	//				g.setColor(0x535353);
+	//				g.drawLine(1, h - 15, 1, h - 3);
+	//				g.drawLine(2, h - 16, bw - 3, h - 16);
+	//				g.setColor(0x1F1F1F);
+	//				g.drawLine(bw - 2, h - 15, bw - 2, h - 3);
+	//				g.drawLine(2, h - 2, bw - 3, h - 2);
+				}
 
 
-//			g.setColor(0);
-//			g.drawLine(w - 23, 0, w - 23, h);
+	//			g.setColor(0);
+	//			g.drawLine(w - 23, 0, w - 23, h);
 
-			// schedule
-			StringBuffer stringBuffer = Game.stringBuffer;
-			stringBuffer.setLength(0);
+				// schedule
+				StringBuffer stringBuffer = Game.stringBuffer;
+				stringBuffer.setLength(0);
 
-			putDigitsToCharBuffer(time / 60, 0);
-			charBuffer[2] = ':';
-			putDigitsToCharBuffer(time % 60, 3);
-			charBuffer[5] = ' ';
-			charBuffer[6] = '-';
-			charBuffer[7] = ' ';
-			
-			stringBuffer.append(scheduleStrings[schedule])
-			.append(" (Day ")
-			.append(day + 1)
-			.append(')');
-			
-			n = stringBuffer.length();
-			stringBuffer.getChars(0, n, charBuffer, 8);
-			s[n + 8] = 0;
-			fontColor = FONT_COLOR_GREY_23;
-			drawText(g, s, 5, h - 14, FONT_REGULAR);
-			drawText(g, s, 5, h - 12, FONT_REGULAR);
-			drawText(g, s, 4, h - 13, FONT_REGULAR);
-			drawText(g, s, 6, h - 13, FONT_REGULAR);
-			fontColor = FONT_COLOR_GREY_C0;
-			drawText(g, s, 5, h - 13, FONT_REGULAR);
+				putDigitsToCharBuffer(time / 60, 0);
+				charBuffer[2] = ':';
+				putDigitsToCharBuffer(time % 60, 3);
+				charBuffer[5] = ' ';
+				charBuffer[6] = '-';
+				charBuffer[7] = ' ';
 
-			progressbar:
-			{
-				int t;
-				String a;
-				if (player.training) {
-					a = "Repeats: " + trainingRepeats;
-					t = (trainingTimer * 50) / 40;
-				} else if (player.action != NPC.ACT_NONE) {
-					switch (player.action) {
-					case NPC.ACT_READING:
-						a = "Reading";
-						break;
-					case NPC.ACT_CLEANING:
-						a = "Cleaning";
-						break;
-					case NPC.ACT_SEARCHING:
-						a = "Searching";
-						break;
-					case NPC.ACT_CHIPPING:
-						a = "Chipping";
-						break;
-					case NPC.ACT_DIGGING:
-						a = "Digging";
-						break;
-					default:
+				stringBuffer.append(scheduleStrings[schedule])
+						.append(" (Day ")
+						.append(day + 1)
+						.append(')');
+
+				n = stringBuffer.length();
+				stringBuffer.getChars(0, n, charBuffer, 8);
+				s[n + 8] = 0;
+				fontColor = FONT_COLOR_GREY_23;
+				drawText(g, s, 5, h - 14, FONT_REGULAR);
+				drawText(g, s, 5, h - 12, FONT_REGULAR);
+				drawText(g, s, 4, h - 13, FONT_REGULAR);
+				drawText(g, s, 6, h - 13, FONT_REGULAR);
+				fontColor = FONT_COLOR_GREY_C0;
+				drawText(g, s, 5, h - 13, FONT_REGULAR);
+
+				progressbar:
+				{
+					int t;
+					String a;
+					if (player.training) {
+						a = "Repeats: " + trainingRepeats;
+						t = (trainingTimer * 50) / 40;
+					} else if (action != NPC.ACT_NONE) {
+						switch (action) {
+						case NPC.ACT_READING:
+							a = "Reading";
+							break;
+						case NPC.ACT_CLEANING:
+							a = "Cleaning";
+							break;
+						case NPC.ACT_SEARCHING:
+							a = "Searching";
+							break;
+						case NPC.ACT_CHIPPING:
+							a = "Chipping";
+							break;
+						case NPC.ACT_DIGGING:
+							a = "Digging";
+							break;
+						default:
+							break progressbar;
+						}
+						t = (progress * 50) / (TPS * 2);
+					} else if (schedule == SC_WORK_PERIOD && player.job != JOB_UNEMPLOYED) {
+						a = "Job quota";
+						t = (player.jobQuota * 50) / MAX_JOB_QUOTA;
+					} else {
 						break progressbar;
 					}
-					t = (progress * 50) / (TPS * 2);
-				} else if (schedule == SC_WORK_PERIOD && player.job != JOB_UNEMPLOYED) {
-					a = "Job quota";
-					t = (player.jobQuota * 50) / MAX_JOB_QUOTA;
-				} else {
-					break progressbar;
+
+					g.setColor(0x333333);
+					g.fillRect(4, h - 42, 67, 23);
+					g.setColor(0);
+					g.drawRect(4, h - 42, 66, 22);
+					g.setColor(0x4E4E4E);
+					g.drawRect(11, h - 29, 51, 6);
+					g.setColor(0x1D1D1D);
+					g.fillRect(12, h - 28, 50, 5);
+
+					fontColor = FONT_COLOR_GREY_C0;
+					drawText(g, a, 11, h - 39, FONT_REGULAR);
+
+					g.setColor(0x4172DC);
+					if (t > 50) t = 50;
+					if (t > 0) g.fillRect(12, h - 28, t, 5);
 				}
+				// side
 
-				g.setColor(0x333333);
-				g.fillRect(4, h - 42, 67, 23);
-				g.setColor(0);
-				g.drawRect(4, h - 42, 66, 22);
-				g.setColor(0x4E4E4E);
-				g.drawRect(11, h - 29, 51, 6);
-				g.setColor(0x1D1D1D);
-				g.fillRect(12, h - 28, 50, 5);
+//				g.setColor(0x0F0F0F);
+//				g.fillRect(w - 22, 0, 22, h);
 
-				fontColor = FONT_COLOR_GREY_C0;
-				drawText(g, a, 11, h - 39, FONT_REGULAR);
-
-				g.setColor(0x4172DC);
-				if (t > 50) t = 50;
-				if (t > 0) g.fillRect(12, h - 28, t, 5);
-			}
-
-			// side
-
-//			g.setColor(0x0F0F0F);
-//			g.fillRect(w - 22, 0, 22, h);
-
-			// inventory items
-			x = w - 21;
-			for (int i = 0; i < 6; ++i) {
-				int y = i * 22 + 1;
-				int item = player.inventory[i] & Items.ITEM_ID_MASK;
-//				g.setColor(0x434343);
-//				g.fillRect(x + 1, y + 1, 18, 18);
-//				g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
-//				g.drawRect(x, y, 19, 19);
-				if (selectedInventory == i) {
-					g.setColor(0x97479B);
-					g.drawRect(x, y, 19, 19);
+				// inventory items
+				x = w - 21;
+				for (int i = 0; i < 6; ++i) {
+					int y = i * 22 + 1;
+					int item = player.inventory[i] & Items.ITEM_ID_MASK;
+//					g.setColor(0x434343);
+//					g.fillRect(x + 1, y + 1, 18, 18);
+//					g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
+//					g.drawRect(x, y, 19, 19);
+					if (selectedInventory == i) {
+						g.setColor(0x97479B);
+						g.drawRect(x, y, 19, 19);
+					}
+					if (player.inventory[i] == Items.ITEM_NULL)
+						continue;
+					g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 3, y + 3, 0);
 				}
-				if (player.inventory[i] == Items.ITEM_NULL)
-					continue;
-				g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 3, y + 3, 0);
 			}
 
 			// overlays
@@ -469,7 +472,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 					a = noteText = getStringArray(t, nw - tx * 2, FONT_REGULAR);
 				}
-				n = a.length;
+				int n = a.length;
 				for (int i = 0; i < n; ++i) {
 					drawText(g, a[i], nx + tx, ny + ty, FONT_REGULAR);
 					ty += fontCharHeight[FONT_REGULAR];
@@ -484,6 +487,41 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			} else if (containerOpen != -1) {
 				// desk open
 				pausedOverlay = true;
+
+				int idx = containerOpen;
+				int[] containers = this.containers;
+				Image itemsImg = itemsTexture;
+
+				if (toilet) {
+
+				} else {
+					int nw = 120;
+					int nh = 110;
+					int nx = (w - nw) >> 1;
+					int ny = (h - nh) >> 1;
+
+					g.setColor(0x333333);
+					g.fillRect(nx, ny, nw, nh);
+					g.setColor(0);
+					g.drawRect(nx, ny, nw - 1, nh -1);
+
+					int y = ny + 18;
+					for (int row = 0; row < 4; ++row) {
+						for (int col = 0; col < 5; ++col) {
+							int x = nx + 6 + 22 * col;
+							g.setColor(0x212121);
+							g.fillRect(x + 1, y + 1, 18, 18);
+							g.setColor(0x0F0F0F);
+							g.drawRect(x, y, 19, 19);
+							int item = containers[idx + 3 + (col + row * 5)];
+							if (item != Items.ITEM_NULL) {
+								item &= Items.ITEM_ID_MASK;
+								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
+							}
+						}
+						y += 22;
+					}
+				}
 			} else {
 				pausedOverlay = false;
 			}
@@ -517,7 +555,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			}
 		}
-		
+
 		if (LOGGING && SCREEN_LOGS) {
 			fontColor = FONT_COLOR_WHITE;
 			String[] logs = Profiler.logs;
@@ -630,13 +668,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						noteText = null;
 					}
 				} else if (inventoryOpen != null) {
-					if (key == -5 || key == -6 || key == -7) {
-						// close inventory TODO
+					// TODO
+					if (key == -7) {
 						inventoryOpen = null;
 					}
 				} else if (containerOpen != -1) {
-					if (key == -5 || key == -6 || key == -7) {
-						// close container TODO
+					// TODO
+					if (key == -7) {
 						containerOpen = -1;
 					}
 				} else {
@@ -965,9 +1003,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						if (!paused && !pausedOverlay) {
 							if ((globalCounter % ANIMATION_TICKS) == 0 && ++animationFrame > 1)
 								animationFrame = 0;
-							ticksC++;
 							tickMap();
 						}
+						ticksC++;
 						globalCounter++;
 					}
 
@@ -1158,8 +1196,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
-				// TODO randomize stash spawn
-
 				// objects
 				for (int layer = 0; layer < 4; ++layer) {
 					short numObjects = in.readShort();
@@ -1214,6 +1250,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						int x = in.readByte() & 0xFF;
 						int y = in.readByte() & 0xFF;
 						gymPositions[(i << 1) + 1] = (short) (x | (y << 8));
+						gymPositions[(i << 1) + 2] = -1;
 					}
 				}
 
@@ -1299,6 +1336,26 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
+				// containers
+				{
+					short num = in.readShort();
+					int[] containers = this.containers = new int[1 + num * (3 + 20)];
+					containers[0] = num;
+
+					int idx = 1;
+					for (int i = 0; i < num; ++i) {
+						containers[idx++] = in.readShort() << 2;
+						int obj = in.readByte() & 0xFF;
+						if (obj == Objects.PLAYER_DESK) {
+							obj = 0;
+						} else {
+							obj = -obj;
+						}
+						containers[idx++] = obj;
+						idx += (containers[idx] = in.readByte() & 0xFF) + 1;
+					}
+				}
+
 				if ((in.readShort() & 0xFFFF) != 0xFFEF) {
 					throw new Exception();
 				}
@@ -1347,9 +1404,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					short x = objects[idx + 3], y = objects[idx + 4];
 
+					// TODO randomize stash spawn
+//					if (objects[idx + 1] == Objects.STASH && day == 0) {
+//
+//					} else
 					if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
 						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
 						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
+						canteenSeatsPositions[p + 1] = -1;
 					}
 
 					short sprite = objects[idx + 2];
@@ -1449,6 +1511,111 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 					}
 				}
+			}
+
+			// init containers
+			int[] containers = this.containers;
+			if (containers == null) return;
+			n = containers[0];
+			int idx = 1;
+			for (int i = 0; i < n; ++i) {
+				int objIdx = containers[idx++];
+				int owner = containers[idx++];
+				if (owner == -Objects.TOILET) {
+				} else if (owner == -Objects.JOB_GARDENING_TOOLS) {
+					for (j = 0; j < 20; ++j) {
+						containers[idx + 1 + j] = Items.HOE | Items.ITEM_DEFAULT_DURABILITY;
+					}
+				} else if (owner == -Objects.JOB_CLEANING_SUPPLIES) {
+					for (j = 0; j < 20; ++j) {
+						int item;
+						switch (NPC.rng.nextInt(6)) {
+						case 0:
+						case 1:
+							item = Items.MOP | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						case 2:
+						case 3:
+							item = Items.BROOM | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						case 4:
+							item = Items.BROOM | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						case 5:
+							item = Items.PLUNGER | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						default:
+							continue;
+						}
+						containers[idx + 1 + j] = item;
+					}
+				} else {
+					if (owner == -Objects.DESK) {
+						short[] objects = this.objects[LAYER_GROUND];
+						byte[] solid = this.solid[LAYER_GROUND];
+						int w = width;
+						int h = height;
+
+						int x = objects[objIdx + 3];
+						int y = objects[objIdx + 4];
+						NPC res = null;
+						for (int k = 1; k < npcNum; ++k) {
+							NPC npc = chars[k];
+							if (npc == null || !npc.inmate) continue;
+							int x0, y0;
+							int x1 = x0 = x, y1 = y0 = y;
+							int x2 = npc.bedX, y2 = npc.bedY;
+							int dx = x - x2;
+							int dy = y - y2;
+							if (dx * dx + dy * dy > 5 * 5) {
+								// too far
+								continue;
+							}
+
+							dx = Math.abs(x2 - x0);
+							dy = Math.abs(y2 - y0);
+
+							int sx = (x0 < x2) ? 1 : -1;
+							int sy = (y0 < y2) ? 1 : -1;
+
+							int e = dx - dy;
+
+							while (true) {
+								if (x1 == x2 && y1 == y2) {
+									res = npc;
+									break;
+								}
+								if ((x1 != x0 || y1 != y0)
+										&& x1 >= 0 && y1 >= 0 && x1 < w && y1 < h) {
+									byte s = solid[x1 + y1 * w];
+									if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_DOOR) {
+										break;
+									}
+								}
+
+								int e2 = e * 2;
+								if (e2 > -dy) {
+									e -= dy;
+									x1 += sx;
+								}
+								if (e2 < dx) {
+									e += dx;
+									y1 += sy;
+								}
+							}
+							if (res != null) {
+								containers[idx - 1] = res.id;
+								break;
+							}
+						}
+					}
+					containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 2] = Items.TUBE_OF_TOOTHPASTE | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 3] = Items.ROLL_OF_TOILET_PAPER | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 4] = Items.SOAP | Items.ITEM_DEFAULT_DURABILITY;
+				}
+
+				idx += containers[idx] + 1;
 			}
 		}
 	}
@@ -1760,13 +1927,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			--lockdownTimer;
 		}
-		
+
 		// TODO items decay
 //		final int size = width * height;
 //		for (int i = 0; i < size; ++i) {
 //			int item = droppedItems[i];
 //			if (item != Items.ITEM_NULL) {
-//				
+//
 //			}
 //		}
 
@@ -2113,7 +2280,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				drawText(g, s, x + 8 - (w >> 1), y - 15, FONT_REGULAR);
 				fontColor = FONT_COLOR_WHITE;
 			}
-			if (player.interactNPC == npc && npc.name != null) {
+			if (interactNPC == npc && npc.name != null) {
 				String s = npc.name;
 				fontColor = npc.bodyId == Textures.GUARD ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_YELLOW;
 				int w = textWidth(s, FONT_REGULAR);
@@ -2171,7 +2338,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (graphics3D == null) {
 				graphics3D = Graphics3D.getInstance();
 			}
-			
+
 			// init camera
 			if (camera == null) {
 				cameraTransform = new Transform();
@@ -2181,7 +2348,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				transform = new Transform();
 			}
-			
+
 			// init light sprite
 			if (DRAW_LIGHTS && lightVertexBuffer == null) {
 				short[] vertices = {
@@ -2216,7 +2383,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				Texture2D tex = new Texture2D(light3dTexture);
 				tex.setBlending(Texture2D.FUNC_REPLACE);
-				
+
 				lightAppearance = new Appearance();
 				lightAppearance.setTexture(0, tex);
 
@@ -2228,7 +2395,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				pm.setShading(PolygonMode.SHADE_FLAT);
 				lightAppearance.setPolygonMode(pm);
 			}
-			
+
 			// init global lighting quad
 			if (globalStrip == null) {
 				short[] vertices = {
@@ -2258,7 +2425,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				update3DLightingColor();
 			}
-			
+
 			graphics3D.bindTarget(g, false, 0);
 			graphics3D.setCamera(camera, cameraTransform);
 		} catch (Throwable e) {
@@ -2478,6 +2645,34 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return -1;
 	}
 
+	int getContainer(int objIdx) {
+		int[] containers = this.containers;
+		if (containers == null) return - 1;
+		int n = containers[0];
+		int idx = 1;
+		for (int i = 0; i < n; ++i) {
+			if (containers[idx] == objIdx) {
+				return idx;
+			}
+			idx += containers[idx + 2] + 3;
+		}
+		return -1;
+	}
+
+	void openContainer(int objIdx) {
+		int idx = getContainer(objIdx);
+		if (idx == -1) return;
+		if (containers[idx + 1] == -Objects.TOILET) {
+			toilet = true;
+			containterTitle = "Toilet";
+		} else {
+			toilet = false;
+			containterTitle = "Desk";
+		}
+		containerOpen = idx;
+		Sound.playEffect(Sound.SFX_OPEN);
+	}
+
 // endregion Map objects
 
 // region Solid
@@ -2661,6 +2856,146 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 // region Items
 
+	static final int[] DESK1 = {
+			Items.PACK_OF_MINTS,
+			Items.LIGHTER,
+			Items.WATCH,
+			Items.BOTTLE_OF_MEDICINE,
+			Items.SHAVING_CREAM,
+			Items.MAGAZINE,
+			Items.COMB,
+			Items.PLASTIC_SPOON,
+			Items.PLASTIC_KNIFE,
+			Items.PLASTIC_FORK,
+			Items.JAR_OF_INK,
+			Items.TUB_OF_BLEACH,
+			Items.TUBE_OF_TOOTHPASTE,
+			Items.BAR_OF_CHOCOLATE,
+			Items.ROLL_OF_TOILET_PAPER,
+			Items.SOAP,
+			Items.PACK_OF_PLAYING_CARDS,
+			Items.BOOK,
+			Items.TUBE_OF_SUPER_GLUE,
+			Items.TUB_OF_TALCUM_POWDER,
+			Items.DIRTY_INMATE_OUTFIT,
+			Items.BATTERY,
+			Items.SOCK,
+			Items.PLUNGER,
+			Items.CUP,
+			Items.PAPER_CLIP,
+			Items.RAZOR_BLADE,
+			Items.TOOTHBRUSH,
+			Items.WIRE,
+			Items.DENTAL_FLOSS,
+			Items.TV_REMOTE,
+			Items.NAILS,
+//			// perks
+//			Items.SPONGE,
+//			Items.DVD,
+//			Items.COOKIE,
+//			Items.MUFFIN,
+//			Items.SILK_HANDKERCHIEF,
+//			Items.DELUXE_TOILET_ROLL,
+//			Items.TEDDY_BEAR,
+//			Items.HAND_CREAM,
+//			Items.POSTCARD,
+//			Items.PEDICURE_KIT,
+//			Items.HAND_FAN,
+//			Items.// stalagflucht
+//			Items.POCKET_WATCH,
+//			Items.FAMILY_PHOTO,
+//			Items.SERVICE_MEDAL,
+//			Items.DOG_TAG,
+//			Items.// jungle
+//			Items.BANANAS,
+//			Items.GREEN_HERB,
+//			Items.VINES,
+//			Items.COCONUT,
+//			Items.MANGO
+	};
+
+	static final int[] DESK2 = {
+			Items.TIMBER,
+			Items.ROLL_OF_DUCT_TAPE,
+			Items.DIRT,
+			Items.SPATULA,
+			Items.FLASHLIGHT,
+			Items.FILE,
+			Items.COOKED_FOOD,
+			Items.SHEET_OF_METAL,
+			Items.FOIL,
+			Items.COMB_SHIV,
+			Items.CRAFTING_NOTE,
+			Items.COMB_BLADE,
+			Items.MEDIKIT,
+//			// jungle
+//			Items.RED_HERB,
+	};
+
+	static final int[] NPC_CARRY = {
+			Items.PACK_OF_MINTS,
+			Items.LIGHTER,
+			Items.WATCH,
+			Items.BOTTLE_OF_MEDICINE,
+			Items.TIMBER,
+			Items.ROLL_OF_DUCT_TAPE,
+			Items.SHAVING_CREAM,
+			Items.MAGAZINE,
+			Items.BOTTLE_OF_SLEEPING_PILLS,
+			Items.COMB,
+			Items.GLASS_SHARD,
+			Items.SPATULA,
+			Items.BROOM,
+			Items.MOP,
+			Items.JAR_OF_INK,
+			Items.TUB_OF_BLEACH,
+			Items.TROWEL,
+			Items.BAR_OF_CHOCOLATE,
+			Items.ROLL_OF_TOILET_PAPER,
+			Items.SOAP,
+			Items.PACK_OF_PLAYING_CARDS,
+			Items.BOOK,
+			Items.TUBE_OF_SUPER_GLUE,
+			Items.TUB_OF_TALCUM_POWDER,
+			Items.FILE,
+			Items.COOKED_FOOD,
+			Items.BED_SHEET,
+			Items.SOCK,
+			Items.PLUNGER,
+			Items.RAZOR_BLADE,
+			Items.TOOTHBRUSH,
+			Items.WIRE,
+			Items.CRAFTING_NOTE,
+			Items.DENTAL_FLOSS,
+			Items.NAILS,
+//			// perks
+//			Items.TV_REMOTE,
+//			Items.SPONGE,
+//			Items.DVD,
+//			Items.COOKIE,
+//			Items.MUFFIN,
+//			Items.SILK_HANDKERCHIEF,
+//			Items.DELUXE_TOILET_ROLL,
+//			Items.TEDDY_BEAR,
+//			Items.HAND_CREAM,
+//			Items.POSTCARD,
+//			Items.PEDICURE_KIT,
+//			Items.HAND_FAN,
+//			// stalagflucht
+//			Items.POCKET_WATCH,
+//			Items.FAMILY_PHOTO,
+//			Items.SERVICE_MEDAL,
+//			Items.DOG_TAG,
+//			// jungle
+//			Items.BANANAS,
+//			Items.GREEN_HERB,
+//			Items.RED_HERB,
+//			Items.VINES,
+//			Items.COCONUT,
+//			Items.MANGO
+
+	};
+
 	static int getItemDecay(int id) {
 		switch (id & Items.ITEM_ID_MASK) {
 		// TODO
@@ -2823,9 +3158,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 // endregion Items
-	
+
 // region Textures
-	
+
 	static Image[] sprites = new Image[18];
 
 	static Image tilesTexture;
@@ -2911,7 +3246,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			e.printStackTrace();
 		}
 	}
-	
+
 // endregion Textures
 
 // region Font
@@ -2941,7 +3276,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	private static int[][] fontCacheChars;
 	private static Image[][] fontCacheImages;
 	private static int[] fontCacheIdx;
-	
+
 	static char[] charBuffer = new char[100];
 	static StringBuffer stringBuffer = new StringBuffer();
 
@@ -3056,22 +3391,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static int drawText(Graphics g, char[] chars, int x, int y, int font) {
 		int i = 0;
-		
+
 		int charWidth = fontCharWidth[font];
 		int charHeight = fontCharHeight[font];
-		
+
 		int fontColor = Game.fontColor;
 		int color = FONT_COLORS[fontColor];
-		
+
 		int[] rgb = Game.intBuffer;
-		
+
 		int[] fontWidths = Game.fontWidths[font];
 		byte[][] fontData = Game.fontData[font];
-		
+
 		int[] cacheChars = fontCacheChars[font];
 		Image[] fontCacheImages = Game.fontCacheImages[font];
 		int[] fontCacheIdx = Game.fontCacheIdx;
-		
+
 		while (i < chars.length && chars[i] != 0) {
 			// x = drawChar(g, chars[idx++], x, y, font);
 			char c = chars[i++];
@@ -3097,7 +3432,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 				// not in cache, create image
-				
+
 				// save some pixels by storing only effective width of chars
 				byte[] charsData = fontData[c];
 				for (int cy = 0; cy < charHeight; ++cy) {
@@ -3125,7 +3460,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		// return new x position
 		return x;
 	}
-	
+
 	static int intToCharBuffer(int n, int i) {
 		int start = i;
 		char[] chars = charBuffer;

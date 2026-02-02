@@ -144,10 +144,6 @@ class NPC implements Constants {
 	int gymObject;
 	int gymObjectIdx = -1;
 
-	NPC interactNPC;
-	int action = ACT_NONE;
-	int actionTargetX, actionTargetY;
-
 	NPC(Game map) {
 		animationSequence = new int[5];
 		prevAnimation = -1;
@@ -762,7 +758,7 @@ class NPC implements Constants {
 					// TODO attack player if they took sth from others pocket
 					//  or is searching others desk, except their job is mailman
 					if (map.heat >= 90 || map.lockdown || player.fighting != 0
-							|| (map.searching && player.job != JOB_MAILMAN && player.job != JOB_LIBRARY)) {
+							|| (map.action == ACT_SEARCHING && player.job != JOB_MAILMAN && player.job != JOB_LIBRARY)) {
 						// guard attacks player if heat is over 90 or lockdown is in progress
 						aiState = AI_ATTACK;
 						chaseTarget = player;
@@ -773,6 +769,8 @@ class NPC implements Constants {
 						if (map.lockdown && map.guardsDown < 3) {
 							map.lockdown = false;
 						}
+					} else if (map.action == ACT_CHIPPING || map.action == ACT_DIGGING) {
+						map.note = NOTE_SOLITARY;
 					} else if (heatTimer == 0) {
 						if (player.outfitId == Textures.OUTFIT_GUARD) {
 							// increase heat a little, if seeing player in disguise
@@ -1528,28 +1526,28 @@ class NPC implements Constants {
 			return false;
 		}
 
-		int x1, y;
-		int x0 = x1 = this.x / TILE_SIZE, y1 = y = (this.y + 5) / TILE_SIZE;
+		int x0, y0;
+		int x1 = x0 = this.x / TILE_SIZE, y1 = y0 = (this.y + 5) / TILE_SIZE;
 		int x2 = other.x / TILE_SIZE, y2 = (other.y + 5) / TILE_SIZE;
 		int w = map.width;
 		int h = map.height;
 		byte[] solid = map.solid[layer];
 
 		dx = Math.abs(x2 - x0);
-		dy = Math.abs(y2 - y1);
+		dy = Math.abs(y2 - y0);
 
 		int sx = (x0 < x2) ? 1 : -1;
-		int sy = (y1 < y2) ? 1 : -1;
+		int sy = (y0 < y2) ? 1 : -1;
 
 		int e = dx - dy;
 
 		while (true) {
-			if (x0 == x2 && y1 == y2) {
+			if (x1 == x2 && y1 == y2) {
 				return true;
 			}
-			if ((x0 != x1 || y1 != y)
-					&& x0 >= 0 && y1 >= 0 && x0 < w && y1 < h) {
-				byte s = solid[x0 + y1 * w];
+			if ((x1 != x0 || y1 != y0)
+					&& x1 >= 0 && y1 >= 0 && x1 < w && y1 < h) {
+				byte s = solid[x1 + y1 * w];
 				if (s == COLL_SOLID) {
 					return false;
 				}
@@ -1558,7 +1556,7 @@ class NPC implements Constants {
 			int e2 = e * 2;
 			if (e2 > -dy) {
 				e -= dy;
-				x0 += sx;
+				x1 += sx;
 			}
 			if (e2 < dx) {
 				e += dx;
@@ -1688,7 +1686,7 @@ class NPC implements Constants {
 			map.heat = 0;
 			animation = ANIM_STUNNED;
 			chaseTarget = null;
-			action = ACT_NONE;
+			map.action = ACT_NONE;
 			map.progress = 0;
 
 			// fadeout
@@ -1901,20 +1899,20 @@ class NPC implements Constants {
 				} else {
 					map.trainingBlocked = false;
 				}
-			} else if (action != ACT_NONE) {
+			} else if (map.action != ACT_NONE) {
 				if ((actions & (GameCanvas.UP_PRESSED | GameCanvas.DOWN_PRESSED | GameCanvas.LEFT_PRESSED | GameCanvas.RIGHT_PRESSED)) != 0) {
 					// cancel
-					action = ACT_NONE;
+					map.action = ACT_NONE;
 					map.progress = 0;
 				} else if (++map.progress == TPS * 2) {
 					// finished
-					switch (action) {
+					switch (map.action) {
 					case ACT_READING:
 						Sound.playEffect(Constants.SFX_CLOSE);
 						statIntellect++;
 						break;
-					case ACT_CLEANING:
-						int idx = map.getObjectIdxAt(actionTargetX, actionTargetY, layer);
+					case ACT_CLEANING: {
+						int idx = map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer);
 						map.updateDirt(idx == map.dirt[2] ? 0 : 1);
 						map.fatigue += 5;
 						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)) {
@@ -1928,15 +1926,16 @@ class NPC implements Constants {
 							}
 						}
 						break;
-					case ACT_SEARCHING:
-						// TODO open desk
-						Sound.playEffect(Constants.SFX_OPEN);
+					}
+					case ACT_SEARCHING: {
+						map.openContainer(map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer));
 						break;
 					}
+					}
 
-					action = ACT_NONE;
+					map.action = ACT_NONE;
 					map.progress = 0;
-				} else if (action != ACT_READING && map.progress % (TPS / 2) == 1) {
+				} else if (map.action != ACT_READING && map.progress % (TPS / 2) == 1) {
 					Sound.playEffect(Constants.SFX_OPEN);
 				}
 			} else if (animation == NPC.ANIM_REGULAR || animation == NPC.ANIM_FOOD) {
@@ -2018,8 +2017,8 @@ class NPC implements Constants {
 								Sound.playEffect(Sound.SFX_LOSE);
 							}
 							map.selectedInventory = -1;
-						} else if (interactNPC != null) {
-							NPC npc = interactNPC;
+						} else if (map.interactNPC != null) {
+							NPC npc = map.interactNPC;
 
 							int dx = npc.x - this.x;
 							int dy = npc.y - this.y;
@@ -2080,9 +2079,9 @@ class NPC implements Constants {
 									dialogTimer = TPS * 2;
 									break interact;
 								}
-								action = ACT_CLEANING;
-								actionTargetX = x;
-								actionTargetY = y;
+								map.action = ACT_CLEANING;
+								map.actionTargetX = x;
+								map.actionTargetY = y;
 								map.progress = 0;
 							}
 							map.selectedInventory = -1;
@@ -2095,10 +2094,14 @@ class NPC implements Constants {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = map.objects[layer][idx + 1];
 							if (b == COLL_DESK) {
+								if (obj == Objects.PLAYER_DESK) {
+									map.openContainer(idx);
+									break interact;
+								}
 								Sound.playEffect(Sound.SFX_OPEN);
-								action = ACT_SEARCHING;
-								actionTargetX = x;
-								actionTargetY = y;
+								map.action = ACT_SEARCHING;
+								map.actionTargetX = x;
+								map.actionTargetY = y;
 								map.progress = 0;
 								break interact;
 							}
@@ -2112,8 +2115,7 @@ class NPC implements Constants {
 									break interact;
 								}
 								if (obj == Objects.CUTLERY_TABLE) {
-									// TODO open container
-									Sound.playEffect(Sound.SFX_OPEN);
+									map.openContainer(idx);
 									break interact;
 								}
 								if (obj == Objects.TRAINING_INTERNET) {
@@ -2125,7 +2127,7 @@ class NPC implements Constants {
 										break interact;
 									}
 									Sound.playEffect(Sound.SFX_OPEN);
-									action = ACT_READING;
+									map.action = ACT_READING;
 									map.progress = 0;
 									map.fatigue += 5;
 									break interact;
@@ -2141,7 +2143,7 @@ class NPC implements Constants {
 										break interact;
 									}
 									Sound.playEffect(Sound.SFX_OPEN);
-									action = ACT_READING;
+									map.action = ACT_READING;
 									map.progress = 0;
 									map.fatigue += 5;
 									break interact;
@@ -2210,17 +2212,21 @@ class NPC implements Constants {
 									addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
-								if (obj == Objects.JOB_CLEANING_SUPPLIES) {
-									// take mop
-									addItem((rng.nextInt(2) == 0 ? Items.MOP : Items.BROOM)
-											| Items.ITEM_DEFAULT_DURABILITY, true);
+								if (obj == Objects.JOB_CLEANING_SUPPLIES || obj == Objects.JOB_GARDENING_TOOLS) {
+									map.openContainer(idx);
 									break interact;
 								}
-								if (obj == Objects.JOB_GARDENING_TOOLS) {
-									// take hoe
-									addItem(Items.HOE | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								}
+//								if (obj == Objects.JOB_CLEANING_SUPPLIES) {
+//									// take mop
+//									addItem((rng.nextInt(2) == 0 ? Items.MOP : Items.BROOM)
+//											| Items.ITEM_DEFAULT_DURABILITY, true);
+//									break interact;
+//								}
+//								if (obj == Objects.JOB_GARDENING_TOOLS) {
+//									// take hoe
+//									addItem(Items.HOE | Items.ITEM_DEFAULT_DURABILITY, true);
+//									break interact;
+//								}
 
 								if (obj == Objects.JOB_CLEAN_LAUNDRY) {
 									// put clean laundry
@@ -2239,6 +2245,12 @@ class NPC implements Constants {
 											}
 										}
 									}
+									break interact;
+								}
+
+								if (obj == Objects.STASH) {
+									// open stash TODO
+
 									break interact;
 								}
 							}
@@ -2291,8 +2303,8 @@ class NPC implements Constants {
 							}
 						}
 
-						if (interactNPC != null) {
-							NPC npc = interactNPC;
+						if (map.interactNPC != null) {
+							NPC npc = map.interactNPC;
 
 							if (npc.health <= 0) {
 								// TODO loot
@@ -2324,9 +2336,9 @@ class NPC implements Constants {
 		}
 
 		if (climbed || map.selectedInventory != -1) {
-			interactNPC = null;
+			map.interactNPC = null;
 		} else if ((tick & 4) == 0 || wasTryingToMove) {
-			interactNPC = getInteractNPC();
+			map.interactNPC = getInteractNPC();
 		}
 
 		if (x < 0 || y < 0 || x > map.width * TILE_SIZE - TILE_SIZE || y > map.height * TILE_SIZE - TILE_SIZE) {

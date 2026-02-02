@@ -55,6 +55,8 @@ public class MapCompiler implements Constants {
 		Vector<int[]> guardBeds = new Vector<>();
 		
 		Vector<int[]> npc = new Vector<>();
+
+		Vector<int[]> containers = new Vector<>();
 		
 		byte[][] tiles = new byte[4][width * height];
 		
@@ -102,10 +104,12 @@ public class MapCompiler implements Constants {
 							switch (objectId) {
 							case Objects.PLAYER_DESK:
 								checkLayer("player desk", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 20 });
 								sprite = 0;
 								break;
 							case Objects.DESK:
 								checkLayer("desk", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 20 });
 								sprite = 1;
 								break;
 							case Objects.SERVING_TABLE:
@@ -118,6 +122,7 @@ public class MapCompiler implements Constants {
 								break;
 							case Objects.CUTLERY_TABLE:
 								checkLayer("cutlery table", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 20 });
 								sprite = 9;
 								break;
 							case Objects.TRAINING_INTERNET:
@@ -126,6 +131,7 @@ public class MapCompiler implements Constants {
 								break;
 							case Objects.TOILET:
 								checkLayer("toilet", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 3 });
 								// rotate toilet depending on walls placement
 								sprite = isSolidTile(tiles[layer][x + 1 + y * width]) != COLL_NONE ? 17 : 16;
 								break;
@@ -149,6 +155,7 @@ public class MapCompiler implements Constants {
 								break;
 							case Objects.JOB_CLEANING_SUPPLIES:
 								checkLayer("cleaning", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 20 });
 
 								sprite = 20;
 								break;
@@ -190,6 +197,7 @@ public class MapCompiler implements Constants {
 								sprite = 33;
 								break;
 							case Objects.DOOR_UTILITY:
+							case Objects.DOOR_UTILITY_VENT:
 //								checkLayer("door", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 38;
 								break;
@@ -362,6 +370,7 @@ public class MapCompiler implements Constants {
 								break;
 							case Objects.JOB_GARDENING_TOOLS:
 								checkLayer("gardening", objectId, x, y, layer, LAYER_GROUND);
+								containers.add(new int[] { objects[LAYER_GROUND].size(), objectId, 20 });
 								sprite = 192;
 								w++;
 								break;
@@ -488,8 +497,21 @@ public class MapCompiler implements Constants {
 								npc.add(new int[] { objectId, x, y });
 								break object;
 							}
+							case Objects.LADDER_UP: {
+								// TODO
+								break object;
+							}
+							case Objects.LADDER_DOWN: {
+								// TODO
+								break object;
+							}
+							case Objects.ROOF_SPOTLIGHTS: {
+								// TODO
+								break object;
+							}
 							default:
 								// unrecognized object id
+								System.out.println("Unrecognized object: " + objectId + " at " + x + ' ' + y);
 								break object;
 							}
 
@@ -829,6 +851,14 @@ public class MapCompiler implements Constants {
 			out.writeShort(npc.size());
 			for (int[] arr : npc) {
 				out.writeByte(arr[0]);
+				out.writeByte(arr[1]);
+				out.writeByte(arr[2]);
+			}
+
+			System.out.println(containers.size() + " containers");
+			out.writeShort(containers.size());
+			for (int[] arr : containers) {
+				out.writeShort(arr[0]);
 				out.writeByte(arr[1]);
 				out.writeByte(arr[2]);
 			}
