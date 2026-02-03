@@ -340,6 +340,10 @@ class NPC implements Constants {
 
 				int tx = chaseTarget.x, ty = chaseTarget.y;
 				int dx = tx - x, dy = ty - y;
+				if (!ai && (dx * dx + dy * dy > NPC_CHASE_LOSE_DISTANCE || chaseTarget.health <= 0)) {
+					chaseTarget = null;
+					break attack;
+				}
 				if (dx * dx + dy * dy > TILE_SIZE * TILE_SIZE + 10)
 					break attack;
 
@@ -350,6 +354,8 @@ class NPC implements Constants {
 
 				attackTimer = 37 - (statSpeed / 5);
 				if (!ai) {
+					map.action = ACT_NONE;
+					map.progress = 0;
 					if (map.fatigue >= 100) {
 						Sound.playEffect(Sound.SFX_LOSE);
 						dialog = "You are too fatigued";
@@ -2212,7 +2218,9 @@ class NPC implements Constants {
 									addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
-								if (obj == Objects.JOB_CLEANING_SUPPLIES || obj == Objects.JOB_GARDENING_TOOLS) {
+								if (obj == Objects.JOB_CLEANING_SUPPLIES
+										|| obj == Objects.JOB_GARDENING_TOOLS
+										|| obj == Objects.TOILET) {
 									map.openContainer(idx);
 									break interact;
 								}
@@ -2358,6 +2366,9 @@ class NPC implements Constants {
 
 		if (map.firePressed) {
 			map.firePressed = false;
+		}
+		if (map.softPressed) {
+			map.softPressed = false;
 		}
 	}
 

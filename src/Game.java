@@ -100,9 +100,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int containerOpen = -1;
 	NPC inventoryOpen;
 	int note = -1;
-	String containterTitle;
 	boolean toilet;
 	String[] noteText;
+	int selectedSlot; // negative is player's inventory
 
 	boolean debugFreecam;
 
@@ -505,6 +505,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.setColor(0);
 					g.drawRect(nx, ny, nw - 1, nh -1);
 
+					fontColor = FONT_COLOR_GREY_7F;
+					String s = "Desk";
+					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 6, FONT_REGULAR);
+
 					int y = ny + 18;
 					for (int row = 0; row < 4; ++row) {
 						for (int col = 0; col < 5; ++col) {
@@ -677,12 +681,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (key == -7) {
 						containerOpen = -1;
 					}
-				} else {
+				} else if (!pausedOverlay) {
 					if (key == -6) {
 						softPressed = true;
 					} else if (key == -7) {
 						paused = true;
 						state = 4;
+//						action = NPC.ACT_NONE;
+//						progress = 0;
 					} else if (key == '*') {
 					} else if (key == '#') {
 					} else if (key == '0') {
@@ -1608,6 +1614,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								break;
 							}
 						}
+
+						int numItems = NPC.rng.nextInt(5);
+						for (int k = 0; k < numItems; ++k) {
+							int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
+							int item = items[NPC.rng.nextInt(items.length)];
+							containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
+						}
 					}
 					containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
 					containers[idx + 2] = Items.TUBE_OF_TOOTHPASTE | Items.ITEM_DEFAULT_DURABILITY;
@@ -1630,26 +1643,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		Sound.stopMusic();
 		Sound.playEffect(Sound.SFX_BELL);
 		Sound.playMusic(MUSIC_LOCKDOWN);
-	}
-
-	NPC getClosestNPC(NPC self) {
-		NPC res = null;
-		int dist = 0;
-		int n = npcNum;
-		for (int i = 0; i < n; ++i) {
-			NPC npc = chars[i];
-			if (self == npc || npc == null) continue;
-
-			int dx = npc.x - self.x;
-			int dy = npc.y - self.y;
-			int d = dx * dx + dy * dy;
-			if (res == null || d < dist) {
-				dist = d;
-				res = npc;
-			}
-		}
-
-		return res;
 	}
 
 	void tickMap() {
@@ -2645,6 +2638,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return -1;
 	}
 
+// endregion Map objects
+
+// region Containers
+
 	int getContainer(int objIdx) {
 		int[] containers = this.containers;
 		if (containers == null) return - 1;
@@ -2664,16 +2661,40 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (idx == -1) return;
 		if (containers[idx + 1] == -Objects.TOILET) {
 			toilet = true;
-			containterTitle = "Toilet";
 		} else {
 			toilet = false;
-			containterTitle = "Desk";
 		}
 		containerOpen = idx;
 		Sound.playEffect(Sound.SFX_OPEN);
 	}
 
-// endregion Map objects
+	// from inventory to container
+	boolean putItem(int idx, int slot) {
+		int[] containers = this.containers;
+		int slots = containers[idx + 2];
+		int item = player.inventory[slot];
+		for (int i = 0; i < slots; ++i) {
+			if (containers[idx + 3 + i] == Items.ITEM_NULL) {
+				containers[idx + 3 + i] = item;
+				player.inventory[slot] = Items.ITEM_NULL;
+				return true;
+			}
+		}
+		Sound.playEffect(Sound.SFX_LOSE);
+		return false;
+	}
+
+	// from container to inventory
+	boolean takeItem(int idx, int slot) {
+		int item = containers[idx + 3 + slot];
+		if (player.addItem(item, true)) {
+			containers[idx + 3 + slot] = Items.ITEM_NULL;
+			return true;
+		}
+		return false;
+	}
+
+// endregion Container
 
 // region Solid
 

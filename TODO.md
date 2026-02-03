@@ -13,7 +13,7 @@
 - [x] Doors
 - [x] Layers
 - [x] Objects
-- [ ] Containers
+- [ ] Containers (WIP)
 - [x] HUD
 - [x] Pathfinding
 - [x] Inmates
