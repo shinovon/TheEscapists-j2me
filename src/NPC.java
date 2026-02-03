@@ -1637,7 +1637,7 @@ class NPC implements Constants {
 		for (int i = 0; i < 6; ++i) {
 			if (inventory[i] == Items.ITEM_NULL) {
 				inventory[i] = item;
-				if (sound && !ai) {
+				if (sound && !ai && !map.pausedOverlay) {
 					Sound.playEffect(Sound.SFX_PICKUP);
 				}
 				return true;
@@ -1941,7 +1941,7 @@ class NPC implements Constants {
 
 					map.action = ACT_NONE;
 					map.progress = 0;
-				} else if (map.action != ACT_READING && map.progress % (TPS / 2) == 1) {
+				} else if (map.action != ACT_READING && map.action != ACT_SEARCHING && map.progress % (TPS / 2) == 1) {
 					Sound.playEffect(Constants.SFX_OPEN);
 				}
 			} else if (animation == NPC.ANIM_REGULAR || animation == NPC.ANIM_FOOD) {
@@ -2001,20 +2001,133 @@ class NPC implements Constants {
 				yFloat = y;
 
 				if (map.firePressed) {
-					if (animationTimer == 0) {
-						if (carry != null) {
-							int x = this.x / TILE_SIZE;
-							int y = (this.y + 5) / TILE_SIZE;
-							if (map.solid[layer][x + y * map.width] != 0) {
-								Sound.playEffect(Sound.SFX_LOSE);
-							} else {
-								Sound.playEffect(Sound.SFX_ENHIT); // TODO replace effect
-								carry.xFloat = carry.x = x * TILE_SIZE;
-								carry.yFloat = carry.y = y * TILE_SIZE;
-								carry.carried = false;
-								carry = null;
+					if (animationTimer == 0 && !climbed) {
+						hit: {
+							int item = map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL ?
+									inventory[map.selectedInventory] & Items.ITEM_ID_MASK : -1;
+
+							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+								map.selectedInventory = -1;
+								for (int i = -1; i < 4; ++i) {
+									int x = this.x / TILE_SIZE;
+									int y = (this.y + 5) / TILE_SIZE;
+									if (i != -1) {
+										x += Game.PATH_DIR_POSITIONS[i << 1];
+										y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+									}
+									int idx = map.getObjectIdxAt(x, y, layer);
+									int obj = map.objects[layer][idx + 1];
+									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
+											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+										if (map.fatigue >= 100) {
+											Sound.playEffect(Sound.SFX_LOSE);
+											dialog = "You are too fatigued";
+											dialogTimer = TPS * 2;
+											break hit;
+										}
+										moveTowards(x * TILE_SIZE + 7, y * TILE_SIZE + 7, 0);
+										map.action = ACT_CLEANING;
+										map.actionTargetX = x;
+										map.actionTargetY = y;
+										map.progress = 0;
+										break hit;
+									}
+								}
+								break hit;
 							}
-						} else if (map.selectedInventory != -1) {
+							if (item != -1) {
+								int slot = map.selectedInventory;
+								map.selectedInventory = -1;
+								int x, y;
+								switch (direction) {
+								case DIR_RIGHT:
+									x = 17;
+									y = 8;
+									break;
+								case DIR_UP:
+									x = 8;
+									y = 3;
+									break;
+								case DIR_LEFT:
+									x = -2;
+									y = 8;
+									break;
+								case DIR_DOWN:
+									x = 8;
+									y = 17;
+									break;
+								default:
+									break hit;
+								}
+
+
+								byte b = getCollision(x, y, true);
+								if (b == COLL_SOLID) {
+									if (item == Items.COMB) {
+										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
+										break hit;
+									}
+									if (item == Items.TOOTHBRUSH) {
+										inventory[slot] = Items.TOOTHBRUSH_SHIV | Items.ITEM_DEFAULT_DURABILITY;
+										break hit;
+									}
+									if (item == Items.TUBE_OF_TOOTHPASTE || item == Items.ROLL_OF_DUCT_TAPE) {
+										// TODO check for camera
+										break hit;
+									}
+									break hit;
+								}
+
+								if (weapon == Items.ITEM_NULL) {
+									// equip
+									weapon = inventory[slot];
+									inventory[slot] = Items.ITEM_NULL;
+									break hit;
+								}
+
+								break hit;
+							}
+							if (carry != null) {
+								int x = this.x / TILE_SIZE;
+								int y = (this.y + 5) / TILE_SIZE;
+								if (map.solid[layer][x + y * map.width] != 0) {
+									Sound.playEffect(Sound.SFX_LOSE);
+								} else {
+									Sound.playEffect(Sound.SFX_ENHIT); // TODO replace effect
+									carry.xFloat = carry.x = x * TILE_SIZE;
+									carry.yFloat = carry.y = y * TILE_SIZE;
+									carry.carried = false;
+									carry = null;
+								}
+								break hit;
+							}
+							if (map.interactNPC != null) {
+								NPC npc = map.interactNPC;
+
+								int dx = npc.x - this.x;
+								int dy = npc.y - this.y;
+								int d = dx * dx + dy * dy;
+								if (d < TILE_SIZE * TILE_SIZE) {
+									if (npc.health == 0) {
+										Sound.playEffect(Sound.SFX_PICKUP);
+										carry = npc;
+										npc.carried = true;
+									} else if (npc.inmate || npc.guard) {
+										chaseTarget = npc;
+									}
+								}
+							}
+						}
+					}
+				}
+				if (map.softPressed) {
+					map.softPressed = false;
+					interact:
+					{
+						if (climbed) break interact;
+
+						// drop selected item
+						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {
 							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[map.selectedInventory], layer);
 							if (r == 0) {
 								Sound.playEffect(Sound.SFX_PLIP);
@@ -2023,30 +2136,8 @@ class NPC implements Constants {
 								Sound.playEffect(Sound.SFX_LOSE);
 							}
 							map.selectedInventory = -1;
-						} else if (map.interactNPC != null) {
-							NPC npc = map.interactNPC;
-
-							int dx = npc.x - this.x;
-							int dy = npc.y - this.y;
-							int d = dx * dx + dy * dy;
-							if (d < TILE_SIZE * TILE_SIZE) {
-								if (npc.health == 0) {
-									Sound.playEffect(Sound.SFX_PICKUP);
-									carry = npc;
-									npc.carried = true;
-								} else if (npc.inmate || npc.guard) {
-									chaseTarget = npc;
-								}
-							}
+							break interact;
 						}
-					}
-				}
-				if (map.softPressed) {
-					map.softPressed = false;
-					// TODO pickup items
-					interact:
-					{
-						if (climbed) break interact;
 
 						int x, y;
 						switch (direction) {
@@ -2070,35 +2161,30 @@ class NPC implements Constants {
 							break interact;
 						}
 
-						int item = map.selectedInventory != -1 ? inventory[map.selectedInventory] & Items.ITEM_ID_MASK : -1;
-
-						if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
-							x = (x + this.x) / TILE_SIZE;
-							y = (y + this.y) / TILE_SIZE;
-							int idx = map.getObjectIdxAt(x, y, layer);
-							int obj = map.objects[layer][idx + 1];
-							if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
-									|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
-								if (map.fatigue >= 100) {
-									Sound.playEffect(Sound.SFX_LOSE);
-									dialog = "You are too fatigued";
-									dialogTimer = TPS * 2;
-									break interact;
-								}
-								map.action = ACT_CLEANING;
-								map.actionTargetX = x;
-								map.actionTargetY = y;
-								map.progress = 0;
-							}
-							map.selectedInventory = -1;
-							break interact;
-						}
 						byte b = getCollision(x, y, true);
 						if (b != 0) {
 							x = (x + this.x) / TILE_SIZE;
 							y = (y + this.y) / TILE_SIZE;
 							int idx = map.getObjectIdxAt(x, y, layer);
-							int obj = map.objects[layer][idx + 1];
+							int obj;
+
+							if (idx == -1) {
+								obj = -1;
+								// pickup item
+								int item = map.peekItem(x, y, layer);
+								if (item != -1) {
+									if (addItem(item, true)) {
+										map.pickItem(x, y, layer);
+									} else {
+										dialog = "Inventory full";
+										dialogTimer = TPS * 2;
+									}
+									break interact;
+								}
+							} else {
+								obj = map.objects[layer][idx + 1];
+							}
+
 							if (b == COLL_DESK) {
 								if (obj == Objects.PLAYER_DESK) {
 									map.openContainer(idx);

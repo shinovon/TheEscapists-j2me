@@ -37,7 +37,7 @@ public interface Constants {
 	static final boolean DRAW_LIGHTS = true;
 	static final boolean NOKIAUI_SHADOWS = false;
 	static final boolean USE_M3G = true;
-	static final boolean USE_TILED_LAYER = true; // more heap usage, but faster on s40, slower on s60
+	static final boolean USE_TILED_LAYER = false; // more heap usage, but faster on s40, slower on s60
 	static final boolean MORE_INMATES = true;
 
 	static final boolean NO_SFX = false;

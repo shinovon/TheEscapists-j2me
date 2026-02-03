@@ -507,7 +507,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					fontColor = FONT_COLOR_GREY_7F;
 					String s = "Desk";
-					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 6, FONT_REGULAR);
+					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 5, FONT_REGULAR);
 
 					int y = ny + 18;
 					for (int row = 0; row < 4; ++row) {
@@ -680,6 +680,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// TODO
 					if (key == -7) {
 						containerOpen = -1;
+					}
+					if (key == -5) {
+						takeItem(containerOpen, 0);
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -1654,6 +1657,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			schedule = SC_LIGHTSOUT;
 			cellsClosed = true;
 			entranceOpen = false;
+			Sound.playMusic(SC_LIGHTSOUT);
 
 			// reset npcs
 			int n = npcNum;
@@ -2465,13 +2469,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return 0;
 	}
 
-	int pickItem(int x, int y, int layer) {
+	int peekItem(int x, int y, int layer) {
 		int item = droppedItems[layer][x + y * width];
-		if (item == 0) {
-			return -1;
+		if (item == Items.ITEM_NULL) {
+			return item;
 		}
-		droppedItems[layer][x + y * width] = Items.ITEM_NULL;
 		return item & Items.ITEM_MASK;
+	}
+
+	int pickItem(int x, int y, int layer) {
+		int item = peekItem(x, y, layer);
+		if (item != Items.ITEM_NULL) {
+			droppedItems[layer][x + y * width] = Items.ITEM_NULL;
+		}
+		return item;
 	}
 
 // endregion Map items
