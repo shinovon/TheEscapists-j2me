@@ -464,6 +464,7 @@ class NPC implements Constants {
 				xFloat = this.x = x * TILE_SIZE;
 				yFloat = this.y = y * TILE_SIZE;
 				wakeupTimer = TPS * 20;
+				angerTimer = TPS * 10 + rng.nextInt(TPS * 50);
 			} else if (layer == LAYER_GROUND && --wakeupTimer == 0) {
 				if (guard) map.guardsDown--;
 				wakeupTimer = -1;
@@ -495,34 +496,33 @@ class NPC implements Constants {
 		}
 
 		if (inmate) {
-			if (aiState == AI_ROAM) {
-				// if roaming, say random dialogs
-				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(200) == 0) {
-					dialog = "Random text";
-					dialogTimer = (TPS * 2);
-					nextDialogTimer = (TPS * 3) + rng.nextInt(TPS * 7);
+			say: {
+				int p, delay;
+				if (aiState == AI_ROAM) {
+					p = 20;
+					delay = 5;
+				} else if (aiState == AI_MEAL && sitting) {
+					p = 80;
+					delay = 10;
+				} else if (aiState == AI_GYM && training) {
+					p = 50;
+					delay = 7;
+				} else if (aiState == AI_WAYPOINT && targetReached) {
+					if (map.schedule != SC_SHOWER_BLOCK) {
+						break say;
+					}
+					p = 50;
+					delay = 7;
+				} else {
+					break say;
 				}
-			} else if (aiState == AI_MEAL && sitting) {
-				// TODO if sitting in canteen, say random canteen dialogs
-				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(500) == 0) {
-					dialog = "Random text";
-					dialogTimer = (TPS * 2);
-					nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 9);
-				}
-			} else if (aiState == AI_GYM && training) {
-				// TODO if exercising, say random gym things
-				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(300) == 0) {
-					dialog = "Random text";
-					dialogTimer = (TPS * 2);
-					nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 7);
-				}
-			} else if (aiState == AI_WAYPOINT && targetReached) {
-				if (map.schedule == SC_SHOWER_BLOCK) {
-					// TODO if taking a shower, say random shower dialogs
-					if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0) && rng.nextInt(300) == 0) {
+				if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0)) {
+					if (rng.nextInt(p) != 0) {
+						nextDialogTimer = TPS >> 1;
+					} else {
 						dialog = "Random text";
 						dialogTimer = (TPS * 2);
-						nextDialogTimer = (TPS * 5) + rng.nextInt(TPS * 7);
+						nextDialogTimer = TPS * delay;
 					}
 				}
 			}
@@ -873,7 +873,7 @@ class NPC implements Constants {
 			boolean attack = (targetReached || !correctPath || aiState == AI_ROAM)
 					&& aiState != AI_WAYPOINT && aiState != AI_SLEEP
 					&& angerTimer == 0 && rng.nextInt(20) == 0;
-			if (attack && rng.nextInt(40) != 0) {
+			if (attack && rng.nextInt(80) != 0) {
 				angerTimer = TPS;
 				attack = false;
 			}
