@@ -1877,7 +1877,7 @@ class NPC implements Constants {
 					}
 					int seat = map.getSeatIndex(map.gymPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 					if (seat != -1) {
-						map.gymPositions[seat + 1] = 0;
+						map.gymPositions[seat + 1] = -1;
 					}
 					if (treadmill) {
 						// treadmill
@@ -2025,7 +2025,7 @@ class NPC implements Constants {
 											dialogTimer = TPS * 2;
 											break hit;
 										}
-										moveTowards(x * TILE_SIZE + 7, y * TILE_SIZE + 7, 0);
+										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 										map.action = ACT_CLEANING;
 										map.actionTargetX = x;
 										map.actionTargetY = y;
@@ -2075,7 +2075,6 @@ class NPC implements Constants {
 										// TODO check for camera
 										break hit;
 									}
-									break hit;
 								}
 
 								if (weapon == Items.ITEM_NULL) {
@@ -2162,28 +2161,26 @@ class NPC implements Constants {
 						}
 
 						byte b = getCollision(x, y, true);
-						if (b != 0) {
-							x = (x + this.x) / TILE_SIZE;
-							y = (y + this.y) / TILE_SIZE;
-							int idx = map.getObjectIdxAt(x, y, layer);
-							int obj;
+						x = (x + this.x) / TILE_SIZE;
+						y = (y + this.y) / TILE_SIZE;
 
-							if (idx == -1) {
-								obj = -1;
-								// pickup item
-								int item = map.peekItem(x, y, layer);
-								if (item != -1) {
-									if (addItem(item, true)) {
-										map.pickItem(x, y, layer);
-									} else {
-										dialog = "Inventory full";
-										dialogTimer = TPS * 2;
-									}
-									break interact;
+						if (b == 0) {
+							// pickup item
+							int item = map.peekItem(x, y, layer);
+							if (item != -1) {
+								if (addItem(item, true)) {
+									map.pickItem(x, y, layer);
+								} else {
+									dialog = "Inventory full";
+									dialogTimer = TPS * 2;
 								}
-							} else {
-								obj = map.objects[layer][idx + 1];
+								break interact;
 							}
+						}
+
+						if (b != 0) {
+							int idx = map.getObjectIdxAt(x, y, layer);
+							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
 
 							if (b == COLL_DESK) {
 								if (obj == Objects.PLAYER_DESK) {

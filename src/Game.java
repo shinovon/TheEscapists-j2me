@@ -684,6 +684,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (key == -5) {
 						takeItem(containerOpen, 0);
 					}
+					if (key == -6) {
+						putItem(containerOpen, 0);
+					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
 						softPressed = true;
@@ -1657,7 +1660,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			schedule = SC_LIGHTSOUT;
 			cellsClosed = true;
 			entranceOpen = false;
-			Sound.playMusic(SC_LIGHTSOUT);
+			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
 			// reset npcs
 			int n = npcNum;
@@ -2684,6 +2687,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		int[] containers = this.containers;
 		int slots = containers[idx + 2];
 		int item = player.inventory[slot];
+		if (item == Items.ITEM_NULL) return false;
+
 		for (int i = 0; i < slots; ++i) {
 			if (containers[idx + 3 + i] == Items.ITEM_NULL) {
 				containers[idx + 3 + i] = item;
