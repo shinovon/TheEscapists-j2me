@@ -164,7 +164,8 @@ public interface Constants {
 
 	static final int NOTE_WELCOME = 0,
 			NOTE_JOB_LOST = 1,
-			NOTE_SOLITARY = 2;
+			NOTE_SOLITARY = 2,
+			NOTE_RIOT = 3;
 
 	static final int COUNT_JOBS = 11;
 
@@ -219,8 +220,10 @@ public interface Constants {
 			SFX_PICKUP = 7,
 			SFX_PLIP = 8,
 			SFX_RUMBLE = 9,
-			SFX_LOSE = 10;
-	static final int COUNT_EFFECTS = 11;
+			SFX_LOSE = 10,
+			SFX_THROW = 11,
+			SFX_HP = 12;
+	static final int COUNT_EFFECTS = 13;
 
 // endregion Sound
 

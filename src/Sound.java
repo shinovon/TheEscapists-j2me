@@ -61,6 +61,8 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			loadEffect(SFX_PLIP, "/plip.wav");
 			loadEffect(SFX_RUMBLE, "/rumble.wav");
 			loadEffect(SFX_LOSE, "/lose.wav");
+			loadEffect(SFX_THROW, "/throw.wav");
+			loadEffect(SFX_THROW, "/hp.wav");
 		}
 		
 		new Thread(inst, "Music").start();
@@ -214,6 +216,12 @@ public class Sound implements Runnable, PlayerListener, Constants {
 								break;
 							case SFX_LOSE:
 								res = "/lose.wav";
+								break;
+							case SFX_THROW:
+								res = "/throw.wav";
+								break;
+							case SFX_HP:
+								res = "/hp.wav";
 								break;
 							default:
 								continue;

@@ -290,7 +290,7 @@ class NPC implements Constants {
 					|| s1 == COLL_DOOR_STAFF || s2 == COLL_DOOR_STAFF
 					|| s3 == COLL_DOOR_STAFF || s4 == COLL_DOOR_STAFF) {
 				// colliding with doors, play sound
-				if (!doorSound && visible) {
+				if (!doorSound && visible && map.player.canSee(this)) {
 					Sound.playEffect(Sound.SFX_DOOR);
 				}
 				doorSound = true;
@@ -369,7 +369,9 @@ class NPC implements Constants {
 
 				fighting = 2;
 
-				if (visible) Sound.playEffect(Sound.SFX_ENHIT);
+				if (visible) {
+					Sound.playEffect(Sound.SFX_ENHIT);
+				}
 
 				int damage = statStrength / 14;
 
@@ -444,7 +446,7 @@ class NPC implements Constants {
 			if (wakeupTimer == -1) {
 				if (guard) {
 					map.guardsDown++;
-					if (++map.guardsDown >= 3 && !map.lockdown) {
+					if (map.guardsDown >= 3 && !map.lockdown) {
 						map.startLockdown();
 					}
 				}
@@ -1774,7 +1776,7 @@ class NPC implements Constants {
 			if (hasContraband) {
 				// TODO animate detector object
 				map.heat = 100;
-				Sound.playEffect(Sound.SFX_BUY); // TODO replace effect
+				Sound.playEffect(Sound.SFX_HP);
 			}
 		}
 
@@ -1895,7 +1897,7 @@ class NPC implements Constants {
 							if (++map.trainingRepeats % 2 == 0) {
 								statStrength++;
 							}
-							Sound.playEffect(SFX_ENHIT);
+							Sound.playEffect(SFX_THROW);
 						}
 					} else if (gymObject == Objects.TRAINING_TREADMILL) {
 						// TODO
@@ -1926,8 +1928,7 @@ class NPC implements Constants {
 						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)) {
 							if (jobQuota < MAX_JOB_QUOTA) {
 								if ((jobQuota += (MAX_JOB_QUOTA / 5)) >= MAX_JOB_QUOTA) {
-									// TODO
-									Sound.playEffect(Sound.SFX_BUY);
+									Sound.playEffect(Sound.SFX_HP);
 									jobQuota = MAX_JOB_QUOTA;
 									map.money += 20;
 								}
@@ -2087,6 +2088,19 @@ class NPC implements Constants {
 									inventory[slot] = Items.ITEM_NULL;
 									break hit;
 								}
+								int s;
+								if ((s = Game.getItemHeal(item)) != 0) {
+									// heal
+									inventory[slot] = Items.ITEM_NULL;
+									if ((health += s) > maxHealth) health = maxHealth;
+									break hit;
+								}
+								if ((s = Game.getItemRestore(item)) != 0) {
+									// restore fatigue
+									inventory[slot] = Items.ITEM_NULL;
+									if ((map.fatigue -= s) < 0) map.fatigue = 0;
+									break hit;
+								}
 
 								break hit;
 							}
@@ -2096,7 +2110,7 @@ class NPC implements Constants {
 								if (map.solid[layer][x + y * map.width] != 0) {
 									Sound.playEffect(Sound.SFX_LOSE);
 								} else {
-									Sound.playEffect(Sound.SFX_ENHIT); // TODO replace effect
+									Sound.playEffect(Sound.SFX_THROW);
 									carry.xFloat = carry.x = x * TILE_SIZE;
 									carry.yFloat = carry.y = y * TILE_SIZE;
 									carry.carried = false;
@@ -2133,7 +2147,7 @@ class NPC implements Constants {
 						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {
 							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[map.selectedInventory], layer);
 							if (r == 0) {
-								Sound.playEffect(Sound.SFX_PLIP);
+								Sound.playEffect(Sound.SFX_THROW);
 								inventory[map.selectedInventory] = Items.ITEM_NULL;
 							} else {
 								Sound.playEffect(Sound.SFX_LOSE);
@@ -2311,17 +2325,6 @@ class NPC implements Constants {
 									map.openContainer(idx);
 									break interact;
 								}
-//								if (obj == Objects.JOB_CLEANING_SUPPLIES) {
-//									// take mop
-//									addItem((rng.nextInt(2) == 0 ? Items.MOP : Items.BROOM)
-//											| Items.ITEM_DEFAULT_DURABILITY, true);
-//									break interact;
-//								}
-//								if (obj == Objects.JOB_GARDENING_TOOLS) {
-//									// take hoe
-//									addItem(Items.HOE | Items.ITEM_DEFAULT_DURABILITY, true);
-//									break interact;
-//								}
 
 								if (obj == Objects.JOB_CLEAN_LAUNDRY) {
 									// put clean laundry
@@ -2334,7 +2337,7 @@ class NPC implements Constants {
 										if (jobQuota < MAX_JOB_QUOTA) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
 												// TODO
-												Sound.playEffect(Sound.SFX_BUY);
+												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 20;
 											}

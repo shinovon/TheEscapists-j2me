@@ -466,6 +466,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						ingameFadeIn = Integer.MAX_VALUE;
 						t = "Nice try ".concat(player.name).concat("\n\nAs punishment I'm placing you in solitary for a few days, hopefully it'll teach you a hard lesson!");
 						break;
+					case NOTE_RIOT:
+						t = "Okay ".concat(player.name).concat(", you've made your point!\n\nThe main prison gate is now unlocked as requested, just please.. don't hurt anyone else!");
+						break;
 					default:
 						t = "Error!";
 						break;
@@ -1833,10 +1836,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						break;
 					case 13:
 						if (player.jobQuota < MAX_JOB_QUOTA) {
-							// fire player TODO
+							// fire player
 							jobs[player.job] &= ~JOB_OCCUPIED_BIT;
 							player.job = 0;
 							note = NOTE_JOB_LOST;
+//							Sound.playEffect(Sound.SFX_OPEN);
 						}
 						music = Sound.MUSIC_ROLLCALL;
 						schedule = SC_MIDDAY_ROLLCALL;
@@ -1943,10 +1947,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 				if (lockdown) {
 					if (guardsDown >= 4) {
-						entranceOpen = true;
+						if (!entranceOpen) {
+							entranceOpen = true;
+							updateDoors();
+							note = NOTE_RIOT;
+							Sound.playEffect(SFX_OPEN);
+						}
 					} else if (guardsDown <= 1 && playerSeenByGuards) {
 						lockdown = false;
 						entranceOpen = false;
+						updateDoors();
 					}
 				}
 			}
@@ -3269,6 +3279,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //		case Items.BASEBALL_BAT:
 //			return 4;
 		}
+		return 0;
+	}
+
+	static int getItemHeal(int id) {
+		// TODO
+		return 0;
+	}
+
+	static int getItemRestore(int id) {
+		// TODO
 		return 0;
 	}
 
