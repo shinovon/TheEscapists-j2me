@@ -2169,7 +2169,7 @@ class NPC implements Constants {
 						if (b == 0) {
 							// pickup item
 							int item = map.peekItem(x, y, layer);
-							if (item != -1) {
+							if (item != -1 && item != Items.ITEM_NULL) {
 								if (addItem(item, true)) {
 									map.pickItem(x, y, layer);
 								} else {
