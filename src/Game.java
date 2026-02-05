@@ -493,7 +493,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				Image itemsImg = itemsTexture;
 
 				if (toilet) {
-
+					// TODO toilet gui
 				} else {
 					int nw = 120;
 					int nh = 110;
@@ -513,11 +513,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					for (int row = 0; row < 4; ++row) {
 						for (int col = 0; col < 5; ++col) {
 							int x = nx + 6 + 22 * col;
+							int i = (col + row * 5);
+
 							g.setColor(0x212121);
 							g.fillRect(x + 1, y + 1, 18, 18);
-							g.setColor(0x0F0F0F);
+							g.setColor(selectedSlot == i ? 0xFFFFFF : 0x0F0F0F);
 							g.drawRect(x, y, 19, 19);
-							int item = containers[idx + 3 + (col + row * 5)];
+
+							int item = containers[idx + 3 + i];
 							if (item != Items.ITEM_NULL) {
 								item &= Items.ITEM_ID_MASK;
 								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
@@ -677,15 +680,86 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						inventoryOpen = null;
 					}
 				} else if (containerOpen != -1) {
-					// TODO
+					int slots = toilet ? 3 : 20;
 					if (key == -7) {
+						// exit
 						containerOpen = -1;
-					}
-					if (key == -5) {
-						takeItem(containerOpen, 0);
-					}
-					if (key == -6) {
-						putItem(containerOpen, 0);
+						selectedSlot = 0;
+						selectedInventory = -1;
+					} else if (key == -6) {
+						// switch between inventory and container
+						if (selectedSlot == -1) {
+							selectedSlot = 0;
+							selectedInventory = -1;
+						} else {
+							selectedSlot = -1;
+							selectedInventory = 0;
+						}
+					} else if (key >= '1' && key <= '6') {
+						// select inventory
+						int slot = key - '1';
+						if (player.inventory[slot] != Items.ITEM_NULL) {
+							selectedSlot = -1;
+							selectedInventory = slot;
+						} else {
+							selectedInventory = -1;
+						}
+					} else {
+						// container navigation
+						switch (gameAction) {
+						case UP:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (toilet) break;
+							if ((selectedSlot = selectedSlot - 5) < 0) {
+								selectedSlot += slots;
+							}
+							break;
+						case DOWN:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (toilet) break;
+							selectedSlot = (selectedSlot + 5) % slots;
+							break;
+						case LEFT:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot-- == 0) {
+								selectedSlot = slots - 1;
+							}
+							break;
+						case RIGHT:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (++selectedSlot == slots) {
+								selectedSlot = 0;
+							}
+							break;
+						case FIRE:
+							if (selectedSlot == -1) {
+								// if (selectedInventory != -1)
+								putItem(containerOpen, selectedInventory);
+								break;
+							}
+							takeItem(containerOpen, selectedSlot);
+							break;
+						}
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -814,8 +888,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			} else if (state == 7) {
 				TE.midlet.notifyDestroyed();
 			}
-			// debug time skip
 			if (key == '9' && mapLoaded) {
+				// debug time skip
 				time = ((time / 60 + 1) * 60) - 1;
 				playerWasOnRollcall = true;
 				playerWasOnMeal = true;
@@ -844,8 +918,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
 			}
 			if (key == '7' && mapLoaded) {
-//				debugFreecam = !debugFreecam;
-				note = NOTE_SOLITARY;
+				debugFreecam = !debugFreecam;
+//				note = NOTE_SOLITARY;
 			}
 		} catch (Exception ignored) {}
 	}
@@ -2678,12 +2752,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else {
 			toilet = false;
 		}
+		selectedInventory = -1;
 		containerOpen = idx;
+		selectedSlot = 0;
 		Sound.playEffect(Sound.SFX_OPEN);
 	}
 
 	// from inventory to container
 	boolean putItem(int idx, int slot) {
+		if (slot == -1) return false;
 		int[] containers = this.containers;
 		int slots = containers[idx + 2];
 		int item = player.inventory[slot];
@@ -2702,6 +2779,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// from container to inventory
 	boolean takeItem(int idx, int slot) {
+		if (slot == -1) return false;
 		int item = containers[idx + 3 + slot];
 		if (player.addItem(item, true)) {
 			containers[idx + 3 + slot] = Items.ITEM_NULL;

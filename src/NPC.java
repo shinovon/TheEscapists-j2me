@@ -758,14 +758,14 @@ class NPC implements Constants {
 				if (guard) {
 					if (map.time < 8 * 60 && !map.lockdown && player.outfitId != Textures.OUTFIT_GUARD
 							&& !player.isInZone(ZONE_PLAYER_CELL)) {
-						// TODO send player to solitary if they're not in cell during lights out
+						// send player to solitary if they're not in cell during lights out
 						map.note = NOTE_SOLITARY;
 					}
-					// TODO attack player if they took sth from others pocket
-					//  or is searching others desk, except their job is mailman
 					if (map.heat >= 90 || map.lockdown || player.fighting != 0
 							|| (map.action == ACT_SEARCHING && player.job != JOB_MAILMAN && player.job != JOB_LIBRARY)) {
-						// guard attacks player if heat is over 90 or lockdown is in progress
+						// guard attack player if they saw them stealing from others pocket
+						//  or is searching others desk, except their job is mailman,
+						//  or if heat is over 90 or lockdown is in progress
 						aiState = AI_ATTACK;
 						chaseTarget = player;
 						aiWaitTimer = 0;
@@ -777,7 +777,7 @@ class NPC implements Constants {
 						}
 					} else if (map.action == ACT_CHIPPING || map.action == ACT_DIGGING) {
 						map.note = NOTE_SOLITARY;
-					} else if (heatTimer == 0) {
+					} else if (heatTimer == 0 && player.health > 0) {
 						if (player.outfitId == Textures.OUTFIT_GUARD) {
 							// increase heat a little, if seeing player in disguise
 							map.heat += 2;
@@ -2071,13 +2071,15 @@ class NPC implements Constants {
 										inventory[slot] = Items.TOOTHBRUSH_SHIV | Items.ITEM_DEFAULT_DURABILITY;
 										break hit;
 									}
-									if (item == Items.TUBE_OF_TOOTHPASTE || item == Items.ROLL_OF_DUCT_TAPE) {
+									if (item == Items.TUBE_OF_TOOTHPASTE
+											|| item == Items.SHAVING_CREAM
+											|| item == Items.ROLL_OF_DUCT_TAPE) {
 										// TODO check for camera
 										break hit;
 									}
 								}
 
-								if (weapon == Items.ITEM_NULL) {
+								if (Game.getItemAttack(item) != 0 && weapon == Items.ITEM_NULL) {
 									// equip
 									weapon = inventory[slot];
 									inventory[slot] = Items.ITEM_NULL;

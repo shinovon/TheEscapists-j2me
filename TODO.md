@@ -40,6 +40,8 @@
 - [ ] Player training (WIP)
 - [x] Solitary
 - [ ] Map schedules
+- [ ] Profile
+- [ ] Tasks
 
 # OST
 
