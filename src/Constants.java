@@ -28,7 +28,7 @@ public interface Constants {
 	static final boolean SERIAL_LOGS = false;
 	static final boolean SCREEN_LOGS = false;
 	
-//#if 0
+//#if FALSE
 	// default config for development
 	static final long FPS_LIMIT = 30;
 

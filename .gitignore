@@ -7,8 +7,6 @@
 !/.idea/artifacts/**
 !/.idea/modules.xml
 !/.idea/misc.xml
-.mtj
-build.properties
 proguard-local.cfg
 *.class
 *.jar
