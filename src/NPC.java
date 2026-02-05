@@ -1311,12 +1311,14 @@ class NPC implements Constants {
 						// TODO handle case, when player is standing on table
 						//  e.g, find closest free tile to pathfind
 						correctPath = false;
-					} else if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-						correctPath = true;
-						pathStep = 0;
-					} else {
-						if (LOGGING) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
-						correctPath = false;
+					} else if (!correctPath || (tick & 4) == 0) {
+						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+							correctPath = true;
+							pathStep = 0;
+						} else {
+							if (LOGGING) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+							correctPath = false;
+						}
 					}
 				}
 			}
