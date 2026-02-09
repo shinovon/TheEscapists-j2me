@@ -298,6 +298,12 @@ public class MapCompiler implements Constants {
 								h++;
 								y++;
 								break;
+							case Objects.SUN_LOUNGER:
+								checkLayer("sun lounger", objectId, x, y, layer, LAYER_GROUND);
+								sprite = 195;
+								h++;
+								y++;
+								break;
 							case Objects.FREEZER:
 								checkLayer("freezer", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 102;

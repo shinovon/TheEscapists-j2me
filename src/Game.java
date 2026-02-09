@@ -2981,6 +2981,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.JOB_DELIVERIES_TRUCK:
 		case Objects.JOB_BOOK_CHEST:
 		case Objects.GENERATOR:
+		case Objects.SUN_LOUNGER:
 			return Game.COLL_SOLID_INTERACT;
 		case Objects.DINING_TABLE:
 		case Objects.SERVING_TABLE:

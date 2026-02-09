@@ -837,7 +837,7 @@ class NPC implements Constants {
 								&& player.job != JOB_MAILMAN && player.job != JOB_LIBRARY) {
 							// if player is employed, job quota is not completed, and not in work zone, hurry them up
 							onJob: {
-								switch (job) {
+								switch (player.job) {
 								case JOB_LAUNDRY:
 									if (player.isInZone(ZONE_LAUNDRY))
 										break onJob;
@@ -2302,6 +2302,12 @@ class NPC implements Constants {
 									break interact;
 								}
 								if (obj == Objects.MEDICAL_BED) {
+									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
+									animation = ANIM_LYING;
+									break interact;
+								}
+								if (obj == Objects.SUN_LOUNGER) {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
 									animation = ANIM_LYING;
