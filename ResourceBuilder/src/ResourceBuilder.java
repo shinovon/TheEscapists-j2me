@@ -48,7 +48,7 @@ public class ResourceBuilder implements Constants {
 			title();
 			icon();
 			ground("ground_" + map + ".gif");
-			tiles("tiles_" + map + ".gif", "tiles_ea.png");
+			tiles("tiles_" + map + ".gif", "tiles.png");
 			character("Inmate", "inmate.png", 4);
 			character("Inmate 2", "inmate2.png", 4);
 			character("Inmate 3", "inmate3.png", 4);

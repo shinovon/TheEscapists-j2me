@@ -194,6 +194,14 @@ public interface Constants {
 	static final byte COLL_DETECTOR = 12;
 	static final byte COLL_SOLID_NO_SHADOW = 13 | COLL_BIT_SOLID_AI;
 
+	static final byte MAP_OTHER = 0,
+			MAP_PERKS = 1,
+			MAP_STALAGFLUCHT = 2,
+			MAP_SHANKTONSTATEPEN = 3,
+			MAP_JUNGLE = 4,
+			MAP_SANPANCHO = 5,
+			MAP_IRONGATE = 6;
+
 // endregion Map
 
 // region Sound

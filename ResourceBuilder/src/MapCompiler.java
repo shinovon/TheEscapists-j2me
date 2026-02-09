@@ -31,6 +31,9 @@ public class MapCompiler implements Constants {
 		int guards = 0;
 		
 		int startJob = JOB_UNEMPLOYED;
+
+		int npcLevel = 2;
+		int fightFreq = 2;
 		
 		Vector<int[]> zones = new Vector<>();
 		
@@ -578,6 +581,10 @@ public class MapCompiler implements Constants {
 							guards = Integer.parseInt(sb.toString());
 						} else if ("Inmates".equals(key)) {
 							inmates = Integer.parseInt(sb.toString());
+						} else if ("NPClvl".equals(key)) {
+							npcLevel = Integer.parseInt(sb.toString());
+						} else if ("FightFreq".equals(key)) {
+							fightFreq = Integer.parseInt(sb.toString());
 						}
 					}
 					if (value && jobsSection) {
@@ -739,7 +746,34 @@ public class MapCompiler implements Constants {
 
 		try (DataOutputStream out = new DataOutputStream(Files.newOutputStream(outputPath))) {
 			// version
-			out.writeInt(1);
+			out.writeInt(2);
+
+			byte map = MAP_OTHER;
+			switch (inputPath.getFileName().toString()) {
+			case "perks.map":
+				map = MAP_PERKS;
+				break;
+			case "stalagflucht.map":
+				map = MAP_STALAGFLUCHT;
+				break;
+			case "shanktonstatepen.map":
+				map = MAP_SHANKTONSTATEPEN;
+				break;
+			case "jungle.map":
+				map = MAP_JUNGLE;
+				break;
+			case "sanpancho.map":
+				map = MAP_SANPANCHO;
+				break;
+			case "irongate.map":
+				map = MAP_IRONGATE;
+				break;
+			}
+
+			out.writeByte(map);
+
+			out.writeByte(npcLevel);
+			out.writeByte(fightFreq);
 
 			out.writeByte(width);
 			out.writeByte(height);

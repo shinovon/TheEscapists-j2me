@@ -456,7 +456,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					String t;
 					switch (note) {
 					case NOTE_WELCOME:
-						t = "Welcome to Shankton State Pen, your new home for the foreseeable future.\n\nSince I've been warden we've had a few daring escapists among us, but they were promptly scooped back up and punished. No one escapes on my watch, so don't get any ideas!\n\nIf you forget any of the rules around here, the guards batons will be only too glad to remind you!";
+						switch (map) {
+						case MAP_PERKS:
+							t = "Dear ".concat(player.name).concat("\n\nWelcome to Center Perks - the most comfortable low security prison in the county. On behalf of all the staff here we wish you a happy and relaxing visit!\n\nShould you get bored of the complimentary cable TV, we pride ourselves in many other engaging activities around the grounds.");
+							break;
+						case MAP_STALAGFLUCHT:
+							t = "Sent me another one have they?..\n\nListen ".concat(player.name).concat(", I don't have to remind you that Stalag Flucht is famous for housing inmates with a record of escapism, so if you're planning on getting out of this one, think again!\n\nNow get yourself settled in, it's going to be a cold, long winter.");
+							break;
+						case MAP_SHANKTONSTATEPEN:
+							t = "Welcome to Shankton State Pen, your new home for the foreseeable future.\n\nSince I've been warden we've had a few daring escapists among us, but they were promptly scooped back up and punished. No one escapes on my watch, so don't get any ideas!\n\nIf you forget any of the rules around here, the guards batons will be only too glad to remind you!";
+							break;
+						case MAP_JUNGLE:
+							t = "Welcome to the jungle!\n\nSociety has declared you a menace, so we've put you far away from any trace of it.\n\nBefore you even entertain the thought of escaping, let me remind you that even if by some remote chance you make it past the fence, the wall, the perimeter jeeps and the guard checkpoint, there's no surviving out in the wild beyond...";
+							break;
+						case MAP_SANPANCHO:
+							t = "This is the notorious San Pancho, the roughest, toughest and downright nastiest prison south of the border.\n\nThe blistering heat and claustrophobic conditions here turns our inmates angry and violent.\n\nEven the guards daren't enter!";
+							break;
+						case MAP_IRONGATE:
+							t = "Listen here maggot.\n\nYou know why you're here so no point crying about it. Generally feared as the highest security prison ever, HMP Irongate is where you'll live out the rest of your meaningless existence.\n\nEscape you say? Don't make me laugh! The handful of idiots who tried met a watery demise trying to swim off the island. Still, chin up eh?";
+							break;
+						default:
+							t = "";
+							break;
+						}
 						break;
 					case NOTE_JOB_LOST:
 						t = "Due to your sheer incompetence and inability to reach the quotas we've set, we've taken away your job.\n\nOnce you pull yourself together and decide to try harder you may reapply at the job board.";
@@ -1227,6 +1249,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int[] jobs; // 0 is count
 	int npcSpawnX, npcSpawnY;
 
+	byte map;
+	byte npcLevel;
+	byte fightFreq;
+
 	TiledLayer[] tiledLayer;
 
 	void loadMap() throws Exception {
@@ -1247,6 +1273,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			DataInputStream in = new DataInputStream(stream);
 			try {
 				int version = in.readInt();
+
+				map = in.readByte();
+				npcLevel = in.readByte();
+				fightFreq = in.readByte();
 
 				int width = this.width = in.readByte() & 0xFF;
 				int height = this.height = in.readByte() & 0xFF;
@@ -1596,6 +1626,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 1; i < n; ++i) {
 				NPC npc = chars[i];
 				if (npc == null || (!npc.inmate && !npc.guard)) continue;
+				// TODO npcLevel
 				npc.statStrength = 30 + NPC.rng.nextInt(30);
 				npc.statSpeed = 30 + NPC.rng.nextInt(30);
 				npc.statRespect = 30 + NPC.rng.nextInt(30);
@@ -3178,9 +3209,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		switch (id & Items.ITEM_ID_MASK) {
 		// TODO
 		case Items.CELL_KEY:
-			return "Cell key";
+			return "Cell Key";
 		case Items.STAFF_KEY:
-			return "Staff key";
+			return "Staff Key";
 		case Items.PACK_OF_MINTS:
 			return "Pack of Mints";
 		case Items.GUARD_OUTFIT:
@@ -3388,7 +3419,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static void loadTextures() {
 		try {
-			tilesTexture = loadTiles("/tiles_ea.png");
+			tilesTexture = loadTiles("/tiles.png");
 			itemsTexture = loadTiles("/items.png");
 			objectsTexture = loadTiles("/objects.png");
 			groundTexture = loadTiles("/ground.png");

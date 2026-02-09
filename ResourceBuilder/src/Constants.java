@@ -44,4 +44,12 @@ public interface Constants {
 	byte COLL_SOLID = 2;
 	byte COLL_SOLID_TRANSPARENT = 3;
 
+	byte MAP_OTHER = 0,
+			MAP_PERKS = 1,
+			MAP_STALAGFLUCHT = 2,
+			MAP_SHANKTONSTATEPEN = 3,
+			MAP_JUNGLE = 4,
+			MAP_SANPANCHO = 5,
+			MAP_IRONGATE = 6;
+
 }

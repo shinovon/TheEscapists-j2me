@@ -876,6 +876,7 @@ class NPC implements Constants {
 
 			NPC[] chars = map.chars;
 			int n = chars.length;
+			// TODO map.fightFreq
 			boolean attack = (targetReached || !correctPath || aiState == AI_ROAM)
 					&& aiState != AI_WAYPOINT && aiState != AI_SLEEP
 					&& angerTimer == 0 && rng.nextInt(20) == 0;
