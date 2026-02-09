@@ -666,9 +666,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (mapLoaded && state == 3 && !paused) {
 				if (note != -1) {
 					if (key == -5 || key == -6 || key == -7 || gameAction == FIRE) {
-						// close note TODO
+						// close note
 						if (note == NOTE_SOLITARY) {
-							// TODO reset
 							note = -1;
 							sendToSolitary = true;
 						} else {
@@ -717,7 +716,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							}
-							if (toilet) break;
+							if (toilet) {
+								if (selectedSlot == -2) selectedSlot = 0;
+								break;
+							}
 							if ((selectedSlot = selectedSlot - 5) < 0) {
 								selectedSlot += slots;
 							}
@@ -729,7 +731,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							}
-							if (toilet) break;
+							if (toilet) {
+								selectedSlot = -2;
+								break;
+							}
 							selectedSlot = (selectedSlot + 5) % slots;
 							break;
 						case LEFT:
@@ -739,6 +744,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							}
+							if (selectedSlot == -2) break;
 							if (selectedSlot-- == 0) {
 								selectedSlot = slots - 1;
 							}
@@ -750,11 +756,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							}
+							if (selectedSlot == -2) break;
 							if (++selectedSlot == slots) {
 								selectedSlot = 0;
 							}
 							break;
 						case FIRE:
+							if (selectedSlot == -2 && toilet) {
+								// flush
+								break;
+							}
 							if (selectedSlot == -1) {
 								// if (selectedInventory != -1)
 								putItem(containerOpen, selectedInventory);
@@ -1206,6 +1217,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean playerWasOnExcercise;
 	boolean playerWasOnShowers;
 	int lockdownTimer;
+	boolean rollcallFace; // true if guards are above inmates
 
 	int guardsDown;
 	int guards;
@@ -1463,6 +1475,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				in.close();
 			}
 		}
+
+		rollcallFace = guardRollcallPositions[2] < rollcallPositions[2];
 
 		allocatePathfind();
 
@@ -1768,6 +1782,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			// TODO reset containers
+			removeIllegalItems(getContainerByOwner(0));
 
 			// reset player
 			NPC player = this.player;
@@ -2754,6 +2769,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return -1;
 	}
 
+	int getContainerByOwner(int npcId) {
+		int[] containers = this.containers;
+		if (containers == null) return - 1;
+		int n = containers[0];
+		int idx = 1;
+		for (int i = 0; i < n; ++i) {
+			if (containers[idx + 1] == npcId) {
+				return idx;
+			}
+			idx += containers[idx + 2] + 3;
+		}
+		return -1;
+	}
+
 	void openContainer(int objIdx) {
 		int idx = getContainer(objIdx);
 		if (idx == -1) return;
@@ -2796,6 +2825,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return true;
 		}
 		return false;
+	}
+
+	void removeIllegalItems(int idx) {
+		int slots = containers[idx + 2];
+		for (int i = 0; i < slots; ++i) {
+			if (isIllegal(containers[idx + 3 + i] & Items.ITEM_ID_MASK)) {
+				containers[idx + 3 + i] = Items.ITEM_NULL;
+			}
+		}
 	}
 
 // endregion Container
@@ -2936,6 +2974,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.MEDICAL_SUPPLIES:
 		case Objects.JOB_MAILROOM_FILE:
 		case Objects.JOB_METAL_TOOLS:
+		case Objects.JOB_FABRIC_CHEST:
+		case Objects.JOB_CLOTHING_STORAGE:
+		case Objects.JOB_DELIVERIES_BLUE_BOX:
+		case Objects.JOB_DELIVERIES_RED_BOX:
+		case Objects.JOB_DELIVERIES_TRUCK:
+		case Objects.JOB_BOOK_CHEST:
+		case Objects.GENERATOR:
 			return Game.COLL_SOLID_INTERACT;
 		case Objects.DINING_TABLE:
 		case Objects.SERVING_TABLE:
@@ -3287,9 +3332,39 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return 0;
 	}
 
-	static int getItemRestore(int id) {
+	static int getItemEnergy(int id) {
 		// TODO
 		return 0;
+	}
+
+	static boolean hasDurability(int id) {
+		switch (id & Items.ITEM_ID_MASK) {
+		// TODO
+		case Items.STURDY_SHOVEL:
+		case Items.SHAVING_CREAM:
+		case Items.SCREWDRIVER:
+		case Items.PLASTIC_KNIFE:
+		case Items.PLASTIC_FORK:
+		case Items.STURDY_PICKAXE:
+		case Items.TROWEL:
+		case Items.TUBE_OF_TOOTHPASTE:
+		case Items.PLASTIC_WORK_KEY:
+		case Items.STURDY_CUTTERS:
+		case Items.FILE:
+		case Items.PLASTIC_UTILITY_KEY:
+		case Items.PLASTIC_STAFF_KEY:
+		case Items.PLASTIC_CELL_KEY:
+		case Items.PLASTIC_ENTRANCE_KEY:
+		case Items.LIGHTWEIGHT_SHOVEL:
+		case Items.FLIMSY_SHOVEL:
+		case Items.FLIMSY_PICKAXE:
+		case Items.LIGHTWEIGHT_PICKAXE:
+		case Items.FLIMSY_CUTTERS:
+		case Items.LIGHTWEIGHT_CUTTERS:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 // endregion Items

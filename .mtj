@@ -5,7 +5,7 @@
       <alias/>
    </signing>
    <configurations>
-      <configuration active="true" name="S60">
+      <configuration active="false" name="S60">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="PREFETCH_SFX" value="true"/>
@@ -13,7 +13,7 @@
             <symbol name="PREFETCH_MUSIC" value="true"/>
          </symbolSet>
       </configuration>
-      <configuration active="false" name="S40">
+      <configuration active="true" name="S40">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="USE_TILED_LAYER" value="true"/>
@@ -22,11 +22,11 @@
       <configuration active="false" name="Minimum">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
-            <symbol name="DRAW_LIGHTS" value="false"/>
-            <symbol name="MORE_INMATES" value="false"/>
             <symbol name="USE_M3G" value="false"/>
             <symbol name="DRAW_SHADOWS" value="false"/>
             <symbol name="NO_SFX" value="true"/>
+            <symbol name="MORE_INMATES" value="false"/>
+            <symbol name="DRAW_LIGHTS" value="false"/>
             <symbol name="USE_TILED_LAYER" value="false"/>
          </symbolSet>
       </configuration>

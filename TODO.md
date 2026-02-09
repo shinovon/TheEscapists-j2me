@@ -55,3 +55,11 @@
 - [x] Work
 - [x] Escaped
 - [x] Lockdown (mp3)
+
+# Misc
+
+- Update desks random items by time
+- Improve chase ai
+- Toilet interface
+- Kockdown midi
+- Improve other maps support

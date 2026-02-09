@@ -171,6 +171,9 @@ public class MapCompiler implements Constants {
 								checkLayer("deliveries blue", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 23;
 								break;
+							case Objects.TRAINING_PUNCHBAG: // replace until implemented in game
+							case Objects.TRAINING_PRESSUPS:
+							case Objects.TRAINING_CHINUP:
 							case Objects.TRAINING_WEIGHT: {
 								checkLayer("training", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 12;
@@ -179,6 +182,8 @@ public class MapCompiler implements Constants {
 								break;
 							}
 							case Objects.TRAINING_SPEEDBAG:
+							case Objects.TRAINING_JOGGING:
+							case Objects.TRAINING_SKIPPING:
 							case Objects.TRAINING_TREADMILL: {
 								checkLayer("training", objectId, x, y, layer, LAYER_GROUND);
 								objectId = Objects.TRAINING_TREADMILL;
@@ -393,9 +398,7 @@ public class MapCompiler implements Constants {
 								checkLayer("bookshelf", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 226;
 								w++;
-
 								h++;
-								y++;
 								break;
 							case Objects.SHOWER: {
 								checkLayer("shower", objectId, x, y, layer, LAYER_GROUND);
@@ -695,11 +698,35 @@ public class MapCompiler implements Constants {
 		if (zones.size() == 0) {
 			throw new Exception("no zones");
 		}
+		if (jobs[0] == 0) {
+			throw new Exception("no jobs");
+		}
 		if (npcSpawnX == 0 || npcSpawnY == 0) {
 			throw new Exception("no npc spawn");
 		}
 		if (guardRoamPositions.size() < guards) {
 			throw new Exception("not enough guard waypoints");
+		}
+		if (guardRollcallPositions.size() < 3) {
+			throw new Exception("not enough guard rollcall positions");
+		}
+		if (guardCanteenPositions.size() < 3) {
+			throw new Exception("not enough guard canteen positions");
+		}
+		if (guardGymPositions.size() < 3) {
+			throw new Exception("not enough guard gym positions");
+		}
+		if (guardShowerPositions.size() < 3) {
+			throw new Exception("not enough guard shower positions");
+		}
+		if (gymPositions.size() < inmates) {
+			throw new Exception("not enough gym objects");
+		}
+		if (showerPositions.size() < inmates) {
+			throw new Exception("not enough shower positions");
+		}
+		if (containers.size() < inmates) {
+			throw new Exception("not enough containers");
 		}
 
 		// write
@@ -737,7 +764,13 @@ public class MapCompiler implements Constants {
 
 			// tiles
 			for (int layer = 0; layer < 4; ++layer) {
-				int n = tiles[layer].length;
+				int n = 0;
+				for (int i = tiles[layer].length - 1; i >= 0; --i) {
+					if (tiles[layer][i] != 0) {
+						n = i + 1;
+						break;
+					}
+				}
 				out.writeShort(n);
 				for (int i = 0; i < n; ++i) {
 					out.writeByte(tiles[layer][i]);

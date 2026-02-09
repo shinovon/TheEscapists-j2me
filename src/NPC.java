@@ -283,6 +283,10 @@ class NPC implements Constants {
 					&& s4 != COLL_TABLE && s4 != COLL_DESK) {
 				// got down from table
 				climbed = false;
+			} else if (climb && direction != NPC.DIR_DOWN) {
+				// TODO
+				yFloat = y -= 4;
+				climb = false;
 			}
 
 			if (s1 == COLL_DOOR || s2 == COLL_DOOR
@@ -600,7 +604,7 @@ class NPC implements Constants {
 						aiState = AI_WAYPOINT;
 						pathX = map.guardRollcallPositions[pos];
 						pathY = map.guardRollcallPositions[pos + 1];
-						pathEndDir = DIR_UP; // TODO face inmates
+						pathEndDir = map.rollcallFace ? DIR_DOWN : DIR_UP;
 						correctPath = false;
 						break;
 					case SC_BREAKFAST:
@@ -658,7 +662,7 @@ class NPC implements Constants {
 					pos = (pos << 1) + 1;
 					pathX = map.rollcallPositions[pos];
 					pathY = map.rollcallPositions[pos + 1];
-					pathEndDir = DIR_DOWN; // TODO face guards
+					pathEndDir = map.rollcallFace ? DIR_UP : DIR_DOWN;
 					correctPath = false;
 					break;
 				}
@@ -1176,7 +1180,10 @@ class NPC implements Constants {
 						}
 
 						obj = map.findObject(obj, LAYER_GROUND, 0);
-						if (obj == -1) break work;
+						if (obj == -1) {
+							if (LOGGING) Profiler.log(debugName() + " missing object for job " + Game.jobStrings[job]);
+							break work;
+						}
 
 						int x = map.objects[LAYER_GROUND][obj + 3];
 						int y = map.objects[LAYER_GROUND][obj + 4];
@@ -1194,6 +1201,7 @@ class NPC implements Constants {
 								}
 							} else break solid;
 
+							if (LOGGING) Profiler.log(debugName() + " no way to object " + obj + " for job " + Game.jobStrings[job]);
 							break work;
 						}
 						pathX = x;
@@ -1217,7 +1225,8 @@ class NPC implements Constants {
 					break;
 				}
 				case JOB_WOODSHOP:
-				case JOB_TAILOR: {
+				case JOB_TAILOR:
+				case JOB_DELIVERIES: {
 					int obj;
 					int i = aiWorkState;
 					if (!correctPath) {
@@ -1227,6 +1236,10 @@ class NPC implements Constants {
 							break;
 						case JOB_TAILOR:
 							obj = i == 0 ? Objects.JOB_FABRIC_CHEST : Objects.JOB_CLOTHING_STORAGE;
+							break;
+						case JOB_DELIVERIES:
+							obj = i == 0 ? Objects.JOB_DELIVERIES_TRUCK :
+									rng.nextInt(2) == 0 ? Objects.JOB_DELIVERIES_BLUE_BOX : Objects.JOB_DELIVERIES_RED_BOX;
 							break;
 						default:
 							break work;
@@ -1285,14 +1298,15 @@ class NPC implements Constants {
 			// chase
 			int tx = chaseTarget.x, ty = chaseTarget.y;
 			int dx = tx - x, dy = ty - y;
-			if (dx * dx + dy * dy > NPC_CHASE_LOSE_DISTANCE || chaseTarget.health <= 0) {
+			int dist = dx * dx + dy * dy;
+			if (dist > NPC_CHASE_LOSE_DISTANCE || chaseTarget.health <= 0) {
 				// target lost
 				aiState = AI_RESET;
 				chaseTarget = null;
 				correctPath = false;
 				aiWaitTimer = TPS;
-			} else {
-				if (dx * dx + dy * dy > TILE_SIZE * TILE_SIZE) {
+			} else if (!correctPath || (tick & 4) == 0) {
+				if (dist > TILE_SIZE * TILE_SIZE) {
 					// pick random offsets of position
 					if (tick % TPS == 0) {
 						targetOffsetX = rng.nextInt(30) - 15;
@@ -1309,19 +1323,36 @@ class NPC implements Constants {
 						pathX = tx / TILE_SIZE;
 						pathY = (ty + 5) / TILE_SIZE;
 					}
-					if ((map.solid[LAYER_GROUND][pathX + pathY * map.width] & COLL_BIT_SOLID_AI) != 0) {
-						// TODO handle case, when player is standing on table
-						//  e.g, find closest free tile to pathfind
-						correctPath = false;
-					} else if (!correctPath || (tick & 4) == 0) {
+					path: {
+						if ((map.solid[LAYER_GROUND][pathX + pathY * map.width] & COLL_BIT_SOLID_AI) != 0) {
+							solid: {
+								for (int n = 0; n < 4; ++n) {
+									int ox = Game.PATH_DIR_POSITIONS[n << 1];
+									int oy = Game.PATH_DIR_POSITIONS[(n << 1) + 1];
+									if (map.solid[LAYER_GROUND][pathX + ox + (pathY + oy) * map.width] == 0) {
+										pathX += ox;
+										pathY += oy;
+										break solid;
+									}
+								}
+
+								if (LOGGING)
+									Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+								correctPath = false;
+								break path;
+							}
+						}
 						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
 						} else {
-							if (LOGGING) Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+							if (LOGGING)
+								Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
 							correctPath = false;
 						}
 					}
+				} else if (dist > (TILE_SIZE * TILE_SIZE) / 3) {
+					moveTowards(tx, ty, NPC_SPEED);
 				}
 			}
 		}
@@ -1851,6 +1882,11 @@ class NPC implements Constants {
 			} else if (training) {
 				canClimb = false;
 				boolean treadmill = direction == DIR_RIGHT;
+				if (treadmill) {
+					// hack for exiting treadmill, fixes softlock in wall
+					x += 4;
+					y += 4;
+				}
 				if ((actions & GameCanvas.UP_PRESSED) != 0 && !checkCollision(5, -1)) {
 					training = false;
 					animateToX = x;
@@ -1872,6 +1908,11 @@ class NPC implements Constants {
 					animateToY = y;
 					direction = NPC.DIR_RIGHT;
 				}
+				if (treadmill) {
+					// restore
+					x -= 4;
+					y -= 4;
+				}
 				if (!training) {
 					// leave training
 					if (gymObjectIdx != -1 && gymObject == Objects.TRAINING_WEIGHT) {
@@ -1882,11 +1923,6 @@ class NPC implements Constants {
 					int seat = map.getSeatIndex(map.gymPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
 					if (seat != -1) {
 						map.gymPositions[seat + 1] = -1;
-					}
-					if (treadmill) {
-						// treadmill
-						animateToX += 4;
-						animateToY += 4;
 					}
 					animation = ANIM_REGULAR;
 				} else if (map.trainingTimer != 0) {
@@ -1994,9 +2030,6 @@ class NPC implements Constants {
 					direction = NPC.DIR_LEFT;
 				}
 				if (climb && canClimb && !climbed) {
-					if (direction != NPC.DIR_DOWN) {
-						xFloat = y -= 4;
-					}
 					climbed = true;
 				}
 
@@ -2095,7 +2128,7 @@ class NPC implements Constants {
 									if ((health += s) > maxHealth) health = maxHealth;
 									break hit;
 								}
-								if ((s = Game.getItemRestore(item)) != 0) {
+								if ((s = Game.getItemEnergy(item)) != 0) {
 									// restore fatigue
 									inventory[slot] = Items.ITEM_NULL;
 									if ((map.fatigue -= s) < 0) map.fatigue = 0;
@@ -2349,6 +2382,14 @@ class NPC implements Constants {
 								if (obj == Objects.STASH) {
 									// open stash TODO
 
+									break interact;
+								}
+								if (obj == Objects.FREEZER) {
+									addItem(Items.UNCOOKED_FOOD | Items.ITEM_DEFAULT_DURABILITY, true);
+									break interact;
+								}
+								if (obj == Objects.JOB_FABRIC_CHEST) {
+									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
 							}
