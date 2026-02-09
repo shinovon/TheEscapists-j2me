@@ -42,6 +42,7 @@
 - [ ] Map schedules
 - [ ] Profile
 - [ ] Tasks
+- [ ] Desk moving
 
 # OST
 
@@ -59,7 +60,7 @@
 # Misc
 
 - Update desks random items by time
-- Improve chase ai
 - Toilet interface
-- Kockdown midi
+- Lockdown midi
 - Improve other maps support
+- Item names

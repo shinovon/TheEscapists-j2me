@@ -755,10 +755,10 @@ class NPC implements Constants {
 		if (heatTimer != 0) --heatTimer;
 
 		NPC player = map.player;
-		vision: {
-			if (((tick + id) & 1) != 0) break vision;
-			if (!inmate && !guard) break vision;
-			if (aiState == AI_ATTACK) break vision;
+		npcVision: {
+			if (((tick + id) & 1) != 0) break npcVision;
+			if (!inmate && !guard) break npcVision;
+			if (aiState == AI_ATTACK) break npcVision;
 
 			if (player.layer == LAYER_GROUND && player.health > 0 && canSee(player)) {
 				if (guard) {
@@ -876,11 +876,10 @@ class NPC implements Constants {
 
 			NPC[] chars = map.chars;
 			int n = chars.length;
-			// TODO map.fightFreq
 			boolean attack = (targetReached || !correctPath || aiState == AI_ROAM)
 					&& aiState != AI_WAYPOINT && aiState != AI_SLEEP
 					&& angerTimer == 0 && rng.nextInt(20) == 0;
-			if (attack && rng.nextInt(80) != 0) {
+			if (attack && rng.nextInt(120 - map.fightFreq * 20) != 0) {
 				angerTimer = TPS;
 				attack = false;
 			}
@@ -917,6 +916,14 @@ class NPC implements Constants {
 			if (attack && found) {
 				angerTimer = TPS + rng.nextInt(TPS * 3);
 			}
+		}
+
+		itemVision: {
+			if (!guard) break itemVision;
+			if (((tick + id) & 8) != 0) break itemVision;
+			if (aiState == AI_ATTACK) break itemVision;
+
+			// TODO scan area for illegal items
 		}
 
 		boolean targetReached = this.targetReached;
@@ -2330,7 +2337,7 @@ class NPC implements Constants {
 											for (int i = 1; i < n; ++i) {
 												NPC npc = map.chars[i];
 												if (npc != null && npc.sitting
-														&& npc.x == tx&& npc.y == ty) {
+														&& npc.x == tx && npc.y == ty) {
 													// TODO
 													npc.aiState = AI_RESET;
 													npc.aiWaitTimer = TPS;

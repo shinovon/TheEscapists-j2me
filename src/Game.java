@@ -1627,10 +1627,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				NPC npc = chars[i];
 				if (npc == null || (!npc.inmate && !npc.guard)) continue;
 				// TODO npcLevel
-				npc.statStrength = 30 + NPC.rng.nextInt(30);
-				npc.statSpeed = 30 + NPC.rng.nextInt(30);
-				npc.statRespect = 30 + NPC.rng.nextInt(30);
-				npc.statIntellect = 30 + NPC.rng.nextInt(30);
+				int b = npcLevel * 15;
+				npc.statStrength = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
+				npc.statSpeed = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
+				npc.statIntellect = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
+				npc.statRespect = Math.max(5, Math.min(90, 60 - b + NPC.rng.nextInt(30)));
 				npc.health = npc.statStrength >> 1;
 
 				if (npc.inmate) {
@@ -2596,6 +2597,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		// TODO check object collision
 		if (solid[layer][pos] != COLL_NONE)
 			return -2;
+//		if (getObjectIdxAt(x, y, layer) != -1)
+//			return -2;
 		if (droppedItems[layer][pos] != Items.ITEM_NULL)
 			return -1;
 		droppedItems[layer][pos] = item & Items.ITEM_MASK;
