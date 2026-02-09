@@ -3103,17 +3103,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			Items.POSTCARD,
 //			Items.PEDICURE_KIT,
 //			Items.HAND_FAN,
-//			Items.// stalagflucht
+//			// stalagflucht
 //			Items.POCKET_WATCH,
 //			Items.FAMILY_PHOTO,
 //			Items.SERVICE_MEDAL,
 //			Items.DOG_TAG,
-//			Items.// jungle
+//			// jungle
 //			Items.BANANAS,
 //			Items.GREEN_HERB,
 //			Items.VINES,
 //			Items.COCONUT,
-//			Items.MANGO
+//			Items.MANGO,
+//			Items.TRIBAL_DRUM,
+//			// sanpancho
+//			Items.RED_CHILI,
+//			Items.SAND,
+//			Items.SOMBRERO,
+//			Items.PONCHO,
+//			Items.BURRITO,
 	};
 
 	static final int[] DESK2 = {
@@ -3194,8 +3201,50 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			Items.RED_HERB,
 //			Items.VINES,
 //			Items.COCONUT,
-//			Items.MANGO
+//			Items.MANGO,
+//			Items.TRIBAL_DRUM,
+//			// sanpancho
+//			Items.RED_CHILI,
+//			Items.SAND,
+//			Items.SOMBRERO,
+//			Items.PONCHO,
+//			Items.BURRITO,
 
+	};
+
+	static final int[] BUY = {
+			Items.GUARD_OUTFIT, 50,
+			Items.LIGHTER, 25,
+			Items.WATCH, 25,
+			Items.BOTTLE_OF_MEDICINE, 20,
+			Items.TIMBER, 10,
+			Items.ROLL_OF_DUCT_TAPE, 30,
+			Items.SHAVING_CREAM, 25,
+			Items.MAGAZINE, 15,
+			Items.BOTTLE_OF_SLEEPING_PILLS, 25,
+			Items.SCREWDRIVER, 75,
+			Items.CROWBAR, 75,
+			Items.BATON, 60,
+			Items.HAMMER, 70,
+			Items.JAR_OF_INK, 25,
+			Items.LENGTH_OF_ROPE, 60,
+			Items.BAR_OF_CHOCOLATE, 15,
+			Items.TUBE_OF_SUPER_GLUE, 30,
+			Items.TUB_OF_TALCUM_POWDER, 15,
+//			Items.BALSA_WOOD, 50, // irongate
+			Items.FLASHLIGHT, 30,
+			Items.FILE, 50,
+			Items.STEPLADDER, 60,
+			Items.SHEET_OF_METAL, 25,
+			Items.RAZOR_BLADE, 20,
+			Items.WIRE, 25,
+			Items.FOIL, 30,
+			Items.CRAFTING_NOTE, 25,
+			Items.MEDIKIT, 30,
+//			Items.EXOTIC_FEATHER, 30, // jungle
+//			Items.GREEN_HERB, 15,
+//			Items.RED_HERB, 25,
+			Items.NAILS, 40,
 	};
 
 	static int getItemDecay(int id) {
@@ -3216,6 +3265,136 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return "Pack of Mints";
 		case Items.GUARD_OUTFIT:
 			return "Guard Outfit";
+		case Items.INMATE_OUTFIT:
+			return "Inmate Outfit";
+		case Items.STURDY_SHOVEL:
+			return "Sturdy Shovel";
+		case Items.ENTRANCE_KEY:
+			return "Entrance Key";
+		case Items.UTILITY_KEY:
+			return "Utility Key";
+		case Items.LIGHTER:
+			return "Lighter";
+		case Items.WATCH:
+			return "Watch";
+		case Items.BOTTLE_OF_MEDICINE:
+			return "Bottle of Medicine";
+		case Items.STUN_ROD:
+			return "Stun Rod";
+		case Items.TIMBER:
+			return "Timber";
+		case Items.ROLL_OF_DUCT_TAPE:
+			return "Roll of Duct Tape";
+		case Items.SHAVING_CREAM:
+			return "Shaving Cream";
+		case Items.MAGAZINE:
+			return "Magazine";
+		case Items.BOTTLE_OF_SLEEPING_PILLS:
+			return "Bottle of Sleeping Pills";
+		case Items.COMB:
+			return "Comb";
+		case Items.GLASS_SHARD:
+			return "Glass Shard";
+		case Items.GLASS_SHANK:
+			return "Glass Shank";
+		case Items.DEAD_RAT:
+			return "Dead Rat";
+		case Items.FIRE_EXTINGUISHER:
+			return "Fire Extinguisher";
+		case Items.RADIO_RECEIVER:
+			return "Radio Receiver";
+		case Items.PLASTIC_SPOON:
+			return "Plastic Spoon";
+		case Items.SCREWDRIVER:
+			return "Screwdriver";
+		case Items.CROWBAR:
+			return "Crowbar";
+		case Items.DIRT:
+			return "Dirt";
+		case Items.PLASTIC_KNIFE:
+			return "Plastic Knife";
+		case Items.PLASTIC_FORK:
+			return "Plastic Fork";
+		case Items.BATON:
+			return "Baton";
+		case Items.SPATULA:
+			return "Spatula";
+		case Items.HOE:
+			return "Hoe";
+		case Items.BROOM:
+			return "Broom";
+		case Items.SHEARS:
+			return "Shears";
+		case Items.HAMMER:
+			return "Hammer";
+		case Items.MOP:
+			return "Mop";
+		case Items.JAR_OF_INK:
+			return "Jar of Ink";
+		case Items.TUB_OF_BLEACH:
+			return "Tub of Bleach";
+		case Items.INFIRMARY_OVERALLS:
+			return "Infirmary Overalls";
+		case Items.STURDY_PICKAXE:
+			return "Sturdy Pickaxe";
+		case Items.TROWEL:
+			return "Trowel";
+		case Items.WALL_BLOCK:
+			return "Wall Block";
+		case Items.CONCRETE:
+			return "Concrete";
+		case Items.WORK_KEY:
+			return "Work Key";
+		case Items.LENGTH_OF_ROPE:
+			return "Length of Rope";
+		case Items.TUBE_OF_TOOTHPASTE:
+			return "Tube of Toothpaste";
+		case Items.BAR_OF_CHOCOLATE:
+			return "Bar of Chocolate";
+		case Items.ROLL_OF_TOILET_PAPER:
+			return "Roll of Toiler Paper";
+		case Items.SOAP:
+			return "Soap";
+		case Items.PACK_OF_PLAYING_CARDS:
+			return "Pack of Playing Cards";
+		case Items.BOOK:
+			return "Book";
+		case Items.TUBE_OF_SUPER_GLUE:
+			return "Tube of Super Glue";
+		case Items.TUB_OF_TALCUM_POWDER:
+			return "Tub of Talcum Powder";
+		case Items.WAD_OF_PUTTY:
+			return "Wad of Putty";
+		case Items.CANDLE:
+			return "Candle";
+		case Items.BALSA_WOOD:
+			return "Balsa Wood";
+		case Items.SAIL:
+			return "Sail";
+		case Items.PLASTIC_WORK_KEY:
+			return "Plastic Work Key";
+		case Items.WORK_KEY_MOLD:
+			return "Work Key Mold";
+		case Items.FLASHLIGHT:
+			return "Flashlight";
+		case Items.STURDY_CUTTERS:
+			return "Strudy Cutters";
+		case Items.FILE:
+			return "File";
+		case Items.DIRTY_GUARD_OUTFIT:
+			return "Dirty Guard Outfit";
+		case Items.DIRTY_INMATE_OUTFIT:
+			return "Dirty Inmate Outfit";
+		case Items.UNCOOKED_FOOD:
+			return "Uncooked Food";
+		case Items.COOKED_FOOD:
+			return "Cooked Food";
+		case Items.VENT_COVER:
+			return "Vent Cover";
+		case Items.STEPLADDER:
+			return "Stepladder";
+		case Items.BED_SHEET:
+			return "Bed Sheet";
 		}
 		return null;
 	}
@@ -3360,13 +3539,36 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static int getItemHeal(int id) {
-		// TODO
-		return 0;
+		switch (id & Items.ITEM_ID_MASK) {
+		case Items.BOTTLE_OF_MEDICINE:
+		case Items.GREEN_HERB:
+			return 5;
+		case Items.RED_HERB:
+			return 10;
+		case Items.MEDIKIT:
+			return 15;
+		default:
+			return 0;
+		}
 	}
 
 	static int getItemEnergy(int id) {
-		// TODO
-		return 0;
+		switch (id & Items.ITEM_ID_MASK) {
+		case Items.PACK_OF_MINTS:
+			return 5;
+		case Items.COOKED_FOOD:
+		case Items.BANANAS:
+		case Items.COCONUT:
+		case Items.MANGO:
+		case Items.BURRITO:
+			return 10;
+		case Items.BAR_OF_CHOCOLATE:
+		case Items.COOKIE:
+		case Items.MUFFIN:
+			return 15;
+		default:
+			return 0;
+		}
 	}
 
 	static boolean hasDurability(int id) {

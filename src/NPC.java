@@ -1569,8 +1569,8 @@ class NPC implements Constants {
 		}
 
 		int x0, y0;
-		int x1 = x0 = this.x / TILE_SIZE, y1 = y0 = (this.y + 5) / TILE_SIZE;
-		int x2 = other.x / TILE_SIZE, y2 = (other.y + 5) / TILE_SIZE;
+		int x1 = x0 = (this.x + 7) / TILE_SIZE, y1 = y0 = (this.y + 5) / TILE_SIZE;
+		int x2 = (other.x + 7) / TILE_SIZE, y2 = (other.y + 5) / TILE_SIZE;
 		int w = map.width;
 		int h = map.height;
 		byte[] solid = map.solid[layer];
