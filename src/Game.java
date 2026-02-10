@@ -549,6 +549,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							if (item != Items.ITEM_NULL) {
 								item &= Items.ITEM_ID_MASK;
 								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
+
+
+								if (selectedSlot == i) {
+									String t = getItemName(item);
+									int tw = textWidth(t, FONT_REGULAR);
+									fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_WHITE;
+									g.setColor(0x212121);
+									g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+									g.setColor(0);
+									g.drawRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+									drawText(g, t, x + 8 - (tw >> 1), y - 15, FONT_REGULAR);
+									fontColor = FONT_COLOR_WHITE;
+								}
 							}
 						}
 						y += 22;
@@ -944,7 +957,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				player.statIntellect = 100;
 
 				player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
-				player.weapon = Items.NUNCHUCKS | Items.ITEM_DEFAULT_DURABILITY;
+				player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
 				player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
 				player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
@@ -3398,6 +3411,246 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return "Stepladder";
 		case Items.BED_SHEET:
 			return "Bed Sheet";
+		case Items.WOODSHOP_KEY:
+			return "Woodshop Key";
+		case Items.STAFF_KEY_MOLD:
+			return "Staff Key Mod";
+		case Items.TIMBER_BRACE:
+			return "Timber Brace";
+		case Items.BATTERY:
+			return "Battery";
+		case Items.SOCK:
+			return "Sock";
+		case Items.UNVARNISHED_CHAIR:
+			return "Unvarnished Chair";
+		case Items.SHEET_OF_METAL:
+			return "Sheet of Metal";
+		case Items.LICENSE_PLATE:
+			return "License Plate";
+		case Items.METALSHOP_KEY:
+			return "Metalshop Key";
+		case Items.BAG_OF_CEMENT:
+			return "Bag of Cement";
+		case Items.PLUNGER:
+			return "Plunger";
+		case Items.SHEET_ROPE:
+			return "Sheet Rope";
+		case Items.UTILITY_KEY_MOLD:
+			return "Utility Key Mold";
+		case Items.CELL_KEY_MOLD:
+			return "Cell Key Mold";
+		case Items.MOLTEN_PLASTIC:
+			return "Molten Plastic";
+		case Items.PLASTIC_UTILITY_KEY:
+			return "Plastic Utility Key";
+		case Items.PLASTIC_STAFF_KEY:
+			return "Plastic Staff Key";
+		case Items.PLASTIC_CELL_KEY:
+			return "Plastic Cell Key";
+		case Items.PLASTIC_ENTRANCE_KEY:
+			return "Plastic Entrance Key";
+		case Items.ENTRANCE_KEY_MOLD:
+			return "Entrance Key Mold";
+		case Items.CUP:
+			return "Cup";
+		case Items.SMALL_SPEAKER:
+			return "Small Speaker";
+		case Items.CIRCUIT_BOARD:
+			return "Circuit Board";
+		case Items.PAPER_CLIP:
+			return "Paper Clip";
+		case Items.RAZOR_BLADE:
+			return "Razor Blade";
+		case Items.TOOTHBRUSH:
+			return "Toothbrush";
+		case Items.TOOTHBRUSH_SHIV:
+			return "Toothbrush Shiv";
+		case Items.WIRE:
+			return "Wire";
+		case Items.POSTER:
+			return "Poster";
+		case Items.FOIL:
+			return "Foil";
+		case Items.PAPER_MACHE:
+			return "Paper Mache";
+		case Items.DIY_TATOO_KIT:
+			return "DIY Tatoo Kit";
+		case Items.SOCK_MACE:
+			return "Sock Mace";
+		case Items.SUPER_SOCK_MACE:
+			return "Super Sock Mace";
+		case Items.CUP_OF_MOLTEN_CHOCOLATE:
+			return "Cup of Molten Chocolate";
+		case Items.GAME_SET:
+			return "Game Set";
+		case Items.DIE:
+			return "Die";
+		case Items.NUNCHUKS:
+			return "Nunchuks";
+		case Items.COMB_SHIV:
+			return "Comb Shiv";
+		case Items.WHIP:
+			return "Whip";
+		case Items.KNUCKLE_DUSTER:
+			return "Knuckle Duster";
+		case Items.GRAPPLE_HEAD:
+			return "Grapple Head";
+		case Items.GRAPPLING_HOOK:
+			return "Grappling Hook";
+		case Items.LIGHTWEIGHT_SHOVEL:
+			return "Lightweight Shovel";
+		case Items.FLIMSY_SHOVEL:
+			return "Flimsy Shovel";
+		case Items.FAKE_WALL_BLOCK:
+			return "Fake Wall Block";
+		case Items.FAKE_VENT_COVER:
+			return "Fake Vent Cover";
+		case Items.FLIMSY_PICKAXE:
+			return "Flimsy Pickaxe";
+		case Items.LIGHTWEIGHT_PICKAXE:
+			return "Lightweight Pickaxe";
+		case Items.FLIMSY_CUTTERS:
+			return "Flimsy Cutters";
+		case Items.LIGHTWEIGHT_CUTTERS:
+			return "Lightweight Cutters";
+		case Items.TOOL_HANDLE:
+			return "Tool Handle";
+		case Items.CRAFTING_NOTE:
+			return "Crafting Note";
+		case Items.COMB_BLADE:
+			return "Comb Blade";
+		case Items.CONTRABAND_POUCH:
+			return "Contraband Pouch";
+		case Items.BED_DUMMY:
+			return "Bed Dummy";
+		case Items.POW_OUTFIT:
+			return "POW Outfit";
+		case Items.CUSHIONED_INMATE_OUTFIT:
+			return "Cushioned Inmate Outfit";
+		case Items.PADDED_INMATE_OUTFIT:
+			return "Padded Inmate Outfit";
+		case Items.PLATED_INMATE_OUTFIT:
+			return "Plated Inmate Outfit";
+		case Items.MEDIKIT:
+			return "Medikit";
+		case Items.HAT:
+			return "Hat";
+		case Items.VEST:
+			return "Vest";
+		case Items.UNDERPANTS:
+			return "Underpants";
+		case Items.SHORTS:
+			return "Shorts";
+		case Items.NEEDLE_THREAD:
+			return "Needle & Thread";
+		case Items.FABRIC:
+			return "Fabric";
+		case Items.PACKAGE_A:
+			return "Package";
+		case Items.PACKAGE_B:
+			return "Package";
+		case Items.PACKAGE_C:
+			return "Package";
+		case Items.LETTER:
+			return "Letter";
+		case Items.CUSHIONED_POW_OUTFIT:
+			return "Cushioned POW Outfit";
+		case Items.PADDED_POW_OUTFIT:
+			return "Padded POW Outfit";
+		case Items.PLATED_POW_OUTFIT:
+			return "Plated POW Outfit";
+		case Items.TV_REMOTE:
+			return "TV Remove";
+		case Items.SPONGE:
+			return "Sponge";
+		case Items.DVD:
+			return "DVD";
+		case Items.COOKIE:
+			return "Cookie";
+		case Items.MUFFIN:
+			return "Muffin";
+		case Items.EXOTIC_FEATHER:
+			return "Exotic Feather";
+		case Items.BANANAS:
+			return "Bananas";
+		case Items.UNSIGNED_ID_PAPERS:
+			return "Unsigned ID Papers";
+		case Items.ID_PAPERS:
+			return "ID Papers";
+		case Items.GREEN_HERB:
+			return "Green Herb";
+		case Items.RED_HERB:
+			return "Red Herb";
+		case Items.SILK_HANDKERCHIEF:
+			return "Silk Handkerchief";
+		case Items.DENTAL_FLOSS:
+			return "Dental Floss";
+		case Items.TEDDY_BEAR:
+			return "Teddy Bear";
+		case Items.HAND_CREAM:
+			return "Hand Cream";
+		case Items.POSTCARD:
+			return "Postcard";
+		case Items.PEDICURE_KIT:
+			return "Pedicure Kit";
+		case Items.HAND_FAN:
+			return "Hand Fan";
+		case Items.POCKET_WATCH:
+			return "Pocket Watch";
+		case Items.FAMILY_PHOTO:
+			return "Family Photo";
+		case Items.SERVICE_MEDAL:
+			return "Service Medal";
+		case Items.DOG_TAG:
+			return "Dog Tag";
+		case Items.VINES:
+			return "Vines";
+		case Items.COCONUT:
+			return "Coconut";
+		case Items.MANGO:
+			return "Mango";
+		case Items.RED_CHILI:
+			return "Red Chili";
+		case Items.SAND:
+			return "Sand";
+		case Items.SOMBRERO:
+			return "Sombrero";
+		case Items.FAKE_FENCE:
+			return "Fake Fence";
+		case Items.PONCHO:
+			return "Poncho";
+		case Items.UNCOOKED_BURRITO:
+			return "Uncooked Burrito";
+		case Items.BURRITO:
+			return "Burrito";
+		case Items.TRIBAL_DRUM:
+			return "Tribal Drum";
+		case Items.NAILS:
+			return "Nails";
+		case Items.STINGER_STRIP:
+			return "Stinger Strip";
+		case Items.MULTITOOL:
+			return "Multitool";
+		case Items.WOODEN_BAT:
+			return "Wooden Bat";
+		case Items.SPIKED_BAT:
+			return "Spiked Bat";
+		case Items.DURABLE_CONTRABAND_POUCH:
+			return "Durable Contraband Pouch";
+		case Items.CUTTING_FLOSS:
+			return "Cutting Floss";
+		case Items.POWERED_SCREWDRIVER:
+			return "Powered Screwdriver";
+		case Items.RAFT_BASE:
+			return "Raft Base";
+		case Items.MAKESHIFT_RAFT:
+			return "Makeshift Raft";
+		case Items.ZIPLINE_HOOK:
+			return "Zipline Hook";
+		case Items.DODO_DONUT:
+			return "DoDo Donut";
+		case Items.PENARIUM_BARREL:
+			return "Penarium Barrel";
 		}
 		return null;
 	}
@@ -3442,7 +3695,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.VENT_COVER:
 		case Items.STEPLADDER:
 		case Items.STAFF_KEY_MOLD:
-		case Items.TIMBED_BRACE:
+		case Items.TIMBER_BRACE:
 		case Items.SHEET_OF_METAL:
 		case Items.LICENSE_PLATE:
 		case Items.SHEET_ROPE:
@@ -3461,7 +3714,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.PAPER_MACHE:
 		case Items.SOCK_MACE:
 		case Items.SUPER_SOCK_MACE:
-		case Items.NUNCHUCKS:
+		case Items.NUNCHUKS:
 		case Items.COMB_SHIV:
 		case Items.WHIP:
 		case Items.KNUCKLE_DUSTER:
@@ -3493,7 +3746,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.MULTITOOL:
 		case Items.WOODEN_BAT:
 		case Items.SPIKED_BAT:
-		case Items.DURABLE_CONTRABAND_POUCNH:
+		case Items.DURABLE_CONTRABAND_POUCH:
 		case Items.CUTTING_FLOSS:
 		case Items.POWERED_SCREWDRIVER:
 		case Items.RAFT_BASE:
@@ -3526,7 +3779,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.KNUCKLE_DUSTER:
 		case Items.SPIKED_BAT:
 			return 4;
-		case Items.NUNCHUCKS:
+		case Items.NUNCHUKS:
 		case Items.WHIP:
 			return 5;
 //		case Items.SHOE_KNIFE:
@@ -3701,7 +3954,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static int[] FONT_COLORS = new int[] {
 			0xFFFFFFFF,
 			0xFF000000,
-			0xFF0000FF,
+			0xFFFF0000,
 			0xFFC0C0C0,
 			0xFFB4B4B4,
 			0xFF7F7F7F,

@@ -246,7 +246,7 @@ public interface Constants {
 	// font colors enum
 	static final int FONT_COLOR_WHITE = 0, // 0xFFFFFF
 			FONT_COLOR_BLACK = 1, // 0x000000
-			FONT_COLOR_RED = 2, // 0x0000FF
+			FONT_COLOR_RED = 2, // 0xFF0000
 			FONT_COLOR_GREY_C0 = 3, // 0xC0C0C0
 			FONT_COLOR_GREY_B4 = 4, // 0xB4B4B4
 			FONT_COLOR_GREY_7F = 5, // 0x7F7F7F

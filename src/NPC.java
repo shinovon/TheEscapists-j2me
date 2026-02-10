@@ -508,7 +508,7 @@ class NPC implements Constants {
 					p = 20;
 					delay = 5;
 				} else if (aiState == AI_MEAL && sitting) {
-					p = 80;
+					p = 70;
 					delay = 10;
 				} else if (aiState == AI_GYM && training) {
 					p = 50;
