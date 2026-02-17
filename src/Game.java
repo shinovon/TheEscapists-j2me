@@ -2533,6 +2533,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				CompositingMode cm = new CompositingMode();
 				cm.setBlending(CompositingMode.ALPHA_ADD);
+				cm.setAlphaThreshold(0.5f);
 				lightAppearance.setCompositingMode(cm);
 
 				PolygonMode pm = new PolygonMode();
@@ -2564,8 +2565,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				CompositingMode cm = new CompositingMode();
 				cm.setBlending(CompositingMode.MODULATE);
-
 				globalAppearance.setCompositingMode(cm);
+
+				PolygonMode pm = new PolygonMode();
+				pm.setShading(PolygonMode.SHADE_FLAT);
+				globalAppearance.setPolygonMode(pm);
 
 				update3DLightingColor();
 			}
