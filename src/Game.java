@@ -2718,7 +2718,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					objects[idx + 2] = (short) (2 | (objects[idx + 2] & 0xFF00));
 					continue;
 				}
-				if (time % 60 == 0) {
+				if (time % 60 == 0 || prevSchedule == SC_LOCKDOWN) {
 					objects[idx + 2] = (short) (7 | (objects[idx + 2] & 0xFF00));
 				}
 				continue;
