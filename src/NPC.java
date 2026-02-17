@@ -2051,6 +2051,7 @@ class NPC implements Constants {
 									inventory[map.selectedInventory] & Items.ITEM_ID_MASK : -1;
 
 							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+								map.lastSelectedInventory = map.selectedInventory;
 								map.selectedInventory = -1;
 								for (int i = -1; i < 4; ++i) {
 									int x = this.x / TILE_SIZE;
@@ -2081,6 +2082,7 @@ class NPC implements Constants {
 							}
 							if (item != -1) {
 								int slot = map.selectedInventory;
+								map.lastSelectedInventory = slot;
 								map.selectedInventory = -1;
 								int x, y;
 								switch (direction) {
@@ -2193,6 +2195,7 @@ class NPC implements Constants {
 							} else {
 								Sound.playEffect(Sound.SFX_LOSE);
 							}
+							map.lastSelectedInventory = -1;
 							map.selectedInventory = -1;
 							break interact;
 						}
@@ -2380,6 +2383,7 @@ class NPC implements Constants {
 											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.INMATE_OUTFIT
 											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.GUARD_OUTFIT)) {
 										inventory[i] = Items.ITEM_NULL;
+										map.lastSelectedInventory = i;
 										map.selectedInventory = -1;
 										if (jobQuota < MAX_JOB_QUOTA) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {

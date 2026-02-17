@@ -86,6 +86,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean firePressed, softPressed;
 	int keyStates;
 	int selectedInventory = -1;
+	int lastSelectedInventory = -1;
 	int trainingTimer = 0;
 	int trainingLastKey;
 	int trainingRepeats;
@@ -111,6 +112,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedSetting;
 	static boolean use3D = false; //USE_M3G;
 	static boolean enableShadows = DRAW_SHADOWS;
+	static boolean altControls;
 
 	Game() {
 		super(false);
@@ -204,6 +206,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				drawText(g, "Light effects: ".concat(use3D ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
 				i++;
 			}
+
+			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawText(g, "Alternative controls: ".concat(altControls ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+			i++;
 		} else if (state == 7) {
 			// escaped
 			fontColor = FONT_COLOR_ORANGE;
@@ -723,7 +729,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						// exit
 						containerOpen = -1;
 						selectedSlot = 0;
-						selectedInventory = -1;
+						selectedInventory = lastSelectedInventory;
 					} else if (key == -6) {
 						// switch between inventory and container
 						if (selectedSlot == -1) {
@@ -733,7 +739,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							selectedSlot = -1;
 							selectedInventory = 0;
 						}
-					} else if (key >= '1' && key <= '6') {
+					} else if (!altControls && key >= '1' && key <= '6') {
 						// select inventory
 						int slot = key - '1';
 						if (player.inventory[slot] != Items.ITEM_NULL) {
@@ -819,6 +825,57 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						state = 4;
 //						action = NPC.ACT_NONE;
 //						progress = 0;
+					} else if (altControls) {
+						try {
+							switch (gameAction) {
+							case UP:
+								keyStates |= UP_PRESSED;
+								break;
+							case DOWN:
+								keyStates |= DOWN_PRESSED;
+								break;
+							case LEFT:
+								keyStates |= LEFT_PRESSED;
+								break;
+							case RIGHT:
+								keyStates |= RIGHT_PRESSED;
+								break;
+							case FIRE:
+								firePressed = true;
+								keyStates |= FIRE_PRESSED;
+								break;
+							case GAME_A:
+							case GAME_B:
+								if (player.training) {
+									if (fatigue >= 100) {
+										Sound.playEffect(Sound.SFX_LOSE);
+										player.dialog = "You are too fatigued";
+										player.dialogTimer = TPS * 2;
+									} else if (!trainingBlocked) {
+										if (key != trainingLastKey) {
+											trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? 4 : 8;
+										}
+										trainingLastKey = key;
+									}
+								// scroll through inventory slots
+								} else if (gameAction == GAME_A) {
+									if (selectedInventory == -1) {
+										selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+									}
+									if (selectedInventory-- == 0) {
+										selectedInventory = 5;
+									}
+								} else /*if (gameAction == GAME_B)*/ {
+									if (selectedInventory == -1) {
+										selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+									}
+									if (++selectedInventory == 6) {
+										selectedInventory = 0;
+									}
+								}
+								break;
+							}
+						} catch (Exception ignored) {}
 					} else if (key == '*') {
 					} else if (key == '#') {
 					} else if (key == '0') {
@@ -865,37 +922,46 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 			} else if (state == 2) {
-				if (gameAction == FIRE){
+				if (gameAction == FIRE) {
 					state = 6;
 					mapError = false;
-				} else if (key == -6 || key == -21) {
+				} else if (key == -6) {
 					state = 5;
-				} else if (key == -7 || key == -22) {
+				} else if (key == -7) {
 					TE.midlet.notifyDestroyed();
 				}
 			} else if (state == 5) {
+				int numSettings = 0;
+				if (!NO_SFX) numSettings++;
+				numSettings++; // music volume
+				if (DRAW_SHADOWS && supportsAlpha) numSettings++;
+				if (USE_M3G) numSettings++;
+				numSettings++; // alt controls
+
 				if (gameAction == UP) {
 					if (selectedSetting-- == 0)
-						selectedSetting = 0;
+						selectedSetting = numSettings - 1;
 				} else if (gameAction == DOWN) {
-					if (selectedSetting++ == 3)
+					if (++selectedSetting == numSettings)
 						selectedSetting = 0;
 				} else if (gameAction == FIRE || gameAction == LEFT || gameAction == RIGHT) {
 					set: {
 						int i = selectedSetting;
-						if (i == 0) {
-							int v = Sound.volumeSfx;
-							if (gameAction == LEFT) {
-								if ((v -= 5) < 0) v = 0;
-							} else if (gameAction == RIGHT) {
-								if ((v += 5) > 100) v = 100;
+						if (!NO_SFX) {
+							if (i == 0) {
+								int v = Sound.volumeSfx;
+								if (gameAction == LEFT) {
+									if ((v -= 5) < 0) v = 0;
+								} else if (gameAction == RIGHT) {
+									if ((v += 5) > 100) v = 100;
+								}
+								Sound.setEffectVolume(v);
+								Sound.stopEffect();
+								Sound.playEffect(SFX_BUY);
+								break set;
 							}
-							Sound.setEffectVolume(v);
-							Sound.stopEffect();
-							Sound.playEffect(SFX_BUY);
-							break set;
+							i--;
 						}
-						i--;
 
 						if (i == 0) {
 							int v = Sound.volumeMusic;
@@ -924,6 +990,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 							i--;
 						}
+
+						if (i == 0) {
+							altControls = !altControls;
+							break set;
+						}
+						i--;
 					}
 				} else if (key == -6 || key == -7) {
 					writeConfig();
@@ -933,44 +1005,46 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (gameAction == FIRE) {
 					paused = false;
 					state = 3;
-				} else if (key == -6 || key == -21) {
+				} else if (key == -6) {
 					state = 5;
 				}
 			} else if (state == 7) {
 				TE.midlet.notifyDestroyed();
 			}
-			if (key == '9' && mapLoaded) {
-				// debug time skip
-				time = ((time / 60 + 1) * 60) - 1;
-				playerWasOnRollcall = true;
-				playerWasOnMeal = true;
-				playerWasOnExcercise = true;
-				playerWasOnShowers = true;
-			}
-			if (key == '8' && mapLoaded) {
-				// cheat
-				fatigue = 0;
-				money += 50;
-				player.health = 50;
-				heat = 0;
+			if (!altControls) {
+				if (key == '9' && mapLoaded) {
+					// debug time skip
+					time = ((time / 60 + 1) * 60) - 1;
+					playerWasOnRollcall = true;
+					playerWasOnMeal = true;
+					playerWasOnExcercise = true;
+					playerWasOnShowers = true;
+				}
+				if (key == '8' && mapLoaded) {
+					// cheat
+					fatigue = 0;
+					money += 50;
+					player.health = 50;
+					heat = 0;
 
-				player.statSpeed = 100;
-				player.statStrength = 100;
-				player.statIntellect = 100;
+					player.statSpeed = 100;
+					player.statStrength = 100;
+					player.statIntellect = 100;
 
-				player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
-				player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
+					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
-				player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
-				player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
-				player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
-				player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
-				player.inventory[4] = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
-				player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
-			}
-			if (key == '7' && mapLoaded) {
-				debugFreecam = !debugFreecam;
+					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[4] = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
+				}
+				if (key == '7' && mapLoaded) {
+					debugFreecam = !debugFreecam;
 //				note = NOTE_SOLITARY;
+				}
 			}
 		} catch (Exception ignored) {}
 	}
@@ -981,22 +1055,45 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	public void keyReleased(int key) {
 		super.keyReleased(key);
-		switch (key) {
-		case -1:
-			keyStates &= ~UP_PRESSED;
-			break;
-		case -2:
-			keyStates &= ~DOWN_PRESSED;
-			break;
-		case -3:
-			keyStates &= ~LEFT_PRESSED;
-			break;
-		case -4:
-			keyStates &= ~RIGHT_PRESSED;
-			break;
-		case -5:
-			keyStates &= ~FIRE_PRESSED;
-			break;
+		if (altControls) {
+			try {
+				int game = getGameAction(key);
+				switch (game) {
+				case UP:
+					keyStates &= ~UP_PRESSED;
+					break;
+				case DOWN:
+					keyStates &= ~DOWN_PRESSED;
+					break;
+				case LEFT:
+					keyStates &= ~LEFT_PRESSED;
+					break;
+				case RIGHT:
+					keyStates &= ~RIGHT_PRESSED;
+					break;
+				case FIRE:
+					keyStates &= ~FIRE_PRESSED;
+					break;
+				}
+			} catch (Exception ignored) {}
+		} else {
+			switch (key) {
+			case -1:
+				keyStates &= ~UP_PRESSED;
+				break;
+			case -2:
+				keyStates &= ~DOWN_PRESSED;
+				break;
+			case -3:
+				keyStates &= ~LEFT_PRESSED;
+				break;
+			case -4:
+				keyStates &= ~RIGHT_PRESSED;
+				break;
+			case -5:
+				keyStates &= ~FIRE_PRESSED;
+				break;
+			}
 		}
 	}
 
@@ -1020,6 +1117,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	public void run() {
 		try {
 			supportsAlpha = TE.midlet.display.numAlphaLevels() > 2;
+			// TODO detect pspkvm
+			altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type"));
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
 				Sound.volumeSfx = 0;
 			}
@@ -1039,6 +1138,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				return;
 			}
 
+			// read settings
 			try {
 				DataInputStream d;
 				{
@@ -1058,6 +1158,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (USE_M3G) use3D = b;
 				b = d.readBoolean();
 				if (DRAW_SHADOWS) enableShadows = b;
+				b = d.readBoolean();
+				altControls = b;
 			} catch (Exception ignored) {}
 
 			Sound.load();
@@ -1262,6 +1364,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			d.writeInt(NO_SFX ? 0 : Sound.volumeSfx);
 			d.writeBoolean(USE_M3G && use3D);
 			d.writeBoolean(DRAW_SHADOWS && enableShadows);
+			d.writeBoolean(altControls);
 
 			byte[] b = baos.toByteArray();
 			RecordStore r = RecordStore.openRecordStore(SETTINGS_RECORD_NAME, true);
@@ -2886,6 +2989,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else {
 			toilet = false;
 		}
+		lastSelectedInventory = selectedInventory;
 		selectedInventory = -1;
 		containerOpen = idx;
 		selectedSlot = 0;
