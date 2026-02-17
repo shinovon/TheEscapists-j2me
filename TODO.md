@@ -63,4 +63,3 @@
 - Toilet interface
 - Lockdown midi
 - Improve other maps support
-- Item names
