@@ -30,15 +30,6 @@
             <symbol name="USE_TILED_LAYER" value="false"/>
          </symbolSet>
       </configuration>
-      <configuration active="false" name="S60_320x240">
-         <device group="KEmulator nnmod" name="KEmulator"/>
-         <symbolSet name="KEmulator">
-            <symbol name="BUFFER_SCREEN" value="true"/>
-            <symbol name="PREFETCH_MUSIC" value="true"/>
-            <symbol name="PREFETCH_SFX" value="true"/>
-            <symbol name="USE_TILED_LAYER" value="false"/>
-         </symbolSet>
-      </configuration>
    </configurations>
    <liblets/>
 </mtjMetadata>

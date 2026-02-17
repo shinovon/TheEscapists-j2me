@@ -108,7 +108,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// settings
 	int selectedSetting;
-	boolean use3D = USE_M3G;
+	boolean use3D = false; //USE_M3G;
 	boolean enableShadows = DRAW_SHADOWS;
 
 	Game() {
