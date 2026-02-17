@@ -9,6 +9,7 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.TiledLayer;
 import javax.microedition.m3g.*;
+import javax.microedition.rms.RecordStore;
 import java.io.*;
 import java.util.Vector;
 
@@ -108,8 +109,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// settings
 	int selectedSetting;
-	boolean use3D = false; //USE_M3G;
-	boolean enableShadows = DRAW_SHADOWS;
+	static boolean use3D = false; //USE_M3G;
+	static boolean enableShadows = DRAW_SHADOWS;
 
 	Game() {
 		super(false);
@@ -554,7 +555,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								if (selectedSlot == i) {
 									String t = getItemName(item);
 									int tw = textWidth(t, FONT_REGULAR);
-									fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_WHITE;
+									fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
 									g.setColor(0x212121);
 									g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
 									g.setColor(0);
@@ -925,6 +926,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 					}
 				} else if (key == -6 || key == -7) {
+					writeConfig();
 					state = mapLoaded ? 4 : 2;
 				}
 			} else if (state == 4) {
@@ -1036,6 +1038,27 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				drawScreen();
 				return;
 			}
+
+			try {
+				DataInputStream d;
+				{
+					RecordStore r = RecordStore.openRecordStore(SETTINGS_RECORD_NAME, false);
+					byte[] data = r.getRecord(1);
+					r.closeRecordStore();
+					ByteArrayInputStream bais = new ByteArrayInputStream(data);
+					d = new DataInputStream(bais);
+				}
+				int i;
+				boolean b;
+
+				Sound.volumeMusic = d.readInt();
+				i = d.readInt();
+				if (!NO_SFX) Sound.volumeSfx = i;
+				b = d.readBoolean();
+				if (USE_M3G) use3D = b;
+				b = d.readBoolean();
+				if (DRAW_SHADOWS) enableShadows = b;
+			} catch (Exception ignored) {}
 
 			Sound.load();
 			Thread.sleep(100);
@@ -1224,6 +1247,27 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	static void writeConfig() {
+		try {
+			RecordStore.deleteRecordStore(SETTINGS_RECORD_NAME);
+		} catch (Exception ignored) {}
+
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream d = new DataOutputStream(baos);
+			d.writeInt(Sound.volumeMusic);
+			d.writeInt(NO_SFX ? 0 : Sound.volumeSfx);
+			d.writeBoolean(USE_M3G && use3D);
+			d.writeBoolean(DRAW_SHADOWS && enableShadows);
+
+			byte[] b = baos.toByteArray();
+			RecordStore r = RecordStore.openRecordStore(SETTINGS_RECORD_NAME, true);
+			r.addRecord(b, 0, b.length);
+			r.closeRecordStore();
+		} catch (Exception ignored) {}
 	}
 
 // endregion Canvas
@@ -3969,6 +4013,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			0xFF9BC4F3,
 			0xFFFFFF00,
 			0xFF003D80,
+			0xFF00FF00,
 	};
 
 	static int[] fontCharWidth;

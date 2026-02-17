@@ -23,6 +23,8 @@ public interface Constants {
 
 	static final int SHADOW_COLOR = 0x50000000;
 
+	static final String SETTINGS_RECORD_NAME = "teconfig";
+
 	static final boolean PROFILER = false;
 	static final boolean LOGGING = true;
 	static final boolean SERIAL_LOGS = false;
@@ -256,7 +258,8 @@ public interface Constants {
 			FONT_COLOR_BLUE = 9, // 0x7BA7FF
 			FONT_COLOR_LIGHTBLUE = 10, // 0x9BC4F3
 			FONT_COLOR_YELLOW = 11, // 0xFFFF00
-			FONT_COLOR_DARKBLUE = 12; // 0x003D80
+			FONT_COLOR_DARKBLUE = 12, // 0x003D80
+			FONT_COLOR_GREEN = 13; // 0x00FF00
 
 	static final String FONT_REGULAR_RES = "/fontr";
 	static final String FONT_BOLD_RES = "/fontb";
