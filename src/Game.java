@@ -861,15 +861,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								} else if (gameAction == GAME_A) {
 									if (selectedInventory == -1) {
 										selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
-									}
-									if (selectedInventory-- == 0) {
+									} else if (selectedInventory-- == 0) {
 										selectedInventory = 5;
 									}
 								} else /*if (gameAction == GAME_B)*/ {
 									if (selectedInventory == -1) {
 										selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
-									}
-									if (++selectedInventory == 6) {
+									} else if (++selectedInventory == 6) {
 										selectedInventory = 0;
 									}
 								}
