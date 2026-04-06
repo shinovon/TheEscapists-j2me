@@ -28,9 +28,26 @@ star, 0, and pound are reserved
 <br>
 (maybe *: journal, 0: crafting, #: profile)
 
+## Ingame (Alternative controls enabled)
+Same as above, except for numpad. In this mode, game keys are respected.
+
+GAME_A (1) and GAME_B (3) scroll through inventory slots.
+
 ## Containers, other menus
 
-nothing here yet
+### Left soft key:
+Switch between inventory and container
+
+### Middle soft key/Fire:
+Move item
+
+### Right soft key:
+Exit
+
+## Training
+Smash 1 and 3, or A and B in alt. controls mode.
+
+
 
 ## Implementation notes
 
@@ -41,7 +58,5 @@ Many variants of interaction controls were suggested, such as cursor moving on g
 But I chose the simplest one to avoid writing tons of code: pressing one key to interact with object player is currently standing close and facing to. It isn't most convenient thing to do on dpad, but it does work.
 
 No attack mode switching, attack target will be set as player hits someone and will be unset when target is defeated or too far away.
-
-Also, unlike in other j2me games, 2 4 5 6 8 numbers don't duplicate d-pad, because I thought it would be more convenient to jump to inventory slots, rather than scrolling through each.
 
 Some inspiration on controls were taken from console/mobile port.
