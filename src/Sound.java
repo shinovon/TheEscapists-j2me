@@ -62,7 +62,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			loadEffect(SFX_RUMBLE, "/rumble.wav");
 			loadEffect(SFX_LOSE, "/lose.wav");
 			loadEffect(SFX_THROW, "/throw.wav");
-			loadEffect(SFX_THROW, "/hp.wav");
+			loadEffect(SFX_HP, "/hp.wav");
 		}
 		
 		new Thread(inst, "Music").start();
