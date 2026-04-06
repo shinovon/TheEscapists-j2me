@@ -17,4 +17,5 @@ proguard-local.cfg
 /res/*.mp3
 /res/map
 !/res/logo.png
+!/res/shadow.png
 /.processed/
