@@ -17,7 +17,16 @@ You have to obtain legal copy of The Escapists [(Steam)](https://store.steampowe
 <output res dir> <decompiled dir> <game dir> <map name>
 ```
 
+Full example:
+```bash
+cd ResourceBuilder
+javac -d bin src/*.java
+java -cp bin ResourceBuilder ../res "~/CTFAK/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/" shanktonstapen
+```
+
 For compiling the game you may use IntelliJ IDEA integrated with KEmulator nnmod, or Eclipse IDE (not newer than 2024-06!) with MTJ plugin.
+
+To open project in IntelliJ IDEA, open KEmulator nnmod, Tools>IntelliJ IDEA Support, go through setup steps, then in "Fix a project after clone" section, press "Choose a project".
 
 ## Requirements
 
