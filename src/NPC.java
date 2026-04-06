@@ -1754,8 +1754,8 @@ class NPC implements Constants {
 
 		// initialization
 
-		x = bedX * TILE_SIZE;
-		y = bedY * TILE_SIZE + 2;
+		xFloat = prevX = x = bedX * TILE_SIZE;
+		yFloat = prevY = y = bedY * TILE_SIZE + 2;
 
 		body.setImage(Game.sprites[bodyId], 16, 16);
 		body.setFrameSequence(animationSequence);
