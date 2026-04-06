@@ -4,6 +4,8 @@ Keycodes layout is Nokia/SE.
 <br>
 Touch controls support is not planned, at least for now.
 
+
+
 ## Ingame
 
 ### Left soft key:
@@ -28,12 +30,16 @@ star, 0, and pound are reserved
 <br>
 (maybe *: journal, 0: crafting, #: profile)
 
+
+
 ## Ingame (Alternative controls enabled)
-Same as above, except for numpad. In this mode, game keys are respected.
+In this mode, game keys are respected. Soft keys are the same as above.
 
 GAME_A (1) and GAME_B (3) scroll through inventory slots.
 
-## Containers, other menus
+
+
+## Containers
 
 ### Left soft key:
 Switch between inventory and container
@@ -58,5 +64,7 @@ Many variants of interaction controls were suggested, such as cursor moving on g
 But I chose the simplest one to avoid writing tons of code: pressing one key to interact with object player is currently standing close and facing to. It isn't most convenient thing to do on dpad, but it does work.
 
 No attack mode switching, attack target will be set as player hits someone and will be unset when target is defeated or too far away.
+
+Alternative controls mode is introduced for devices that do not have full alphanumeric keypad. Such as Symbian^3 with virtual keyboard, PSPKVM.
 
 Some inspiration on controls were taken from console/mobile port.
