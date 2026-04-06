@@ -1,6 +1,9 @@
 /*
 Copyright (c) 2024-2026 Arman Jussupgaliyev
 */
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.microedition.lcdui.Graphics;
@@ -67,7 +70,6 @@ class NPC implements Constants {
 
 	int prevAnimation,
 		prevDirection,
-		prevBodyId,
 		prevOutfitId;
 	
 	int[] animationSequence;
@@ -152,7 +154,7 @@ class NPC implements Constants {
 	}
 	
 	void load(int bodyId, int outfitId) {
-		this.bodyId = prevBodyId = bodyId;
+		this.bodyId = bodyId;
 		this.outfitId = prevOutfitId = outfitId;
 		guard = bodyId == Textures.GUARD;
 		inmate = bodyId < Textures.GUARD;
@@ -217,15 +219,6 @@ class NPC implements Constants {
 			body.setFrameSequence(animationSequence);
 			if (outfit != null) outfit.setFrameSequence(animationSequence);
 		}
-
-		// body sprite won't change
-//		if (bodyId != prevBodyId) {
-//			outfit.setImage(Sprites.spritesheets[bodyId], 16, 16);
-//			outfit.setFrameSequence(animationSequence);
-//			outfit.setRefPixelPosition(8, 8);
-//			prevOutfitId = outfitId;
-//			prevBodyId = bodyId;
-//		}
 		
 		body.setPosition(x, y);
 		body.setFrame(frame);
@@ -1707,6 +1700,69 @@ class NPC implements Constants {
 		return (!ai ? "player" : guard ? "guard" : inmate ? "inmate" : "other") + typedId + '(' + id + ')';
 	}
 
+	// TODO saving
+	boolean save(DataOutputStream data) throws IOException {
+		if (!inmate && !guard) {
+			return false;
+		}
+		data.writeShort(id);
+
+		data.writeUTF(name);
+		data.writeInt(bodyId);
+
+		data.writeByte(statStrength);
+		data.writeByte(statSpeed);
+		data.writeByte(statIntellect);
+		data.writeByte(statRespect);
+
+		data.writeShort(bedX);
+		data.writeShort(bedY);
+
+		for (int i = 0; i < 6; ++i) {
+			data.writeInt(inventory[i]);
+		}
+		data.writeInt(outfitItem);
+		data.writeInt(weapon);
+
+		if (guard) return true;
+
+		data.writeInt(job);
+		return true;
+	}
+
+	void load(DataInputStream data) throws IOException {
+		name = data.readUTF();
+		bodyId = data.readInt();
+
+		statStrength = data.readByte();
+		statSpeed = data.readByte();
+		statIntellect = data.readByte();
+		statRespect = data.readByte();
+
+		bedX = data.readShort();
+		bedY = data.readShort();
+
+		for (int i = 0; i < 6; ++i) {
+			inventory[i] = data.readInt();
+		}
+		outfitItem = data.readInt();
+		weapon = data.readInt();
+
+		if (guard) return;
+
+		job = data.readInt();
+
+		// initialization
+
+		x = bedX * TILE_SIZE;
+		y = bedY * TILE_SIZE + 2;
+
+		body.setImage(Game.sprites[bodyId], 16, 16);
+		body.setFrameSequence(animationSequence);
+		body.setRefPixelPosition(8, 8);
+		prevOutfitId = outfitId;
+	}
+
 // region Player
 
 	NPC carry;
@@ -2231,7 +2287,7 @@ class NPC implements Constants {
 							int item = map.peekItem(x, y, layer);
 							if (item != -1 && item != Items.ITEM_NULL) {
 								if (addItem(item, true)) {
-									map.pickItem(x, y, layer);
+									map.deleteItem(x, y, layer);
 								} else {
 									dialog = "Inventory full";
 									dialogTimer = TPS * 2;

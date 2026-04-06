@@ -2775,12 +2775,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return item & Items.ITEM_MASK;
 	}
 
-	int pickItem(int x, int y, int layer) {
-		int item = peekItem(x, y, layer);
-		if (item != Items.ITEM_NULL) {
-			droppedItems[layer][x + y * width] = Items.ITEM_NULL;
-		}
-		return item;
+	void deleteItem(int x, int y, int layer) {
+		droppedItems[layer][x + y * width] = Items.ITEM_NULL;
 	}
 
 // endregion Map items

@@ -40,8 +40,8 @@ public class Profiler implements Constants {
 			0xFF00FF, // purple
 	};
 	
-	private static long frameStart, frameEnd, lastFrameSection;
-	private static long[] frameSections = new long[5];
+	private static long frameStart, lastFrameSection;
+	private static final long[] frameSections = new long[5];
 	private static int frameSection;
 	
 	static long frameStartRes, frameEndRes;
@@ -49,7 +49,7 @@ public class Profiler implements Constants {
 	
 	private static long renderStart, renderEnd, lastRenderSection;
 	private static int renderSection;
-	private static long[] renderSections = new long[6];
+	private static final long[] renderSections = new long[6];
 	
 	static long renderStartRes, renderEndRes;
 	static long[] renderSectionsRes = new long[6];
@@ -91,13 +91,12 @@ public class Profiler implements Constants {
 		if (!PROFILER) return;
 		long now = System.currentTimeMillis();
 		endFrameSection(now, frameSection);
-		frameEnd = lastFrameSection = now;
+		frameEndRes = lastFrameSection = now;
 		frameSection = -1;
 
 		// copy values to display vars
 
 		frameStartRes = frameStart;
-		frameEndRes = frameEnd;
 		System.arraycopy(frameSections, 0, frameSectionsRes, 0, frameSections.length);
 		
 		renderStartRes = renderStart;
