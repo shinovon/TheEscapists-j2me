@@ -13,7 +13,7 @@
 - [x] Doors
 - [x] Layers
 - [x] Objects
-- [ ] Containers (WIP)
+- [x] Containers
 - [x] HUD
 - [x] Pathfinding
 - [x] Inmates
@@ -23,7 +23,7 @@
 - [x] NPC fighting
 - [x] Player fighting
 - [x] NPC Gym
-- [ ] Saves
+- [ ] Saves (WIP)
 - [x] Global lighting
 - [ ] Crafting
 - [x] Adaptiveness or scaling
@@ -43,6 +43,7 @@
 - [ ] Profile
 - [ ] Tasks
 - [ ] Desk moving
+- [ ] Characters setup
 
 # OST
 
