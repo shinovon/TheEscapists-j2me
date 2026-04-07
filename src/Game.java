@@ -475,7 +475,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			// overlays
-			if (note != -1) {
+			if (saveDialog) {
+				pausedOverlay = true;
+
+				// TODO
+				fontColor = FONT_COLOR_WHITE;
+				String t = "Save progress?";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) - 10, FONT_REGULAR);
+				t = "Left soft: Ok, Right soft: Cancel";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 10, FONT_REGULAR);
+			} else if (saveProblem) {
+				pausedOverlay = true;
+
+				// TODO
+				fontColor = FONT_COLOR_WHITE;
+				String t = "Could not save progress!";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
+			} else if (note != -1) {
 				pausedOverlay = true;
 
 				int nw = Math.min(240, (w * 4) / 5);
@@ -612,14 +628,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						y += 22;
 					}
 				}
-			} else if (saveDialog) {
-				pausedOverlay = true;
-
-				// TODO
-			} else if (saveProblem) {
-				pausedOverlay = true;
-
-				// TODO
 			} else {
 				pausedOverlay = false;
 			}
@@ -1794,48 +1802,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-
-		// fill collision lookup
-		for (int l = 0; l < 4; ++l) {
-			byte[] solid = this.solid[l];
-			for (int i = 0; i < width * height; ++i) {
-				solid[i] = l == LAYER_UNDERGROUND ? COLL_SOLID : isSolidTile(tiles[l][i]);
-			}
-
-			short[] objects = this.objects[l];
-			if (objects != null) {
-				int n = objects[0];
-				for (int i = 0; i < n; ++i) {
-					int idx = i << 2;
-					byte s;
-					if ((s = isSolidObject(objects[idx + 1])) == COLL_NONE) {
-						continue;
-					}
-
-					short x = objects[idx + 3], y = objects[idx + 4];
-
-					// TODO randomize stash spawn
-//					if (objects[idx + 1] == Objects.STASH && day == 0) {
-//
-//					} else
-					if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
-						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
-						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
-						canteenSeatsPositions[p + 1] = -1;
-					}
-
-					short sprite = objects[idx + 2];
-					for (int y2 = y - ((sprite & (3 << 10)) >> 10); y > y2; --y) {
-						for (int x2 = 0; x2 < ((sprite & (3 << 8)) >> 8); ++x2) {
-							int p = x + x2 + y * width;
-							if (solid[p] == COLL_SOLID && (s == COLL_SOLID_INTERACT || s == COLL_DETECTOR)) continue;
-							solid[p] = s;
-						}
-					}
-				}
-			}
-		}
-
 		if (!newGame) {
 			DataInputStream d;
 			{
@@ -1894,6 +1860,47 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		// fill collision lookup
+		for (int l = 0; l < 4; ++l) {
+			byte[] solid = this.solid[l];
+			for (int i = 0; i < width * height; ++i) {
+				solid[i] = l == LAYER_UNDERGROUND ? COLL_SOLID : isSolidTile(tiles[l][i]);
+			}
+
+			short[] objects = this.objects[l];
+			if (objects != null) {
+				int n = objects[0];
+				for (int i = 0; i < n; ++i) {
+					int idx = i << 2;
+					byte s;
+					if ((s = isSolidObject(objects[idx + 1])) == COLL_NONE) {
+						continue;
+					}
+
+					short x = objects[idx + 3], y = objects[idx + 4];
+
+					if (objects[idx + 1] == Objects.STASH && day == 0) {
+						if (NPC.rng.nextInt(10) != 0) {
+							// TODO delete object
+						}
+					} else if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
+						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
+						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
+						canteenSeatsPositions[p + 1] = -1;
+					}
+
+					short sprite = objects[idx + 2];
+					for (int y2 = y - ((sprite & (3 << 10)) >> 10); y > y2; --y) {
+						for (int x2 = 0; x2 < ((sprite & (3 << 8)) >> 8); ++x2) {
+							int p = x + x2 + y * width;
+							if (solid[p] == COLL_SOLID && (s == COLL_SOLID_INTERACT || s == COLL_DETECTOR)) continue;
+							solid[p] = s;
+						}
+					}
+				}
+			}
+		}
+
 		initMap();
 		System.gc();
 		return true;
@@ -1943,6 +1950,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					d.writeInt(items[(i << 1) + 2]);
 				}
 			}
+			// TODO save changed objects and tiles
 
 			byte[] b = baos.toByteArray();
 			RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, true);
