@@ -2083,6 +2083,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 						containers[idx + 1 + j] = item;
 					}
+				} else if (owner == -Objects.CUTLERY_TABLE) {
+					for (j = 0; j < 20; ++j) {
+						int item;
+						switch (NPC.rng.nextInt(3)) {
+						case 0:
+							item = Items.PLASTIC_SPOON | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						case 1:
+							item = Items.PLASTIC_KNIFE | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						case 2:
+							item = Items.PLASTIC_FORK | Items.ITEM_DEFAULT_DURABILITY;
+							break;
+						default:
+							continue;
+						}
+						containers[idx + 1 + j] = item;
+					}
 				} else {
 					if (owner == -Objects.DESK) {
 						short[] objects = this.objects[LAYER_GROUND];
