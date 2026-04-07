@@ -45,6 +45,7 @@
 - [ ] Desk moving
 - [ ] Characters setup
 - [ ] NPC random inventory
+- [ ] Ladders
 
 # OST
 

@@ -1527,7 +1527,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				tiles = new byte[4][width * height];
 				objects = new short[4][];
-				droppedItems = new int[4][width * height];
+				droppedItems = new int[4][1 + (128 << 1)];
 				solid = new byte[4][width * height];
 
 				inmates = in.readByte() & 0xFF;
@@ -1846,6 +1846,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			while ((i = d.readShort()) != -1) {
 				chars[i].load(d);
 			}
+
+			for (int l = 0; l < 4; ++l) {
+				int[] items = droppedItems[l];
+				int n = d.readInt();
+				if (n > (items.length - 1) >> 1) {
+					droppedItems[l] = items = new int[(n << 1) + 1];
+				}
+				items[0] = n;
+				for (i = 0; i < n; ++i) {
+					items[(i << 1) + 1] = d.readInt();
+					items[(i << 1) + 2] = d.readInt();
+				}
+			}
 		}
 
 		initMap();
@@ -1890,6 +1903,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				chars[i].save(d);
 			}
 			d.writeShort(-1);
+
+			for (int l = 0; l < 4; ++l) {
+				int[] items = droppedItems[l];
+				int n = items[0];
+				d.writeInt(n);
+				for (int i = 0; i < n; ++i) {
+					d.writeInt(items[(i << 1) + 1]);
+					d.writeInt(items[(i << 1) + 2]);
+				}
+			}
 
 			byte[] b = baos.toByteArray();
 			RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, true);
@@ -2457,7 +2480,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int xoff = viewx / TILE_SIZE, yoff = viewy / TILE_SIZE;
 
 			Image tilesImg = tilesTexture;
-			Image itemsImg = itemsTexture;
 
 			// background
 			if (layer == LAYER_GROUND || layer == LAYER_UNDERGROUND) {
@@ -2501,7 +2523,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// tiles
 			int y = -yr;
 			byte[] tiles = this.tiles[layer];
-			int[] items = this.droppedItems[layer];
 			for (int i = 0; i < viewRows; ++i) {
 				int x = -xr;
 				y: {
@@ -2566,12 +2587,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 							}
 
-							int item = items[pos];
-							if (item != Items.ITEM_NULL) {
-								item = item & Items.ITEM_ID_MASK;
-								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
-							}
-
 							// collision debug
 //							if (solid[pos] != 0) {
 //								g.setColor(0x00FF00);
@@ -2592,6 +2607,27 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		Profiler.beginRenderSection(Profiler.RENDER_OBJECTS);
+
+		// items
+		{
+			int[] items = this.droppedItems[layer];
+			Image itemsImg = itemsTexture;
+			for (int i = 0; i < items[0]; ++i) {
+				int item = items[(i << 1) + 1];
+				if (item == Items.ITEM_NULL) {
+					continue;
+				}
+
+				int pos = items[(i << 1) + 2];
+				int x = (pos & 0xFF) * TILE_SIZE - viewX;
+				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;;
+				if (x < -TILE_SIZE || y < -TILE_SIZE || x >= viewWidth + TILE_SIZE || y >= viewHeight + TILE_SIZE) {
+					continue;
+				}
+				item = item & Items.ITEM_ID_MASK;
+				g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
+			}
+		}
 
 		// objects
 		Image objectsImg = objectsTexture;
@@ -2963,7 +2999,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 // region Map items
 
-	int[][] droppedItems; // TODO dynamic array
+	int[][] droppedItems; // {count, [item, pos], ...} for each layer
 
 	int dropItem(int x, int y, int item, int layer) throws IllegalStateException {
 		final int pos = x + y * width;
@@ -2972,22 +3008,54 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return -2;
 //		if (getObjectIdxAt(x, y, layer) != -1)
 //			return -2;
-		if (droppedItems[layer][pos] != Items.ITEM_NULL)
+		if (peekItem(x, y, layer) != Items.ITEM_NULL)
 			return -1;
-		droppedItems[layer][pos] = item & Items.ITEM_MASK;
-		return 0;
+
+		int[] items = droppedItems[layer];
+
+		for (;;) {
+			int n = (items.length - 1) >> 1;
+			for (int i = 0; i < n; ++i) {
+				if (items[(i << 1) + 1] == Items.ITEM_NULL) {
+					items[(i << 1) + 1] = item;
+					if (items[(i << 1) + 2] != -1) items[0]++;
+					items[(i << 1) + 2] = (x & 0xFF) | ((y & 0xFF) << 8);
+					return 0;
+				}
+			}
+
+			items = new int[(items.length - 1) * 2];
+			System.arraycopy(droppedItems[layer], 0, items, 0, droppedItems[layer].length);
+			droppedItems[layer] = items;
+		}
 	}
 
 	int peekItem(int x, int y, int layer) {
-		int item = droppedItems[layer][x + y * width];
-		if (item == Items.ITEM_NULL) {
-			return item;
+		int[] items = droppedItems[layer];
+		int n = items[0];
+		int pos = (x & 0xFF) | ((y & 0xFF) << 8);
+
+		for (int i = 0; i < n; ++i) {
+			if (items[(i << 1) + 2] == pos) {
+				return items[(i << 1) + 1] & Items.ITEM_MASK;
+			}
 		}
-		return item & Items.ITEM_MASK;
+
+		return Items.ITEM_NULL;
 	}
 
 	void deleteItem(int x, int y, int layer) {
-		droppedItems[layer][x + y * width] = Items.ITEM_NULL;
+		int[] items = droppedItems[layer];;
+		int n = items[0];
+		int pos = (x & 0xFF) | ((y & 0xFF) << 8);
+
+		for (int i = 0; i < n; ++i) {
+			if (items[(i << 1) + 2] == pos) {
+				items[(i << 1) + 1] = Items.ITEM_NULL;
+				items[(i << 1) + 2] = -1;
+				return;
+			}
+		}
 	}
 
 // endregion Map items
