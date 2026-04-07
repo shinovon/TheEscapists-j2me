@@ -1700,7 +1700,6 @@ class NPC implements Constants {
 		return (!ai ? "player" : guard ? "guard" : inmate ? "inmate" : "other") + typedId + '(' + id + ')';
 	}
 
-	// TODO saving
 	boolean save(DataOutputStream data) throws IOException {
 		if (!inmate && !guard) {
 			return false;
@@ -2366,6 +2365,10 @@ class NPC implements Constants {
 									xFloat = this.x = bedX * TILE_SIZE;
 									yFloat = this.y = bedY * TILE_SIZE + 2;
 									animation = ANIM_LYING;
+									if (map.schedule == SC_LIGHTSOUT && (map.time < 5 * 60 || map.time >= 20 * 60)) {
+										map.saveDialog = true;
+										Sound.playEffect(SFX_OPEN);
+									}
 									break interact;
 								}
 								if (obj == Objects.MEDICAL_BED) {

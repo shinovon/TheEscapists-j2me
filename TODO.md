@@ -44,6 +44,7 @@
 - [ ] Tasks
 - [ ] Desk moving
 - [ ] Characters setup
+- [ ] NPC random inventory
 
 # OST
 

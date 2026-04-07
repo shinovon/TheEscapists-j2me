@@ -10,6 +10,7 @@ import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.TiledLayer;
 import javax.microedition.m3g.*;
 import javax.microedition.rms.RecordStore;
+import javax.microedition.rms.RecordStoreException;
 import java.io.*;
 import java.util.Vector;
 
@@ -74,7 +75,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// 0: init, 1: text, 2: menu, 3: game, 4: paused, 5: settings, 6: loading, 7: won
 	int state = 0;
 	boolean exiting;
-	boolean mapError;
+	int mapError;
 
 	boolean noScaling = true;
 	boolean supportsAlpha;
@@ -105,6 +106,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean toilet;
 	String[] noteText;
 	int selectedSlot; // negative is player's inventory
+	boolean saveDialog;
+	boolean saveProblem;
 
 	boolean debugFreecam;
 
@@ -113,6 +116,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static boolean use3D = false; //USE_M3G;
 	static boolean enableShadows = DRAW_SHADOWS;
 	static boolean altControls;
+
+	int selectedMenu;
+	boolean hasSave;
 
 	Game() {
 		super(false);
@@ -160,14 +166,46 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else if (state == 2) {
 			// title screen
 			g.drawImage(bgImg, (viewWidth - bgImg.getWidth()) >> 1, (viewHeight - bgImg.getHeight()) >> 2, 0);
-			String s = "Press fire to start";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 60, FONT_BOLD);
+			String s;
+			int f, i = 0;
 
-			s = "Press left soft for settings";
-			drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h - 40, FONT_REGULAR);
+			s = "New game";
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 80, f);
+			i++;
+
+			s = "Continue";
+			fontColor = hasSave ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 60, f);
+			i++;
+
+			s = "Settings";
+			fontColor = FONT_COLOR_WHITE;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 40, f);
+			i++;
+
+			s = "Exit";
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 20, f);
 		} else if (state == 6) {
 			// loading
-			String s = mapError ? "Error loading map" : "Loading";
+			String s;
+			switch (mapError) {
+			case 1:
+				s = "Error loading map";
+				break;
+			case 2:
+				s = "Error loading save";
+				break;
+			case 3:
+				s = "Incompatible save";
+				break;
+			default:
+				s = "Loading";
+				break;
+			}
 			drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
 		} else if (state == 4) {
 			// paused
@@ -574,6 +612,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						y += 22;
 					}
 				}
+			} else if (saveDialog) {
+				pausedOverlay = true;
+
+				// TODO
+			} else if (saveProblem) {
+				pausedOverlay = true;
+
+				// TODO
 			} else {
 				pausedOverlay = false;
 			}
@@ -706,7 +752,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				gameAction = getGameAction(key);
 			} catch (Exception ignored) {}
 			if (mapLoaded && state == 3 && !paused) {
-				if (note != -1) {
+				if (saveDialog) {
+					if (key == -6) {
+						save = true;
+						saveDialog = false;
+					} else if (key == -7) {
+						saveDialog = false;
+					}
+				} else if (saveProblem) {
+					if (key == -5 || key == -6 || key == -7 || gameAction == FIRE) {
+						saveProblem = false;
+					}
+				} else if (note != -1) {
 					if (key == -5 || key == -6 || key == -7 || gameAction == FIRE) {
 						// close note
 						if (note == NOTE_SOLITARY) {
@@ -920,11 +977,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 			} else if (state == 2) {
-				if (gameAction == FIRE) {
-					state = 6;
-					mapError = false;
-				} else if (key == -6) {
-					state = 5;
+				if (gameAction == UP) {
+					if (selectedMenu-- == 0)
+						selectedMenu = 3;
+					else if (selectedMenu == 1 && !hasSave)
+						selectedMenu = 0;
+				} else if (gameAction == DOWN) {
+					if (++selectedMenu == 4)
+						selectedMenu = 0;
+					else if (selectedMenu == 1 && !hasSave)
+						selectedMenu = 2;
+				} else if (gameAction == FIRE) {
+					mapError = 0;
+					if (selectedMenu == 0) {
+						newGame = true;
+						state = 6;
+					} else if (selectedMenu == 1) {
+						newGame = false;
+						state = 6;
+					} else if (selectedMenu == 2) {
+						state = 5;
+					} else if (selectedMenu == 3) {
+						TE.midlet.notifyDestroyed();
+					}
 				} else if (key == -7) {
 					TE.midlet.notifyDestroyed();
 				}
@@ -1143,8 +1218,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					RecordStore r = RecordStore.openRecordStore(SETTINGS_RECORD_NAME, false);
 					byte[] data = r.getRecord(1);
 					r.closeRecordStore();
-					ByteArrayInputStream bais = new ByteArrayInputStream(data);
-					d = new DataInputStream(bais);
+					d = new DataInputStream(new ByteArrayInputStream(data));
 				}
 				int i;
 				boolean b;
@@ -1171,6 +1245,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			Sound.playMusic(MUSIC_THEME);
+
+			try {
+				RecordStore.openRecordStore(GAME_RECORD_NAME, false).closeRecordStore();
+				hasSave = true;
+			} catch (Exception ignored) {}
 
 			state = 1;
 			paused = true;
@@ -1293,33 +1372,36 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (BUFFER_SCREEN) drawGame();
 				drawScreen();
 
-				if (state == 6 && !mapError) {
+				if (state == 6 && mapError == 0) {
 					// start game
+					flushGraphics();
 					Sound.stopMusic();
 					Sound.playEffect(Sound.SFX_RUMBLE);
 
 					try {
-						loadMap();
+						Thread.sleep(500);
+						if (loadMap()) {
+							mapLoaded = true;
 
-						mapLoaded = true;
+							NPC player = this.player;
+							x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE / 2), 0), width * TILE_SIZE - viewWidth);
+							y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE / 2), 0), height * TILE_SIZE - viewHeight);
 
-						NPC player = this.player;
-						x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE / 2), 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE / 2), 0), height * TILE_SIZE - viewHeight);
+							bgImg = null;
 
-						bgImg = null;
-
-						Sound.playMusic(Sound.MUSIC_LIGHTSOUT);
-						try {
+							Sound.playMusic(Sound.MUSIC_LIGHTSOUT);
 							Thread.sleep(1000);
-						} catch (Exception ignored) {}
-						paused = true;
-						state = 3;
-						fadeIn = viewWidth >> 1;
+							paused = true;
+							state = 3;
+							fadeIn = viewWidth >> 1;
+						}
+					} catch (RecordStoreException e) {
+						mapError = 2;
+						e.printStackTrace();
 					} catch (Exception e) {
 						e.printStackTrace();
-						mapError = true;
 					}
+					if (mapError == 0) mapError = 1;
 				} else if (state == 1) {
 					Sound.playEffect(Sound.SFX_RUMBLE);
 					bgImg = Image.createImage("/title.png");
@@ -1408,12 +1490,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int npcSpawnX, npcSpawnY;
 
 	byte map;
+	int mapVersion;
 	byte npcLevel;
 	byte fightFreq;
 
 	TiledLayer[] tiledLayer;
 
-	void loadMap() throws Exception {
+	boolean newGame;
+	boolean save;
+
+	boolean loadMap() throws Exception {
 		player = new NPC(this);
 		player.name = "Player";
 		player.ai = false;
@@ -1430,7 +1516,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (stream == null) throw new Exception();
 			DataInputStream in = new DataInputStream(stream);
 			try {
-				int version = in.readInt();
+				mapVersion = in.readInt();
 
 				map = in.readByte();
 				npcLevel = in.readByte();
@@ -1717,8 +1803,102 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		if (!newGame) {
+			DataInputStream d;
+			{
+				RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, false);
+				byte[] data = r.getRecord(1);
+				r.closeRecordStore();
+				d = new DataInputStream(new ByteArrayInputStream(data));
+			}
+
+			if (d.readInt() != SAVE_VERSION) {
+				mapError = 3;
+				return false;
+			}
+			if (d.readByte() != map) {
+				mapError = 3;
+				return false;
+			}
+			if (d.readInt() != mapVersion) {
+				mapError = 3;
+				return false;
+			}
+
+			day = d.readInt();
+			money = d.readInt();
+			for (int i = 0; i < jobs[0]; ++i) {
+				jobs[1 + i] = d.readInt();
+			}
+
+			int[] containers = this.containers;
+			int idx = 1;
+			for (int i = 0; i < containers[0]; ++i) {
+				idx++; // object idx
+				containers[idx++] = d.readInt();
+				int count = containers[idx++];
+				for (int j = 0; j < count; ++j) {
+					containers[idx++] = d.readInt();
+				}
+			}
+
+			int i;
+			while ((i = d.readShort()) != -1) {
+				chars[i].load(d);
+			}
+		}
+
 		initMap();
 		System.gc();
+		return true;
+	}
+
+	void save() {
+		try {
+			RecordStore.deleteRecordStore(GAME_RECORD_NAME);
+		} catch (Exception ignored) {}
+
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream d = new DataOutputStream(baos);
+
+			d.writeInt(SAVE_VERSION);
+			d.writeByte(map);
+			d.writeInt(mapVersion);
+
+			int day = this.day;
+			if (time > 20 * 60) day++;
+
+			d.writeInt(day);
+			d.writeInt(money);
+			for (int i = 0; i < jobs[0]; ++i) {
+				d.writeInt(jobs[1 + i]);
+			}
+
+			int[] containers = this.containers;
+			int idx = 1;
+			for (int i = 0; i < containers[0]; ++i) {
+				idx++; // object idx
+				d.writeInt(containers[idx++]);
+				int count = containers[idx++];
+				for (int j = 0; j < count; ++j) {
+					d.writeInt(containers[idx++]);
+				}
+			}
+
+			for (int i = 0; i < npcNum; ++i) {
+				chars[i].save(d);
+			}
+			d.writeShort(-1);
+
+			byte[] b = baos.toByteArray();
+			RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, true);
+			r.addRecord(b, 0, b.length);
+			r.closeRecordStore();
+		} catch (Exception e) {
+			e.printStackTrace();
+			saveProblem = true;
+		}
 	}
 
 	private short[] readPositions(DataInputStream in) throws Exception {
@@ -1832,7 +2012,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							item = Items.BROOM | Items.ITEM_DEFAULT_DURABILITY;
 							break;
 						case 4:
-							item = Items.BROOM | Items.ITEM_DEFAULT_DURABILITY;
+							item = Items.TUB_OF_BLEACH | Items.ITEM_DEFAULT_DURABILITY;
 							break;
 						case 5:
 							item = Items.PLUNGER | Items.ITEM_DEFAULT_DURABILITY;
@@ -1936,6 +2116,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (sendToSolitary) {
 			sendToSolitary = false;
 			time = 7*60 + 50;
+			if (USE_M3G) update3DLightingColor();
 			day += 3;
 			lockdown = false;
 			schedule = SC_LIGHTSOUT;
@@ -1991,6 +2172,36 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			player.job = JOB_UNEMPLOYED;
 
 			initMap();
+		} else if (save) {
+			save = false;
+			newGame = false;
+			save();
+
+			if (time >= 8 * 60) day++;
+			time = 7*60 + 40;
+			if (USE_M3G) update3DLightingColor();
+
+			schedule = SC_LIGHTSOUT;
+			cellsClosed = true;
+			entranceOpen = false;
+
+			// reset npcs
+			int n = npcNum;
+			for (int i = 1; i < n; ++i) {
+				NPC npc = chars[i];
+				if (npc == null) continue;
+				if (npc.inmate) {
+					npc.correctPath = false;
+					npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
+					npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
+					npc.aiState = NPC.AI_SLEEP;
+				}
+			}
+
+			ingameFadeIn = viewWidth >> 1;
+			heat = 0;
+			fatigue = 20;
+			initMap();
 		}
 
 		prevSchedule = schedule;
@@ -2040,7 +2251,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						if (!wasLockdown) break m;
 						break;
 					case 13:
-						if (player.jobQuota < MAX_JOB_QUOTA) {
+						if (player.job != 0 && player.jobQuota < MAX_JOB_QUOTA) {
 							// fire player
 							jobs[player.job] &= ~JOB_OCCUPIED_BIT;
 							player.job = 0;
@@ -2193,8 +2404,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 0; i < n - 1; ++i) {
 				for (int j = 0; j < n - i - 1; ++j) {
 					if (sortedChars[j] != null && sortedChars[j + 1] != null
-							&& ((sortedChars[j].y - (sortedChars[j].animation == NPC.ANIM_STUNNED ? 10000 : 0)) >
-							(sortedChars[j + 1].y - (sortedChars[j + 1].animation == NPC.ANIM_STUNNED ? 10000 : 0)))) {
+							&& ((sortedChars[j].y - ((sortedChars[j].animation == NPC.ANIM_STUNNED || sortedChars[j].animation == NPC.ANIM_LYING) ? 10000 : 0)) >
+							(sortedChars[j + 1].y - ((sortedChars[j + 1].animation == NPC.ANIM_STUNNED || sortedChars[j + 1].animation == NPC.ANIM_LYING) ? 10000 : 0)))) {
 						NPC t = sortedChars[j];
 						sortedChars[j] = sortedChars[j + 1];
 						sortedChars[j + 1] = t;

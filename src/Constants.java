@@ -24,6 +24,9 @@ public interface Constants {
 	static final int SHADOW_COLOR = 0x50000000;
 
 	static final String SETTINGS_RECORD_NAME = "teconfig";
+	static final String GAME_RECORD_NAME = "tesave";
+
+	static final int SAVE_VERSION = 1;
 
 	static final boolean PROFILER = false;
 	static final boolean LOGGING = true;
