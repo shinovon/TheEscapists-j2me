@@ -23,7 +23,7 @@
 - [x] NPC fighting
 - [x] Player fighting
 - [x] NPC Gym
-- [ ] Saves (WIP)
+- [x] Saves
 - [x] Global lighting
 - [ ] Crafting
 - [x] Adaptiveness or scaling
@@ -36,10 +36,10 @@
 - [ ] Cameras
 - [ ] Localization
 - [x] NPC Jobs
-- [ ] Player jobs (WIP)
-- [ ] Player training (WIP)
+- [ ] Player jobs (WIP, only janitor and gardener are finished)
+- [ ] Player training (WIP, only weight is finished)
 - [x] Solitary
-- [ ] Map schedules
+- [ ] Map schedules (hardcoded for shanktonstatepen)
 - [ ] Profile
 - [ ] Tasks
 - [ ] Desk moving

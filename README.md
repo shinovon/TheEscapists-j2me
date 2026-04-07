@@ -4,6 +4,15 @@ The Escapists fan demake for J2ME platform.
 
 ![screenshot](/screenshot.png)
 
+## Project state
+
+- NPC behavior is finished.
+- Original maps parser is finished.
+- Rendering engine is finished, but needs optimization.
+- There is no gameplay yet, some mechanics are implemented, but you can't beat the game.
+
+See [TODO](/TODO.md) for more details
+
 ## Disclaimer
 
 All rights to the original game belong to Mouldy Toof Studios and Team17.
