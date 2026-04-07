@@ -755,6 +755,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (saveDialog) {
 					if (key == -6) {
 						save = true;
+						ingameFadeOut = viewWidth >> 1;
 						saveDialog = false;
 					} else if (key == -7) {
 						saveDialog = false;
@@ -1326,7 +1327,39 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							if (ingameFadeOut <= 0) {
 								ingameFadeOut = 0;
 								ingameFadeIn = viewWidth >> 1;
-								player.respawnPlayer();
+								if (save) {
+									save = false;
+									newGame = false;
+
+									if (time >= 8 * 60) day++;
+									time = 7*60 + 40;
+									if (USE_M3G) update3DLightingColor();
+
+									save();
+
+									schedule = SC_LIGHTSOUT;
+									cellsClosed = true;
+									entranceOpen = false;
+
+									// reset npcs
+									int n = npcNum;
+									for (int i = 1; i < n; ++i) {
+										NPC npc = chars[i];
+										if (npc == null) continue;
+										if (npc.inmate) {
+											npc.correctPath = false;
+											npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
+											npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
+											npc.aiState = NPC.AI_SLEEP;
+										}
+									}
+
+									heat = 0;
+									fatigue = 20;
+									initMap();
+								} else {
+									player.respawnPlayer();
+								}
 							}
 						}
 					}
@@ -1879,9 +1912,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			d.writeByte(map);
 			d.writeInt(mapVersion);
 
-			int day = this.day;
-			if (time > 20 * 60) day++;
-
 			d.writeInt(day);
 			d.writeInt(money);
 			for (int i = 0; i < jobs[0]; ++i) {
@@ -2194,36 +2224,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			fatigue = 20;
 			player.job = JOB_UNEMPLOYED;
 
-			initMap();
-		} else if (save) {
-			save = false;
-			newGame = false;
-			save();
-
-			if (time >= 8 * 60) day++;
-			time = 7*60 + 40;
-			if (USE_M3G) update3DLightingColor();
-
-			schedule = SC_LIGHTSOUT;
-			cellsClosed = true;
-			entranceOpen = false;
-
-			// reset npcs
-			int n = npcNum;
-			for (int i = 1; i < n; ++i) {
-				NPC npc = chars[i];
-				if (npc == null) continue;
-				if (npc.inmate) {
-					npc.correctPath = false;
-					npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
-					npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
-					npc.aiState = NPC.AI_SLEEP;
-				}
-			}
-
-			ingameFadeIn = viewWidth >> 1;
-			heat = 0;
-			fatigue = 20;
 			initMap();
 		}
 
