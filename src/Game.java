@@ -89,6 +89,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedInventory = -1;
 	int lastSelectedInventory = -1;
 	int trainingTimer = 0;
+	int trainingCooldown = 0;
 	int trainingLastKey;
 	int trainingRepeats;
 	boolean trainingBlocked;
@@ -413,7 +414,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int t;
 					String a;
 					if (player.training) {
-						a = "Repeats: " + trainingRepeats;
+						a = (player.gymObject == Objects.TRAINING_TREADMILL ? "Distance: " : "Repeats: ") + trainingRepeats;
 						t = (trainingTimer * 50) / 40;
 					} else if (action != NPC.ACT_NONE) {
 						switch (action) {
@@ -2879,7 +2880,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
-				&& !pausedOverlay && action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR
+				&& !pausedOverlay
+				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR && !player.training
 				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0) {
 			// interact focus
 			box: {

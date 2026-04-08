@@ -2008,13 +2008,23 @@ class NPC implements Constants {
 							}
 							Sound.playEffect(SFX_THROW);
 						}
+						map.trainingTimer--;
 					} else if (gymObject == Objects.TRAINING_TREADMILL) {
-						// TODO
+						if (map.trainingTimer > 38 && map.trainingCooldown == 0) {
+							map.trainingCooldown = 40;
+							map.fatigue += 3;
+							if (++map.trainingRepeats % 3 == 0) {
+								statSpeed++;
+							}
+						}
+						if ((tick & 1) == 0) map.trainingTimer--;
 					}
 					if (map.trainingTimer > 40) {
 						map.trainingTimer = 40;
 					}
-					map.trainingTimer--;
+					if (map.trainingCooldown > 0) {
+						map.trainingCooldown--;
+					}
 				} else {
 					map.trainingBlocked = false;
 				}
