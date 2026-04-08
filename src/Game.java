@@ -100,6 +100,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int action = NPC.ACT_NONE;
 	int actionTargetX, actionTargetY;
 
+	boolean updateInteractFocus;
+	boolean hasInteractFocus;
+	boolean interactBorder;
+	String interactText;
+	int interactX, interactY;
+
 	// ui
 	int containerOpen = -1;
 	NPC inventoryOpen;
@@ -595,6 +601,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(nx, ny, nw - 1, nh -1);
 
 					fontColor = FONT_COLOR_GREY_7F;
+					// TODO name
 					String s = "Desk";
 					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 5, FONT_REGULAR);
 
@@ -933,12 +940,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									} else if (selectedInventory-- == 0) {
 										selectedInventory = 5;
 									}
+									updateInteractFocus = true;
 								} else /*if (gameAction == GAME_B)*/ {
 									if (selectedInventory == -1) {
 										selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
 									} else if (++selectedInventory == 6) {
 										selectedInventory = 0;
 									}
+									updateInteractFocus = true;
 								}
 								break;
 							}
@@ -966,6 +975,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else {
 							selectedInventory = -1;
 						}
+						updateInteractFocus = true;
 					} else if (!(key >= '0' && key <= '9')) {
 						// dpad
 						switch (gameAction) {
@@ -1516,6 +1526,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	byte[][] tiles;
 	byte[][] solid;
+	// TODO keep track of destroyed walls, digged floors and added posters
+	// short[][]; // {count, [pos, progress]}
 
 	int time = 7*60 + 50, day; // day count starts from 0
 	int schedule, prevSchedule;
@@ -1948,7 +1960,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			byte[] solid = this.solid[l];
 			for (int i = 0; i < width * height; ++i) {
 				byte t = tiles[l][i];
-				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_NONE : isSolidTile(t));
+				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_DIGGED_WALL : isSolidTile(t));
 			}
 
 			short[] objects = this.objects[l];
@@ -2269,10 +2281,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			player.job = JOB_UNEMPLOYED;
 			
 			// reset map
-			int width = this.width;
-			int height = this.height;
+			int size = width * height;
 			for (int layer = 0; layer < 4; ++layer) {
-				int size = width * height;
 				for (int i = 0; i < size; ++i) {
 					byte t = tiles[layer][i];
 					if (t < 0) {
@@ -2873,39 +2883,26 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR) {
 			// interaction box
 			box: {
-				int item = selectedInventory == -1 ? Items.ITEM_NULL : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
-
 				int x = -1, y = -1;
 				String s;
-				if (player.climbed) {
-					if (objects == null) break box;
-					// TODO
-					boolean b = false;
-					s = "Unscrew";
-					for (int i = -1; i < 4; ++i) {
-						x = player.x / TILE_SIZE;
-						y = (player.y + 5) / TILE_SIZE;
-						if (i != -1) {
-							x += Game.PATH_DIR_POSITIONS[i << 1];
-							y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-						}
-						int idx = getObjectIdxAt(x, y, layer);
-						int obj = objects[idx + 1];
-						if (obj == Objects.VENT) {
-							b = true;
-							// TODO check vent state
-//							if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
-//							}
-							break box;
-						}
-					}
-					if (!b) break box;
+				boolean border = false;
+				if (!updateInteractFocus) {
+					if (!hasInteractFocus) break box;
+					s = interactText;
+					x = interactX;
+					y = interactY;
+					border = interactBorder;
 				} else {
-					if (item == Items.ITEM_NULL) break box;
-					if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+					updateInteractFocus = false;
+					hasInteractFocus = false;
+					interactBorder = false;
+					int item = selectedInventory == -1 ? Items.ITEM_NULL : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
+
+					if (player.climbed) {
 						if (objects == null) break box;
-						boolean b = false;
-						s = "Clean";
+						// TODO
+						boolean found = false;
+						s = "Unscrew";
 						for (int i = -1; i < 4; ++i) {
 							x = player.x / TILE_SIZE;
 							y = (player.y + 5) / TILE_SIZE;
@@ -2915,13 +2912,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 							int idx = getObjectIdxAt(x, y, layer);
 							int obj = objects[idx + 1];
-							if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
-									|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
-								b = true;
-								break;
+							if (obj == Objects.VENT) {
+								found = true;
+								// TODO check vent state
+	//							if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+	//							}
+								break box;
 							}
 						}
-						if (!b) break box;
+						if (!found) break box;
 					} else {
 						switch (player.direction) {
 						case NPC.DIR_RIGHT:
@@ -2943,71 +2942,204 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						default:
 							break box;
 						}
-
 						x = (player.x + x) / TILE_SIZE;
 						y = (player.y + y) / TILE_SIZE;
-						byte t = tiles[layer][y * width + x];
 						byte b = solid[layer][y * width + x];
 
-						switch (item) {
-						case Items.MULTITOOL:
-							if (b == COLL_SOLID && (t == 21 || t == 25)) {
-								s = "Chip";
-								break;
-							}
-							if (b == COLL_NONE && (t == 1 || t == 3)) {
-								s = "Dig";
-								break;
-							}
-							break box;
+						if (item == Items.ITEM_NULL) {
+							if (b != COLL_NONE) {
+								if (objects == null) break box;
+								int idx = getObjectIdxAt(x, y, layer);
+								int obj = idx == -1 ? -1 : objects[idx + 1];
 
-						case Items.PLASTIC_FORK:
-						case Items.STURDY_PICKAXE:
-						case Items.FLIMSY_PICKAXE:
-						case Items.LIGHTWEIGHT_PICKAXE:
-							// chip
-							if (b == COLL_SOLID && (t == 21 || t == 25)) {
-								s = "Chip";
-								break;
+								obj: {
+									if (b == COLL_DESK) {
+										if (obj == Objects.PLAYER_DESK) {
+											s = "Your desk";
+											break obj;
+										}
+
+										// TODO name
+										s = "Desk";
+										break obj;
+									}
+									if (b == COLL_TABLE) {
+										if (obj == Objects.CUTLERY_TABLE) {
+											s = "Cutlery";
+											break obj;
+										}
+										if (obj == Objects.TRAINING_INTERNET) {
+											s = "Internet";
+											break obj;
+										}
+									}
+									if (b == COLL_SOLID_INTERACT) {
+										if (obj == Objects.TRAINING_BOOKSHELF) {
+											s = "Read";
+											break obj;
+										}
+										if (obj == Objects.CABINET) {
+											s = "Hide";
+											break obj;
+										}
+										if (obj == Objects.PLAYER_BED) {
+											s = "Your bed";
+											break obj;
+										}
+										if (obj == Objects.MEDICAL_BED) {
+											s = "Bed";
+											break obj;
+										}
+										if (obj == Objects.SUN_LOUNGER) {
+											s = "Lounger";
+											break obj;
+										}
+										if (obj == Objects.CHAIR) {
+											s = "Sit down";
+											break obj;
+										}
+										if (obj == Objects.JOB_CLEANING_SUPPLIES) {
+											s = "Cleaning supplies";
+											break obj;
+										}
+										if (obj == Objects.JOB_GARDENING_TOOLS) {
+											s = "Gardening tools";
+											break obj;
+										}
+										if (obj == Objects.TOILET) {
+											s = "Dispose items";
+											break obj;
+										}
+										if (obj == Objects.FREEZER) {
+											s = "Freezer";
+											break obj;
+										}
+										// TODO
+									}
+									if (b == COLL_GYM) {
+										s = "Training";
+										break obj;
+									}
+									if (b == COLL_NOT_SOLID_INTERACT) {
+										if (obj == Objects.LADDER_UP) {
+											s = "Up";
+											break obj;
+										}
+										if (obj == Objects.LADDER_DOWN) {
+											s = "Down";
+											break obj;
+										}
+									}
+									break box;
+								}
+							} else {
+								break box;
 							}
-							break box;
-						case Items.PLASTIC_KNIFE:
-						case Items.STURDY_CUTTERS:
-						case Items.FLIMSY_CUTTERS:
-						case Items.LIGHTWEIGHT_CUTTERS:
-						case Items.CUTTING_FLOSS:
-							// cut
-							if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
-								s = "Cut";
-								break;
+						} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+							if (objects == null) break box;
+							boolean found = false;
+							s = "Clean";
+							for (int i = -1; i < 4; ++i) {
+								x = player.x / TILE_SIZE;
+								y = (player.y + 5) / TILE_SIZE;
+								if (i != -1) {
+									x += Game.PATH_DIR_POSITIONS[i << 1];
+									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+								}
+								int idx = getObjectIdxAt(x, y, layer);
+								int obj = objects[idx + 1];
+								if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
+										|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+									found = true;
+									break;
+								}
 							}
-							break box;
-						case Items.PLASTIC_SPOON:
-						case Items.STURDY_SHOVEL:
-						case Items.TROWEL:
-						case Items.FLIMSY_SHOVEL:
-						case Items.LIGHTWEIGHT_SHOVEL:
-							// dig
-							if (b == COLL_NONE && (t == 1 || t == 3)) {
-								s = "Dig";
-								break;
+							if (!found) break box;
+						} else {
+							byte t = tiles[layer][y * width + x];
+							border = true;
+
+							switch (item) {
+							case Items.MULTITOOL:
+								if (b == COLL_SOLID && (t == 21 || t == 25)) {
+									s = "Chip";
+									break;
+								}
+								if (b == COLL_NONE && (t == 1 || t == 3)) {
+									s = "Dig";
+									break;
+								}
+								break box;
+
+							case Items.PLASTIC_FORK:
+							case Items.STURDY_PICKAXE:
+							case Items.FLIMSY_PICKAXE:
+							case Items.LIGHTWEIGHT_PICKAXE:
+								// chip
+								if (b == COLL_SOLID && (t == 21 || t == 25)) {
+									s = "Chip";
+									break;
+								}
+								break box;
+							case Items.PLASTIC_KNIFE:
+							case Items.STURDY_CUTTERS:
+							case Items.FLIMSY_CUTTERS:
+							case Items.LIGHTWEIGHT_CUTTERS:
+							case Items.CUTTING_FLOSS:
+								// cut
+								if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
+									s = "Cut";
+									break;
+								}
+								break box;
+							case Items.PLASTIC_SPOON:
+							case Items.STURDY_SHOVEL:
+							case Items.TROWEL:
+							case Items.FLIMSY_SHOVEL:
+							case Items.LIGHTWEIGHT_SHOVEL:
+								// dig
+								if (b == COLL_NONE && (t == 1 || t == 3)) {
+									s = "Dig";
+									break;
+								}
+								break box;
+							default:
+								break box;
 							}
-							break box;
-						default:
-							break box;
 						}
+					}
+					if (x != -1) {
+						hasInteractFocus = true;
+						interactX = x;
+						interactY = y;
+						interactText = s;
+						interactBorder = border;
 					}
 				}
 
 				if (x == -1) break box;
 
-				g.setColor(0x97479B);
-				g.drawRect(x * TILE_SIZE - viewX, y * TILE_SIZE - viewY, TILE_SIZE - 1, TILE_SIZE - 1);
+				x = x * TILE_SIZE - viewX;
+				y = y * TILE_SIZE - viewY;
 
-				// TODO progress
-				fontColor = FONT_COLOR_WHITE;
-				int w = textWidth(s, FONT_REGULAR);
-				drawText(g, s, x * TILE_SIZE - viewX + 8 - (w >> 1), y * TILE_SIZE - viewY + ((TILE_SIZE - fontCharHeight[FONT_REGULAR]) >> 1), FONT_REGULAR);
+				// TODO
+				if (border) {
+					g.setColor(0x97479B);
+					g.drawRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
+				}
+				if (player.direction == NPC.DIR_DOWN) {
+					y += 18;
+				} else {
+					y -= 15;
+				}
+
+				fontColor = FONT_COLOR_GREY_B4;
+				int tw = textWidth(s, FONT_REGULAR);
+				g.setColor(0x212121);
+				g.fillRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
+				g.setColor(0);
+				g.drawRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
+				drawText(g, s, x + 8 - (tw >> 1), y, FONT_REGULAR);
 			}
 		}
 
@@ -3063,7 +3195,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	void breakWall(int x, int y, int layer) {
 		int pos = x + y * width;
 		tiles[layer][pos] = (byte) -tiles[layer][pos];
-		solid[layer][pos] = COLL_NONE;
+		solid[layer][pos] = COLL_DIGGED_WALL;
 		if (USE_TILED_LAYER) {
 			tiledLayer[layer].setCell(x, y, 13);
 		}

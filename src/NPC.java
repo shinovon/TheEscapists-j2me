@@ -281,6 +281,7 @@ class NPC implements Constants {
 				yFloat = y -= 4;
 				climb = false;
 			}
+			if (!ai) map.updateInteractFocus = true;
 
 			if (s1 == COLL_DOOR || s2 == COLL_DOOR
 					|| s3 == COLL_DOOR || s4 == COLL_DOOR
@@ -2362,6 +2363,7 @@ class NPC implements Constants {
 							}
 						}
 					}
+					map.updateInteractFocus = true;
 				}
 				if (map.softPressed) {
 					map.softPressed = false;
@@ -2409,7 +2411,7 @@ class NPC implements Constants {
 						x = (x + this.x) / TILE_SIZE;
 						y = (y + this.y) / TILE_SIZE;
 
-						if (b == 0) {
+						if (b == COLL_NONE) {
 							// pickup item
 							int item = map.peekItem(x, y, layer);
 							if (item != -1 && item != Items.ITEM_NULL) {
@@ -2423,7 +2425,7 @@ class NPC implements Constants {
 							}
 						}
 
-						if (b != 0) {
+						if (b != COLL_NONE) {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
 
@@ -2671,6 +2673,7 @@ class NPC implements Constants {
 							}
 						}
 					}
+					map.updateInteractFocus = true;
 				}
 			} else if (animation == ANIM_LYING) {
 				// get up from bed
@@ -2691,6 +2694,7 @@ class NPC implements Constants {
 				}
 			}
 			wasTryingToMove = (actions & (GameCanvas.UP_PRESSED | GameCanvas.DOWN_PRESSED | GameCanvas.LEFT_PRESSED | GameCanvas.RIGHT_PRESSED)) != 0;
+			if (wasTryingToMove) map.updateInteractFocus = true;
 		}
 
 		if (climbed || map.selectedInventory != -1) {
