@@ -1885,7 +1885,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					if (objects[idx + 1] == Objects.STASH && day == 0) {
 						if (NPC.rng.nextInt(10) != 0) {
-							// TODO delete object
+							// delete object
+							objects[idx + 1] = 0;
+							objects[idx + 2] |= 1 << 12;
+							s = COLL_NONE;
 						}
 					} else if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
 						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
@@ -3520,6 +3523,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.CONTRABAND_DETECTOR:
 			return Game.COLL_DETECTOR;
 		case Objects.VENT:
+		case Objects.LADDER_UP:
+		case Objects.LADDER_DOWN:
 			return Game.COLL_NOT_SOLID_INTERACT;
 		}
 		return Game.COLL_NONE;

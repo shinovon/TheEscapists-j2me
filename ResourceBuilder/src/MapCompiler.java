@@ -510,12 +510,14 @@ public class MapCompiler implements Constants {
 								break object;
 							}
 							case Objects.LADDER_UP: {
-								// TODO
-								break object;
+								checkNotLayer("ladder up", objectId, x, y, layer, LAYER_ROOF);
+								sprite = 18;
+								break;
 							}
 							case Objects.LADDER_DOWN: {
-								// TODO
-								break object;
+								checkNotLayer("ladder down", objectId, x, y, layer, LAYER_GROUND);
+								sprite = 19;
+								break;
 							}
 							case Objects.ROOF_SPOTLIGHTS: {
 								// TODO

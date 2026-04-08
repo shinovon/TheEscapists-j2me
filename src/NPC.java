@@ -312,6 +312,12 @@ class NPC implements Constants {
 
 				// don't render outfit when in shower room
 				inShower = isInZone(ZONE_SHOWER);
+
+				if (layer == LAYER_ROOF &&
+						s1 == COLL_NONE && s2 == COLL_NONE && s3 == COLL_NONE && s4 == COLL_NONE) {
+					// fall from roof
+					layer = LAYER_GROUND;
+				}
 			}
 		}
 		if (inmate) {
@@ -1532,8 +1538,11 @@ class NPC implements Constants {
 			return COLL_NONE;
 		}
 		byte b = map.solid[layer][x + y * map.width];
-
 		if (!act) {
+			if (b == COLL_NONE && layer == LAYER_ROOF && map.tiles[layer][x + y * map.width] != 0) {
+				// check if not on floor
+				b = COLL_ROOF;
+			}
 			if (b == COLL_DOOR || b == COLL_DOOR_STAFF) {
 				int idx = map.getObjectIdxAt(x, y, layer);
 				if (lastDoor != -1 && lastDoor != idx) {
@@ -2516,6 +2525,20 @@ class NPC implements Constants {
 								map.trainingBlocked = false;
 								training = true;
 								break interact;
+							}
+							if (b == COLL_NOT_SOLID_INTERACT) {
+								if (obj == Objects.LADDER_UP) {
+									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
+									layer++;
+									break interact;
+								}
+								if (obj == Objects.LADDER_DOWN) {
+									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+									layer--;
+									break interact;
+								}
 							}
 						}
 
