@@ -25,7 +25,7 @@
 - [x] NPC Gym
 - [x] Saves
 - [x] Global lighting
-- [ ] Crafting
+- [ ] Crafting (WIP)
 - [x] Adaptiveness or scaling
 - [x] Object interaction
 - [ ] NPC interaction (WIP)
