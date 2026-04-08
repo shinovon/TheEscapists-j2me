@@ -2879,8 +2879,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
-				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0
-				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR) {
+				&& !pausedOverlay && action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR
+				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0) {
 			// interact focus
 			box: {
 				int x = -1, y = -1;
@@ -3136,7 +3136,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// TODO
 				if (border) {
-					g.setColor(0x97479B);
+					g.setColor(0xFFFFFF);
 					g.drawRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
 				}
 				if (player.direction == NPC.DIR_DOWN) {
