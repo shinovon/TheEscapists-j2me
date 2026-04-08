@@ -2044,14 +2044,18 @@ class NPC implements Constants {
 						}
 						break;
 					}
+					case ACT_SEARCHING: {
+						map.openContainer(map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer));
+						break;
+					}
 					case ACT_CHIPPING: {
 						// TODO
 						map.breakWall(map.actionTargetX, map.actionTargetY, layer);
-						map.fatigue += 5;
+						map.fatigue += 10;
 						break;
 					}
-					case ACT_SEARCHING: {
-						map.openContainer(map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer));
+					case ACT_DIGGING: {
+						// TODO
 						break;
 					}
 					}
@@ -2181,7 +2185,8 @@ class NPC implements Constants {
 								y = (this.y + y) / TILE_SIZE;
 								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID) {
-									if (t == 21 || t == 25) { // walls
+									if (t == 21 || t == 25) {
+										// walls
 										chip: {
 											switch (item) {
 											case Items.PLASTIC_FORK:
@@ -2201,7 +2206,8 @@ class NPC implements Constants {
 											map.progress = 0;
 											break hit;
 										}
-									} else if (t == 23 || t == 77 || t == 81) { // fences
+									} else if (t == 23 || t == 77 || t == 81) {
+										// fences
 										chip: {
 											switch (item) {
 											case Items.PLASTIC_KNIFE:
@@ -2238,14 +2244,14 @@ class NPC implements Constants {
 									}
 								}
 
-								if (b == COLL_NONE) {
+								if (b == COLL_NONE && (t == 1 || t == 3)) {
+									// floor
 									dig: {
 										switch (item) {
 										case Items.PLASTIC_SPOON:
 										case Items.STURDY_SHOVEL:
 										case Items.TROWEL:
 										case Items.FLIMSY_SHOVEL:
-											
 										case Items.LIGHTWEIGHT_SHOVEL:
 										case Items.MULTITOOL:
 											// TODO reduce durability
@@ -2254,7 +2260,7 @@ class NPC implements Constants {
 											break dig;
 										}
 										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-										map.action = ACT_CHIPPING;
+										map.action = ACT_DIGGING;
 										map.actionTargetX = x;
 										map.actionTargetY = y;
 										map.progress = 0;

@@ -1117,11 +1117,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[4] = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[1] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[4] = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
 				}
 				if (key == '7' && mapLoaded) {
 					debugFreecam = !debugFreecam;
@@ -2201,6 +2203,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	void tickMap() {
 		if (sendToSolitary) {
 			sendToSolitary = false;
+			action = NPC.ACT_NONE;
+			progress = 0;
 			time = 7*60 + 50;
 			if (USE_M3G) update3DLightingColor();
 			day += 3;
@@ -2631,7 +2635,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							// tiles id debug
 //							if (layer == 0) {
 //								g.setColor(0xFFFFFF);
-//								g.drawString(Integer.toString(tiles[layer][pos]), x, y, 0);
+//								g.drawString(Integer.toString(tiles[pos]), x, y, 0);
 //							}
 						}
 
@@ -2734,9 +2738,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginRenderSection(Profiler.RENDER_TOP_OBJECTS);
 
-		int px = player.x;
-		int py = (player.y + 5) / TILE_SIZE;
-
 		// objects above character
 		if (layer == LAYER_GROUND && objects != null && topObjects != null) {
 			short[] topObjects = this.topObjects;
@@ -2826,12 +2827,157 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 
 				// global lighting
-				if ((time < 7 * 60 + 128 || time > 21 * 60)
+				if (layer == LAYER_UNDERGROUND) {
+					// TODO
+				} else if ((time < 7 * 60 + 128 || time > 21 * 60)
 						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
 					globalVertexBuffer.setDefaultColor(globalLightColor);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
 				}
 				release3D();
+			}
+		}
+
+		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
+				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0
+				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR) {
+			// interaction box
+			box: {
+				int item = selectedInventory == -1 ? Items.ITEM_NULL : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
+
+				int x = -1, y = -1;
+				String s;
+				if (player.climbed) {
+					if (objects == null) break box;
+					// TODO
+					boolean b = false;
+					s = "Unscrew";
+					for (int i = -1; i < 4; ++i) {
+						x = player.x / TILE_SIZE;
+						y = (player.y + 5) / TILE_SIZE;
+						if (i != -1) {
+							x += Game.PATH_DIR_POSITIONS[i << 1];
+							y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+						}
+						int idx = getObjectIdxAt(x, y, layer);
+						int obj = objects[idx + 1];
+						if (obj == Objects.VENT) {
+							b = true;
+							// TODO check vent state
+//							if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+//							}
+							break box;
+						}
+					}
+					if (!b) break box;
+				} else {
+					if (item == Items.ITEM_NULL) break box;
+					if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+						if (objects == null) break box;
+						boolean b = false;
+						s = "Clean";
+						for (int i = -1; i < 4; ++i) {
+							x = player.x / TILE_SIZE;
+							y = (player.y + 5) / TILE_SIZE;
+							if (i != -1) {
+								x += Game.PATH_DIR_POSITIONS[i << 1];
+								y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+							}
+							int idx = getObjectIdxAt(x, y, layer);
+							int obj = objects[idx + 1];
+							if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
+									|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+								b = true;
+								break;
+							}
+						}
+						if (!b) break box;
+					} else {
+						switch (player.direction) {
+						case NPC.DIR_RIGHT:
+							x = 17;
+							y = 8;
+							break;
+						case NPC.DIR_UP:
+							x = 8;
+							y = 3;
+							break;
+						case NPC.DIR_LEFT:
+							x = -2;
+							y = 8;
+							break;
+						case NPC.DIR_DOWN:
+							x = 8;
+							y = 17;
+							break;
+						default:
+							break box;
+						}
+
+						x = (player.x + x) / TILE_SIZE;
+						y = (player.y + y) / TILE_SIZE;
+						byte t = tiles[layer][y * width + x];
+						byte b = solid[layer][y * width + x];
+
+						switch (item) {
+						case Items.MULTITOOL:
+							if (b == COLL_SOLID && (t == 21 || t == 25)) {
+								s = "Chip";
+								break;
+							}
+							if (b == COLL_NONE && (t == 1 || t == 3)) {
+								s = "Dig";
+								break;
+							}
+							break box;
+
+						case Items.PLASTIC_FORK:
+						case Items.STURDY_PICKAXE:
+						case Items.FLIMSY_PICKAXE:
+						case Items.LIGHTWEIGHT_PICKAXE:
+							// chip
+							if (b == COLL_SOLID && (t == 21 || t == 25)) {
+								s = "Chip";
+								break;
+							}
+							break box;
+						case Items.PLASTIC_KNIFE:
+						case Items.STURDY_CUTTERS:
+						case Items.FLIMSY_CUTTERS:
+						case Items.LIGHTWEIGHT_CUTTERS:
+						case Items.CUTTING_FLOSS:
+							// cut
+							if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
+								s = "Cut";
+								break;
+							}
+							break box;
+						case Items.PLASTIC_SPOON:
+						case Items.STURDY_SHOVEL:
+						case Items.TROWEL:
+						case Items.FLIMSY_SHOVEL:
+						case Items.LIGHTWEIGHT_SHOVEL:
+							// dig
+							if (b == COLL_NONE && (t == 1 || t == 3)) {
+								s = "Dig";
+								break;
+							}
+							break box;
+						default:
+							break box;
+						}
+					}
+				}
+
+				if (x == -1) break box;
+
+				g.setColor(0x97479B);
+				g.drawRect(x * TILE_SIZE - viewX, y * TILE_SIZE - viewY, TILE_SIZE - 1, TILE_SIZE - 1);
+
+				// TODO
+				fontColor = FONT_COLOR_WHITE;
+				int w = textWidth(s, FONT_REGULAR);
+				drawText(g, s, x * TILE_SIZE - viewX + 8 - (w >> 1), y * TILE_SIZE - viewY + ((TILE_SIZE - fontCharHeight[FONT_REGULAR]) >> 1), FONT_REGULAR);
 			}
 		}
 
