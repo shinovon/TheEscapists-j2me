@@ -108,6 +108,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedSlot; // negative is player's inventory
 	boolean saveDialog;
 	boolean saveProblem;
+	boolean craftingOpen;
+	int[] craftSlots;
 
 	boolean debugFreecam;
 
@@ -1117,8 +1119,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[1] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[4] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
@@ -1127,7 +1131,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 				if (key == '7' && mapLoaded) {
 					debugFreecam = !debugFreecam;
-//				note = NOTE_SOLITARY;
 				}
 			}
 		} catch (Exception ignored) {}
@@ -4473,6 +4476,392 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		default:
 			return false;
 		}
+	}
+
+	int craft() {
+		int[] s = new int[] { -1, -1, -1 };
+		int intellect = player.statIntellect;
+		if (craftSlots[0] != Items.ITEM_NULL) {
+			s[0] = craftSlots[0] & Items.ITEM_ID_MASK;
+		}
+		if (craftSlots[1] != Items.ITEM_NULL) {
+			int t = craftSlots[1] & Items.ITEM_ID_MASK;
+			if (s[0] == -1) {
+				s[0] = t;
+			} else if (s[0] > t) {
+				s[1] = s[0];
+				s[0] = t;
+			} else {
+				s[1] = t;
+			}
+		}
+
+		if (craftSlots[2] != Items.ITEM_NULL) {
+			int t = craftSlots[2] & Items.ITEM_ID_MASK;
+			if (s[0] == -1) {
+				s[0] = t;
+			} else if (s[0] > t) {
+				s[2] = s[1];
+				s[1] = s[0];
+				s[0] = t;
+			} else if (s[1] == -1 || s[1] > t) {
+				s[1] = t;
+				s[2] = s[1];
+			} else {
+				s[2] = t;
+			}
+		}
+
+		// TODO pow outfits
+		switch (s[0]) {
+		case Items.CELL_KEY:
+			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
+				if (intellect < 20) return -20;
+				return Items.CELL_KEY_MOLD;
+			}
+			break;
+		case Items.STAFF_KEY:
+			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.STAFF_KEY_MOLD;
+			}
+			break;
+		case Items.GUARD_OUTFIT:
+			if (s[1] == Items.TUB_OF_BLEACH && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.INFIRMARY_OVERALLS;
+			}
+			break;
+		case Items.INMATE_OUTFIT:
+			if (s[1] == Items.TUB_OF_BLEACH && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.INFIRMARY_OVERALLS;
+			}
+			if (s[1] == Items.ROLL_OF_DUCT_TAPE) {
+				if (s[2] == Items.PILLOW) {
+					if (intellect < 30) return -30;
+					return Items.CUSHIONED_INMATE_OUTFIT;
+				}
+				if (s[2] == Items.BOOK) {
+					if (intellect < 60) return -60;
+					return Items.PADDED_INMATE_OUTFIT;
+				}
+				if (s[2] == Items.SHEET_OF_METAL) {
+					if (intellect < 80) return -80;
+					return Items.PLATED_INMATE_OUTFIT;
+				}
+			}
+			break;
+		case Items.STURDY_SHOVEL:
+			if (s[1] == Items.ROLL_OF_DUCT_TAPE && s[2] == Items.STURDY_PICKAXE) {
+				if (intellect < 90) return -90;
+				return Items.MULTITOOL;
+			}
+			break;
+		case Items.ENTRANCE_KEY:
+			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
+				if (intellect < 30) return -30;
+				return Items.ENTRANCE_KEY_MOLD;
+			}
+			break;
+		case Items.UTILITY_KEY:
+			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
+				if (intellect < 40) return -40;
+				return Items.UTILITY_KEY_MOLD;
+			}
+			break;
+		case Items.LIGHTER:
+			if (s[1] == Items.BAR_OF_CHOCOLATE && s[2] == Items.CUP) {
+				if (intellect < 40) return -40;
+				return Items.CUP_OF_MOLTEN_CHOCOLATE;
+			}
+			if (s[2] == -1) {
+				if (s[1] == Items.COMB) {
+					if (intellect < 30) return -30;
+					return Items.MOLTEN_PLASTIC;
+				}
+				if (s[1] == Items.TOOTHBRUSH) {
+					if (intellect < 30) return -30;
+					return Items.MOLTEN_PLASTIC;
+				}
+			}
+			break;
+		case Items.TIMBER:
+			switch (s[1]) {
+			case Items.TIMBER:
+				if (s[2] == -1) {
+					if (intellect < 20) return -20;
+					return Items.TIMBER_BRACE;
+				}
+				if (s[2] == Items.TIMBER) {
+					if (intellect < 30) return -30;
+					return Items.UNVARNISHED_CHAIR;
+				}
+				if (s[2] == Items.WIRE) {
+					if (intellect < 70) return -70;
+					return Items.NUNCHUKS;
+				}
+				break;
+			case Items.ROLL_OF_DUCT_TAPE:
+				if (s[2] == -1) {
+					if (intellect < 40) return -40;
+					return Items.WOODEN_BAT;
+				}
+				if (s[2] == Items.LIGHTWEIGHT_PICKAXE) {
+					if (intellect < 80) return -80;
+					return Items.STURDY_PICKAXE;
+				}
+				if (s[2] == Items.FLIMSY_PICKAXE) {
+					if (intellect < 60) return -60;
+					return Items.LIGHTWEIGHT_PICKAXE;
+				}
+				if (s[2] == Items.NAILS) {
+					if (intellect < 70) return -70;
+					return Items.SPIKED_BAT;
+				}
+				break;
+			case Items.FILE:
+				if (s[2] == -1) {
+					if (intellect < 30) return -30;
+					return Items.TOOL_HANDLE;
+				}
+				break;
+			case Items.BED_SHEET:
+				if (s[2] == -1) {
+					if (intellect < 80) return -80;
+					return Items.SAIL;
+				}
+				break;
+			case Items.RAZOR_BLADE:
+				if (s[2] == Items.WIRE) {
+					if (intellect < 80) return -80;
+					return Items.WHIP;
+				}
+				break;
+			case Items.WIRE:
+				if (s[2] == -1) {
+					if (intellect < 60) return -60;
+					return Items.ZIPLINE_HOOK;
+				}
+			}
+			break;
+		case Items.ROLL_OF_DUCT_TAPE:
+			switch (s[1]) {
+			case Items.MAGAZINE:
+				if (s[2] == -1) {
+					if (intellect < 20) return -20;
+					return Items.POSTER;
+				}
+				break;
+			case Items.GLASS_SHARD:
+				if (s[2] == -1) {
+					if (intellect < 30) return -30;
+					return Items.GLASS_SHANK;
+				}
+				break;
+			case Items.CROWBAR:
+				if (s[2] == Items.CROWBAR) {
+					if (intellect < 60) return -60;
+					return Items.GRAPPLE_HEAD;
+				}
+				if (s[2] == Items.TOOL_HANDLE) {
+					if (intellect < 40) return -40;
+					return Items.FLIMSY_PICKAXE;
+				}
+				break;
+			case Items.FILE:
+				if (s[2] == Items.FILE) {
+					if (intellect < 40) return -40;
+					return Items.FLIMSY_CUTTERS;
+				}
+				if (s[2] == Items.FLIMSY_CUTTERS) {
+					if (intellect < 60) return -60;
+					return Items.LIGHTWEIGHT_CUTTERS;
+				}
+				if (s[2] == Items.LIGHTWEIGHT_CUTTERS) {
+					if (intellect < 80) return -80;
+					return Items.STURDY_CUTTERS;
+				}
+				break;
+			case Items.SHEET_OF_METAL:
+				if (s[2] == Items.LIGHTWEIGHT_SHOVEL) {
+					if (intellect < 80) return -80;
+					return Items.STURDY_SHOVEL;
+				}
+				if (s[2] == Items.FLIMSY_SHOVEL) {
+					if (intellect < 60) return -60;
+					return Items.LIGHTWEIGHT_SHOVEL;
+				}
+				if (s[2] == Items.TOOL_HANDLE) {
+					if (intellect < 40) return -40;
+					return Items.FLIMSY_SHOVEL;
+				}
+				break;
+			case Items.RAZOR_BLADE:
+				if (s[2] == -1) {
+					if (intellect < 60) return -60;
+					return Items.KNUCKLE_DUSTER;
+				}
+				break;
+			case Items.FOIL:
+				if (s[2] == -1) {
+					if (intellect < 50) return -50;
+					return Items.CONTRABAND_POUCH;
+				}
+				if (s[2] == Items.FOIL) {
+					if (intellect < 70) return -70;
+					return Items.DURABLE_CONTRABAND_POUCH;
+				}
+				break;
+			case Items.NAILS:
+				if (s[2] == Items.NAILS) {
+					if (intellect < 50) return -50;
+					return Items.STINGER_STRIP;
+				}
+				break;
+			}
+			break;
+		case Items.COMB:
+			if (s[1] == Items.RAZOR_BLADE && s[2] == -1) {
+				if (intellect < 20) return -20;
+				return Items.COMB_BLADE;
+			}
+			break;
+		case Items.SCREWDRIVER:
+			if (s[1] == Items.BATTERY && s[2] == Items.WIRE) {
+				if (intellect < 80) return -80;
+				return Items.POWERED_SCREWDRIVER;
+			}
+			break;
+		case Items.JAR_OF_INK:
+			if (s[1] == Items.INFIRMARY_OVERALLS && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.GUARD_OUTFIT;
+			}
+			if (s[1] == Items.PAPER_MACHE && s[2] == Items.PAPER_MACHE) {
+				if (intellect < 40) return -40;
+				return Items.FAKE_WALL_BLOCK;
+			}
+			if (s[1] == Items.EXOTIC_FEATHER && s[2] == Items.UNSIGNED_ID_PAPERS) {
+				if (intellect < 60) return -60;
+				return Items.ID_PAPERS;
+			}
+			break;
+		case Items.WORK_KEY:
+			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.WORK_KEY_MOLD;
+			}
+			break;
+		case Items.LENGTH_OF_ROPE:
+			if (s[1] == Items.GRAPPLE_HEAD && s[2] == -1) {
+				if (intellect < 90) return -90;
+				return Items.GRAPPLING_HOOK;
+			}
+			if (s[1] == Items.BALSA_WOOD && s[2] == Items.BALSA_WOOD) {
+				if (intellect < 80) return -80;
+				return Items.RAFT_BASE;
+			}
+			if (s[1] == Items.SAIL && s[2] == Items.RAFT_BASE) {
+				if (intellect < 80) return -80;
+				return Items.MAKESHIFT_RAFT;
+			}
+			break;
+		case Items.TUBE_OF_TOOTHPASTE:
+			if (s[1] == Items.TUB_OF_TALCUM_POWDER && s[2] == -1) {
+				if (intellect < 20) return -20;
+				return Items.WAD_OF_PUTTY;
+			}
+			break;
+		case Items.ROLL_OF_TOILET_PAPER:
+			if (s[1] == Items.TUBE_OF_SUPER_GLUE && s[2] == -1) {
+				if (intellect < 30) return -30;
+				return Items.PAPER_MACHE;
+			}
+			break;
+		case Items.SOAP:
+			if (s[1] == Items.SOCK && s[2] == -1) {
+				if (intellect < 30) return -30;
+				return Items.SOCK_MACE;
+			}
+			break;
+		case Items.WORK_KEY_MOLD:
+			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
+				if (intellect < 70) return -70;
+				return Items.PLASTIC_WORK_KEY;
+			}
+			break;
+		case Items.BED_SHEET:
+			if (s[1] == Items.BED_SHEET && s[2] == -1) {
+				if (intellect < 30) return -30;
+				return Items.SHEET_ROPE;
+			}
+			if (s[1] == Items.PILLOW && s[2] == Items.PILLOW) {
+				if (intellect < 30) return -30;
+				return Items.BED_DUMMY;
+			}
+			break;
+		case Items.STAFF_KEY_MOLD:
+			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
+				if (intellect < 80) return -80;
+				return Items.PLASTIC_STAFF_KEY;
+			}
+			break;
+		case Items.UTILITY_KEY_MOLD:
+			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
+				if (intellect < 70) return -70;
+				return Items.PLASTIC_UTILITY_KEY;
+			}
+			break;
+		case Items.CELL_KEY_MOLD:
+			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
+				if (intellect < 50) return -50;
+				return Items.PLASTIC_CELL_KEY;
+			}
+			break;
+		case Items.MOLTEN_PLASTIC:
+			if (s[1] == Items.ENTRANCE_KEY_MOLD && s[2] == -1) {
+				if (intellect < 60) return -60;
+				return Items.PLASTIC_ENTRANCE_KEY;
+			}
+			break;
+		case Items.BATTERY:
+			switch (s[1]) {
+			case Items.WIRE:
+				if (s[2] == -1) {
+					if (intellect < 30) return -30;
+					return Items.CANDLE;
+				}
+				break;
+			case Items.SOCK:
+				if (s[2] == -1) {
+					if (intellect < 50) return -50;
+					return Items.SUPER_SOCK_MACE;
+				}
+				break;
+			}
+			break;
+		case Items.WIRE:
+			if (s[1] == Items.WIRE && s[2] == Items.WIRE) {
+				if (intellect < 50) return -50;
+				return Items.FAKE_FENCE;
+			}
+			break;
+		case Items.PAPER_MACHE:
+			if (s[1] == Items.PAPER_MACHE && s[2] == -1) {
+				if (intellect < 30) return -30;
+				return Items.FAKE_VENT_COVER;
+			}
+			break;
+		case Items.DENTAL_FLOSS:
+			if (s[1] == Items.DENTAL_FLOSS && s[2] == Items.DENTAL_FLOSS) {
+				if (intellect < 40) return -40;
+				return Items.CUTTING_FLOSS;
+			}
+			break;
+		}
+
+		return -1;
 	}
 
 // endregion Items
