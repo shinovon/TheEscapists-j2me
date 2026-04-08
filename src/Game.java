@@ -1303,7 +1303,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				float deltaTime = passed * TPS / 1000F;
 				float animDeltaTime = deltaTime > 2 ? 2 : deltaTime;
 				if (fadeIn > 0) {
-					fadeIn -= FADE_SPEED * animDeltaTime;
+					fadeIn -= ((FADE_SPEED * viewWidth) / 320f) * animDeltaTime;
 					if (fadeIn <= 0) {
 						fadeIn = 0;
 						if (state == 3) {
@@ -1312,7 +1312,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				} else if (fadeOut > 0) {
 					paused = true;
-					fadeOut -= FADE_SPEED * animDeltaTime;
+					fadeOut -= ((FADE_SPEED * viewWidth) / 320f) * animDeltaTime;
 					if (fadeOut <= 0) {
 						fadeOut = 0;
 						if (exiting) {
@@ -1325,13 +1325,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				} else if (mapLoaded) {
 					if (!paused) {
 						if (ingameFadeIn > 0) {
-							ingameFadeIn -= FADE_SPEED * animDeltaTime;
+							ingameFadeIn -= ((FADE_SPEED * viewWidth) / 320f) * animDeltaTime;
 							if (ingameFadeIn <= 0) {
 								ingameFadeIn = 0;
 								player.animationTimer = 0;
 							}
 						} else if (ingameFadeOut > 0) {
-							ingameFadeOut -= FADE_SPEED * animDeltaTime;
+							ingameFadeOut -= ((FADE_SPEED * viewWidth) / 320f) * animDeltaTime;
 							if (ingameFadeOut <= 0) {
 								ingameFadeOut = 0;
 								ingameFadeIn = viewWidth >> 1;
@@ -1410,17 +1410,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
-				if (BUFFER_SCREEN) drawGame();
-				drawScreen();
-
 				if (state == 6 && mapError == 0) {
 					// start game
-					flushGraphics();
+					if (BUFFER_SCREEN) drawGame();
+					drawScreen();
+
 					Sound.stopMusic();
 					Sound.playEffect(Sound.SFX_RUMBLE);
 
 					try {
-						Thread.sleep(500);
 						if (loadMap()) {
 							mapLoaded = true;
 
@@ -1444,10 +1442,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 					if (mapError == 0) mapError = 1;
 				} else if (state == 1) {
+					if (BUFFER_SCREEN) drawGame();
+					drawScreen();
+
 					Sound.playEffect(Sound.SFX_RUMBLE);
 					bgImg = Image.createImage("/title.png");
 					fadeIn = viewWidth >> 1;
 					state = 2;
+				} else {
+					if (BUFFER_SCREEN) drawGame();
+					drawScreen();
 				}
 
 				// count FPS
