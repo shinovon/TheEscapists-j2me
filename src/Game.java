@@ -95,6 +95,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean playerSeenByGuards;
 	int progress;
 	boolean sendToSolitary;
+	boolean inSolitary;
 	NPC interactNPC;
 	int action = NPC.ACT_NONE;
 	int actionTargetX, actionTargetY;
@@ -1345,7 +1346,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									newGame = false;
 
 									if (time >= 8 * 60) day++;
-									time = 7*60 + 40;
+									time = 7*60 + 50;
 									if (USE_M3G) update3DLightingColor();
 
 									save();
@@ -1869,50 +1870,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		// fill collision lookup
-		for (int l = 0; l < 4; ++l) {
-			byte[] solid = this.solid[l];
-			for (int i = 0; i < width * height; ++i) {
-				solid[i] = l == LAYER_UNDERGROUND ? COLL_SOLID : isSolidTile(tiles[l][i]);
-			}
-
-			short[] objects = this.objects[l];
-			if (objects != null) {
-				int n = objects[0];
-				for (int i = 0; i < n; ++i) {
-					int idx = i << 2;
-					byte s;
-					if ((s = isSolidObject(objects[idx + 1])) == COLL_NONE) {
-						continue;
-					}
-
-					short x = objects[idx + 3], y = objects[idx + 4];
-
-					if (objects[idx + 1] == Objects.STASH && day == 0) {
-						if (NPC.rng.nextInt(10) != 0) {
-							// delete object
-							objects[idx + 1] = 0;
-							objects[idx + 2] |= 1 << 12;
-							s = COLL_NONE;
-						}
-					} else if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
-						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
-						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
-						canteenSeatsPositions[p + 1] = -1;
-					}
-
-					short sprite = objects[idx + 2];
-					for (int y2 = y - ((sprite & (3 << 10)) >> 10); y > y2; --y) {
-						for (int x2 = 0; x2 < ((sprite & (3 << 8)) >> 8); ++x2) {
-							int p = x + x2 + y * width;
-							if (solid[p] == COLL_SOLID && (s == COLL_SOLID_INTERACT || s == COLL_DETECTOR)) continue;
-							solid[p] = s;
-						}
-					}
-				}
-			}
-		}
-
 		initMap();
 		System.gc();
 		return true;
@@ -1986,6 +1943,51 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	void initMap() {
+		// fill collision lookup
+		for (int l = 0; l < 4; ++l) {
+			byte[] solid = this.solid[l];
+			for (int i = 0; i < width * height; ++i) {
+				byte t = tiles[l][i];
+				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_NONE : isSolidTile(t));
+			}
+
+			short[] objects = this.objects[l];
+			if (objects != null) {
+				int n = objects[0];
+				for (int i = 0; i < n; ++i) {
+					int idx = i << 2;
+					byte s;
+					if ((s = isSolidObject(objects[idx + 1])) == COLL_NONE) {
+						continue;
+					}
+
+					short x = objects[idx + 3], y = objects[idx + 4];
+
+					if (objects[idx + 1] == Objects.STASH && day == 0) {
+						if (NPC.rng.nextInt(10) != 0) {
+							// delete object
+							objects[idx + 1] = 0;
+							objects[idx + 2] |= 1 << 12;
+							s = COLL_NONE;
+						}
+					} else if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
+						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
+						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
+						canteenSeatsPositions[p + 1] = -1;
+					}
+
+					short sprite = objects[idx + 2];
+					for (int y2 = y - ((sprite & (3 << 10)) >> 10); y > y2; --y) {
+						for (int x2 = 0; x2 < ((sprite & (3 << 8)) >> 8); ++x2) {
+							int p = x + x2 + y * width;
+							if (solid[p] == COLL_SOLID && (s == COLL_SOLID_INTERACT || s == COLL_DETECTOR)) continue;
+							solid[p] = s;
+						}
+					}
+				}
+			}
+		}
+		
 		// fill tiled layer
 		if (USE_TILED_LAYER) {
 			int width = this.width;
@@ -1993,7 +1995,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int layer = 0; layer < 4; ++layer) {
 				for (int y = 0; y < height; ++y) {
 					for (int x = 0; x < width; ++x) {
-						tiledLayer[layer].setCell(x, y, tiles[layer][x + y * width]);
+						byte t = tiles[layer][x + y * width];
+						tiledLayer[layer].setCell(x, y, t < 0 ? 13 : t);
 					}
 				}
 			}
@@ -2206,6 +2209,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	void tickMap() {
 		if (sendToSolitary) {
 			sendToSolitary = false;
+			inSolitary = true;
 			action = NPC.ACT_NONE;
 			progress = 0;
 			time = 7*60 + 50;
@@ -2263,6 +2267,28 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			heat = 0;
 			fatigue = 20;
 			player.job = JOB_UNEMPLOYED;
+			
+			// reset map
+			int width = this.width;
+			int height = this.height;
+			for (int layer = 0; layer < 4; ++layer) {
+				int size = width * height;
+				for (int i = 0; i < size; ++i) {
+					byte t = tiles[layer][i];
+					if (t < 0) {
+						tiles[layer][i] = (byte) -t;
+					} else if (t == 100) {
+						tiles[layer][i] = 0;
+					}
+				}
+				int[] items = droppedItems[layer];
+				items[0] = 0;
+				size = (items.length - 1) >> 1;
+				for (int i = 0; i < size; ++i) {
+					items[(i << 1) + 1] = 0;
+					items[(i << 1) + 2] = 0;
+				}
+			}
 
 			initMap();
 		}
@@ -2281,6 +2307,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					playerSeenByGuards = false;
 					switch (hour) {
 					case 8:
+						inSolitary = false;
 						music = Sound.MUSIC_ROLLCALL;
 						schedule = SC_MORNING_ROLLCALL;
 						cellsClosed = false;

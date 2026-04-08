@@ -762,7 +762,7 @@ class NPC implements Constants {
 			if (player.layer == LAYER_GROUND && player.health > 0 && canSee(player)) {
 				if (guard) {
 					if (map.time < 8 * 60 && !map.lockdown && player.outfitId != Textures.OUTFIT_GUARD
-							&& !player.isInZone(ZONE_PLAYER_CELL)) {
+							&& !player.isInZone(ZONE_PLAYER_CELL) && !map.sendToSolitary && !map.inSolitary) {
 						// send player to solitary if they're not in cell during lights out
 						map.note = NOTE_SOLITARY;
 					}
@@ -1808,7 +1808,7 @@ class NPC implements Constants {
 
 			if (map.lockdown) {
 				map.lockdown = false;
-				map.note = NOTE_SOLITARY;
+				if (!map.sendToSolitary) map.note = NOTE_SOLITARY;
 			}
 			if (sitting) {
 				int seat = map.getSeatIndex(map.canteenSeatsPositions, (x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE);
