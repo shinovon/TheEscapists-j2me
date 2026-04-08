@@ -31,13 +31,13 @@
 - [ ] NPC interaction (WIP)
 - [x] Settings
 - [x] Own map format
-- [ ] Digging
+- [ ] Digging (WIP)
 - [x] Other NPCs
 - [ ] Cameras
 - [ ] Localization
 - [x] NPC Jobs
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
-- [ ] Player training (WIP, only weight is finished)
+- [x] Player training
 - [x] Solitary
 - [ ] Map schedules (hardcoded for shanktonstatepen)
 - [ ] Profile
