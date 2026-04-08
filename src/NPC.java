@@ -2194,6 +2194,19 @@ class NPC implements Constants {
 											case Items.FLIMSY_PICKAXE:
 											case Items.LIGHTWEIGHT_PICKAXE:
 											case Items.MULTITOOL:
+												boolean p = false;
+												for (int i = 0; i < 6; ++i) {
+													if (inventory[i] == Items.ITEM_NULL) {
+														p = true;
+														break;
+													}
+												}
+												if (!p) {
+													dialog = "Inventory full";
+													dialogTimer = TPS * 2;
+													break chip;
+												}
+
 												// TODO reduce durability
 												break;
 											default:
@@ -2244,27 +2257,54 @@ class NPC implements Constants {
 									}
 								}
 
-								if (b == COLL_NONE && (t == 1 || t == 3)) {
-									// floor
-									dig: {
-										switch (item) {
-										case Items.PLASTIC_SPOON:
-										case Items.STURDY_SHOVEL:
-										case Items.TROWEL:
-										case Items.FLIMSY_SHOVEL:
-										case Items.LIGHTWEIGHT_SHOVEL:
-										case Items.MULTITOOL:
-											// TODO reduce durability
-											break;
-										default:
-											break dig;
+								if (b == COLL_NONE) {
+									if (t == 1 || t == 3) {
+										// floor
+										dig: {
+											switch (item) {
+											case Items.PLASTIC_SPOON:
+											case Items.STURDY_SHOVEL:
+											case Items.TROWEL:
+											case Items.FLIMSY_SHOVEL:
+											case Items.LIGHTWEIGHT_SHOVEL:
+											case Items.MULTITOOL:
+												boolean p = false;
+												for (int i = 0; i < 6; ++i) {
+													if (inventory[i] == Items.ITEM_NULL) {
+														p = true;
+														break;
+													}
+												}
+												if (!p) {
+													dialog = "Inventory full";
+													dialogTimer = TPS * 2;
+													break dig;
+												}
+
+												// TODO reduce durability
+												break;
+											default:
+												break dig;
+											}
+											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+											map.action = ACT_DIGGING;
+											map.actionTargetX = x;
+											map.actionTargetY = y;
+											map.progress = 0;
+											break hit;
 										}
-										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-										map.action = ACT_DIGGING;
-										map.actionTargetX = x;
-										map.actionTargetY = y;
-										map.progress = 0;
-										break hit;
+									} else if (t < 0) {
+										// TODO
+										switch (item) {
+										case Items.POSTER:
+											break;
+										case Items.FAKE_WALL_BLOCK:
+											break;
+										case Items.FAKE_FENCE:
+											break;
+										case Items.WALL_BLOCK:
+											break;
+										}
 									}
 								}
 

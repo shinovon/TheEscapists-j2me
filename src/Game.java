@@ -2578,7 +2578,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 							if (!USE_TILED_LAYER) {
 								byte tile = tiles[pos];
-								if (tile == 100) {
+								if (tile < 0) {
 									g.setColor(0);
 									g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
 								} else if (tile != 0) {
@@ -2977,7 +2977,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				g.setColor(0x97479B);
 				g.drawRect(x * TILE_SIZE - viewX, y * TILE_SIZE - viewY, TILE_SIZE - 1, TILE_SIZE - 1);
 
-				// TODO
+				// TODO progress
 				fontColor = FONT_COLOR_WHITE;
 				int w = textWidth(s, FONT_REGULAR);
 				drawText(g, s, x * TILE_SIZE - viewX + 8 - (w >> 1), y * TILE_SIZE - viewY + ((TILE_SIZE - fontCharHeight[FONT_REGULAR]) >> 1), FONT_REGULAR);
@@ -3035,7 +3035,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	void breakWall(int x, int y, int layer) {
 		int pos = x + y * width;
-		tiles[layer][pos] = 100;
+		tiles[layer][pos] = (byte) -tiles[layer][pos];
 		solid[layer][pos] = COLL_NONE;
 		if (USE_TILED_LAYER) {
 			tiledLayer[layer].setCell(x, y, 13);
