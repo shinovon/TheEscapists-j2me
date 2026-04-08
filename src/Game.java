@@ -3128,9 +3128,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(x, y, TILE_SIZE - 1, TILE_SIZE - 1);
 				}
 				if (player.direction == NPC.DIR_DOWN) {
-					y += 18;
+					y += 20;
 				} else {
-					y -= 15;
+					y -= 14;
 				}
 
 				fontColor = FONT_COLOR_GREY_B4;
