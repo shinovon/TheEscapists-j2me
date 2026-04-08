@@ -2044,6 +2044,12 @@ class NPC implements Constants {
 						}
 						break;
 					}
+					case ACT_CHIPPING: {
+						// TODO
+						map.breakWall(map.actionTargetX, map.actionTargetY, layer);
+						map.fatigue += 5;
+						break;
+					}
 					case ACT_SEARCHING: {
 						map.openContainer(map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer));
 						break;
@@ -2170,9 +2176,52 @@ class NPC implements Constants {
 									break hit;
 								}
 
-
 								byte b = getCollision(x, y, true);
+								x = (this.x + x) / TILE_SIZE;
+								y = (this.y + y) / TILE_SIZE;
+								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID) {
+									if (t == 21 || t == 25) { // walls
+										chip: {
+											switch (item) {
+											case Items.PLASTIC_FORK:
+											case Items.STURDY_PICKAXE:
+											case Items.FLIMSY_PICKAXE:
+											case Items.LIGHTWEIGHT_PICKAXE:
+											case Items.MULTITOOL:
+												// TODO reduce durability
+												break;
+											default:
+												break chip;
+											}
+											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+											map.action = ACT_CHIPPING;
+											map.actionTargetX = x;
+											map.actionTargetY = y;
+											map.progress = 0;
+											break hit;
+										}
+									} else if (t == 23 || t == 77 || t == 81) { // fences
+										chip: {
+											switch (item) {
+											case Items.PLASTIC_KNIFE:
+											case Items.STURDY_CUTTERS:
+											case Items.FLIMSY_CUTTERS:
+											case Items.LIGHTWEIGHT_CUTTERS:
+											case Items.CUTTING_FLOSS:
+												// TODO reduce durability
+												break;
+											default:
+												break chip;
+											}
+											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+											map.action = ACT_CHIPPING;
+											map.actionTargetX = x;
+											map.actionTargetY = y;
+											map.progress = 0;
+											break hit;
+										}
+									}
 									if (item == Items.COMB) {
 										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
 										break hit;
@@ -2185,6 +2234,30 @@ class NPC implements Constants {
 											|| item == Items.SHAVING_CREAM
 											|| item == Items.ROLL_OF_DUCT_TAPE) {
 										// TODO check for camera
+										break hit;
+									}
+								}
+
+								if (b == COLL_NONE) {
+									dig: {
+										switch (item) {
+										case Items.PLASTIC_SPOON:
+										case Items.STURDY_SHOVEL:
+										case Items.TROWEL:
+										case Items.FLIMSY_SHOVEL:
+											
+										case Items.LIGHTWEIGHT_SHOVEL:
+										case Items.MULTITOOL:
+											// TODO reduce durability
+											break;
+										default:
+											break dig;
+										}
+										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+										map.action = ACT_CHIPPING;
+										map.actionTargetX = x;
+										map.actionTargetY = y;
+										map.progress = 0;
 										break hit;
 									}
 								}

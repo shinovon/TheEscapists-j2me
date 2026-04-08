@@ -2571,7 +2571,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 							if (!USE_TILED_LAYER) {
 								byte tile = tiles[pos];
-								if (tile != 0) {
+								if (tile == 100) {
+									g.setColor(0);
+									g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+								} else if (tile != 0) {
 									--tile;
 									g.drawRegion(tilesImg, (tile % 4) * TILE_SIZE, (tile / 4) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
 								}
@@ -2879,6 +2882,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			g.setColor(0x00FF00);
 //			g.drawRect(zones[idx] - viewX, zones[idx + 1] - viewY, zones[idx + 2] - zones[idx], zones[idx + 3] - zones[idx + 1]);
 //		}
+	}
+
+	void breakWall(int x, int y, int layer) {
+		int pos = x + y * width;
+		tiles[layer][pos] = 100;
+		solid[layer][pos] = COLL_NONE;
+		if (USE_TILED_LAYER) {
+			tiledLayer[layer].setCell(x, y, 13);
+		}
 	}
 
 // endregion Map
