@@ -2881,7 +2881,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
 				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0
 				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR) {
-			// interaction box
+			// interact focus
 			box: {
 				int x = -1, y = -1;
 				String s;
@@ -2898,213 +2898,225 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					interactBorder = false;
 					int item = selectedInventory == -1 ? Items.ITEM_NULL : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
 
-					if (player.climbed) {
-						if (objects == null) break box;
-						// TODO
-						boolean found = false;
-						s = "Unscrew";
-						for (int i = -1; i < 4; ++i) {
-							x = player.x / TILE_SIZE;
-							y = (player.y + 5) / TILE_SIZE;
-							if (i != -1) {
-								x += Game.PATH_DIR_POSITIONS[i << 1];
-								y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-							}
-							int idx = getObjectIdxAt(x, y, layer);
-							int obj = objects[idx + 1];
-							if (obj == Objects.VENT) {
-								found = true;
-								// TODO check vent state
-	//							if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
-	//							}
-								break box;
-							}
-						}
-						if (!found) break box;
-					} else {
-						switch (player.direction) {
-						case NPC.DIR_RIGHT:
-							x = 17;
-							y = 8;
-							break;
-						case NPC.DIR_UP:
-							x = 8;
-							y = 3;
-							break;
-						case NPC.DIR_LEFT:
-							x = -2;
-							y = 8;
-							break;
-						case NPC.DIR_DOWN:
-							x = 8;
-							y = 17;
-							break;
-						default:
+					interact: {
+						if (player.climbed) {
+							// TODO
+//							if (objects == null) break box;
+//							boolean found = false;
+//							s = "Unscrew";
+//							for (int i = -1; i < 4; ++i) {
+//								x = player.x / TILE_SIZE;
+//								y = (player.y + 5) / TILE_SIZE;
+//								if (i != -1) {
+//									x += Game.PATH_DIR_POSITIONS[i << 1];
+//									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+//								}
+//								int idx = getObjectIdxAt(x, y, layer);
+//								int obj = objects[idx + 1];
+//								if (obj == Objects.VENT) {
+//									// TODO check vent state
+//									if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+//										break interact;
+//									}
+//								}
+//							}
 							break box;
-						}
-						x = (player.x + x) / TILE_SIZE;
-						y = (player.y + y) / TILE_SIZE;
-						byte b = solid[layer][y * width + x];
-
-						if (item == Items.ITEM_NULL) {
-							if (b != COLL_NONE) {
-								if (objects == null) break box;
+						} else {
+							x = (player.x + 7) / TILE_SIZE;
+							y = (player.y + 7) / TILE_SIZE;
+							byte b = solid[layer][y * width + x];
+							if (b == COLL_NOT_SOLID_INTERACT) {
 								int idx = getObjectIdxAt(x, y, layer);
 								int obj = idx == -1 ? -1 : objects[idx + 1];
+								if (obj == Objects.LADDER_UP) {
+									s = "Up";
+									break interact;
+								}
+								if (obj == Objects.LADDER_DOWN) {
+									s = "Down";
+									break interact;
+								}
+							}
 
-								obj: {
+							switch (player.direction) {
+							case NPC.DIR_RIGHT:
+								x = 17;
+								y = 8;
+								break;
+							case NPC.DIR_UP:
+								x = 8;
+								y = 3;
+								break;
+							case NPC.DIR_LEFT:
+								x = -2;
+								y = 8;
+								break;
+							case NPC.DIR_DOWN:
+								x = 8;
+								y = 17;
+								break;
+							default:
+								break box;
+							}
+							x = (player.x + x) / TILE_SIZE;
+							y = (player.y + y) / TILE_SIZE;
+							b = solid[layer][y * width + x];
+
+							if (item == Items.ITEM_NULL) {
+								if (b != COLL_NONE) {
+									if (objects == null) break box;
+									int idx = getObjectIdxAt(x, y, layer);
+									int obj = idx == -1 ? -1 : objects[idx + 1];
+
 									if (b == COLL_DESK) {
 										if (obj == Objects.PLAYER_DESK) {
 											s = "Your desk";
-											break obj;
+											break interact;
 										}
 
 										// TODO name
 										s = "Desk";
-										break obj;
+										break interact;
 									}
 									if (b == COLL_TABLE) {
 										if (obj == Objects.CUTLERY_TABLE) {
 											s = "Cutlery";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.TRAINING_INTERNET) {
 											s = "Internet";
-											break obj;
+											break interact;
 										}
 									}
 									if (b == COLL_SOLID_INTERACT) {
 										if (obj == Objects.TRAINING_BOOKSHELF) {
 											s = "Read";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.CABINET) {
 											s = "Hide";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.PLAYER_BED) {
 											s = "Your bed";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.MEDICAL_BED) {
 											s = "Bed";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.SUN_LOUNGER) {
 											s = "Lounger";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.CHAIR) {
 											s = "Sit down";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.JOB_CLEANING_SUPPLIES) {
 											s = "Cleaning supplies";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.JOB_GARDENING_TOOLS) {
 											s = "Gardening tools";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.TOILET) {
 											s = "Dispose items";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.FREEZER) {
 											s = "Freezer";
-											break obj;
+											break interact;
 										}
 										// TODO
 									}
 									if (b == COLL_GYM) {
 										s = "Training";
-										break obj;
+										break interact;
 									}
 									if (b == COLL_NOT_SOLID_INTERACT) {
 										if (obj == Objects.LADDER_UP) {
 											s = "Up";
-											break obj;
+											break interact;
 										}
 										if (obj == Objects.LADDER_DOWN) {
 											s = "Down";
-											break obj;
+											break interact;
 										}
 									}
 									break box;
+								} else {
+									break box;
+								}
+							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+								if (objects == null) break box;
+								s = "Clean";
+								for (int i = -1; i < 4; ++i) {
+									x = player.x / TILE_SIZE;
+									y = (player.y + 5) / TILE_SIZE;
+									if (i != -1) {
+										x += Game.PATH_DIR_POSITIONS[i << 1];
+										y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+									}
+									int idx = getObjectIdxAt(x, y, layer);
+									int obj = objects[idx + 1];
+									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
+											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+										break interact;
+									}
 								}
 							} else {
-								break box;
-							}
-						} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
-							if (objects == null) break box;
-							boolean found = false;
-							s = "Clean";
-							for (int i = -1; i < 4; ++i) {
-								x = player.x / TILE_SIZE;
-								y = (player.y + 5) / TILE_SIZE;
-								if (i != -1) {
-									x += Game.PATH_DIR_POSITIONS[i << 1];
-									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-								}
-								int idx = getObjectIdxAt(x, y, layer);
-								int obj = objects[idx + 1];
-								if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
-										|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
-									found = true;
-									break;
-								}
-							}
-							if (!found) break box;
-						} else {
-							byte t = tiles[layer][y * width + x];
-							border = true;
+								byte t = tiles[layer][y * width + x];
+								border = true;
 
-							switch (item) {
-							case Items.MULTITOOL:
-								if (b == COLL_SOLID && (t == 21 || t == 25)) {
-									s = "Chip";
-									break;
-								}
-								if (b == COLL_NONE && (t == 1 || t == 3)) {
-									s = "Dig";
-									break;
-								}
-								break box;
+								switch (item) {
+								case Items.MULTITOOL:
+									if (b == COLL_SOLID && (t == 21 || t == 25)) {
+										s = "Chip";
+										break interact;
+									}
+									if (b == COLL_NONE && (t == 1 || t == 3)) {
+										s = "Dig";
+										break interact;
+									}
+									break box;
 
-							case Items.PLASTIC_FORK:
-							case Items.STURDY_PICKAXE:
-							case Items.FLIMSY_PICKAXE:
-							case Items.LIGHTWEIGHT_PICKAXE:
-								// chip
-								if (b == COLL_SOLID && (t == 21 || t == 25)) {
-									s = "Chip";
-									break;
+								case Items.PLASTIC_FORK:
+								case Items.STURDY_PICKAXE:
+								case Items.FLIMSY_PICKAXE:
+								case Items.LIGHTWEIGHT_PICKAXE:
+									// chip
+									if (b == COLL_SOLID && (t == 21 || t == 25)) {
+										s = "Chip";
+										break interact;
+									}
+									break box;
+								case Items.PLASTIC_KNIFE:
+								case Items.STURDY_CUTTERS:
+								case Items.FLIMSY_CUTTERS:
+								case Items.LIGHTWEIGHT_CUTTERS:
+								case Items.CUTTING_FLOSS:
+									// cut
+									if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
+										s = "Cut";
+										break interact;
+									}
+									break box;
+								case Items.PLASTIC_SPOON:
+								case Items.STURDY_SHOVEL:
+								case Items.TROWEL:
+								case Items.FLIMSY_SHOVEL:
+								case Items.LIGHTWEIGHT_SHOVEL:
+									// dig
+									if (b == COLL_NONE && (t == 1 || t == 3)) {
+										s = "Dig";
+										break interact;
+									}
+									break box;
+								default:
+									break box;
 								}
-								break box;
-							case Items.PLASTIC_KNIFE:
-							case Items.STURDY_CUTTERS:
-							case Items.FLIMSY_CUTTERS:
-							case Items.LIGHTWEIGHT_CUTTERS:
-							case Items.CUTTING_FLOSS:
-								// cut
-								if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
-									s = "Cut";
-									break;
-								}
-								break box;
-							case Items.PLASTIC_SPOON:
-							case Items.STURDY_SHOVEL:
-							case Items.TROWEL:
-							case Items.FLIMSY_SHOVEL:
-							case Items.LIGHTWEIGHT_SHOVEL:
-								// dig
-								if (b == COLL_NONE && (t == 1 || t == 3)) {
-									s = "Dig";
-									break;
-								}
-								break box;
-							default:
-								break box;
 							}
 						}
 					}

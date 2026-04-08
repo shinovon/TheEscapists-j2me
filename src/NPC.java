@@ -2386,6 +2386,27 @@ class NPC implements Constants {
 						}
 
 						int x, y;
+
+						x = (this.x + 7) / TILE_SIZE;
+						y = (this.y + 7) / TILE_SIZE;
+						byte b = map.solid[layer][y * map.width + x];
+						if (b == COLL_NOT_SOLID_INTERACT) {
+							int idx = map.getObjectIdxAt(x, y, layer);
+							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
+							if (obj == Objects.LADDER_UP) {
+								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+								yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
+								layer++;
+								break interact;
+							}
+							if (obj == Objects.LADDER_DOWN) {
+								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+								yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+								layer--;
+								break interact;
+							}
+						}
+
 						switch (direction) {
 						case DIR_RIGHT:
 							x = 17;
@@ -2407,7 +2428,7 @@ class NPC implements Constants {
 							break interact;
 						}
 
-						byte b = getCollision(x, y, true);
+						b = getCollision(x, y, true);
 						x = (x + this.x) / TILE_SIZE;
 						y = (y + this.y) / TILE_SIZE;
 
