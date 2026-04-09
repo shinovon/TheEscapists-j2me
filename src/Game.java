@@ -3287,11 +3287,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_CUTTERS:
 								case Items.CUTTING_FLOSS:
 									// cut
-									if (b == COLL_SOLID_TRANSPARENT && (t == 23)) {
+									if (t == 23) {
 										s = "Cut Bars (" + (100 - p) + "%)";
 										break interact;
 									}
-									if (b == COLL_SOLID && (t == 77 || t == 81)) {
+									if (t == 77 || t == 81) {
 										s = "Cut Fence (" + (100 - p) + "%)";
 										break interact;
 									}
@@ -3941,8 +3941,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 65:
 		case 66:
 		case 68:
-		case 77:
-		case 81:
 		case 85:
 		case 89:
 		case 92:
@@ -3954,6 +3952,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return COLL_SOLID;
 		case 23:
 		case 34:
+		case 77:
+		case 81:
 			return COLL_SOLID_TRANSPARENT;
 		case 24:
 		case 94:
