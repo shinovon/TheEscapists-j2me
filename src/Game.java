@@ -1890,7 +1890,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				short[] chipped = this.chipped[l];
 				n = d.readShort();
-				if (n > (items.length - 1) >> 1) {
+				if (n > (chipped.length - 1) >> 1) {
 					this.chipped[l] = chipped = new short[(n << 1) + 1];
 				}
 				chipped[0] = (short) n;
@@ -2001,12 +2001,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int pos = chipped[(i << 1) + 2];
 					int x = (pos & 0xFF);
 					int y = ((pos >> 8) & 0xFF);
+					pos = y * width + x;
 
 					if ((p & 0xFF) == 100) {
 						if (l == LAYER_UNDERGROUND) {
-							tiles[i] = 100;
+							tiles[pos] = 100;
 						} else if (tiles[i] > 0) {
-							tiles[i] = (byte) -tiles[i];
+							tiles[pos] = (byte) -tiles[pos];
 						}
 					}
 				}
