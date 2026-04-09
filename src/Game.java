@@ -100,6 +100,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	NPC interactNPC;
 	int action = NPC.ACT_NONE;
 	int actionTargetX, actionTargetY;
+	int actionParam;
 
 	boolean updateInteractFocus;
 	boolean hasInteractFocus;
@@ -3029,6 +3030,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							y = (player.y + 7) / TILE_SIZE;
 							byte b = solid[layer][y * width + x];
 							if (b == COLL_NOT_SOLID_INTERACT) {
+								if (objects == null) break box;
 								int idx = getObjectIdxAt(x, y, layer);
 								int obj = idx == -1 ? -1 : objects[idx + 1];
 								if (obj == Objects.LADDER_UP) {
@@ -3250,7 +3252,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								if (p == 100) break box;
 
 								switch (item) {
+								// both chipping and digging
+								case Items.STURDY_SHOVEL:
 								case Items.MULTITOOL:
+								case Items.STURDY_PICKAXE:
+								case Items.LIGHTWEIGHT_SHOVEL:
+								case Items.FLIMSY_SHOVEL:
+								case Items.LIGHTWEIGHT_PICKAXE:
+								case Items.FLIMSY_PICKAXE:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
 										s = "Chip Wall (" + (100 - p) + "%)";
 										break interact;
@@ -3271,23 +3280,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										break interact;
 									}
 									break box;
-
+								// chipping
+								case Items.POWERED_SCREWDRIVER:
+								case Items.SCREWDRIVER:
+								case Items.CROWBAR:
 								case Items.PLASTIC_FORK:
-								case Items.STURDY_PICKAXE:
-								case Items.FLIMSY_PICKAXE:
-								case Items.LIGHTWEIGHT_PICKAXE:
-									// chip
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
 										s = "Chip Wall (" + (100 - p) + "%)";
 										break interact;
 									}
 									break box;
+								// cutting
 								case Items.PLASTIC_KNIFE:
 								case Items.STURDY_CUTTERS:
 								case Items.FLIMSY_CUTTERS:
 								case Items.LIGHTWEIGHT_CUTTERS:
 								case Items.CUTTING_FLOSS:
-									// cut
+								case Items.FILE:
 									if (t == 23) {
 										s = "Cut Bars (" + (100 - p) + "%)";
 										break interact;
@@ -3297,12 +3306,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										break interact;
 									}
 									break box;
-								case Items.PLASTIC_SPOON:
-								case Items.STURDY_SHOVEL:
+								// digging
 								case Items.TROWEL:
-								case Items.FLIMSY_SHOVEL:
-								case Items.LIGHTWEIGHT_SHOVEL:
-									// dig
+								case Items.PLASTIC_SPOON:
 									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
 										s = "Dig (" + p + "%)";
 										break interact;

@@ -2064,8 +2064,29 @@ class NPC implements Constants {
 					}
 					case ACT_CHIPPING: {
 						int p = map.getBreakProgress(x, y, layer);
-						// TODO
-						p += 20;
+						switch (map.actionParam) {
+						case Items.STURDY_PICKAXE:
+						case Items.MULTITOOL:
+							p += 20;
+							break;
+						case Items.LIGHTWEIGHT_PICKAXE:
+							p += 16;
+							break;
+						case Items.FLIMSY_PICKAXE:
+						case Items.POWERED_SCREWDRIVER:
+							p += 12;
+							break;
+						case Items.STURDY_SHOVEL:
+						case Items.SCREWDRIVER:
+						case Items.CROWBAR:
+						case Items.LIGHTWEIGHT_SHOVEL:
+						case Items.FLIMSY_SHOVEL:
+							p += 8;
+							break;
+						case Items.PLASTIC_FORK:
+							p += 4;
+							break;
+						}
 						if (p >= 100) {
 							map.breakWall(x, y, layer);
 							addItem(Items.WALL_BLOCK, false);
@@ -2077,8 +2098,27 @@ class NPC implements Constants {
 					}
 					case ACT_DIGGING: {
 						int p = map.getBreakProgress(x, y, layer);
-						// TODO
-						p += 20;
+						switch (map.actionParam) {
+						case Items.STURDY_SHOVEL:
+						case Items.MULTITOOL:
+							p += 20;
+							break;
+						case Items.STURDY_PICKAXE:
+						case Items.LIGHTWEIGHT_SHOVEL:
+							p += 16;
+							break;
+						case Items.TROWEL:
+						case Items.FLIMSY_SHOVEL:
+						case Items.LIGHTWEIGHT_PICKAXE:
+							p += 12;
+							break;
+						case Items.FLIMSY_PICKAXE:
+							p += 8;
+							break;
+						case Items.PLASTIC_SPOON:
+							p += 4;
+							break;
+						}
 						if (p >= 100) {
 							if (layer == LAYER_GROUND) {
 								map.setBreakProgress(x, y, layer, 100);
@@ -2100,8 +2140,24 @@ class NPC implements Constants {
 					}
 					case ACT_CUTTING: {
 						int p = map.getBreakProgress(x, y, layer);
-						// TODO
-						p += 20;
+						switch (map.actionParam) {
+						case Items.STURDY_CUTTERS:
+							p += 20;
+							break;
+						case Items.LIGHTWEIGHT_CUTTERS:
+							p += 16;
+							break;
+						case Items.FLIMSY_CUTTERS:
+						case Items.CUTTING_FLOSS:
+							p += 12;
+							break;
+						case Items.FILE:
+							p += 8;
+							break;
+						case Items.PLASTIC_KNIFE:
+							p += 4;
+							break;
+						}
 						if (p >= 100) {
 							map.breakWall(x, y, layer);
 						} else {
@@ -2242,11 +2298,17 @@ class NPC implements Constants {
 										// walls
 										chip: {
 											switch (item) {
-											case Items.PLASTIC_FORK:
 											case Items.STURDY_PICKAXE:
-											case Items.FLIMSY_PICKAXE:
-											case Items.LIGHTWEIGHT_PICKAXE:
 											case Items.MULTITOOL:
+											case Items.LIGHTWEIGHT_PICKAXE:
+											case Items.FLIMSY_PICKAXE:
+											case Items.POWERED_SCREWDRIVER:
+											case Items.STURDY_SHOVEL:
+											case Items.SCREWDRIVER:
+											case Items.CROWBAR:
+											case Items.LIGHTWEIGHT_SHOVEL:
+											case Items.FLIMSY_SHOVEL:
+											case Items.PLASTIC_FORK:
 												boolean p = false;
 												for (int i = 0; i < 6; ++i) {
 													if (inventory[i] == Items.ITEM_NULL) {
@@ -2267,6 +2329,7 @@ class NPC implements Constants {
 											}
 											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 											map.action = ACT_CHIPPING;
+											map.actionParam = item;
 											map.actionTargetX = x;
 											map.actionTargetY = y;
 											map.progress = 0;
@@ -2281,6 +2344,7 @@ class NPC implements Constants {
 											case Items.FLIMSY_CUTTERS:
 											case Items.LIGHTWEIGHT_CUTTERS:
 											case Items.CUTTING_FLOSS:
+											case Items.FILE:
 												// TODO reduce durability
 												break;
 											default:
@@ -2288,6 +2352,7 @@ class NPC implements Constants {
 											}
 											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 											map.action = ACT_CUTTING;
+											map.actionParam = item;
 											map.actionTargetX = x;
 											map.actionTargetY = y;
 											map.progress = 0;
@@ -2317,12 +2382,15 @@ class NPC implements Constants {
 											&& map.getBreakProgress(x, y, layer) != 100) {
 										dig: {
 											switch (item) {
-											case Items.PLASTIC_SPOON:
 											case Items.STURDY_SHOVEL:
+											case Items.MULTITOOL:
+											case Items.STURDY_PICKAXE:
+											case Items.LIGHTWEIGHT_SHOVEL:
 											case Items.TROWEL:
 											case Items.FLIMSY_SHOVEL:
-											case Items.LIGHTWEIGHT_SHOVEL:
-											case Items.MULTITOOL:
+											case Items.LIGHTWEIGHT_PICKAXE:
+											case Items.FLIMSY_PICKAXE:
+											case Items.PLASTIC_SPOON:
 												boolean p = false;
 												for (int i = 0; i < 6; ++i) {
 													if (inventory[i] == Items.ITEM_NULL) {
@@ -2343,6 +2411,7 @@ class NPC implements Constants {
 											}
 											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 											map.action = ACT_DIGGING;
+											map.actionParam = item;
 											map.actionTargetX = x;
 											map.actionTargetY = y;
 											map.progress = 0;
