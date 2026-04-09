@@ -2195,7 +2195,7 @@ class NPC implements Constants {
 								x = (this.x + x) / TILE_SIZE;
 								y = (this.y + y) / TILE_SIZE;
 								byte t = map.tiles[layer][y * map.width + x];
-								if (b == COLL_SOLID) {
+								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
 									if (t == 21 || t == 25) {
 										// walls
 										chip: {
@@ -2269,7 +2269,7 @@ class NPC implements Constants {
 								}
 
 								if (b == COLL_NONE) {
-									if (t == 1 || t == 3) {
+									if (layer == LAYER_GROUND && Game.isDiggable(t)) {
 										// floor
 										dig: {
 											switch (item) {
@@ -2520,6 +2520,7 @@ class NPC implements Constants {
 									animateToX = x * TILE_SIZE;
 									animateToY = y * TILE_SIZE;
 									animatingInCabinet = true;
+									Sound.playEffect(Sound.SFX_DOOR);
 									break interact;
 								}
 								if (obj == Objects.PLAYER_BED) {

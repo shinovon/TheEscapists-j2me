@@ -16,7 +16,7 @@ import java.util.Vector;
 
 public class Game extends GameCanvas implements Runnable, Constants {
 
-// region Canvas
+	// region Canvas
 
 	static final String[] scheduleStrings = {
 			"Lights out",
@@ -1515,9 +1515,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} catch (Exception ignored) {}
 	}
 
-// endregion Canvas
+	// endregion Canvas
 
-// region Map
+	// region Map
 
 	String file = "/map";
 
@@ -1527,8 +1527,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	byte[][] tiles;
 	byte[][] solid;
-	// TODO keep track of destroyed walls, digged floors and added posters
-	// short[][]; // {count, [pos, progress]}
+	short[][] chipped; // {count, [pos, progress] ..} for each layer
 
 	int time = 7*60 + 50, day; // day count starts from 0
 	int schedule, prevSchedule;
@@ -1592,6 +1591,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				tiles = new byte[4][width * height];
 				objects = new short[4][];
 				droppedItems = new int[4][1 + (128 << 1)];
+				chipped = new short[4][1 + (128 << 1)];
 				solid = new byte[4][width * height];
 
 				inmates = in.readByte() & 0xFF;
@@ -1888,6 +1888,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return true;
 	}
 
+	private static short[] readPositions(DataInputStream in) throws Exception {
+		short num = in.readShort();
+		short[] res = new short[1 + (num << 1)];
+		res[0] = num;
+		for (int i = 0; i < num; ++i) {
+			res[(i << 1) + 1] = (short) (in.readByte() & 0xFF);
+			res[(i << 1) + 2] = (short) (in.readByte() & 0XFF);
+		}
+		return res;
+	}
+
 	void save() {
 		try {
 			RecordStore.deleteRecordStore(GAME_RECORD_NAME);
@@ -1944,17 +1955,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
-	private short[] readPositions(DataInputStream in) throws Exception {
-		short num = in.readShort();
-		short[] res = new short[1 + (num << 1)];
-		res[0] = num;
-		for (int i = 0; i < num; ++i) {
-			res[(i << 1) + 1] = (short) (in.readByte() & 0xFF);
-			res[(i << 1) + 2] = (short) (in.readByte() & 0XFF);
-		}
-		return res;
-	}
-
 	void initMap() {
 		// fill collision lookup
 		for (int l = 0; l < 4; ++l) {
@@ -2000,7 +2000,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			}
 		}
-		
+
 		// fill tiled layer
 		if (USE_TILED_LAYER) {
 			int width = this.width;
@@ -2545,6 +2545,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
+	void breakWall(int x, int y, int layer) {
+		int pos = x + y * width;
+		tiles[layer][pos] = (byte) -tiles[layer][pos];
+		solid[layer][pos] = COLL_DIGGED_WALL;
+		if (USE_TILED_LAYER) {
+			tiledLayer[layer].setCell(x, y, 13);
+		}
+	}
+
+	void getProgress(int x, int y, int layer) {
+
+	}
+
+	// endregion Map
+
+	// region Map render
+
 	void paintMap(Graphics g, int viewX, int viewY, int viewWidth, int viewHeight, int layer) {
 		int viewCols = (viewWidth / TILE_SIZE) + 2, viewRows = (viewHeight / TILE_SIZE) + 2;
 		int width = this.width, height = this.height;
@@ -2977,12 +2994,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										}
 
 										// TODO name
-										s = "Desk";
+										int owner = this.containers[getContainer(idx) + 1];
+										if (owner < 0) {
+											s = "Unoccupied Desk";
+										} else {
+											s = chars[owner].name.concat("s desk");
+										}
 										break interact;
 									}
 									if (b == COLL_TABLE) {
 										if (obj == Objects.CUTLERY_TABLE) {
 											s = "Cutlery";
+											break interact;
+										}
+										if (obj == Objects.SERVING_TABLE) {
+											s = "Food tray";
 											break interact;
 										}
 										if (obj == Objects.TRAINING_INTERNET) {
@@ -2991,64 +3017,97 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										}
 									}
 									if (b == COLL_SOLID_INTERACT) {
-										if (obj == Objects.TRAINING_BOOKSHELF) {
-											s = "Read";
+										switch (obj) {
+										case Objects.TRAINING_BOOKSHELF:
+											s = "Bookshelf";
 											break interact;
-										}
-										if (obj == Objects.CABINET) {
-											s = "Hide";
+										case Objects.CABINET:
+											s = "Cabinet (hide)";
 											break interact;
-										}
-										if (obj == Objects.PLAYER_BED) {
+										case Objects.PLAYER_BED:
 											s = "Your bed";
 											break interact;
-										}
-										if (obj == Objects.MEDICAL_BED) {
-											s = "Bed";
+										case Objects.MEDICAL_BED:
+											s = "Infirmary Bed";
 											break interact;
-										}
-										if (obj == Objects.SUN_LOUNGER) {
-											s = "Lounger";
+										case Objects.SUN_LOUNGER:
+											s = "Sun Lounger";
 											break interact;
-										}
-										if (obj == Objects.CHAIR) {
-											s = "Sit down";
+										case Objects.CHAIR:
+											s = "Sit Down";
 											break interact;
-										}
-										if (obj == Objects.JOB_CLEANING_SUPPLIES) {
-											s = "Cleaning supplies";
+										case Objects.JOB_CLEANING_SUPPLIES:
+											s = "Cleaning Supplies";
 											break interact;
-										}
-										if (obj == Objects.JOB_GARDENING_TOOLS) {
-											s = "Gardening tools";
+										case Objects.JOB_GARDENING_TOOLS:
+											s = "Gardening Tools";
 											break interact;
-										}
-										if (obj == Objects.TOILET) {
+										case Objects.TOILET:
 											s = "Dispose items";
 											break interact;
-										}
-										if (obj == Objects.FREEZER) {
+										case Objects.FREEZER:
 											s = "Freezer";
+											break interact;
+										case Objects.OVEN:
+											s = "Oven";
+											break interact;
+										case Objects.JOB_DIRTY_LAUNDRY:
+											s = "Dirty Laundry";
+											break interact;
+										case Objects.JOB_CLEAN_LAUNDRY:
+											s = "Clean Laundry";
+											break interact;
+										case Objects.WASHING_MACHINE:
+											s = "Washing Machine";
+											break interact;
+										case Objects.JOB_RAW_METAL:
+											s = "Metal Supplies";
+											break interact;
+										case Objects.JOB_PREPARED_METAL:
+											s = "License Container";
+											break interact;
+										case Objects.JOB_SELECTION:
+											s = "Job Board";
+											break interact;
+										case Objects.GENERATOR:
+											s = "Generator";
+											break interact;
+										case Objects.STASH:
+											s = "Prisoner Stash";
+											break interact;
+										case Objects.JOB_RAW_WOOD:
+											s = "Timber Supplies";
+											break interact;
+										case Objects.JOB_PREPARED_WOOD:
+											s = "Furniture Container";
+											break interact;
+										case Objects.PAYPHONE:
+											s = "Payphone";
 											break interact;
 										}
 										// TODO
 									}
 									if (b == COLL_GYM) {
-										s = "Training";
+										s = "Train";
 										break interact;
 									}
 									if (b == COLL_NOT_SOLID_INTERACT) {
 										if (obj == Objects.LADDER_UP) {
-											s = "Up";
+											s = "Ladder Up";
 											break interact;
 										}
 										if (obj == Objects.LADDER_DOWN) {
-											s = "Down";
+											s = "Ladder Down";
 											break interact;
 										}
 									}
 									break box;
 								} else {
+									item = peekItem(x, y, layer);
+									if (item != Items.ITEM_NULL) {
+										s = getItemName(item);
+										break interact;
+									}
 									break box;
 								}
 							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
@@ -3075,10 +3134,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								switch (item) {
 								case Items.MULTITOOL:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip";
+										s = "Chip Wall";
 										break interact;
 									}
-									if (b == COLL_NONE && (t == 1 || t == 3)) {
+									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
 										s = "Dig";
 										break interact;
 									}
@@ -3090,7 +3149,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_PICKAXE:
 									// chip
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip";
+										s = "Chip Wall";
 										break interact;
 									}
 									break box;
@@ -3100,8 +3159,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_CUTTERS:
 								case Items.CUTTING_FLOSS:
 									// cut
-									if (b == COLL_SOLID && (t == 23 || t == 77 || t == 81)) {
-										s = "Cut";
+									if (b == COLL_SOLID_TRANSPARENT && (t == 23)) {
+										s = "Cut Bars";
+										break interact;
+									}
+									if (b == COLL_SOLID && (t == 77 || t == 81)) {
+										s = "Cut Fence";
 										break interact;
 									}
 									break box;
@@ -3111,7 +3174,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.FLIMSY_SHOVEL:
 								case Items.LIGHTWEIGHT_SHOVEL:
 									// dig
-									if (b == COLL_NONE && (t == 1 || t == 3)) {
+									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
 										s = "Dig";
 										break interact;
 									}
@@ -3205,19 +3268,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			g.drawRect(zones[idx] - viewX, zones[idx + 1] - viewY, zones[idx + 2] - zones[idx], zones[idx + 3] - zones[idx + 1]);
 //		}
 	}
+	// endregion Map render
 
-	void breakWall(int x, int y, int layer) {
-		int pos = x + y * width;
-		tiles[layer][pos] = (byte) -tiles[layer][pos];
-		solid[layer][pos] = COLL_DIGGED_WALL;
-		if (USE_TILED_LAYER) {
-			tiledLayer[layer].setCell(x, y, 13);
-		}
-	}
-
-// endregion Map
-
-// region 3D
+	// region 3D
 	Graphics3D graphics3D;
 	Transform cameraTransform;
 	Camera camera;
@@ -3362,13 +3415,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		globalLightColor = (r << 16) | (g << 8) | b;
 	}
 
-// endregion 3D
+	// endregion 3D
 
-// region Map items
+	// region Map items
 
 	int[][] droppedItems; // {count, [item, pos], ...} for each layer
 
-	int dropItem(int x, int y, int item, int layer) throws IllegalStateException {
+	int dropItem(int x, int y, int item, int layer) {
 		final int pos = x + y * width;
 		// TODO check object collision
 		if (solid[layer][pos] != COLL_NONE)
@@ -3425,9 +3478,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
-// endregion Map items
+	// endregion Map items
 
-// region Map zones
+	// region Map zones
 
 	int[] zones; // int[5] {count, [x,y,x1,x2,type], ...}
 
@@ -3445,9 +3498,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return false;
 	}
 
-// endregion Map zones
+	// endregion Map zones
 
-// region Map objects
+	// region Map objects
 
 	short[][] objects; // {count, [object, sprite, x, y], ...} for each layer
 	short[] topObjects; // {count, [objectIdx, animation], ...}
@@ -3589,9 +3642,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return -1;
 	}
 
-// endregion Map objects
+	// endregion Map objects
 
-// region Containers
+	// region Containers
 
 	int getContainer(int objIdx) {
 		int[] containers = this.containers;
@@ -3675,9 +3728,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
-// endregion Container
+	// endregion Container
 
-// region Solid
+	// region Solid
 
 	// tiles
 
@@ -3692,6 +3745,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return true;
 		}
 		return false;
+	}
+
+	static boolean isDiggable(byte tile) {
+		return isSolidTile(tile) == COLL_NONE;
 	}
 
 	static byte isSolidTile(byte tile) {
@@ -3864,9 +3921,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return Game.COLL_NONE;
 	}
 
-// endregion Solid
+	// endregion Solid
 
-// region Items
+	// region Items
 
 	static final int[] DESK1 = {
 			Items.PACK_OF_MINTS,
@@ -5037,9 +5094,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return -1;
 	}
 
-// endregion Items
+	// endregion Items
 
-// region Textures
+	// region Textures
 
 	static Image[] sprites = new Image[18];
 
@@ -5129,7 +5186,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 // endregion Textures
 
-// region Font
+	// region Font
 
 	static int[] FONT_COLORS = new int[] {
 			0xFFFFFFFF,
@@ -5421,9 +5478,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return arr;
 	}
 
-// endregion
+	// endregion
 
-// region Pathfinding
+	// region Pathfinding
 
 	static final int[] PATH_DIR_POSITIONS = new int[] {
 			1, 0, // right
