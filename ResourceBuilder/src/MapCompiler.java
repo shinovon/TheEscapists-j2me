@@ -266,16 +266,33 @@ public class MapCompiler implements Constants {
 								h++;
 								y++;
 								break;
+							case Objects.PLAYER_SIDEWAYS_BED:
+								// TODO
+								checkLayer("player bed", objectId, x, y, layer, LAYER_GROUND);
+								sprite = 160;
+
+								npc.add(new int[] { Objects.PLAYER_BED, x, y });
+								break;
 							case Objects.BED:
 								checkLayer("bed", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 163;
 								h++;
 								y++;
 
-
 								if (beds < inmates - 1) {
 									// TODO
 									npc.add(new int[] { objectId, x, y });
+									beds++;
+								}
+
+								break;
+							case Objects.SIDEWAYS_PRISONER_BED:
+								// TODO
+								checkLayer("bed", objectId, x, y, layer, LAYER_GROUND);
+								sprite = 163;
+
+								if (beds < inmates - 1) {
+									npc.add(new int[] { Objects.BED, x, y + 1 });
 									beds++;
 								}
 
@@ -1056,7 +1073,6 @@ public class MapCompiler implements Constants {
 		case 87:
 		case 89:
 		case 91:
-		case 92:
 		case 93:
 		case 95:
 		case 96:

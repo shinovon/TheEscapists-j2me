@@ -36,12 +36,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final String[] jobStrings = {
 			"Unemployed",
 			"Laundry",
-			"Kitchen",
+			"Gardening",
+			"Janitor",
 			"Woodshop",
 			"Metalshop",
-			"Tailorshop",
+			"Kitchen",
 			"Deliveries",
-			"Janitor",
+			"Tailorshop",
 			"Mailman",
 			"Librarian",
 	};
@@ -1698,7 +1699,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// npc
 				{
-					chars = new NPC[inmates + guards + 3 + 4 + 2];
+					chars = new NPC[inmates + guards + 16];
 					renderChars = new NPC[chars.length];
 
 					int addedInmates = 0;
@@ -2093,7 +2094,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				for (int y = 0; y < height; ++y) {
 					for (int x = 0; x < width; ++x) {
 						byte t = tiles[layer][x + y * width];
-						tiledLayer[layer].setCell(x, y, t < 0 ? 13 : t);
+						tiledLayer[layer].setCell(x, y, t == 100 || t == 96 || t == 92 ? 0 : t < 0 ? 13 : t);
 					}
 				}
 			}
@@ -2774,12 +2775,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 							if (!USE_TILED_LAYER) {
 								byte tile = tiles[pos];
-								if (tile < 0) {
-									g.setColor(0);
-									g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-								} else if (tile != 0) {
-									--tile;
-									g.drawRegion(tilesImg, (tile % 4) * TILE_SIZE, (tile / 4) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
+								if (tile != 0) {
+									if (tile < 0) {
+										g.setColor(0);
+										g.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+									} else if (tile != 100 && tile != 96 && tile != 92) {
+										--tile;
+										g.drawRegion(tilesImg, (tile % 4) * TILE_SIZE, (tile / 4) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
+									}
 								}
 							}
 
@@ -3969,6 +3972,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 3:
 		case 5:
 		case 9:
+		case 13:
+		case 69:
+		case 92:
 			return true;
 		}
 		return false;
@@ -4031,12 +4037,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 68:
 		case 85:
 		case 89:
-		case 92:
 		case 93:
 		case 96:
 		case 97:
 		case 99:
-		case 100:
 			return COLL_SOLID;
 		case 23:
 		case 34:
@@ -4054,6 +4058,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 90:
 		case 91:
 		case 95:
+		case 100:
 			return COLL_SOLID_NO_SHADOW;
 		}
 		return COLL_NONE;

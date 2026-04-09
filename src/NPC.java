@@ -1199,9 +1199,9 @@ class NPC implements Constants {
 
 						solid: {
 							if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
-								for (int n = 0; n < 4; ++n) {
-									int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
-									int oy = Game.PATH_DIR_POSITIONS[((3 - n) << 1) + 1];
+								for (int n = 0; n < 8; ++n) {
+									int ox = Game.PATH_DIR_POSITIONS[(7 - n) << 1];
+									int oy = Game.PATH_DIR_POSITIONS[((7 - n) << 1) + 1];
 									if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
 										x += ox;
 										y += oy;
@@ -2047,13 +2047,12 @@ class NPC implements Constants {
 						int idx = map.getObjectIdxAt(x, y, layer);
 						map.updateDirt(idx == map.dirt[2] ? 0 : 1);
 						map.fatigue += 5;
-						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)) {
-							if (jobQuota < MAX_JOB_QUOTA) {
-								if ((jobQuota += (MAX_JOB_QUOTA / 5)) >= MAX_JOB_QUOTA) {
-									Sound.playEffect(Sound.SFX_HP);
-									jobQuota = MAX_JOB_QUOTA;
-									map.money += 20;
-								}
+						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)
+							&& jobQuota < MAX_JOB_QUOTA) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 5)) >= MAX_JOB_QUOTA) {
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += 20;
 							}
 						}
 						break;
@@ -2131,13 +2130,12 @@ class NPC implements Constants {
 								map.setBreakProgress(x, y, LAYER_UNDERGROUND, 100);
 								map.tiles[LAYER_UNDERGROUND][y * map.width + x] = 100;
 								map.solid[LAYER_UNDERGROUND][y * map.width + x] = COLL_NONE;
-								addItem(Items.DIRT, false);
 							} else {
 								map.setBreakProgress(x, y, layer, 100);
 								map.tiles[layer][y * map.width + x] = 100;
 								map.solid[layer][y * map.width + x] = COLL_NONE;
-								addItem(Items.DIRT, false);
 							}
+							addItem(map.map == MAP_SANPANCHO ? Items.SAND : Items.DIRT, false);
 						} else {
 							map.setBreakProgress(x, y, layer, p);
 						}
@@ -2742,6 +2740,14 @@ class NPC implements Constants {
 									sitting = true;
 									break interact;
 								}
+
+								if (obj == Objects.JOB_CLEANING_SUPPLIES
+										|| obj == Objects.JOB_GARDENING_TOOLS
+										|| obj == Objects.TOILET) {
+									map.openContainer(idx);
+									break interact;
+								}
+
 								if (obj == Objects.JOB_DIRTY_LAUNDRY) {
 									// take laundry
 									addItem((rng.nextInt(2) == 0 ? Items.DIRTY_GUARD_OUTFIT : Items.DIRTY_INMATE_OUTFIT)
@@ -2758,10 +2764,49 @@ class NPC implements Constants {
 									addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
-								if (obj == Objects.JOB_CLEANING_SUPPLIES
-										|| obj == Objects.JOB_GARDENING_TOOLS
-										|| obj == Objects.TOILET) {
-									map.openContainer(idx);
+								if (obj == Objects.FREEZER) {
+									addItem((map.map == MAP_SANPANCHO ? Items.UNCOOKED_BURRITO : Items.UNCOOKED_FOOD) | Items.ITEM_DEFAULT_DURABILITY, true);
+									break interact;
+								}
+								if (obj == Objects.JOB_FABRIC_CHEST) {
+									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
+									break interact;
+								}
+
+								if (obj == Objects.JOB_METAL_TOOLS) {
+									int i = map.selectedInventory;
+									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.SHEET_OF_METAL) {
+										// TODO
+										inventory[i] = Items.LICENSE_PLATE;
+										map.lastSelectedInventory = i;
+										map.selectedInventory = -1;
+									}
+									break interact;
+								}
+								if (obj == Objects.WASHING_MACHINE) {
+									int i = map.selectedInventory;
+									if (i != -1
+											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_INMATE_OUTFIT
+											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_GUARD_OUTFIT)) {
+										// TODO
+										inventory[i] = (inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_INMATE_OUTFIT ?
+												Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
+										map.lastSelectedInventory = i;
+										map.selectedInventory = -1;
+									}
+									break interact;
+								}
+								if (obj == Objects.OVEN) {
+									int i = map.selectedInventory;
+									if (i != -1
+											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_FOOD
+											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_BURRITO)) {
+										// TODO
+										inventory[i] = (inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_FOOD ?
+												Items.COOKED_FOOD : Items.BURRITO;
+										map.lastSelectedInventory = i;
+										map.selectedInventory = -1;
+									}
 									break interact;
 								}
 
@@ -2774,7 +2819,44 @@ class NPC implements Constants {
 										inventory[i] = Items.ITEM_NULL;
 										map.lastSelectedInventory = i;
 										map.selectedInventory = -1;
-										if (jobQuota < MAX_JOB_QUOTA) {
+										if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
+												&& map.schedule == SC_WORK_PERIOD) {
+											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+												// TODO
+												Sound.playEffect(Sound.SFX_HP);
+												jobQuota = MAX_JOB_QUOTA;
+												map.money += 20;
+											}
+										}
+									}
+									break interact;
+								}
+								if (obj == Objects.JOB_PREPARED_METAL) {
+									int i = map.selectedInventory;
+									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.LICENSE_PLATE) {
+										inventory[i] = Items.ITEM_NULL;
+										map.lastSelectedInventory = i;
+										map.selectedInventory = -1;
+										if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
+												&& map.schedule == SC_WORK_PERIOD) {
+											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+												// TODO
+												Sound.playEffect(Sound.SFX_HP);
+												jobQuota = MAX_JOB_QUOTA;
+												map.money += 20;
+											}
+										}
+									}
+									break interact;
+								}
+								if (obj == Objects.JOB_PREPARED_WOOD) {
+									int i = map.selectedInventory;
+									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.UNVARNISHED_CHAIR) {
+										inventory[i] = Items.ITEM_NULL;
+										map.lastSelectedInventory = i;
+										map.selectedInventory = -1;
+										if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
+												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
 												// TODO
 												Sound.playEffect(Sound.SFX_HP);
@@ -2801,14 +2883,6 @@ class NPC implements Constants {
 										dialog = "Inventory full";
 										dialogTimer = TPS * 2;
 									}
-									break interact;
-								}
-								if (obj == Objects.FREEZER) {
-									addItem(Items.UNCOOKED_FOOD | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								}
-								if (obj == Objects.JOB_FABRIC_CHEST) {
-									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
 								}
 							}
