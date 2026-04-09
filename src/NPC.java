@@ -2097,7 +2097,13 @@ class NPC implements Constants {
 						break;
 					}
 					case ACT_DIGGING: {
-						int p = map.getBreakProgress(x, y, layer);
+						int p;
+						int layer = this.layer;
+						if (layer == LAYER_UNDERGROUND && map.tiles[layer][y * map.width + x] == 100) {
+							p = map.getBreakProgress(x, y, layer = LAYER_GROUND);
+						} else {
+							p = map.getBreakProgress(x, y, layer);
+						}
 						switch (map.actionParam) {
 						case Items.STURDY_SHOVEL:
 						case Items.MULTITOOL:
@@ -2309,6 +2315,12 @@ class NPC implements Constants {
 											case Items.LIGHTWEIGHT_SHOVEL:
 											case Items.FLIMSY_SHOVEL:
 											case Items.PLASTIC_FORK:
+												if (map.fatigue >= 100) {
+													Sound.playEffect(Sound.SFX_LOSE);
+													dialog = "You are too fatigued";
+													dialogTimer = TPS * 2;
+													break hit;
+												}
 												boolean p = false;
 												for (int i = 0; i < 6; ++i) {
 													if (inventory[i] == Items.ITEM_NULL) {
@@ -2345,6 +2357,12 @@ class NPC implements Constants {
 											case Items.LIGHTWEIGHT_CUTTERS:
 											case Items.CUTTING_FLOSS:
 											case Items.FILE:
+												if (map.fatigue >= 100) {
+													Sound.playEffect(Sound.SFX_LOSE);
+													dialog = "You are too fatigued";
+													dialogTimer = TPS * 2;
+													break hit;
+												}
 												// TODO reduce durability
 												break;
 											default:
@@ -2376,10 +2394,11 @@ class NPC implements Constants {
 									}
 								}
 
-								if (b == COLL_NONE || (layer == LAYER_UNDERGROUND && t == 0)) {
-									// TODO dig up
-									if ((layer == LAYER_UNDERGROUND || (layer == LAYER_GROUND && Game.isDiggable(t)))
-											&& map.getBreakProgress(x, y, layer) != 100) {
+								if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
+									if (((layer == LAYER_UNDERGROUND && (t == 0
+											|| Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])))
+											|| (layer == LAYER_GROUND && Game.isDiggable(t) && map.getBreakProgress(x, y, layer) != 100))
+											) {
 										dig: {
 											switch (item) {
 											case Items.STURDY_SHOVEL:
@@ -2391,6 +2410,12 @@ class NPC implements Constants {
 											case Items.LIGHTWEIGHT_PICKAXE:
 											case Items.FLIMSY_PICKAXE:
 											case Items.PLASTIC_SPOON:
+												if (map.fatigue >= 100) {
+													Sound.playEffect(Sound.SFX_LOSE);
+													dialog = "You are too fatigued";
+													dialogTimer = TPS * 2;
+													break hit;
+												}
 												boolean p = false;
 												for (int i = 0; i < 6; ++i) {
 													if (inventory[i] == Items.ITEM_NULL) {

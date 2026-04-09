@@ -3249,7 +3249,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 								// TODO optimize
 								int p = getBreakProgress(x, y, layer);
-								if (p == 100) break box;
+								if (p == 100 && layer != LAYER_UNDERGROUND) break box;
 
 								switch (item) {
 								// both chipping and digging
@@ -3272,8 +3272,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										s = "Dig (" + p + "%)";
 										break interact;
 									}
-									if (layer == LAYER_UNDERGROUND && b == COLL_NONE
-											&& isDiggable(tiles[LAYER_GROUND][y * width + x])) {
+									if (layer == LAYER_UNDERGROUND && t == 100
+											&& isDiggable(tiles[LAYER_GROUND][y * width + x])
+											&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 										p = getBreakProgress(x, y, LAYER_GROUND);
 										if (p == 100) break box;
 										s = "Dig Up (" + p + "%)";
