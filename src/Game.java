@@ -1873,15 +1873,26 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			for (int l = 0; l < 4; ++l) {
-				int[] items = droppedItems[l];
+				int[] items = this.droppedItems[l];
 				int n = d.readInt();
 				if (n > (items.length - 1) >> 1) {
-					droppedItems[l] = items = new int[(n << 1) + 1];
+					this.droppedItems[l] = items = new int[(n << 1) + 1];
 				}
 				items[0] = n;
 				for (i = 0; i < n; ++i) {
 					items[(i << 1) + 1] = d.readInt();
 					items[(i << 1) + 2] = d.readInt();
+				}
+
+				short[] chipped = this.chipped[l];
+				n = d.readShort();
+				if (n > (items.length - 1) >> 1) {
+					this.chipped[l] = chipped = new short[(n << 1) + 1];
+				}
+				chipped[0] = (short) n;
+				for (i = 0; i < n; ++i) {
+					items[(i << 1) + 1] = d.readShort();
+					items[(i << 1) + 2] = d.readShort();
 				}
 			}
 		}
@@ -1945,8 +1956,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					d.writeInt(items[(i << 1) + 1]);
 					d.writeInt(items[(i << 1) + 2]);
 				}
+
+				short[] chipped = this.chipped[l];
+				n = chipped[0];
+				d.writeShort(n);
+				for (int i = 0; i < n; ++i) {
+					d.writeShort(chipped[(i << 1) + 1]);
+					d.writeShort(chipped[(i << 1) + 2]);
+				}
 			}
-			// TODO save changed objects and tiles
 
 			byte[] b = baos.toByteArray();
 			RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, true);
@@ -1962,9 +1980,33 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		// fill collision lookup
 		boolean initSeats = canteenSeatsPositions[0] == 0;
 		for (int l = 0; l < 4; ++l) {
+			byte[] tiles = this.tiles[l];
+			{
+				short[] chipped = this.chipped[l];
+				int n = chipped[0];
+				for (int i = 0; i < n; ++i) {
+					int p = chipped[(i << 1) + 1];
+					if (p == 0) {
+						continue;
+					}
+
+					int pos = chipped[(i << 1) + 2];
+					int x = (pos & 0xFF);
+					int y = ((pos >> 8) & 0xFF);
+
+					if ((p & 0xFF) == 100) {
+						if (l == LAYER_UNDERGROUND) {
+							tiles[i] = 100;
+						} else if (tiles[i] > 0) {
+							tiles[i] = (byte) -tiles[i];
+						}
+					}
+				}
+			}
+
 			byte[] solid = this.solid[l];
 			for (int i = 0; i < width * height; ++i) {
-				byte t = tiles[l][i];
+				byte t = tiles[i];
 				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_DIGGED_WALL : isSolidTile(t));
 			}
 
@@ -2772,7 +2814,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		{
 			short[] chipped = this.chipped[layer];
-			for (int i = 0; i < chipped[0]; ++i) {
+			int n = chipped[0];
+			for (int i = 0; i < n; ++i) {
 				int p = chipped[(i << 1) + 1];
 				if (p == 0) {
 					continue;
