@@ -477,11 +477,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //					g.drawRect(x, y, 19, 19);
 					if (selectedInventory == i) {
 						g.setColor(0x97479B);
-						g.drawRect(x, y, 20, 20);
+						g.drawRect(x, y, 19, 19);
 					}
 					if (player.inventory[i] == Items.ITEM_NULL)
 						continue;
-					g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 3, y + 3, 0);
+					g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
 				}
 			}
 
