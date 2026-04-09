@@ -195,7 +195,7 @@ public interface Constants {
 	static final byte COLL_TABLE = 8 | COLL_BIT_SOLID_AI;
 	static final byte COLL_GYM = 9 | COLL_BIT_AVOID_AI;
 	static final byte COLL_SHOWER = 10;
-	static final byte COLL_DIGGED_WALL = 11;
+	static final byte COLL_DIGGED_WALL = 11 | COLL_BIT_SOLID_AI;
 	static final byte COLL_DETECTOR = 12;
 	static final byte COLL_SOLID_NO_SHADOW = 13 | COLL_BIT_SOLID_AI;
 	static final byte COLL_ROOF = 14;
