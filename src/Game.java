@@ -3095,7 +3095,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											break interact;
 										}
 
-										// TODO name
 										int owner = this.containers[getContainer(idx) + 1];
 										if (owner < 0) {
 											s = "Unoccupied Desk";
@@ -3186,8 +3185,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										case Objects.PAYPHONE:
 											s = "Payphone";
 											break interact;
+										case Objects.VENT_SLATS:
+											s = "Vent Slats"; // TODO
+											break interact;
 										}
-										// TODO
 									}
 									if (b == COLL_GYM) {
 										s = "Train";

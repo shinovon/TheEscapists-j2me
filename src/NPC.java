@@ -289,7 +289,7 @@ class NPC implements Constants {
 					|| s1 == COLL_DOOR_STAFF || s2 == COLL_DOOR_STAFF
 					|| s3 == COLL_DOOR_STAFF || s4 == COLL_DOOR_STAFF) {
 				// colliding with doors, play sound
-				if (!doorSound && visible && map.player.canSee(this)) {
+				if (!doorSound && visible && (!ai || map.player.canSee(this))) {
 					Sound.playEffect(Sound.SFX_DOOR);
 				}
 				doorSound = true;
