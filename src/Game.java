@@ -477,7 +477,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //					g.drawRect(x, y, 19, 19);
 					if (selectedInventory == i) {
 						g.setColor(0x97479B);
-						g.drawRect(x, y, 19, 19);
+						g.drawRect(x, y, 20, 20);
 					}
 					if (player.inventory[i] == Items.ITEM_NULL)
 						continue;
@@ -1829,75 +1829,90 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		if (!newGame) {
-			DataInputStream d;
-			{
-				RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, false);
-				byte[] data = r.getRecord(1);
-				r.closeRecordStore();
-				d = new DataInputStream(new ByteArrayInputStream(data));
-			}
+			try {
+				DataInputStream d;
+				{
+					RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, false);
+					byte[] data = r.getRecord(1);
+					r.closeRecordStore();
+					d = new DataInputStream(new ByteArrayInputStream(data));
+				}
 
-			if (d.readInt() != SAVE_VERSION) {
-				mapError = 3;
-				return false;
-			}
-			if (d.readByte() != map) {
-				mapError = 3;
-				return false;
-			}
-			if (d.readInt() != mapVersion) {
-				mapError = 3;
-				return false;
-			}
+				if (d.readInt() != SAVE_VERSION) {
+					mapError = 3;
+					return false;
+				}
+				if (d.readByte() != map) {
+					mapError = 3;
+					return false;
+				}
+				if (d.readInt() != mapVersion) {
+					mapError = 3;
+					return false;
+				}
 
-			day = d.readInt();
-			money = d.readInt();
-			for (int i = 0; i < jobs[0]; ++i) {
-				jobs[1 + i] = d.readInt();
-			}
+				day = d.readInt();
+				money = d.readInt();
+				for (int i = 0; i < jobs[0]; ++i) {
+					jobs[1 + i] = d.readInt();
+				}
 
-			int[] containers = this.containers;
-			short[] groundObjects = this.objects[LAYER_GROUND];
-			int idx = 1;
-			for (int i = 0; i < containers[0]; ++i) {
-				int objIdx = containers[idx++];
-				containers[idx++] = d.readInt();
-				int count = containers[idx++];
-				for (int j = 0; j < count; ++j) {
+				int[] containers = this.containers;
+				short[] groundObjects = this.objects[LAYER_GROUND];
+				int idx = 1;
+				for (int i = 0; i < containers[0]; ++i) {
+					int objIdx = containers[idx++];
 					containers[idx++] = d.readInt();
-				}
-				// container position
-				groundObjects[objIdx + 3] = d.readByte();
-				groundObjects[objIdx + 4] = d.readByte();
-			}
-
-			int i;
-			while ((i = d.readShort()) != -1) {
-				chars[i].load(d);
-			}
-
-			for (int l = 0; l < 4; ++l) {
-				int[] items = this.droppedItems[l];
-				int n = d.readInt();
-				if (n > (items.length - 1) >> 1) {
-					this.droppedItems[l] = items = new int[(n << 1) + 1];
-				}
-				items[0] = n;
-				for (i = 0; i < n; ++i) {
-					items[(i << 1) + 1] = d.readInt();
-					items[(i << 1) + 2] = d.readInt();
+					int count = containers[idx++];
+					for (int j = 0; j < count; ++j) {
+						containers[idx++] = d.readInt();
+					}
+					// container position
+					groundObjects[objIdx + 3] = d.readByte();
+					groundObjects[objIdx + 4] = d.readByte();
 				}
 
-				short[] chipped = this.chipped[l];
-				n = d.readShort();
-				if (n > (chipped.length - 1) >> 1) {
-					this.chipped[l] = chipped = new short[(n << 1) + 1];
+				int i;
+				while ((i = d.readShort()) != -1) {
+					chars[i].load(d);
 				}
-				chipped[0] = (short) n;
-				for (i = 0; i < n; ++i) {
-					items[(i << 1) + 1] = d.readShort();
-					items[(i << 1) + 2] = d.readShort();
+
+				for (int l = 0; l < 4; ++l) {
+					int[] items = this.droppedItems[l];
+					int n = d.readInt();
+					if (n > (items.length - 1) >> 1) {
+						this.droppedItems[l] = items = new int[(n << 1) + 1];
+					}
+					items[0] = n;
+					for (i = 0; i < n; ++i) {
+						items[(i << 1) + 1] = d.readInt();
+						items[(i << 1) + 2] = d.readInt();
+					}
+
+					short[] chipped = this.chipped[l];
+					n = d.readShort();
+					if (n > (chipped.length - 1) >> 1) {
+						this.chipped[l] = chipped = new short[(n << 1) + 1];
+					}
+					chipped[0] = (short) n;
+					for (i = 0; i < n; ++i) {
+						chipped[(i << 1) + 1] = d.readShort();
+						chipped[(i << 1) + 2] = d.readShort();
+					}
+
+					short[] objects = this.objects[l];
+					while ((i = d.readShort()) != -1) {
+						i = i << 2;
+						objects[i + 1] = d.readShort();
+						objects[i + 2] = d.readShort();
+						objects[i + 3] = d.readByte();
+						objects[i + 4] = d.readByte();
+					}
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				mapError = 2;
+				return false;
 			}
 		}
 
@@ -1972,6 +1987,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					d.writeShort(chipped[(i << 1) + 1]);
 					d.writeShort(chipped[(i << 1) + 2]);
 				}
+
+				short[] objects = this.objects[l];
+				n = objects[0];
+				for (int i = 0; i < n; ++i) {
+					int obj = objects[(i << 2) + 1];
+					if (obj >= 0) continue;
+					d.writeShort(i);
+					d.writeShort(obj);
+					d.writeShort(objects[(i << 2) + 2]);
+					d.writeByte(objects[(i << 2) + 3]);
+					d.writeByte(objects[(i << 2) + 4]);
+				}
+				d.writeShort(-1);
 			}
 
 			byte[] b = baos.toByteArray();
@@ -2006,7 +2034,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if ((p & 0xFF) == 100) {
 						if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
-						} else if (tiles[i] > 0) {
+						} else if (isSolidTile(tiles[pos]) != COLL_NONE) {
 							tiles[pos] = (byte) -tiles[pos];
 						}
 					}
@@ -2035,7 +2063,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (objects[idx + 1] == Objects.STASH && day == 0) {
 						if (NPC.rng.nextInt(10) != 0) {
 							// delete object
-							objects[idx + 1] = 0;
+							objects[idx + 1] = -Objects.STASH;
 							objects[idx + 2] |= 1 << 12;
 							s = COLL_NONE;
 						}
@@ -2647,10 +2675,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					chipped[(i << 1) + 1] = v;
 					return;
 				}
-				if (chipped[(i << 1) + 1] == 0) {
+				if (chipped[(i << 1) + 1] == 0 && chipped[(i << 1) + 2] == 0) {
 					chipped[(i << 1) + 1] = v;
-					if (chipped[(i << 1) + 2] != -1) chipped[0]++;
 					chipped[(i << 1) + 2] = pos;
+					chipped[0]++;
 					return;
 				}
 			}

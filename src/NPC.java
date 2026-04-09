@@ -2787,8 +2787,20 @@ class NPC implements Constants {
 								}
 
 								if (obj == Objects.STASH) {
-									// open stash TODO
-
+									// open stash
+									int item;
+									//noinspection StatementWithEmptyBody
+									while (!Game.isIllegal(item = rng.nextInt(192)));
+									item |= Items.ITEM_DEFAULT_DURABILITY;
+									if (addItem(item, true)) {
+										// TODO animate
+										map.objects[layer][idx + 1] = -Objects.STASH;
+										map.objects[layer][idx + 2] |= 1 << 12;
+										map.solid[layer][y * map.width + x] = COLL_NONE;
+									} else {
+										dialog = "Inventory full";
+										dialogTimer = TPS * 2;
+									}
 									break interact;
 								}
 								if (obj == Objects.FREEZER) {
