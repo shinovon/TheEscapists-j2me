@@ -31,7 +31,7 @@
 - [ ] NPC interaction (WIP)
 - [x] Settings
 - [x] Own map format
-- [ ] Digging (WIP)
+- [x] Digging
 - [x] Other NPCs
 - [ ] Cameras
 - [ ] Localization
@@ -43,9 +43,13 @@
 - [ ] Profile
 - [ ] Tasks
 - [ ] Desk moving
+- [x] Riot
 - [ ] Characters setup
 - [ ] NPC random inventory
 - [x] Ladders
+- [ ] Mines
+- [ ] Visual effects (fights, digging, training)
+- [ ] Recruiting
 
 # OST
 
