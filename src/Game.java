@@ -1131,10 +1131,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[4] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+					
+//					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[4] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+
 //					player.inventory[1] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[3] = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
@@ -1527,7 +1529,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	byte[][] tiles;
 	byte[][] solid;
-	short[][] chipped; // {count, [pos, progress] ..} for each layer
+	short[][] chipped; // {count, [progress, pos] ..} for each layer
 
 	int time = 7*60 + 50, day; // day count starts from 0
 	int schedule, prevSchedule;
@@ -1957,12 +1959,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	void initMap() {
 		// fill collision lookup
+		boolean initSeats = canteenSeatsPositions[0] == 0;
 		for (int l = 0; l < 4; ++l) {
 			byte[] solid = this.solid[l];
 			for (int i = 0; i < width * height; ++i) {
 				byte t = tiles[l][i];
 				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_DIGGED_WALL : isSolidTile(t));
 			}
+
 
 			short[] objects = this.objects[l];
 			if (objects != null) {
@@ -1983,7 +1987,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							objects[idx + 2] |= 1 << 12;
 							s = COLL_NONE;
 						}
-					} else if (objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
+					} else if (initSeats && objects[idx + 1] == Objects.CHAIR && isInZone(x * TILE_SIZE, y * TILE_SIZE, ZONE_CANTEEN)) {
 						int p = ((canteenSeatsPositions[0]++) << 1) + 1;
 						canteenSeatsPositions[p] = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
 						canteenSeatsPositions[p + 1] = -1;
@@ -2545,17 +2549,74 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
+	int getBreakProgress(int x, int y, int layer) {
+		short[] chipped = this.chipped[layer];
+		int n = chipped[0];
+		short pos = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
+
+		for (int i = 0; i < n; ++i) {
+			if (chipped[(i << 1) + 2] == pos) {
+				return chipped[(i << 1) + 1] & 0xFF;
+			}
+		}
+
+		return 0;
+	}
+
+	void setBreakProgress(int x, int y, int layer, int p) {
+		short[] chipped = this.chipped[layer];
+		byte t = tiles[layer][y * width + x];
+		int sprite;
+		if (layer == LAYER_UNDERGROUND) {
+			sprite = p == 100 ? 64 : 0;
+		} else if (!isDiggable(t)) {
+			sprite = 0;
+		} else if (p == 0) {
+			sprite = isFloor(t) ? 73 : 72;
+		} else if (p < 25) {
+			sprite = 71;
+		} else if (p < 50) {
+			sprite = 70;
+		} else if (p < 75) {
+			sprite = 69;
+		} else if (p < 100) {
+			sprite = 68;
+		} else {
+			sprite = 67;
+		}
+
+		short v = (short) ((p & 0xFF) | (sprite << 8));
+		short pos = (short) ((x & 0xFF) | ((y & 0xFF) << 8));
+
+		for (;;) {
+			int n = (chipped.length - 1) >> 1;
+			for (int i = 0; i < n; ++i) {
+				if (chipped[(i << 1) + 2] == pos) {
+					chipped[(i << 1) + 1] = v;
+					return;
+				}
+				if (chipped[(i << 1) + 1] == 0) {
+					chipped[(i << 1) + 1] = v;
+					if (chipped[(i << 1) + 2] != -1) chipped[0]++;
+					chipped[(i << 1) + 2] = pos;
+					return;
+				}
+			}
+
+			chipped = new short[(chipped.length - 1) * 2];
+			System.arraycopy(this.chipped[layer], 0, chipped, 0, this.chipped[layer].length);
+			this.chipped[layer] = chipped;
+		}
+	}
+
 	void breakWall(int x, int y, int layer) {
 		int pos = x + y * width;
+		setBreakProgress(x, y, layer, 100);
 		tiles[layer][pos] = (byte) -tiles[layer][pos];
 		solid[layer][pos] = COLL_DIGGED_WALL;
 		if (USE_TILED_LAYER) {
 			tiledLayer[layer].setCell(x, y, 13);
 		}
-	}
-
-	void getProgress(int x, int y, int layer) {
-
 	}
 
 	// endregion Map
@@ -2706,6 +2767,30 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginRenderSection(Profiler.RENDER_OBJECTS);
 
+		Image objectsImg = objectsTexture;
+
+		{
+			short[] chipped = this.chipped[layer];
+			for (int i = 0; i < chipped[0]; ++i) {
+				int p = chipped[(i << 1) + 1];
+				if (p == 0) {
+					continue;
+				}
+				int sprite = p >> 8;
+				if (sprite == 0) {
+					continue;
+				}
+
+				int pos = chipped[(i << 1) + 2];
+				int x = (pos & 0xFF) * TILE_SIZE - viewX;
+				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;;
+				if (x < -TILE_SIZE || y < -TILE_SIZE || x >= viewWidth + TILE_SIZE || y >= viewHeight + TILE_SIZE) {
+					continue;
+				}
+				g.drawRegion(objectsImg, (sprite % TILE_SIZE) * TILE_SIZE, (sprite / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x, y, 0);
+			}
+		}
+
 		// items
 		{
 			int[] items = this.droppedItems[layer];
@@ -2728,7 +2813,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		// objects
-		Image objectsImg = objectsTexture;
 		int ticks = tickCounter;
 		short[] objects = this.objects[layer];
 		if (objects != null) {
@@ -2956,6 +3040,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break interact;
 								}
 							}
+							if (b == COLL_NONE && item == Items.ITEM_NULL) {
+								int droppedItem = peekItem(x, y, layer);
+								if (droppedItem != Items.ITEM_NULL) {
+									s = getItemName(droppedItem);
+									break interact;
+								}
+								if (layer == LAYER_GROUND) {
+									if (getBreakProgress(x, y, layer) == 100) {
+										s = "Enter";
+										break interact;
+									}
+								} else if (layer == LAYER_UNDERGROUND) {
+									if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
+										s = "Exit";
+										break interact;
+									}
+								}
+							}
 
 							switch (player.direction) {
 							case NPC.DIR_RIGHT:
@@ -3108,6 +3210,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										s = getItemName(item);
 										break interact;
 									}
+									if (layer == LAYER_GROUND) {
+										if (getBreakProgress(x, y, layer) == 100) {
+											s = "Enter";
+											break interact;
+										}
+									} else if (layer == LAYER_UNDERGROUND) {
+										if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
+											s = "Exit";
+											break interact;
+										}
+									}
 									break box;
 								}
 							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
@@ -3131,14 +3244,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								byte t = tiles[layer][y * width + x];
 								border = true;
 
+								// TODO optimize
+								int p = getBreakProgress(x, y, layer);
+								if (p == 100) break box;
+
 								switch (item) {
 								case Items.MULTITOOL:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip Wall";
+										s = "Chip Wall (" + (100 - p) + "%)";
 										break interact;
 									}
 									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = "Dig";
+										s = "Dig (" + p + "%)";
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && t == 0) {
+										s = "Dig (" + p + "%)";
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && b == COLL_NONE
+											&& isDiggable(tiles[LAYER_GROUND][y * width + x])) {
+										p = getBreakProgress(x, y, LAYER_GROUND);
+										if (p == 100) break box;
+										s = "Dig Up (" + p + "%)";
 										break interact;
 									}
 									break box;
@@ -3149,7 +3277,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_PICKAXE:
 									// chip
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip Wall";
+										s = "Chip Wall (" + (100 - p) + "%)";
 										break interact;
 									}
 									break box;
@@ -3160,11 +3288,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.CUTTING_FLOSS:
 									// cut
 									if (b == COLL_SOLID_TRANSPARENT && (t == 23)) {
-										s = "Cut Bars";
+										s = "Cut Bars (" + (100 - p) + "%)";
 										break interact;
 									}
 									if (b == COLL_SOLID && (t == 77 || t == 81)) {
-										s = "Cut Fence";
+										s = "Cut Fence (" + (100 - p) + "%)";
 										break interact;
 									}
 									break box;
@@ -3175,7 +3303,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_SHOVEL:
 									// dig
 									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = "Dig";
+										s = "Dig (" + p + "%)";
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && t == 0) {
+										s = "Dig (" + p + "%)";
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && b == COLL_NONE
+											&& isDiggable(tiles[LAYER_GROUND][y * width + x])) {
+										p = getBreakProgress(x, y, LAYER_GROUND);
+										if (p == 100) break box;
+										s = "Dig Up (" + p + "%)";
 										break interact;
 									}
 									break box;

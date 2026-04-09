@@ -42,6 +42,7 @@ class NPC implements Constants {
 	static final int ACT_SEARCHING = 3;
 	static final int ACT_CHIPPING = 4;
 	static final int ACT_DIGGING = 5;
+	static final int ACT_CUTTING = 6;
 
 	static Random rng = new Random();
 
@@ -2029,6 +2030,8 @@ class NPC implements Constants {
 					map.trainingBlocked = false;
 				}
 			} else if (map.action != ACT_NONE) {
+				int x = map.actionTargetX;
+				int y = map.actionTargetY;
 				if ((actions & (GameCanvas.UP_PRESSED | GameCanvas.DOWN_PRESSED | GameCanvas.LEFT_PRESSED | GameCanvas.RIGHT_PRESSED)) != 0) {
 					// cancel
 					map.action = ACT_NONE;
@@ -2041,7 +2044,7 @@ class NPC implements Constants {
 						statIntellect++;
 						break;
 					case ACT_CLEANING: {
-						int idx = map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer);
+						int idx = map.getObjectIdxAt(x, y, layer);
 						map.updateDirt(idx == map.dirt[2] ? 0 : 1);
 						map.fatigue += 5;
 						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)) {
@@ -2056,17 +2059,55 @@ class NPC implements Constants {
 						break;
 					}
 					case ACT_SEARCHING: {
-						map.openContainer(map.getObjectIdxAt(map.actionTargetX, map.actionTargetY, layer));
+						map.openContainer(map.getObjectIdxAt(x, y, layer));
 						break;
 					}
 					case ACT_CHIPPING: {
+						int p = map.getBreakProgress(x, y, layer);
 						// TODO
-						map.breakWall(map.actionTargetX, map.actionTargetY, layer);
-						map.fatigue += 10;
+						p += 20;
+						if (p >= 100) {
+							map.breakWall(x, y, layer);
+							addItem(Items.WALL_BLOCK, false);
+						} else {
+							map.setBreakProgress(x, y, layer, p);
+						}
+						map.fatigue += 5;
 						break;
 					}
 					case ACT_DIGGING: {
+						int p = map.getBreakProgress(x, y, layer);
 						// TODO
+						p += 20;
+						if (p >= 100) {
+							if (layer == LAYER_GROUND) {
+								map.setBreakProgress(x, y, layer, 100);
+								map.setBreakProgress(x, y, LAYER_UNDERGROUND, 100);
+								map.tiles[LAYER_UNDERGROUND][y * map.width + x] = 100;
+								map.solid[LAYER_UNDERGROUND][y * map.width + x] = COLL_NONE;
+								addItem(Items.DIRT, false);
+							} else {
+								map.setBreakProgress(x, y, layer, 100);
+								map.tiles[layer][y * map.width + x] = 100;
+								map.solid[layer][y * map.width + x] = COLL_NONE;
+								addItem(Items.DIRT, false);
+							}
+						} else {
+							map.setBreakProgress(x, y, layer, p);
+						}
+						map.fatigue += 5;
+						break;
+					}
+					case ACT_CUTTING: {
+						int p = map.getBreakProgress(x, y, layer);
+						// TODO
+						p += 20;
+						if (p >= 100) {
+							map.breakWall(x, y, layer);
+						} else {
+							map.setBreakProgress(x, y, layer, p);
+						}
+						map.fatigue += 5;
 						break;
 					}
 					}
@@ -2196,7 +2237,8 @@ class NPC implements Constants {
 								y = (this.y + y) / TILE_SIZE;
 								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
-									if (t == 21 || t == 25) {
+									if (map.getBreakProgress(x, y, layer) != 100) {
+										if (t == 21 || t == 25) {
 										// walls
 										chip: {
 											switch (item) {
@@ -2245,12 +2287,13 @@ class NPC implements Constants {
 												break chip;
 											}
 											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-											map.action = ACT_CHIPPING;
+											map.action = ACT_CUTTING;
 											map.actionTargetX = x;
 											map.actionTargetY = y;
 											map.progress = 0;
 											break hit;
 										}
+									}
 									}
 									if (item == Items.COMB) {
 										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
@@ -2268,9 +2311,10 @@ class NPC implements Constants {
 									}
 								}
 
-								if (b == COLL_NONE) {
-									if (layer == LAYER_GROUND && Game.isDiggable(t)) {
-										// floor
+								if (b == COLL_NONE || (layer == LAYER_UNDERGROUND && t == 0)) {
+									// TODO dig up
+									if ((layer == LAYER_UNDERGROUND || (layer == LAYER_GROUND && Game.isDiggable(t)))
+											&& map.getBreakProgress(x, y, layer) != 100) {
 										dig: {
 											switch (item) {
 											case Items.PLASTIC_SPOON:
@@ -2304,7 +2348,7 @@ class NPC implements Constants {
 											map.progress = 0;
 											break hit;
 										}
-									} else if (t < 0) {
+									} else if (layer == LAYER_GROUND && t < 0) {
 										// TODO
 										switch (item) {
 										case Items.POSTER:
@@ -2416,6 +2460,30 @@ class NPC implements Constants {
 								break interact;
 							}
 						}
+						if (b == COLL_NONE) {
+							int item = map.peekItem(x, y, layer);
+							if (item != -1 && item != Items.ITEM_NULL) {
+								if (addItem(item, true)) {
+									map.deleteItem(x, y, layer);
+								} else {
+									dialog = "Inventory full";
+									dialogTimer = TPS * 2;
+								}
+								break interact;
+							}
+							if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+								layer = LAYER_UNDERGROUND;
+								xFloat = this.x = x * TILE_SIZE;
+								yFloat = this.y = y * TILE_SIZE;
+								break interact;
+							}
+							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
+								layer = LAYER_GROUND;
+								xFloat = this.x = x * TILE_SIZE;
+								yFloat = this.y = y * TILE_SIZE;
+								break interact;
+							}
+						}
 
 						switch (direction) {
 						case DIR_RIGHT:
@@ -2452,6 +2520,12 @@ class NPC implements Constants {
 									dialog = "Inventory full";
 									dialogTimer = TPS * 2;
 								}
+								break interact;
+							}
+							if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+								layer = LAYER_UNDERGROUND;
+								xFloat = this.x = x * TILE_SIZE;
+								yFloat = this.y = y * TILE_SIZE;
 								break interact;
 							}
 						}
