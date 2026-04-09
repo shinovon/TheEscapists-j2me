@@ -26,7 +26,7 @@ public interface Constants {
 	static final String SETTINGS_RECORD_NAME = "teconfig";
 	static final String GAME_RECORD_NAME = "tesave";
 
-	static final int SAVE_VERSION = 1;
+	static final int SAVE_VERSION = 2;
 
 	static final boolean PROFILER = false;
 	static final boolean LOGGING = true;

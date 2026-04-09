@@ -1857,14 +1857,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			int[] containers = this.containers;
+			short[] groundObjects = this.objects[LAYER_GROUND];
 			int idx = 1;
 			for (int i = 0; i < containers[0]; ++i) {
-				idx++; // object idx
+				int objIdx = containers[idx++];
 				containers[idx++] = d.readInt();
 				int count = containers[idx++];
 				for (int j = 0; j < count; ++j) {
 					containers[idx++] = d.readInt();
 				}
+				// container position
+				groundObjects[objIdx + 3] = d.readByte();
+				groundObjects[objIdx + 4] = d.readByte();
 			}
 
 			int i;
@@ -1933,14 +1937,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			int[] containers = this.containers;
+			short[] groundObjects = this.objects[LAYER_GROUND];
 			int idx = 1;
 			for (int i = 0; i < containers[0]; ++i) {
-				idx++; // object idx
+				int objIdx = containers[idx++];
 				d.writeInt(containers[idx++]);
 				int count = containers[idx++];
 				for (int j = 0; j < count; ++j) {
 					d.writeInt(containers[idx++]);
 				}
+				// container position
+				d.writeByte(groundObjects[objIdx + 3]);
+				d.writeByte(groundObjects[objIdx + 4]);
 			}
 
 			for (int i = 0; i < npcNum; ++i) {
