@@ -62,6 +62,7 @@ public class ResourceBuilder implements Constants {
 			character("Extra NPCs_2", "doctor.png", 1);
 			character("Tower Guard_0", "sniper.png", 1);
 			sounds();
+			music();
 			map(map + ".map");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -676,6 +677,33 @@ public class ResourceBuilder implements Constants {
 			if (run(cmd.toArray(new String[0])) != 0) {
 				throw new Exception(file);
 			}
+		}
+	}
+
+	static void music() throws Exception {
+		Path path = gameDir.resolve(Paths.get("Music", "lockdown.ogg"));
+		Path resPath = resDir.resolve("lockdown.mp3");
+		if (!force && Files.exists(resPath)) {
+			return;
+		}
+		ArrayList<String> cmd = new ArrayList<>();
+		cmd.add("ffmpeg");
+		cmd.add("-i");
+		cmd.add(path.toString());
+		cmd.add("-ac");
+		cmd.add("1");
+		cmd.add("-filter:a");
+		cmd.add("dynaudnorm=p=0.9:s=5");
+		cmd.add("-ar");
+		cmd.add("16000");
+		cmd.add("-ab");
+		cmd.add("24k");
+		cmd.add("-to");
+		cmd.add("00:00:32");
+		cmd.add("-y");
+		cmd.add(resPath.toString());
+		if (run(cmd.toArray(new String[0])) != 0) {
+			throw new Exception("lockdown.mp3");
 		}
 	}
 
