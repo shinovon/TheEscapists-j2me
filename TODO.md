@@ -50,6 +50,7 @@
 - [ ] Mines
 - [ ] Visual effects (fights, digging, training)
 - [ ] Recruiting
+- [ ] Bundle more maps in one package?
 
 # OST
 
@@ -70,3 +71,4 @@
 - Toilet interface
 - Lockdown midi
 - Improve other maps support
+- Convert sounds in resource builder
