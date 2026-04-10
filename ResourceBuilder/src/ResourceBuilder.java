@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -60,6 +61,7 @@ public class ResourceBuilder implements Constants {
 			character("Extra NPCs_1", "jobstaff.png", 1);
 			character("Extra NPCs_2", "doctor.png", 1);
 			character("Tower Guard_0", "sniper.png", 1);
+			sounds();
 			map(map + ".map");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -634,6 +636,49 @@ public class ResourceBuilder implements Constants {
 		MapCompiler.process(path, resDir.resolve("map"));
 	}
 
+	static void sounds() throws Exception {
+		final String[] sounds = {
+				"accolade.wav", "44100", null,
+				"bell.wav", "32000", null,
+				"buy.wav", "32000", null,
+				"close.wav", "32000", null,
+				"door.wav", "44100", null,
+				"en_hit.wav", "44100", null,
+				"open.wav", "32000", null,
+				"pickup.wav", "44100", null,
+				"plip.wav", "32000", "adelay=3:all=1",
+				"rumble.wav", "32000", null,
+				"lose.wav", "44100", null,
+				"throw.wav", "32000", null,
+				"hp.wav", "32000", null,
+		};
+		for (int i = 0; i < sounds.length; i += 3) {
+			String file = sounds[i];
+			Path path = decompiledDir.resolve(Paths.get("Sounds", file));
+			Path resPath = resDir.resolve(file);
+			if (!force && Files.exists(resPath)) {
+				continue;
+			}
+			ArrayList<String> cmd = new ArrayList<>();
+			cmd.add("ffmpeg");
+			cmd.add("-i");
+			cmd.add(path.toString());
+			cmd.add("-ac");
+			cmd.add("1");
+			cmd.add("-filter:a");
+			cmd.add("dynaudnorm=p=0.9:s=5" + (sounds[i + 2] != null ? "," + sounds[i + 2] : ""));
+			cmd.add("-ar");
+			cmd.add(sounds[i + 1]);
+			cmd.add("-acodec");
+			cmd.add("pcm_u8");
+			cmd.add("-y");
+			cmd.add(resPath.toString());
+			if (run(cmd.toArray(new String[0])) != 0) {
+				throw new Exception(file);
+			}
+		}
+	}
+
 	// utils
 
 	static void writePng(BufferedImage img, Path path) throws IOException {
@@ -659,6 +704,12 @@ public class ResourceBuilder implements Constants {
 		
 		System.out.println(name + " missing!");
 		return null;
+	}
+
+	static int run(String[] cmd) throws Exception {
+		ProcessBuilder pb = new ProcessBuilder(cmd);
+		pb.inheritIO();
+		return pb.start().waitFor();
 	}
 
 }

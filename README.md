@@ -26,6 +26,8 @@ You have to obtain legal copy of The Escapists [(Steam)](https://store.steampowe
 <output res dir> <decompiled dir> <game dir> <map name>
 ```
 
+**ffmpeg must be present in PATH**
+
 Full example:
 ```bash
 cd ResourceBuilder
