@@ -47,6 +47,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			"Librarian",
 	};
 
+	String version;
+	String build;
+
 	Image buffer;
 	Graphics bufferGraphics;
 	int[] rgb;
@@ -134,7 +137,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	Game() {
 		super(false);
-		if (LOGGING) Profiler.initLogs();
+		version = TE.midlet.getAppProperty("MIDlet-Version");
+		if (LOGGING) {
+			Profiler.initLogs();
+			build = TE.midlet.getAppProperty("TE-Build");
+		}
 		setFullScreenMode(true);
 
 		initBuffer();
@@ -182,6 +189,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int f, i = 0;
 
 			s = "New game";
+			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
 			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 80, f);
 			i++;
@@ -201,6 +209,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			s = "Exit";
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
 			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 20, f);
+
+			fontColor = FONT_COLOR_GREY_7F;
+			if (version != null) {
+				s = version;
+				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 0, FONT_REGULAR);
+			}
+			if (LOGGING && build != null) {
+				s = build;
+				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 9, FONT_REGULAR);
+			}
 		} else if (state == 6) {
 			// loading
 			String s;
