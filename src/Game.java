@@ -1151,6 +1151,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
+
+					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.FAKE_WALL_BLOCK | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -2356,7 +2359,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					npc.correctPath = false;
 					npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
 					npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
-					npc.aiState = NPC.AI_SLEEP;
+					npc.aiState = NPC.AI_RESET;
 				} else if (npc.bodyId != Textures.SNIPER) {
 					npc.correctPath = false;
 					npc.xFloat = npc.x = npcSpawnX * TILE_SIZE;
@@ -2667,7 +2670,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		byte t = tiles[layer][y * width + x];
 		int sprite;
 		if (layer == LAYER_UNDERGROUND) {
-			sprite = p == 100 ? 64 : 0;
+			// < 0: rock, 101: timber, 100: dug
+			sprite = p < 0 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
+		} else if (p == 101) {
+			// poster
+			sprite = 84;
 		} else if (!isDiggable(t)) {
 			sprite = 0;
 		} else if (p == 0) {
@@ -2715,6 +2722,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		solid[layer][pos] = COLL_DIGGED_WALL;
 		if (USE_TILED_LAYER) {
 			tiledLayer[layer].setCell(x, y, 13);
+		}
+	}
+
+	void putWall(int x, int y, int layer, int item) {
+		// TODO
+		int pos = x + y * width;
+		byte t = (byte) -tiles[layer][pos];
+		if (item == Items.WALL_BLOCK) {
+			if (t != 21 && t != 25) return;
+			setBreakProgress(x, y, layer, 10);
+			tiles[layer][pos] = t;
+			solid[layer][pos] = COLL_SOLID;
+			if (USE_TILED_LAYER) {
+				tiledLayer[layer].setCell(x, y, t);
+			}
+		} else {
+			if (item == Items.POSTER || item == Items.FAKE_WALL_BLOCK) {
+				if (t != 21 && t != 25) return;
+			} else if (item == Items.FAKE_FENCE) {
+				if (t != 77 && t != 81) return;
+			}
+			setBreakProgress(x, y, layer, 101);
+			solid[layer][pos] = COLL_POSTER;
 		}
 	}
 
@@ -3088,7 +3118,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0) {
 			// interact focus
 			box: {
-				int x = -1, y = -1;
+				int x, y;
 				String s;
 				boolean border = false;
 				if (!updateInteractFocus) {
@@ -3187,6 +3217,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							b = solid[layer][y * width + x];
 
 							if (item == Items.ITEM_NULL) {
+								if (b == COLL_POSTER) {
+									s = null;
+									border = true;
+									break interact;
+								}
 								if (b != COLL_NONE) {
 									if (objects == null) break box;
 									int idx = getObjectIdxAt(x, y, layer);
@@ -3344,6 +3379,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										break interact;
 									}
 								}
+								break box;
+							} else if (item == Items.POSTER || item == Items.FAKE_FENCE
+									|| item == Items.FAKE_WALL_BLOCK || item == Items.WALL_BLOCK) {
+								if (b == COLL_DIGGED_WALL) {
+									border = true;
+									s = null;
+									break interact;
+								}
+								break box;
 							} else {
 								byte t = tiles[layer][y * width + x];
 								border = true;
@@ -3458,13 +3502,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					y -= 14;
 				}
 
-				fontColor = FONT_COLOR_GREY_B4;
-				int tw = textWidth(s, FONT_REGULAR);
-				g.setColor(0x212121);
-				g.fillRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
-				g.setColor(0);
-				g.drawRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
-				drawText(g, s, x + 8 - (tw >> 1), y, FONT_REGULAR);
+				if (s != null) {
+					fontColor = FONT_COLOR_GREY_B4;
+					int tw = textWidth(s, FONT_REGULAR);
+					g.setColor(0x212121);
+					g.fillRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
+					g.setColor(0);
+					g.drawRect(x + 8 - (tw >> 1) - 3, y - 3, tw + 6, 15);
+					drawText(g, s, x + 8 - (tw >> 1), y, FONT_REGULAR);
+				}
 			}
 		}
 

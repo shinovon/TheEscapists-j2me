@@ -2426,6 +2426,7 @@ class NPC implements Constants {
 													dialogTimer = TPS * 2;
 													break dig;
 												}
+												// TODO check stability
 
 												// TODO reduce durability
 												break;
@@ -2440,18 +2441,17 @@ class NPC implements Constants {
 											map.progress = 0;
 											break hit;
 										}
-									} else if (layer == LAYER_GROUND && t < 0) {
-										// TODO
-										switch (item) {
-										case Items.POSTER:
-											break;
-										case Items.FAKE_WALL_BLOCK:
-											break;
-										case Items.FAKE_FENCE:
-											break;
-										case Items.WALL_BLOCK:
-											break;
-										}
+									}
+								} else if (layer == LAYER_GROUND && b == COLL_DIGGED_WALL) {
+									switch (item) {
+									case Items.POSTER:
+									case Items.FAKE_WALL_BLOCK:
+									case Items.FAKE_FENCE:
+									case Items.WALL_BLOCK:
+										map.lastSelectedInventory = map.selectedInventory;
+										map.selectedInventory = -1;
+										map.putWall(x, y, layer, item);
+										break;
 									}
 								}
 
@@ -2616,6 +2616,12 @@ class NPC implements Constants {
 							}
 							if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
 								layer = LAYER_UNDERGROUND;
+								xFloat = this.x = x * TILE_SIZE;
+								yFloat = this.y = y * TILE_SIZE;
+								break interact;
+							}
+							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
+								layer = LAYER_GROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
 								break interact;
@@ -2946,6 +2952,9 @@ class NPC implements Constants {
 									layer--;
 									break interact;
 								}
+							}
+							if (b == COLL_POSTER) {
+								// TODO take poster
 							}
 						}
 
