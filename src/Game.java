@@ -105,6 +105,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int action = NPC.ACT_NONE;
 	int actionTargetX, actionTargetY;
 	int actionParam;
+	int carryingObject = -1;
 
 	boolean updateInteractFocus;
 	boolean hasInteractFocus;
@@ -3109,7 +3110,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					updateInteractFocus = false;
 					hasInteractFocus = false;
 					interactBorder = false;
-					int item = selectedInventory == -1 ? -1 : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
+					int slot = selectedInventory;
+					int item = slot != -1 && player.inventory[slot] != Items.ITEM_NULL ?
+							player.inventory[slot] & Items.ITEM_ID_MASK : -1;
 
 					interact: {
 						if (player.climbed) {
@@ -3135,38 +3138,41 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //							}
 							break box;
 						} else {
-							x = (player.x + 7) / TILE_SIZE;
-							y = (player.y + 7) / TILE_SIZE;
-							if (x < 0 || y < 0 || x >= width || y >= height) break box;
-							byte b = solid[layer][y * width + x];
-							if (b == COLL_NOT_SOLID_INTERACT) {
-								if (objects == null) break box;
-								int idx = getObjectIdxAt(x, y, layer);
-								int obj = idx == -1 ? -1 : objects[idx + 1];
-								if (obj == Objects.LADDER_UP) {
-									s = "Up";
-									break interact;
-								}
-								if (obj == Objects.LADDER_DOWN) {
-									s = "Down";
-									break interact;
-								}
-							}
-							if (b == COLL_NONE && item == -1) {
-								int droppedItem = peekItem(x, y, layer);
-								if (droppedItem != Items.ITEM_NULL) {
-									s = getItemName(droppedItem);
-									break interact;
-								}
-								if (layer == LAYER_GROUND) {
-									if (getBreakProgress(x, y, layer) == 100) {
-										s = "Enter";
+							byte b;
+							if (carryingObject == -1 && player.carry == null) {
+								x = (player.x + 7) / TILE_SIZE;
+								y = (player.y + 7) / TILE_SIZE;
+								if (x < 0 || y < 0 || x >= width || y >= height) break box;
+								b = solid[layer][y * width + x];
+								if (b == COLL_NOT_SOLID_INTERACT) {
+									if (objects == null) break box;
+									int idx = getObjectIdxAt(x, y, layer);
+									int obj = idx == -1 ? -1 : objects[idx + 1];
+									if (obj == Objects.LADDER_UP) {
+										s = "Up";
 										break interact;
 									}
-								} else if (layer == LAYER_UNDERGROUND) {
-									if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
-										s = "Exit";
+									if (obj == Objects.LADDER_DOWN) {
+										s = "Down";
 										break interact;
+									}
+								}
+								if (b == COLL_NONE && item == -1) {
+									int droppedItem = peekItem(x, y, layer);
+									if (droppedItem != Items.ITEM_NULL) {
+										s = getItemName(droppedItem);
+										break interact;
+									}
+									if (layer == LAYER_GROUND) {
+										if (getBreakProgress(x, y, layer) == 100) {
+											s = "Enter";
+											break interact;
+										}
+									} else if (layer == LAYER_UNDERGROUND) {
+										if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
+											s = "Exit";
+											break interact;
+										}
 									}
 								}
 							}
@@ -3196,7 +3202,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							if (x < 0 || y < 0 || x >= width || y >= height) break box;
 							b = solid[layer][y * width + x];
 
-							System.out.println(b);
+							if (carryingObject != -1) {
+								if (b == COLL_NONE) {
+									s = null;
+									border = true;
+									break interact;
+								}
+								break box;
+							}
+							if (player.carry != null) break box;
 
 							if (item == -1) {
 								if (b == COLL_POSTER) {
@@ -3327,7 +3341,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break box;
 								} else {
 									item = peekItem(x, y, layer);
-									if (item != -1) {
+									if (item != Items.ITEM_NULL) {
 										s = getItemName(item);
 										break interact;
 									}

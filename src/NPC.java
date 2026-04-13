@@ -245,6 +245,11 @@ class NPC implements Constants {
 		
 		if (carry != null) {
 			carry.paint(g, x, y - 8);
+		} else if (!ai && map.carryingObject != -1) {
+			short sprite = map.objects[layer][map.carryingObject + 2];
+			int w = (sprite & (3 << 8)) >> 4, h = (sprite & (3 << 10)) >> 6;
+			sprite &= 0xFF;
+			g.drawRegion(Game.objectsTexture, ((sprite & 0xFF) % TILE_SIZE) * TILE_SIZE, (sprite / TILE_SIZE) * TILE_SIZE, w, h, 0, x, y - 8 - h + TILE_SIZE, 0);
 		}
 	}
 	
@@ -1456,6 +1461,9 @@ class NPC implements Constants {
 			if (lastDoor == idx) {
 				return false;
 			}
+			if (!ai && map.carryingObject != -1) {
+				return true;
+			}
 			if (obj == Objects.DOOR_CELL) {
 				return map.cellsClosed && !hasItem(Items.CELL_KEY);
 			}
@@ -2174,7 +2182,7 @@ class NPC implements Constants {
 				}
 			} else if (animation == NPC.ANIM_REGULAR || animation == NPC.ANIM_FOOD) {
 				// movement
-				canClimb = true;
+				canClimb = carry == null && map.carryingObject == -1;
 				climb = false;
 
 				if ((actions & GameCanvas.UP_PRESSED) != 0
@@ -2228,6 +2236,21 @@ class NPC implements Constants {
 				if (map.firePressed) {
 					if (animationTimer == 0 && !climbed) {
 						hit: {
+							if (carry != null) {
+								x = this.x / TILE_SIZE;
+								y = (this.y + 5) / TILE_SIZE;
+								if (map.solid[layer][x + y * map.width] != 0) {
+									Sound.playEffect(Sound.SFX_LOSE);
+								} else {
+									Sound.playEffect(Sound.SFX_THROW);
+									carry.xFloat = carry.x = x * TILE_SIZE;
+									carry.yFloat = carry.y = y * TILE_SIZE;
+									carry.carried = false;
+									carry = null;
+								}
+								break hit;
+							}
+
 							int slot = map.selectedInventory;
 							int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
 									inventory[slot] & Items.ITEM_ID_MASK : -1;
@@ -2259,32 +2282,32 @@ class NPC implements Constants {
 								}
 								break hit;
 							}
-							if (item != -1) {
-								int x, y;
-								switch (direction) {
-								case DIR_RIGHT:
-									x = 17;
-									y = 8;
-									break;
-								case DIR_UP:
-									x = 8;
-									y = 3;
-									break;
-								case DIR_LEFT:
-									x = -2;
-									y = 8;
-									break;
-								case DIR_DOWN:
-									x = 8;
-									y = 17;
-									break;
-								default:
-									break hit;
-								}
+							int x, y;
+							switch (direction) {
+							case DIR_RIGHT:
+								x = 17;
+								y = 8;
+								break;
+							case DIR_UP:
+								x = 8;
+								y = 3;
+								break;
+							case DIR_LEFT:
+								x = -2;
+								y = 8;
+								break;
+							case DIR_DOWN:
+								x = 8;
+								y = 17;
+								break;
+							default:
+								break hit;
+							}
 
-								byte b = getCollision(x, y, true);
-								x = (this.x + x) / TILE_SIZE;
-								y = (this.y + y) / TILE_SIZE;
+							byte b = getCollision(x, y, true);
+							x = (this.x + x) / TILE_SIZE;
+							y = (this.y + y) / TILE_SIZE;
+							if (item != -1) {
 								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
 									if (map.getBreakProgress(x, y, layer) != 100) {
@@ -2455,18 +2478,27 @@ class NPC implements Constants {
 
 								break hit;
 							}
-							if (carry != null) {
-								int x = this.x / TILE_SIZE;
-								int y = (this.y + 5) / TILE_SIZE;
-								if (map.solid[layer][x + y * map.width] != 0) {
-									Sound.playEffect(Sound.SFX_LOSE);
-								} else {
-									Sound.playEffect(Sound.SFX_THROW);
-									carry.xFloat = carry.x = x * TILE_SIZE;
-									carry.yFloat = carry.y = y * TILE_SIZE;
-									carry.carried = false;
-									carry = null;
+							if (b == COLL_DESK) {
+								// TODO carry desk
+								int objIdx = map.getObjectIdxAt(x, y, layer);
+								map.carryingObject = objIdx;
+								map.objects[layer][objIdx + 2] |= 1 << 12;
+								map.objects[layer][objIdx + 3] = -1;
+								map.objects[layer][objIdx + 4] = -1;
+								map.solid[layer][y * map.width + x] = COLL_NONE;
+								break hit;
+							}
+							if (map.carryingObject != -1) {
+								int objIdx = map.carryingObject;
+								if (b != COLL_NONE) {
+									Sound.playEffect(Constants.SFX_LOSE);
+									break hit;
 								}
+								map.carryingObject = -1;
+								map.objects[layer][objIdx + 2] &= ~(1 << 12);
+								map.objects[layer][objIdx + 3] = (short) x;
+								map.objects[layer][objIdx + 4] = (short) y;
+								map.solid[layer][y * map.width + x] = COLL_DESK;
 								break hit;
 							}
 							if (map.interactNPC != null) {
@@ -2493,7 +2525,9 @@ class NPC implements Constants {
 					map.softPressed = false;
 					interact:
 					{
-						if (climbed) break interact;
+						if (climbed || carry != null || map.carryingObject != -1) {
+							break interact;
+						}
 
 						// drop selected item
 						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {

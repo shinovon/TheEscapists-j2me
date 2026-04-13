@@ -42,7 +42,7 @@
 - [ ] Map schedules (hardcoded for shanktonstatepen)
 - [ ] Profile
 - [ ] Tasks
-- [ ] Desk moving
+- [x] Desk moving
 - [x] Riot
 - [ ] Characters setup
 - [ ] NPC random inventory
