@@ -222,6 +222,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		} else if (state == 6) {
 			// loading
+			fontColor = FONT_COLOR_WHITE;
 			String s;
 			switch (mapError) {
 			case 1:
@@ -2040,6 +2041,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		boolean initSeats = canteenSeatsPositions[0] == 0;
 		for (int l = 0; l < 4; ++l) {
 			byte[] tiles = this.tiles[l];
+			byte[] solid = this.solid[l];
+			for (int i = 0; i < width * height; ++i) {
+				byte t = tiles[i];
+				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : isSolidTile(t);
+			}
+
 			{
 				short[] chipped = this.chipped[l];
 				int n = chipped[0];
@@ -2053,23 +2060,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int x = (pos & 0xFF);
 					int y = ((pos >> 8) & 0xFF);
 					pos = y * width + x;
+					p = p & 0xFF;
 
-					if ((p & 0xFF) == 100) {
+					if (p >= 100) {
 						if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
+							solid[pos] = COLL_NONE;
 						} else if (isSolidTile(tiles[pos]) != COLL_NONE) {
 							tiles[pos] = (byte) -tiles[pos];
+							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;
 						}
 					}
 				}
 			}
-
-			byte[] solid = this.solid[l];
-			for (int i = 0; i < width * height; ++i) {
-				byte t = tiles[i];
-				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : (t < 0 ? COLL_DIGGED_WALL : isSolidTile(t));
-			}
-
 
 			short[] objects = this.objects[l];
 			if (objects != null) {
@@ -2388,6 +2391,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			heat = 0;
 			fatigue = 20;
 			player.job = JOB_UNEMPLOYED;
+			player.layer = LAYER_GROUND;
 			
 			// reset map
 			int size = width * height;
@@ -2672,8 +2676,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		byte t = tiles[layer][y * width + x];
 		int sprite;
 		if (layer == LAYER_UNDERGROUND) {
-			// < 0: rock, 101: timber
-			sprite = p < 0 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
+			// can be rock or timber
+			sprite = p >= 120 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
 		} else if (p == 101) {
 			// poster
 			sprite = 84;
@@ -3169,7 +3173,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											break interact;
 										}
 									} else if (layer == LAYER_UNDERGROUND) {
-										if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
+										if (getBreakProgress(x, y, LAYER_GROUND) == 100 && getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 											s = "Exit";
 											break interact;
 										}
@@ -3351,7 +3355,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											break interact;
 										}
 									} else if (layer == LAYER_UNDERGROUND) {
-										if (getBreakProgress(x, y, LAYER_GROUND) == 100) {
+										if (getBreakProgress(x, y, LAYER_GROUND) == 100 && getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 											s = "Exit";
 											break interact;
 										}
@@ -3409,17 +3413,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										s = "Dig (" + p + "%)";
 										break interact;
 									}
-									if (layer == LAYER_UNDERGROUND && t == 0) {
-										s = "Dig (" + p + "%)";
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND && t == 100
-											&& isDiggable(tiles[LAYER_GROUND][y * width + x])
-											&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-										p = getBreakProgress(x, y, LAYER_GROUND);
-										if (p == 100) break box;
-										s = "Dig Up (" + p + "%)";
-										break interact;
+									if (layer == LAYER_UNDERGROUND) {
+										if (t == 0) {
+											s = "Dig (" + p + "%)";
+											break interact;
+										}
+										if (b == COLL_SOLID && t == 100) {
+											s = "Chip Stone (" + (p - 120) + "%)";
+											break interact;
+										}
+										if (b == COLL_NONE && t == 100
+												&& isDiggable(tiles[LAYER_GROUND][y * width + x])
+												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+											p = getBreakProgress(x, y, LAYER_GROUND);
+											if (p == 100) break box;
+											s = "Dig Up (" + p + "%)";
+											break interact;
+										}
 									}
 									break box;
 								// chipping
@@ -3429,6 +3439,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.PLASTIC_FORK:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
 										s = "Chip Wall (" + (100 - p) + "%)";
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
+										s = "Chip Stone (" + (p - 120) + "%)";
 										break interact;
 									}
 									break box;
@@ -3455,16 +3469,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										s = "Dig (" + p + "%)";
 										break interact;
 									}
-									if (layer == LAYER_UNDERGROUND && t == 0) {
-										s = "Dig (" + p + "%)";
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND && b == COLL_NONE
-											&& isDiggable(tiles[LAYER_GROUND][y * width + x])) {
-										p = getBreakProgress(x, y, LAYER_GROUND);
-										if (p == 100) break box;
-										s = "Dig Up (" + p + "%)";
-										break interact;
+									if (layer == LAYER_UNDERGROUND) {
+										if (t == 0) {
+											s = "Dig (" + p + "%)";
+											break interact;
+										}
+										if (b == COLL_SOLID && t == 100) {
+											s = "Chip Stone (" + (p - 120) + "%)";
+											break interact;
+										}
+										if (b == COLL_NONE && t == 100
+												&& isDiggable(tiles[LAYER_GROUND][y * width + x])
+												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+											p = getBreakProgress(x, y, LAYER_GROUND);
+											if (p == 100) break box;
+											s = "Dig Up (" + p + "%)";
+											break interact;
+										}
 									}
 									break box;
 								default:

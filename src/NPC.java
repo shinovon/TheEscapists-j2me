@@ -2066,6 +2066,11 @@ class NPC implements Constants {
 					}
 					case ACT_CHIPPING: {
 						int p = map.getBreakProgress(x, y, layer);
+						boolean stone = false;
+						if (p >= 120) {
+							stone = true;
+							p -= 120;
+						}
 						switch (map.actionParam) {
 						case Items.STURDY_PICKAXE:
 						case Items.MULTITOOL:
@@ -2090,10 +2095,15 @@ class NPC implements Constants {
 							break;
 						}
 						if (p >= 100) {
-							map.breakWall(x, y, layer);
-							addItem(Items.WALL_BLOCK, false);
+							if (stone) {
+								map.setBreakProgress(x, y, layer, 100);
+								map.solid[layer][y * map.width + x] = COLL_NONE;
+							} else {
+								map.breakWall(x, y, layer);
+								addItem(Items.WALL_BLOCK, false);
+							}
 						} else {
-							map.setBreakProgress(x, y, layer, p);
+							map.setBreakProgress(x, y, layer, stone ? p + 120 : p);
 						}
 						map.fatigue += 5;
 						break;
@@ -2134,9 +2144,16 @@ class NPC implements Constants {
 								map.tiles[LAYER_UNDERGROUND][y * map.width + x] = 100;
 								map.solid[LAYER_UNDERGROUND][y * map.width + x] = COLL_NONE;
 							} else {
-								map.setBreakProgress(x, y, layer, 100);
+								if (rng.nextInt(3) == 0 || true) {
+									map.setBreakProgress(x, y, layer, 120);
+								} else {
+									map.setBreakProgress(x, y, layer, 100);
+									map.solid[layer][y * map.width + x] = COLL_NONE;
+								}
 								map.tiles[layer][y * map.width + x] = 100;
-								map.solid[layer][y * map.width + x] = COLL_NONE;
+//								if (USE_TILED_LAYER) {
+//									map.tiledLayer[layer].setCell(x, y, 0);
+//								}
 							}
 							addItem(map.map == MAP_SANPANCHO ? Items.SAND : Items.DIRT, false);
 						} else {
@@ -2310,8 +2327,9 @@ class NPC implements Constants {
 							if (item != -1) {
 								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
-									if (map.getBreakProgress(x, y, layer) != 100) {
-										if (t == 21 || t == 25) {
+									int p = map.getBreakProgress(x, y, layer);
+									if (p != 100) {
+										if (t == 21 || t == 25 || (t == 100 && layer == LAYER_UNDERGROUND && p >= 120)) {
 											// walls
 											chip: {
 												switch (item) {
@@ -2387,7 +2405,8 @@ class NPC implements Constants {
 								if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
 									if (((layer == LAYER_UNDERGROUND && (t == 0
 											|| Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])))
-											|| (layer == LAYER_GROUND && Game.isDiggable(t) && map.getBreakProgress(x, y, layer) != 100))
+											|| (layer == LAYER_GROUND && Game.isDiggable(t)
+											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1 && map.getBreakProgress(x, y, layer) < 100))
 											) {
 										dig: {
 											switch (item) {
@@ -2581,7 +2600,8 @@ class NPC implements Constants {
 								yFloat = this.y = y * TILE_SIZE;
 								break interact;
 							}
-							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
+							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
+									&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 								layer = LAYER_GROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
