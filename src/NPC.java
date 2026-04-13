@@ -1596,7 +1596,7 @@ class NPC implements Constants {
 			if ((x1 != x0 || y1 != y0)
 					&& x1 >= 0 && y1 >= 0 && x1 < w && y1 < h) {
 				byte s = solid[x1 + y1 * w];
-				if (s == COLL_SOLID) {
+				if (s == COLL_SOLID || s == COLL_POSTER) {
 					return false;
 				}
 			}
@@ -2228,12 +2228,15 @@ class NPC implements Constants {
 				if (map.firePressed) {
 					if (animationTimer == 0 && !climbed) {
 						hit: {
-							int item = map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL ?
-									inventory[map.selectedInventory] & Items.ITEM_ID_MASK : -1;
-
-							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+							int slot = map.selectedInventory;
+							int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+									inventory[slot] & Items.ITEM_ID_MASK : -1;
+							if (slot != -1) {
 								map.lastSelectedInventory = map.selectedInventory;
 								map.selectedInventory = -1;
+							}
+
+							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
 								for (int i = -1; i < 4; ++i) {
 									int x = this.x / TILE_SIZE;
 									int y = (this.y + 5) / TILE_SIZE;
@@ -2257,9 +2260,6 @@ class NPC implements Constants {
 								break hit;
 							}
 							if (item != -1) {
-								int slot = map.selectedInventory;
-								map.lastSelectedInventory = slot;
-								map.selectedInventory = -1;
 								int x, y;
 								switch (direction) {
 								case DIR_RIGHT:
@@ -2401,10 +2401,35 @@ class NPC implements Constants {
 									case Items.FAKE_WALL_BLOCK:
 									case Items.FAKE_FENCE:
 									case Items.WALL_BLOCK:
-										map.lastSelectedInventory = map.selectedInventory;
-										map.selectedInventory = -1;
-										map.putWall(x, y, layer, item);
-										break;
+										int pos = x + y * map.width;
+										// TODO check collision
+										if (item == Items.WALL_BLOCK) {
+											// put wall back
+											if (t != -21 && t != -25) break hit;
+											map.setBreakProgress(x, y, layer, 90);
+											map.tiles[layer][pos] = (byte)-t;
+											map.solid[layer][pos] = COLL_SOLID;
+											if (USE_TILED_LAYER) {
+												map.tiledLayer[layer].setCell(x, y, -t);
+											}
+										} else {
+											// put poster
+											if (item == Items.POSTER || item == Items.FAKE_WALL_BLOCK) {
+												if (t != -21 && t != -25) break hit;
+											} else /*if (item == Items.FAKE_FENCE)*/ {
+												if (t != -77 && t != -81) break hit;
+											}
+											map.setBreakProgress(x, y, layer, item == Items.POSTER ? 101 : 102);
+											map.solid[layer][pos] = COLL_POSTER;
+											if (item != Items.POSTER) {
+												map.tiles[layer][pos] = (byte) -t;
+												if (USE_TILED_LAYER) {
+													map.tiledLayer[layer].setCell(x, y, -t);
+												}
+											}
+										}
+										inventory[slot] = Items.ITEM_NULL;
+										break hit;
 									}
 								}
 
@@ -2622,9 +2647,10 @@ class NPC implements Constants {
 							}
 							if (b == COLL_SOLID_INTERACT) {
 								int slot = map.selectedInventory;
-								int item = slot == -1 ? -1 : inventory[slot] & Items.ITEM_ID_MASK;
+								int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+										inventory[slot] & Items.ITEM_ID_MASK : -1;
 								if (slot != -1) {
-									map.lastSelectedInventory = slot;
+									map.lastSelectedInventory = map.selectedInventory;
 									map.selectedInventory = -1;
 								}
 								switch (obj) {
@@ -2856,7 +2882,33 @@ class NPC implements Constants {
 								}
 							}
 							if (b == COLL_POSTER) {
-								// TODO take poster
+								// take poster
+								int p = map.getBreakProgress(x, y, layer);
+								int pos = y * map.width + x;
+								if (p == 101) {
+									if (!addItem(Items.POSTER | Items.ITEM_DEFAULT_DURABILITY, true)) {
+										dialog = "Inventory full";
+										dialogTimer = TPS * 2;
+										break interact;
+									}
+								} else {
+									byte t = map.tiles[layer][pos];
+									if (t == 21 || t == 25) {
+										if (!addItem(Items.FAKE_WALL_BLOCK | Items.ITEM_DEFAULT_DURABILITY, true)) {
+											dialog = "Inventory full";
+											dialogTimer = TPS * 2;
+											break interact;
+										}
+									} else if (!addItem(Items.FAKE_FENCE | Items.ITEM_DEFAULT_DURABILITY, true)) {
+										dialog = "Inventory full";
+										dialogTimer = TPS * 2;
+										break interact;
+									}
+									map.tiles[layer][pos] = (byte) -t;
+								}
+								map.solid[layer][pos] = COLL_DIGGED_WALL;
+								map.setBreakProgress(x, y, layer, 100);
+								break interact;
 							}
 						}
 

@@ -2381,6 +2381,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 0; i < 6; ++i) {
 				player.inventory[i] = Items.ITEM_NULL;
 			}
+			selectedInventory = -1;
 			player.outfitItem = Items.INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 			player.weapon = Items.ITEM_NULL;
 			heat = 0;
@@ -2670,12 +2671,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		byte t = tiles[layer][y * width + x];
 		int sprite;
 		if (layer == LAYER_UNDERGROUND) {
-			// < 0: rock, 101: timber, 100: dug
+			// < 0: rock, 101: timber
 			sprite = p < 0 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
 		} else if (p == 101) {
 			// poster
 			sprite = 84;
-		} else if (!isDiggable(t)) {
+		} else if (!isDiggable(t) || t < 0) {
 			sprite = 0;
 		} else if (p == 0) {
 			sprite = isFloor(t) ? 73 : 72;
@@ -2722,29 +2723,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		solid[layer][pos] = COLL_DIGGED_WALL;
 		if (USE_TILED_LAYER) {
 			tiledLayer[layer].setCell(x, y, 13);
-		}
-	}
-
-	void putWall(int x, int y, int layer, int item) {
-		// TODO
-		int pos = x + y * width;
-		byte t = (byte) -tiles[layer][pos];
-		if (item == Items.WALL_BLOCK) {
-			if (t != 21 && t != 25) return;
-			setBreakProgress(x, y, layer, 10);
-			tiles[layer][pos] = t;
-			solid[layer][pos] = COLL_SOLID;
-			if (USE_TILED_LAYER) {
-				tiledLayer[layer].setCell(x, y, t);
-			}
-		} else {
-			if (item == Items.POSTER || item == Items.FAKE_WALL_BLOCK) {
-				if (t != 21 && t != 25) return;
-			} else if (item == Items.FAKE_FENCE) {
-				if (t != 77 && t != 81) return;
-			}
-			setBreakProgress(x, y, layer, 101);
-			solid[layer][pos] = COLL_POSTER;
 		}
 	}
 
@@ -3159,6 +3137,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else {
 							x = (player.x + 7) / TILE_SIZE;
 							y = (player.y + 7) / TILE_SIZE;
+							if (x < 0 || y < 0 || x >= width || y >= height) break box;
 							byte b = solid[layer][y * width + x];
 							if (b == COLL_NOT_SOLID_INTERACT) {
 								if (objects == null) break box;
@@ -3173,7 +3152,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break interact;
 								}
 							}
-							if (b == COLL_NONE && item == Items.ITEM_NULL) {
+							if (b == COLL_NONE && item == -1) {
 								int droppedItem = peekItem(x, y, layer);
 								if (droppedItem != Items.ITEM_NULL) {
 									s = getItemName(droppedItem);
@@ -3214,9 +3193,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 							x = (player.x + x) / TILE_SIZE;
 							y = (player.y + y) / TILE_SIZE;
+							if (x < 0 || y < 0 || x >= width || y >= height) break box;
 							b = solid[layer][y * width + x];
 
-							if (item == Items.ITEM_NULL) {
+							System.out.println(b);
+
+							if (item == -1) {
 								if (b == COLL_POSTER) {
 									s = null;
 									border = true;
@@ -3345,7 +3327,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break box;
 								} else {
 									item = peekItem(x, y, layer);
-									if (item != Items.ITEM_NULL) {
+									if (item != -1) {
 										s = getItemName(item);
 										break interact;
 									}
