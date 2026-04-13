@@ -3131,7 +3131,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					updateInteractFocus = false;
 					hasInteractFocus = false;
 					interactBorder = false;
-					int item = selectedInventory == -1 ? Items.ITEM_NULL : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
+					int item = selectedInventory == -1 ? -1 : player.inventory[selectedInventory] & Items.ITEM_ID_MASK;
 
 					interact: {
 						if (player.climbed) {

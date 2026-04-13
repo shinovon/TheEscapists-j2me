@@ -361,12 +361,7 @@ class NPC implements Constants {
 				if (!ai) {
 					map.action = ACT_NONE;
 					map.progress = 0;
-					if (map.fatigue >= 100) {
-						Sound.playEffect(Sound.SFX_LOSE);
-						dialog = "You are too fatigued";
-						dialogTimer = TPS * 2;
-						break attack;
-					}
+					if (checkFatigued()) break attack;
 					map.fatigue += 2;
 				}
 				animation = ANIM_PUNCH;
@@ -2250,12 +2245,7 @@ class NPC implements Constants {
 									int obj = map.objects[layer][idx + 1];
 									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
 											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
-										if (map.fatigue >= 100) {
-											Sound.playEffect(Sound.SFX_LOSE);
-											dialog = "You are too fatigued";
-											dialogTimer = TPS * 2;
-											break hit;
-										}
+										if (checkFatigued()) break hit;
 										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 										map.action = ACT_CLEANING;
 										map.actionTargetX = x;
@@ -2299,82 +2289,61 @@ class NPC implements Constants {
 								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
 									if (map.getBreakProgress(x, y, layer) != 100) {
 										if (t == 21 || t == 25) {
-										// walls
-										chip: {
-											switch (item) {
-											case Items.STURDY_PICKAXE:
-											case Items.MULTITOOL:
-											case Items.LIGHTWEIGHT_PICKAXE:
-											case Items.FLIMSY_PICKAXE:
-											case Items.POWERED_SCREWDRIVER:
-											case Items.STURDY_SHOVEL:
-											case Items.SCREWDRIVER:
-											case Items.CROWBAR:
-											case Items.LIGHTWEIGHT_SHOVEL:
-											case Items.FLIMSY_SHOVEL:
-											case Items.PLASTIC_FORK:
-												if (map.fatigue >= 100) {
-													Sound.playEffect(Sound.SFX_LOSE);
-													dialog = "You are too fatigued";
-													dialogTimer = TPS * 2;
-													break hit;
-												}
-												boolean p = false;
-												for (int i = 0; i < 6; ++i) {
-													if (inventory[i] == Items.ITEM_NULL) {
-														p = true;
-														break;
-													}
-												}
-												if (!p) {
-													dialog = "Inventory full";
-													dialogTimer = TPS * 2;
+											// walls
+											chip: {
+												switch (item) {
+												case Items.STURDY_PICKAXE:
+												case Items.MULTITOOL:
+												case Items.LIGHTWEIGHT_PICKAXE:
+												case Items.FLIMSY_PICKAXE:
+												case Items.POWERED_SCREWDRIVER:
+												case Items.STURDY_SHOVEL:
+												case Items.SCREWDRIVER:
+												case Items.CROWBAR:
+												case Items.LIGHTWEIGHT_SHOVEL:
+												case Items.FLIMSY_SHOVEL:
+												case Items.PLASTIC_FORK:
+													if (checkFatigued()) break hit;
+													if (checkInventoryFull()) break hit;
+
+													// TODO reduce durability
+													break;
+												default:
 													break chip;
 												}
-
-												// TODO reduce durability
-												break;
-											default:
-												break chip;
+												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+												map.action = ACT_CHIPPING;
+												map.actionParam = item;
+												map.actionTargetX = x;
+												map.actionTargetY = y;
+												map.progress = 0;
+												break hit;
 											}
-											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-											map.action = ACT_CHIPPING;
-											map.actionParam = item;
-											map.actionTargetX = x;
-											map.actionTargetY = y;
-											map.progress = 0;
-											break hit;
-										}
-									} else if (t == 23 || t == 77 || t == 81) {
-										// fences
-										chip: {
-											switch (item) {
-											case Items.PLASTIC_KNIFE:
-											case Items.STURDY_CUTTERS:
-											case Items.FLIMSY_CUTTERS:
-											case Items.LIGHTWEIGHT_CUTTERS:
-											case Items.CUTTING_FLOSS:
-											case Items.FILE:
-												if (map.fatigue >= 100) {
-													Sound.playEffect(Sound.SFX_LOSE);
-													dialog = "You are too fatigued";
-													dialogTimer = TPS * 2;
-													break hit;
+										} else if (t == 23 || t == 77 || t == 81) {
+											// fences
+											chip: {
+												switch (item) {
+												case Items.PLASTIC_KNIFE:
+												case Items.STURDY_CUTTERS:
+												case Items.FLIMSY_CUTTERS:
+												case Items.LIGHTWEIGHT_CUTTERS:
+												case Items.CUTTING_FLOSS:
+												case Items.FILE:
+													if (checkFatigued()) break hit;
+													// TODO reduce durability
+													break;
+												default:
+													break chip;
 												}
-												// TODO reduce durability
-												break;
-											default:
-												break chip;
+												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+												map.action = ACT_CUTTING;
+												map.actionParam = item;
+												map.actionTargetX = x;
+												map.actionTargetY = y;
+												map.progress = 0;
+												break hit;
 											}
-											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-											map.action = ACT_CUTTING;
-											map.actionParam = item;
-											map.actionTargetX = x;
-											map.actionTargetY = y;
-											map.progress = 0;
-											break hit;
 										}
-									}
 									}
 									if (item == Items.COMB) {
 										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
@@ -2408,24 +2377,8 @@ class NPC implements Constants {
 											case Items.LIGHTWEIGHT_PICKAXE:
 											case Items.FLIMSY_PICKAXE:
 											case Items.PLASTIC_SPOON:
-												if (map.fatigue >= 100) {
-													Sound.playEffect(Sound.SFX_LOSE);
-													dialog = "You are too fatigued";
-													dialogTimer = TPS * 2;
-													break hit;
-												}
-												boolean p = false;
-												for (int i = 0; i < 6; ++i) {
-													if (inventory[i] == Items.ITEM_NULL) {
-														p = true;
-														break;
-													}
-												}
-												if (!p) {
-													dialog = "Inventory full";
-													dialogTimer = TPS * 2;
-													break dig;
-												}
+												if (checkFatigued()) break hit;
+												if (checkInventoryFull()) break hit;
 												// TODO check stability
 
 												// TODO reduce durability
@@ -2659,12 +2612,7 @@ class NPC implements Constants {
 								}
 								if (obj == Objects.TRAINING_INTERNET) {
 									// learn
-									if (map.fatigue >= 100) {
-										Sound.playEffect(Sound.SFX_LOSE);
-										dialog = "You are too fatigued";
-										dialogTimer = TPS * 2;
-										break interact;
-									}
+									if (checkFatigued()) break interact;
 									Sound.playEffect(Sound.SFX_OPEN);
 									map.action = ACT_READING;
 									map.progress = 0;
@@ -2673,29 +2621,29 @@ class NPC implements Constants {
 								}
 							}
 							if (b == COLL_SOLID_INTERACT) {
-								if (obj == Objects.TRAINING_BOOKSHELF) {
+								int slot = map.selectedInventory;
+								int item = slot == -1 ? -1 : inventory[slot] & Items.ITEM_ID_MASK;
+								if (slot != -1) {
+									map.lastSelectedInventory = slot;
+									map.selectedInventory = -1;
+								}
+								switch (obj) {
+								case Objects.TRAINING_BOOKSHELF:
 									// learn
-									if (map.fatigue >= 100) {
-										Sound.playEffect(Sound.SFX_LOSE);
-										dialog = "You are too fatigued";
-										dialogTimer = TPS * 2;
-										break interact;
-									}
+									if (checkFatigued()) break interact;
 									Sound.playEffect(Sound.SFX_OPEN);
 									map.action = ACT_READING;
 									map.progress = 0;
 									map.fatigue += 5;
 									break interact;
-								}
-								if (obj == Objects.CABINET) {
+								case Objects.CABINET:
 									// hide
 									animateToX = x * TILE_SIZE;
 									animateToY = y * TILE_SIZE;
 									animatingInCabinet = true;
 									Sound.playEffect(Sound.SFX_DOOR);
 									break interact;
-								}
-								if (obj == Objects.PLAYER_BED) {
+								case Objects.PLAYER_BED:
 									xFloat = this.x = bedX * TILE_SIZE;
 									yFloat = this.y = bedY * TILE_SIZE + 2;
 									animation = ANIM_LYING;
@@ -2704,20 +2652,17 @@ class NPC implements Constants {
 										Sound.playEffect(SFX_OPEN);
 									}
 									break interact;
-								}
-								if (obj == Objects.MEDICAL_BED) {
+								case Objects.MEDICAL_BED:
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
 									animation = ANIM_LYING;
 									break interact;
-								}
-								if (obj == Objects.SUN_LOUNGER) {
+								case Objects.SUN_LOUNGER:
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
 									animation = ANIM_LYING;
 									break interact;
-								}
-								if (obj == Objects.CHAIR) {
+								case Objects.CHAIR:
 									// sit
 									animateToX = x * TILE_SIZE;
 									animateToY = y * TILE_SIZE;
@@ -2745,86 +2690,58 @@ class NPC implements Constants {
 									}
 									sitting = true;
 									break interact;
-								}
-
-								if (obj == Objects.JOB_CLEANING_SUPPLIES
-										|| obj == Objects.JOB_GARDENING_TOOLS
-										|| obj == Objects.TOILET) {
+									
+								case Objects.JOB_CLEANING_SUPPLIES:
+								case Objects.JOB_GARDENING_TOOLS:
+								case Objects.TOILET:
 									map.openContainer(idx);
 									break interact;
-								}
 
-								if (obj == Objects.JOB_DIRTY_LAUNDRY) {
+								case Objects.JOB_DIRTY_LAUNDRY:
 									// take laundry
 									addItem((rng.nextInt(2) == 0 ? Items.DIRTY_GUARD_OUTFIT : Items.DIRTY_INMATE_OUTFIT)
 											| Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
-								}
-								if (obj == Objects.JOB_RAW_METAL) {
+								case Objects.JOB_RAW_METAL:
 									// take metal
 									addItem(Items.SHEET_OF_METAL | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
-								}
-								if (obj == Objects.JOB_RAW_WOOD) {
+								case Objects.JOB_RAW_WOOD:
 									// take wood
 									addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
-								}
-								if (obj == Objects.FREEZER) {
+								case Objects.FREEZER:
 									addItem((map.map == MAP_SANPANCHO ? Items.UNCOOKED_BURRITO : Items.UNCOOKED_FOOD) | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
-								}
-								if (obj == Objects.JOB_FABRIC_CHEST) {
+								case Objects.JOB_FABRIC_CHEST:
 									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
-								}
 
-								if (obj == Objects.JOB_METAL_TOOLS) {
-									int i = map.selectedInventory;
-									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.SHEET_OF_METAL) {
+								case Objects.JOB_METAL_TOOLS:
+									if (item == Items.SHEET_OF_METAL) {
 										// TODO
-										inventory[i] = Items.LICENSE_PLATE;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
+										inventory[slot] = Items.LICENSE_PLATE;
 									}
 									break interact;
-								}
-								if (obj == Objects.WASHING_MACHINE) {
-									int i = map.selectedInventory;
-									if (i != -1
-											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_INMATE_OUTFIT
-											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_GUARD_OUTFIT)) {
+								case Objects.WASHING_MACHINE:
+									if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
 										// TODO
-										inventory[i] = (inventory[i] & Items.ITEM_ID_MASK) == Items.DIRTY_INMATE_OUTFIT ?
+										inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
 												Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
 									}
 									break interact;
-								}
-								if (obj == Objects.OVEN) {
-									int i = map.selectedInventory;
-									if (i != -1
-											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_FOOD
-											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_BURRITO)) {
+								case Objects.OVEN:
+									if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
 										// TODO
-										inventory[i] = (inventory[i] & Items.ITEM_ID_MASK) == Items.UNCOOKED_FOOD ?
+										inventory[slot] = item == Items.UNCOOKED_FOOD ?
 												Items.COOKED_FOOD : Items.BURRITO;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
 									}
 									break interact;
-								}
 
-								if (obj == Objects.JOB_CLEAN_LAUNDRY) {
+								case Objects.JOB_CLEAN_LAUNDRY:
 									// put clean laundry
-									int i = map.selectedInventory;
-									if (i != -1
-											&& ((inventory[i] & Items.ITEM_ID_MASK) == Items.INMATE_OUTFIT
-											|| (inventory[i] & Items.ITEM_ID_MASK) == Items.GUARD_OUTFIT)) {
-										inventory[i] = Items.ITEM_NULL;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
+									if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
+										inventory[slot] = Items.ITEM_NULL;
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
 												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
@@ -2836,13 +2753,9 @@ class NPC implements Constants {
 										}
 									}
 									break interact;
-								}
-								if (obj == Objects.JOB_PREPARED_METAL) {
-									int i = map.selectedInventory;
-									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.LICENSE_PLATE) {
-										inventory[i] = Items.ITEM_NULL;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
+								case Objects.JOB_PREPARED_METAL:
+									if (item == Items.LICENSE_PLATE) {
+										inventory[slot] = Items.ITEM_NULL;
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
 												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
@@ -2854,13 +2767,9 @@ class NPC implements Constants {
 										}
 									}
 									break interact;
-								}
-								if (obj == Objects.JOB_PREPARED_WOOD) {
-									int i = map.selectedInventory;
-									if (i != -1 && (inventory[i] & Items.ITEM_ID_MASK) == Items.UNVARNISHED_CHAIR) {
-										inventory[i] = Items.ITEM_NULL;
-										map.lastSelectedInventory = i;
-										map.selectedInventory = -1;
+								case Objects.JOB_PREPARED_WOOD:
+									if (item == Items.UNVARNISHED_CHAIR) {
+										inventory[slot] = Items.ITEM_NULL;
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
 												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
@@ -2872,11 +2781,9 @@ class NPC implements Constants {
 										}
 									}
 									break interact;
-								}
 
-								if (obj == Objects.STASH) {
+								case Objects.STASH:
 									// open stash
-									int item;
 									//noinspection StatementWithEmptyBody
 									while (!Game.isIllegal(item = rng.nextInt(192)));
 									item |= Items.ITEM_DEFAULT_DURABILITY;
@@ -2893,12 +2800,7 @@ class NPC implements Constants {
 								}
 							}
 							if (b == COLL_GYM) {
-								if (map.fatigue >= 100) {
-									Sound.playEffect(Sound.SFX_LOSE);
-									dialog = "You are too fatigued";
-									dialogTimer = TPS * 2;
-									break interact;
-								}
+								if (checkFatigued()) break interact;
 								// sit
 								animateToX = x * TILE_SIZE;
 								animateToY = y * TILE_SIZE;
@@ -3095,6 +2997,28 @@ class NPC implements Constants {
 		}
 
 		return bestFacing != null ? bestFacing : bestOther;
+	}
+
+	boolean checkFatigued() {
+		if (map.fatigue >= 100) {
+			Sound.playEffect(Sound.SFX_LOSE);
+			dialog = "You are too fatigued";
+			dialogTimer = TPS * 2;
+			return true;
+		}
+		return false;
+	}
+
+	boolean checkInventoryFull() {
+		boolean p = false;
+		for (int i = 0; i < 6; ++i) {
+			if (inventory[i] == Items.ITEM_NULL) {
+				return false;
+			}
+		}
+		dialog = "Inventory full";
+		dialogTimer = TPS * 2;
+		return true;
 	}
 
 //endregion Player
