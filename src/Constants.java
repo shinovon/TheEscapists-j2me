@@ -188,6 +188,7 @@ public interface Constants {
 	static final byte COLL_NOT_SOLID_INTERACT = 1 | COLL_BIT_AVOID_AI;
 	static final byte COLL_SOLID = 2 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_SOLID_TRANSPARENT = 3 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
+	static final byte COLL_SOLID_NO_SHADOW = 3 | COLL_BIT_SOLID_AI;
 	static final byte COLL_SOLID_INTERACT = 4 | COLL_BIT_AVOID_AI;
 	static final byte COLL_DOOR = 5 | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_DOOR_STAFF = 6 | COLL_BIT_CAST_SHADOW;
@@ -197,9 +198,8 @@ public interface Constants {
 	static final byte COLL_SHOWER = 10;
 	static final byte COLL_DIGGED_WALL = 11 | COLL_BIT_SOLID_AI;
 	static final byte COLL_DETECTOR = 12;
-	static final byte COLL_SOLID_NO_SHADOW = 13 | COLL_BIT_SOLID_AI;
-	static final byte COLL_ROOF = 14;
-	static final byte COLL_POSTER = 15 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
+	static final byte COLL_ROOF = 13;
+	static final byte COLL_POSTER = 14 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
 
 	static final byte MAP_OTHER = 0,
 			MAP_PERKS = 1,

@@ -600,7 +600,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				String t = "PRESS FIRE TO CONTINUE";
 				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, ny + nh - 16, FONT_REGULAR);
 			} else if (inventoryOpen != null) {
-				// looting npc
+				// looting npc TODO
 				pausedOverlay = true;
 			} else if (containerOpen != -1) {
 				// desk open
@@ -2065,7 +2065,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (p >= 100) {
 						if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
-							solid[pos] = COLL_NONE;
+							solid[pos] = p >= 120 ? COLL_SOLID : COLL_NONE;
 						} else if (isSolidTile(tiles[pos]) != COLL_NONE) {
 							tiles[pos] = (byte) -tiles[pos];
 							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;

@@ -51,6 +51,8 @@
 - [ ] Visual effects (fights, digging, training)
 - [ ] Recruiting
 - [ ] Bundle more maps in one package?
+- [x] Chipping walls
+- [x] Posters/Fake walls
 
 # OST
 
