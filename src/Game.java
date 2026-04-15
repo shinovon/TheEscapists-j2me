@@ -5055,357 +5055,82 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		// TODO pow outfits
-		switch (s[0]) {
-		case Items.CELL_KEY:
-			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
-				if (intellect < 20) return -20;
-				return Items.CELL_KEY_MOLD;
+		int[] recipies = Game.recipies;
+		int l = recipies.length;
+		for (int i = 0; i < l; i += 5) {
+			if (recipies[i + 1] == s[0] && recipies[i + 2] == s[1] && recipies[i + 3] == s[2]) {
+				if (recipies[i + 4] < intellect) return - recipies[i + 4];
+				return recipies[i];
 			}
-			break;
-		case Items.STAFF_KEY:
-			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.STAFF_KEY_MOLD;
-			}
-			break;
-		case Items.GUARD_OUTFIT:
-			if (s[1] == Items.TUB_OF_BLEACH && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.INFIRMARY_OVERALLS;
-			}
-			break;
-		case Items.INMATE_OUTFIT:
-			if (s[1] == Items.TUB_OF_BLEACH && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.INFIRMARY_OVERALLS;
-			}
-			if (s[1] == Items.ROLL_OF_DUCT_TAPE) {
-				if (s[2] == Items.PILLOW) {
-					if (intellect < 30) return -30;
-					return Items.CUSHIONED_INMATE_OUTFIT;
-				}
-				if (s[2] == Items.BOOK) {
-					if (intellect < 60) return -60;
-					return Items.PADDED_INMATE_OUTFIT;
-				}
-				if (s[2] == Items.SHEET_OF_METAL) {
-					if (intellect < 80) return -80;
-					return Items.PLATED_INMATE_OUTFIT;
-				}
-			}
-			break;
-		case Items.STURDY_SHOVEL:
-			if (s[1] == Items.ROLL_OF_DUCT_TAPE && s[2] == Items.STURDY_PICKAXE) {
-				if (intellect < 90) return -90;
-				return Items.MULTITOOL;
-			}
-			break;
-		case Items.ENTRANCE_KEY:
-			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
-				if (intellect < 30) return -30;
-				return Items.ENTRANCE_KEY_MOLD;
-			}
-			break;
-		case Items.UTILITY_KEY:
-			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
-				if (intellect < 40) return -40;
-				return Items.UTILITY_KEY_MOLD;
-			}
-			break;
-		case Items.LIGHTER:
-			if (s[1] == Items.BAR_OF_CHOCOLATE && s[2] == Items.CUP) {
-				if (intellect < 40) return -40;
-				return Items.CUP_OF_MOLTEN_CHOCOLATE;
-			}
-			if (s[2] == -1) {
-				if (s[1] == Items.COMB) {
-					if (intellect < 30) return -30;
-					return Items.MOLTEN_PLASTIC;
-				}
-				if (s[1] == Items.TOOTHBRUSH) {
-					if (intellect < 30) return -30;
-					return Items.MOLTEN_PLASTIC;
-				}
-			}
-			break;
-		case Items.TIMBER:
-			switch (s[1]) {
-			case Items.TIMBER:
-				if (s[2] == -1) {
-					if (intellect < 20) return -20;
-					return Items.TIMBER_BRACE;
-				}
-				if (s[2] == Items.TIMBER) {
-					if (intellect < 30) return -30;
-					return Items.UNVARNISHED_CHAIR;
-				}
-				if (s[2] == Items.WIRE) {
-					if (intellect < 70) return -70;
-					return Items.NUNCHUKS;
-				}
-				break;
-			case Items.ROLL_OF_DUCT_TAPE:
-				if (s[2] == -1) {
-					if (intellect < 40) return -40;
-					return Items.WOODEN_BAT;
-				}
-				if (s[2] == Items.LIGHTWEIGHT_PICKAXE) {
-					if (intellect < 80) return -80;
-					return Items.STURDY_PICKAXE;
-				}
-				if (s[2] == Items.FLIMSY_PICKAXE) {
-					if (intellect < 60) return -60;
-					return Items.LIGHTWEIGHT_PICKAXE;
-				}
-				if (s[2] == Items.NAILS) {
-					if (intellect < 70) return -70;
-					return Items.SPIKED_BAT;
-				}
-				break;
-			case Items.FILE:
-				if (s[2] == -1) {
-					if (intellect < 30) return -30;
-					return Items.TOOL_HANDLE;
-				}
-				break;
-			case Items.BED_SHEET:
-				if (s[2] == -1) {
-					if (intellect < 80) return -80;
-					return Items.SAIL;
-				}
-				break;
-			case Items.RAZOR_BLADE:
-				if (s[2] == Items.WIRE) {
-					if (intellect < 80) return -80;
-					return Items.WHIP;
-				}
-				break;
-			case Items.WIRE:
-				if (s[2] == -1) {
-					if (intellect < 60) return -60;
-					return Items.ZIPLINE_HOOK;
-				}
-			}
-			break;
-		case Items.ROLL_OF_DUCT_TAPE:
-			switch (s[1]) {
-			case Items.MAGAZINE:
-				if (s[2] == -1) {
-					if (intellect < 20) return -20;
-					return Items.POSTER;
-				}
-				break;
-			case Items.GLASS_SHARD:
-				if (s[2] == -1) {
-					if (intellect < 30) return -30;
-					return Items.GLASS_SHANK;
-				}
-				break;
-			case Items.CROWBAR:
-				if (s[2] == Items.CROWBAR) {
-					if (intellect < 60) return -60;
-					return Items.GRAPPLE_HEAD;
-				}
-				if (s[2] == Items.TOOL_HANDLE) {
-					if (intellect < 40) return -40;
-					return Items.FLIMSY_PICKAXE;
-				}
-				break;
-			case Items.FILE:
-				if (s[2] == Items.FILE) {
-					if (intellect < 40) return -40;
-					return Items.FLIMSY_CUTTERS;
-				}
-				if (s[2] == Items.FLIMSY_CUTTERS) {
-					if (intellect < 60) return -60;
-					return Items.LIGHTWEIGHT_CUTTERS;
-				}
-				if (s[2] == Items.LIGHTWEIGHT_CUTTERS) {
-					if (intellect < 80) return -80;
-					return Items.STURDY_CUTTERS;
-				}
-				break;
-			case Items.SHEET_OF_METAL:
-				if (s[2] == Items.LIGHTWEIGHT_SHOVEL) {
-					if (intellect < 80) return -80;
-					return Items.STURDY_SHOVEL;
-				}
-				if (s[2] == Items.FLIMSY_SHOVEL) {
-					if (intellect < 60) return -60;
-					return Items.LIGHTWEIGHT_SHOVEL;
-				}
-				if (s[2] == Items.TOOL_HANDLE) {
-					if (intellect < 40) return -40;
-					return Items.FLIMSY_SHOVEL;
-				}
-				break;
-			case Items.RAZOR_BLADE:
-				if (s[2] == -1) {
-					if (intellect < 60) return -60;
-					return Items.KNUCKLE_DUSTER;
-				}
-				break;
-			case Items.FOIL:
-				if (s[2] == -1) {
-					if (intellect < 50) return -50;
-					return Items.CONTRABAND_POUCH;
-				}
-				if (s[2] == Items.FOIL) {
-					if (intellect < 70) return -70;
-					return Items.DURABLE_CONTRABAND_POUCH;
-				}
-				break;
-			case Items.NAILS:
-				if (s[2] == Items.NAILS) {
-					if (intellect < 50) return -50;
-					return Items.STINGER_STRIP;
-				}
-				break;
-			}
-			break;
-		case Items.COMB:
-			if (s[1] == Items.RAZOR_BLADE && s[2] == -1) {
-				if (intellect < 20) return -20;
-				return Items.COMB_BLADE;
-			}
-			break;
-		case Items.SCREWDRIVER:
-			if (s[1] == Items.BATTERY && s[2] == Items.WIRE) {
-				if (intellect < 80) return -80;
-				return Items.POWERED_SCREWDRIVER;
-			}
-			break;
-		case Items.JAR_OF_INK:
-			if (s[1] == Items.INFIRMARY_OVERALLS && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.GUARD_OUTFIT;
-			}
-			if (s[1] == Items.PAPER_MACHE && s[2] == Items.PAPER_MACHE) {
-				if (intellect < 40) return -40;
-				return Items.FAKE_WALL_BLOCK;
-			}
-			if (s[1] == Items.EXOTIC_FEATHER && s[2] == Items.UNSIGNED_ID_PAPERS) {
-				if (intellect < 60) return -60;
-				return Items.ID_PAPERS;
-			}
-			break;
-		case Items.WORK_KEY:
-			if (s[1] == Items.WAD_OF_PUTTY && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.WORK_KEY_MOLD;
-			}
-			break;
-		case Items.LENGTH_OF_ROPE:
-			if (s[1] == Items.GRAPPLE_HEAD && s[2] == -1) {
-				if (intellect < 90) return -90;
-				return Items.GRAPPLING_HOOK;
-			}
-			if (s[1] == Items.BALSA_WOOD && s[2] == Items.BALSA_WOOD) {
-				if (intellect < 80) return -80;
-				return Items.RAFT_BASE;
-			}
-			if (s[1] == Items.SAIL && s[2] == Items.RAFT_BASE) {
-				if (intellect < 80) return -80;
-				return Items.MAKESHIFT_RAFT;
-			}
-			break;
-		case Items.TUBE_OF_TOOTHPASTE:
-			if (s[1] == Items.TUB_OF_TALCUM_POWDER && s[2] == -1) {
-				if (intellect < 20) return -20;
-				return Items.WAD_OF_PUTTY;
-			}
-			break;
-		case Items.ROLL_OF_TOILET_PAPER:
-			if (s[1] == Items.TUBE_OF_SUPER_GLUE && s[2] == -1) {
-				if (intellect < 30) return -30;
-				return Items.PAPER_MACHE;
-			}
-			break;
-		case Items.SOAP:
-			if (s[1] == Items.SOCK && s[2] == -1) {
-				if (intellect < 30) return -30;
-				return Items.SOCK_MACE;
-			}
-			break;
-		case Items.WORK_KEY_MOLD:
-			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
-				if (intellect < 70) return -70;
-				return Items.PLASTIC_WORK_KEY;
-			}
-			break;
-		case Items.BED_SHEET:
-			if (s[1] == Items.BED_SHEET && s[2] == -1) {
-				if (intellect < 30) return -30;
-				return Items.SHEET_ROPE;
-			}
-			if (s[1] == Items.PILLOW && s[2] == Items.PILLOW) {
-				if (intellect < 30) return -30;
-				return Items.BED_DUMMY;
-			}
-			break;
-		case Items.STAFF_KEY_MOLD:
-			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
-				if (intellect < 80) return -80;
-				return Items.PLASTIC_STAFF_KEY;
-			}
-			break;
-		case Items.UTILITY_KEY_MOLD:
-			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
-				if (intellect < 70) return -70;
-				return Items.PLASTIC_UTILITY_KEY;
-			}
-			break;
-		case Items.CELL_KEY_MOLD:
-			if (s[1] == Items.MOLTEN_PLASTIC && s[2] == -1) {
-				if (intellect < 50) return -50;
-				return Items.PLASTIC_CELL_KEY;
-			}
-			break;
-		case Items.MOLTEN_PLASTIC:
-			if (s[1] == Items.ENTRANCE_KEY_MOLD && s[2] == -1) {
-				if (intellect < 60) return -60;
-				return Items.PLASTIC_ENTRANCE_KEY;
-			}
-			break;
-		case Items.BATTERY:
-			switch (s[1]) {
-			case Items.WIRE:
-				if (s[2] == -1) {
-					if (intellect < 30) return -30;
-					return Items.CANDLE;
-				}
-				break;
-			case Items.SOCK:
-				if (s[2] == -1) {
-					if (intellect < 50) return -50;
-					return Items.SUPER_SOCK_MACE;
-				}
-				break;
-			}
-			break;
-		case Items.WIRE:
-			if (s[1] == Items.WIRE && s[2] == Items.WIRE) {
-				if (intellect < 50) return -50;
-				return Items.FAKE_FENCE;
-			}
-			break;
-		case Items.PAPER_MACHE:
-			if (s[1] == Items.PAPER_MACHE && s[2] == -1) {
-				if (intellect < 30) return -30;
-				return Items.FAKE_VENT_COVER;
-			}
-			break;
-		case Items.DENTAL_FLOSS:
-			if (s[1] == Items.DENTAL_FLOSS && s[2] == Items.DENTAL_FLOSS) {
-				if (intellect < 40) return -40;
-				return Items.CUTTING_FLOSS;
-			}
-			break;
 		}
 
 		return -1;
 	}
+
+	static final int[] recipies = {
+			Items.CELL_KEY_MOLD, Items.CELL_KEY, Items.WAD_OF_PUTTY, -1, 20,
+			Items.STAFF_KEY_MOLD, Items.STAFF_KEY, Items.WAD_OF_PUTTY, -1, 50,
+			Items.INFIRMARY_OVERALLS, Items.GUARD_OUTFIT, Items.TUB_OF_BLEACH, -1, 50,
+			Items.INFIRMARY_OVERALLS, Items.INMATE_OUTFIT, Items.TUB_OF_BLEACH, -1, 50,
+			Items.CUSHIONED_INMATE_OUTFIT, Items.INMATE_OUTFIT, Items.ROLL_OF_DUCT_TAPE, Items.PILLOW, 30,
+			Items.PADDED_INMATE_OUTFIT, Items.INMATE_OUTFIT, Items.ROLL_OF_DUCT_TAPE, Items.BOOK, 60,
+			Items.PLATED_INMATE_OUTFIT, Items.INMATE_OUTFIT, Items.ROLL_OF_DUCT_TAPE, Items.SHEET_OF_METAL, 80,
+			Items.MULTITOOL, Items.STURDY_SHOVEL, Items.ROLL_OF_DUCT_TAPE, Items.STURDY_PICKAXE, 90,
+			Items.ENTRANCE_KEY_MOLD, Items.ENTRANCE_KEY, Items.WAD_OF_PUTTY, -1, 30,
+			Items.UTILITY_KEY_MOLD, Items.UTILITY_KEY, Items.WAD_OF_PUTTY, -1, 40,
+			Items.CUP_OF_MOLTEN_CHOCOLATE, Items.LIGHTER, Items.BAR_OF_CHOCOLATE, Items.CUP, 40,
+			Items.MOLTEN_PLASTIC, Items.LIGHTER, Items.COMB, -1, 30,
+			Items.MOLTEN_PLASTIC, Items.LIGHTER, Items.TOOTHBRUSH, -1, 30,
+			Items.TIMBER_BRACE, Items.TIMBER, Items.TIMBER, -1, 20,
+			Items.UNVARNISHED_CHAIR, Items.TIMBER, Items.TIMBER, Items.TIMBER, 30,
+			Items.NUNCHUKS, Items.TIMBER, Items.TIMBER, Items.WIRE, 70,
+			Items.WOODEN_BAT, Items.TIMBER, Items.ROLL_OF_DUCT_TAPE, -1, 40,
+			Items.STURDY_PICKAXE, Items.TIMBER, Items.ROLL_OF_DUCT_TAPE, Items.LIGHTWEIGHT_PICKAXE, 80,
+			Items.LIGHTWEIGHT_PICKAXE, Items.TIMBER, Items.ROLL_OF_DUCT_TAPE, Items.FLIMSY_PICKAXE, 60,
+			Items.SPIKED_BAT, Items.TIMBER, Items.ROLL_OF_DUCT_TAPE, Items.NAILS, 70,
+			Items.TOOL_HANDLE, Items.TIMBER, Items.FILE, -1, 30,
+			Items.SAIL, Items.TIMBER, Items.BED_SHEET, -1, 80,
+			Items.WHIP, Items.TIMBER, Items.RAZOR_BLADE, Items.WIRE, 80,
+			Items.ZIPLINE_HOOK, Items.TIMBER, Items.WIRE, -1, 60,
+			Items.POSTER, Items.ROLL_OF_DUCT_TAPE, Items.MAGAZINE, -1, 20,
+			Items.GLASS_SHANK, Items.ROLL_OF_DUCT_TAPE, Items.GLASS_SHARD, -1, 30,
+			Items.GRAPPLE_HEAD, Items.ROLL_OF_DUCT_TAPE, Items.CROWBAR, Items.CROWBAR, 60,
+			Items.FLIMSY_PICKAXE, Items.ROLL_OF_DUCT_TAPE, Items.CROWBAR, Items.TOOL_HANDLE, 40,
+			Items.FLIMSY_CUTTERS, Items.ROLL_OF_DUCT_TAPE, Items.FILE, Items.FILE, 40,
+			Items.LIGHTWEIGHT_CUTTERS, Items.ROLL_OF_DUCT_TAPE, Items.FILE, Items.FLIMSY_CUTTERS, 60,
+			Items.STURDY_CUTTERS, Items.ROLL_OF_DUCT_TAPE, Items.FILE, Items.LIGHTWEIGHT_CUTTERS, 80,
+			Items.STURDY_SHOVEL, Items.ROLL_OF_DUCT_TAPE, Items.SHEET_OF_METAL, Items.LIGHTWEIGHT_SHOVEL, 80,
+			Items.LIGHTWEIGHT_SHOVEL, Items.ROLL_OF_DUCT_TAPE, Items.SHEET_OF_METAL, Items.FLIMSY_SHOVEL, 60,
+			Items.FLIMSY_SHOVEL, Items.ROLL_OF_DUCT_TAPE, Items.SHEET_OF_METAL, Items.TOOL_HANDLE, 40,
+			Items.KNUCKLE_DUSTER, Items.ROLL_OF_DUCT_TAPE, Items.RAZOR_BLADE, -1, 60,
+			Items.CONTRABAND_POUCH, Items.ROLL_OF_DUCT_TAPE, Items.FOIL, -1, 50,
+			Items.DURABLE_CONTRABAND_POUCH, Items.ROLL_OF_DUCT_TAPE, Items.FOIL, Items.FOIL, 70,
+			Items.STINGER_STRIP, Items.ROLL_OF_DUCT_TAPE, Items.NAILS, Items.NAILS, 50,
+			Items.COMB_BLADE, Items.COMB, Items.RAZOR_BLADE, -1, 20,
+			Items.POWERED_SCREWDRIVER, Items.SCREWDRIVER, Items.BATTERY, Items.WIRE, 80,
+			Items.GUARD_OUTFIT, Items.JAR_OF_INK, Items.INFIRMARY_OVERALLS, -1, 50,
+			Items.FAKE_WALL_BLOCK, Items.JAR_OF_INK, Items.PAPER_MACHE, Items.PAPER_MACHE, 40,
+			Items.ID_PAPERS, Items.JAR_OF_INK, Items.EXOTIC_FEATHER, Items.UNSIGNED_ID_PAPERS, 60,
+			Items.WORK_KEY_MOLD, Items.WORK_KEY, Items.WAD_OF_PUTTY, -1, 50,
+			Items.GRAPPLING_HOOK, Items.LENGTH_OF_ROPE, Items.GRAPPLE_HEAD, -1, 90,
+			Items.RAFT_BASE, Items.LENGTH_OF_ROPE, Items.BALSA_WOOD, Items.BALSA_WOOD, 80,
+			Items.MAKESHIFT_RAFT, Items.LENGTH_OF_ROPE, Items.SAIL, Items.RAFT_BASE, 80,
+			Items.WAD_OF_PUTTY, Items.TUBE_OF_TOOTHPASTE, Items.TUB_OF_TALCUM_POWDER, -1, 20,
+			Items.PAPER_MACHE, Items.ROLL_OF_TOILET_PAPER, Items.TUBE_OF_SUPER_GLUE, -1, 30,
+			Items.SOCK_MACE, Items.SOAP, Items.SOCK, -1, 30,
+			Items.PLASTIC_WORK_KEY, Items.WORK_KEY_MOLD, Items.MOLTEN_PLASTIC, -1, 70,
+			Items.SHEET_ROPE, Items.BED_SHEET, Items.BED_SHEET, -1, 30,
+			Items.BED_DUMMY, Items.BED_SHEET, Items.PILLOW, Items.PILLOW, 30,
+			Items.PLASTIC_STAFF_KEY, Items.STAFF_KEY_MOLD, Items.MOLTEN_PLASTIC, -1, 80,
+			Items.PLASTIC_UTILITY_KEY, Items.UTILITY_KEY_MOLD, Items.MOLTEN_PLASTIC, -1, 70,
+			Items.PLASTIC_CELL_KEY, Items.CELL_KEY_MOLD, Items.MOLTEN_PLASTIC, -1, 50,
+			Items.PLASTIC_ENTRANCE_KEY, Items.MOLTEN_PLASTIC, Items.ENTRANCE_KEY_MOLD, -1, 60,
+			Items.CANDLE, Items.BATTERY, Items.WIRE, -1, 30,
+			Items.SUPER_SOCK_MACE, Items.BATTERY, Items.SOCK, -1, 50,
+			Items.FAKE_FENCE, Items.WIRE, Items.WIRE, Items.WIRE, 50,
+			Items.FAKE_VENT_COVER, Items.PAPER_MACHE, Items.PAPER_MACHE, -1, 30,
+			Items.CUTTING_FLOSS, Items.DENTAL_FLOSS, Items.DENTAL_FLOSS, Items.DENTAL_FLOSS, 40
+	};
 
 	// endregion Items
 
