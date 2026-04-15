@@ -24,6 +24,8 @@ public class MapCompiler implements Constants {
 	}
 
 	public static void process(Path inputPath, Path outputPath) throws Exception {
+		System.out.println("Processing map: " + inputPath.getFileName().toString());
+
 		int width = 96;
 		int height = 93;
 		
@@ -36,7 +38,8 @@ public class MapCompiler implements Constants {
 		int fightFreq = 2;
 		
 		Vector<int[]> zones = new Vector<>();
-		
+
+		//noinspection unchecked
 		Vector<int[]>[] objects = new Vector[4];
 		for (int i = 0; i < 4; ++i) objects[i] = new Vector<>();
 		
@@ -604,6 +607,8 @@ public class MapCompiler implements Constants {
 							npcLevel = Integer.parseInt(sb.toString());
 						} else if ("FightFreq".equals(key)) {
 							fightFreq = Integer.parseInt(sb.toString());
+						} else {
+							System.out.println("Ignored property: " + key + "=" + sb.toString());
 						}
 					}
 					if (value && jobsSection) {
@@ -724,10 +729,10 @@ public class MapCompiler implements Constants {
 		if (guards == 0) {
 			throw new Exception("no guards count");
 		}
-		if (objects[0].size() == 0) {
+		if (objects[0].isEmpty()) {
 			throw new Exception("no objects");
 		}
-		if (zones.size() == 0) {
+		if (zones.isEmpty()) {
 			throw new Exception("no zones");
 		}
 		if (jobs[0] == 0) {
@@ -858,7 +863,7 @@ public class MapCompiler implements Constants {
 			// topObjects
 			out.writeShort(topObjects.size());
 			for (Integer idx : topObjects) {
-				out.writeShort((int) idx << 2);
+				out.writeShort(idx << 2);
 			}
 
 			// waypoints
@@ -968,13 +973,13 @@ public class MapCompiler implements Constants {
 	
 	private static void checkLayer(String object, int id, int x, int y, int layer, int requiredLayer) throws Exception {
 		if (layer != requiredLayer) {
-			throw new Exception(object + " (" + id + ") not on " + layerStrings[requiredLayer] + " layer at " + x + " " + y + " " + layerStrings[layer]);
+			throw new Exception(object + " (" + id + ") placed on " + layerStrings[layer] + " instead of " + layerStrings[requiredLayer] + " layer at " + x + " " + y);
 		}
 	}
 	
 	private static void checkNotLayer(String object, int id, int x, int y, int layer, int requiredLayer) throws Exception {
 		if (layer == requiredLayer) {
-			throw new Exception(object + " (" + id + ") not on " + layerStrings[requiredLayer] + " layer at " + x + " " + y + " " + layerStrings[layer]);
+			throw new Exception(object + " (" + id + ") placed on " + layerStrings[layer] + " layer at " + x + " " + y);
 		}
 	}
 	
