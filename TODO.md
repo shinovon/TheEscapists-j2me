@@ -19,7 +19,7 @@
 - [x] Inmates
 - [x] Guards
 - [x] Stats
-- [ ] Dialogs
+- [ ] NPC Speech text
 - [x] NPC fighting
 - [x] Player fighting
 - [x] NPC Gym
@@ -44,15 +44,17 @@
 - [ ] Tasks
 - [x] Desk moving
 - [x] Riot
-- [ ] Characters setup
+- [ ] Characters setup screen
 - [ ] NPC random inventory
 - [x] Ladders
-- [ ] Mines
+- [ ] Mines (san pancho)
 - [ ] Visual effects (fights, digging, training)
 - [ ] Recruiting
 - [ ] Bundle more maps in one package?
 - [x] Chipping walls
 - [x] Posters/Fake walls
+- [ ] Vents (unscrewing, cutting slats)
+- [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 
 # OST
 
@@ -72,5 +74,4 @@
 - Update desks random items by time
 - Toilet interface
 - Lockdown midi
-- Improve other maps support
 - Use pngout for resources?
