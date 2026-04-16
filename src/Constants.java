@@ -33,20 +33,32 @@ public interface Constants {
 	static final boolean SERIAL_LOGS = false;
 	static final boolean SCREEN_LOGS = false;
 	
-//#if FALSE
+//#if "" != ""
 	// default config for development
 	static final long FPS_LIMIT = TPS;
 
+	// Render game to backbuffer image
 	static final boolean BUFFER_SCREEN = false;
+	// Draw wall shadows
 	static final boolean DRAW_SHADOWS = true;
+	// Draw light sprites, works with USE_M3G
 	static final boolean DRAW_LIGHTS = true;
-	static final boolean NOKIAUI_SHADOWS = false; // deprecated
+	// Use ability to set ARGB color for drawing primitives in NokiaUI, works with DRAW_SHADOWS
+	//  deprecated, do not use
+	static final boolean NOKIAUI_SHADOWS = false;
+	// Use M3G for light effects
 	static final boolean USE_M3G = true;
-	static final boolean USE_TILED_LAYER = false; // more heap usage and slower on s60, but faster on s40
+	// Use TiledLayer instead of drawRegion
+	//  more heap usage and slower on s60, but faster on s40
+	static final boolean USE_TILED_LAYER = false;
+	// Use more sprite variations for inmates
 	static final boolean MORE_INMATES = true;
 
+	// Disable sound effects
 	static final boolean NO_SFX = false;
+	// Preload all music on start
 	static final boolean PREFETCH_MUSIC = false;
+	// Preload all sound effects on start, works only on S60
 	static final boolean PREFETCH_SFX = false;
 //#else
 //#if FPS_LIMIT == ""
