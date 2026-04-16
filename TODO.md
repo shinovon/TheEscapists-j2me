@@ -39,7 +39,7 @@
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
 - [x] Player training
 - [x] Solitary
-- [ ] Map schedules (hardcoded for shanktonstatepen)
+- [x] Map routine sets
 - [ ] Profile
 - [ ] Tasks
 - [x] Desk moving
