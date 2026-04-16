@@ -2548,26 +2548,12 @@ class NPC implements Constants {
 							break interact;
 						}
 
-						// drop selected item
-						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {
-							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[map.selectedInventory], layer);
-							if (r == 0) {
-								Sound.playEffect(Sound.SFX_THROW);
-								inventory[map.selectedInventory] = Items.ITEM_NULL;
-							} else {
-								Sound.playEffect(Sound.SFX_LOSE);
-							}
-							map.lastSelectedInventory = -1;
-							map.selectedInventory = -1;
-							break interact;
-						}
-
 						int x, y;
 
 						x = (this.x + 7) / TILE_SIZE;
 						y = (this.y + 7) / TILE_SIZE;
 						byte b = map.solid[layer][y * map.width + x];
-						if (b == COLL_NOT_SOLID_INTERACT) {
+						if (b == COLL_NOT_SOLID_INTERACT && map.selectedInventory == -1) {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
 							if (obj == Objects.LADDER_UP) {
@@ -2583,7 +2569,7 @@ class NPC implements Constants {
 								break interact;
 							}
 						}
-						if (b == COLL_NONE) {
+						if (b == COLL_NONE && map.selectedInventory == -1) {
 							int item = map.peekItem(x, y, layer);
 							if (item != -1 && item != Items.ITEM_NULL) {
 								if (addItem(item, true)) {
@@ -2806,6 +2792,7 @@ class NPC implements Constants {
 								case Objects.WASHING_MACHINE:
 									if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
 										// TODO
+										Sound.playEffect(Sound.SFX_BUY);
 										inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
 												Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
 									}
@@ -2813,6 +2800,7 @@ class NPC implements Constants {
 								case Objects.OVEN:
 									if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
 										// TODO
+										Sound.playEffect(Sound.SFX_BUY);
 										inventory[slot] = item == Items.UNCOOKED_FOOD ?
 												Items.COOKED_FOOD : Items.BURRITO;
 									}
@@ -2829,6 +2817,8 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 20;
+											} else {
+												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
 									}
@@ -2843,6 +2833,8 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 20;
+											} else {
+												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
 									}
@@ -2857,6 +2849,8 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 20;
+											} else {
+												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
 									}
@@ -2964,6 +2958,20 @@ class NPC implements Constants {
 								map.setBreakProgress(x, y, layer, 100);
 								break interact;
 							}
+						}
+
+						// drop selected item
+						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {
+							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[map.selectedInventory], layer);
+							if (r == 0) {
+								Sound.playEffect(Sound.SFX_THROW);
+								inventory[map.selectedInventory] = Items.ITEM_NULL;
+							} else {
+								Sound.playEffect(Sound.SFX_LOSE);
+							}
+							map.lastSelectedInventory = -1;
+							map.selectedInventory = -1;
+							break interact;
 						}
 
 						if (map.interactNPC != null) {
