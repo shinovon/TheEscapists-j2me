@@ -2548,12 +2548,20 @@ class NPC implements Constants {
 							break interact;
 						}
 
+						int slot = map.selectedInventory;
+						int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+								inventory[slot] & Items.ITEM_ID_MASK : -1;
+						if (slot != -1) {
+							map.lastSelectedInventory = map.selectedInventory;
+							map.selectedInventory = -1;
+						}
+
 						int x, y;
 
 						x = (this.x + 7) / TILE_SIZE;
 						y = (this.y + 7) / TILE_SIZE;
 						byte b = map.solid[layer][y * map.width + x];
-						if (b == COLL_NOT_SOLID_INTERACT && map.selectedInventory == -1) {
+						if (b == COLL_NOT_SOLID_INTERACT && item == -1) {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
 							if (obj == Objects.LADDER_UP) {
@@ -2569,8 +2577,8 @@ class NPC implements Constants {
 								break interact;
 							}
 						}
-						if (b == COLL_NONE && map.selectedInventory == -1) {
-							int item = map.peekItem(x, y, layer);
+						if (b == COLL_NONE && item == -1) {
+							item = map.peekItem(x, y, layer);
 							if (item != -1 && item != Items.ITEM_NULL) {
 								if (addItem(item, true)) {
 									map.deleteItem(x, y, layer);
@@ -2620,9 +2628,9 @@ class NPC implements Constants {
 						x = (x + this.x) / TILE_SIZE;
 						y = (y + this.y) / TILE_SIZE;
 
-						if (b == COLL_NONE) {
+						if (b == COLL_NONE && item == -1) {
 							// pickup item
-							int item = map.peekItem(x, y, layer);
+							item = map.peekItem(x, y, layer);
 							if (item != -1 && item != Items.ITEM_NULL) {
 								if (addItem(item, true)) {
 									map.deleteItem(x, y, layer);
@@ -2686,13 +2694,6 @@ class NPC implements Constants {
 								}
 							}
 							if (b == COLL_SOLID_INTERACT) {
-								int slot = map.selectedInventory;
-								int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
-										inventory[slot] & Items.ITEM_ID_MASK : -1;
-								if (slot != -1) {
-									map.lastSelectedInventory = map.selectedInventory;
-									map.selectedInventory = -1;
-								}
 								switch (obj) {
 								case Objects.TRAINING_BOOKSHELF:
 									// learn
@@ -2786,25 +2787,29 @@ class NPC implements Constants {
 								case Objects.JOB_METAL_TOOLS:
 									if (item == Items.SHEET_OF_METAL) {
 										// TODO
+										Sound.playEffect(Sound.SFX_RUMBLE);
 										inventory[slot] = Items.LICENSE_PLATE;
+										break interact;
 									}
-									break interact;
+									break;
 								case Objects.WASHING_MACHINE:
 									if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
 										// TODO
 										Sound.playEffect(Sound.SFX_BUY);
 										inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
 												Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
+										break interact;
 									}
-									break interact;
+									break;
 								case Objects.OVEN:
 									if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
 										// TODO
 										Sound.playEffect(Sound.SFX_BUY);
 										inventory[slot] = item == Items.UNCOOKED_FOOD ?
 												Items.COOKED_FOOD : Items.BURRITO;
+										break interact;
 									}
-									break interact;
+									break;
 
 								case Objects.JOB_CLEAN_LAUNDRY:
 									// put clean laundry
@@ -2821,8 +2826,9 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
+										break interact;
 									}
-									break interact;
+									break;
 								case Objects.JOB_PREPARED_METAL:
 									if (item == Items.LICENSE_PLATE) {
 										inventory[slot] = Items.ITEM_NULL;
@@ -2837,8 +2843,9 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
+										break interact;
 									}
-									break interact;
+									break;
 								case Objects.JOB_PREPARED_WOOD:
 									if (item == Items.UNVARNISHED_CHAIR) {
 										inventory[slot] = Items.ITEM_NULL;
@@ -2853,8 +2860,9 @@ class NPC implements Constants {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
 										}
+										break interact;
 									}
-									break interact;
+									break;
 
 								case Objects.STASH:
 									// open stash
@@ -2929,7 +2937,7 @@ class NPC implements Constants {
 									break interact;
 								}
 							}
-							if (b == COLL_POSTER) {
+							if (b == COLL_POSTER && map.selectedInventory == -1) {
 								// take poster
 								int p = map.getBreakProgress(x, y, layer);
 								int pos = y * map.width + x;
@@ -2961,16 +2969,14 @@ class NPC implements Constants {
 						}
 
 						// drop selected item
-						if (map.selectedInventory != -1 && inventory[map.selectedInventory] != Items.ITEM_NULL) {
-							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[map.selectedInventory], layer);
+						if (item != -1) {
+							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[slot], layer);
 							if (r == 0) {
 								Sound.playEffect(Sound.SFX_THROW);
-								inventory[map.selectedInventory] = Items.ITEM_NULL;
+								inventory[slot] = Items.ITEM_NULL;
 							} else {
 								Sound.playEffect(Sound.SFX_LOSE);
 							}
-							map.lastSelectedInventory = -1;
-							map.selectedInventory = -1;
 							break interact;
 						}
 
