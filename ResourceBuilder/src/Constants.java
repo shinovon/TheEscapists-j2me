@@ -25,6 +25,21 @@ public interface Constants {
 			ZONE_JANITOR = 13,
 			ZONE_GARDENING = 14;
 
+	// schedule enum
+	int SC_LIGHTSOUT = 1,
+			SC_MORNING_ROLLCALL = 2,
+			SC_LOCKDOWN = 3,
+			SC_BREAKFAST = 4,
+			SC_FREE_PERIOD = 5,
+			SC_LUNCH = 6,
+			SC_WORK_PERIOD = 7,
+			SC_EXCERCISE_PERIOD = 8,
+			SC_SHOWER_BLOCK = 9,
+			SC_EVENING_MEAL = 10,
+			SC_EVENING_FREETIME = 11,
+			SC_EVENING_ROLLCALL = 12,
+			SC_AFTERNOON_ROLLCALL = 13;
+
 	// jobs enum
 	int JOB_UNEMPLOYED = 0,
 			JOB_LAUNDRY = 1,

@@ -599,7 +599,7 @@ class NPC implements Constants {
 					int pos = (typedId << 1) + 1;
 					switch (map.schedule) {
 					case SC_MORNING_ROLLCALL:
-					case SC_MIDDAY_ROLLCALL:
+					case SC_AFTERNOON_ROLLCALL:
 					case SC_EVENING_ROLLCALL:
 						// rollcall
 						aiState = AI_WAYPOINT;
@@ -616,7 +616,7 @@ class NPC implements Constants {
 						pathY = map.guardCanteenPositions[pos + 1];
 						correctPath = false;
 						break;
-					case SC_EXCERCISE_PERIOD:
+					case SC_EXERCISE_PERIOD:
 						// gym
 						aiState = AI_WAYPOINT;
 						pathX = map.guardGymPositions[pos];
@@ -651,7 +651,7 @@ class NPC implements Constants {
 				// inmates schedule
 				switch (map.schedule) {
 				case SC_MORNING_ROLLCALL:
-				case SC_MIDDAY_ROLLCALL:
+				case SC_AFTERNOON_ROLLCALL:
 				case SC_EVENING_ROLLCALL: {
 					// rollcall
 					aiState = AI_WAYPOINT;
@@ -675,7 +675,7 @@ class NPC implements Constants {
 					sitting = false;
 					break;
 				}
-				case SC_EXCERCISE_PERIOD:
+				case SC_EXERCISE_PERIOD:
 					// gym
 					aiState = AI_GYM;
 					correctPath = false;
@@ -806,7 +806,7 @@ class NPC implements Constants {
 							onPlace: {
 								switch (map.schedule) {
 								case SC_MORNING_ROLLCALL:
-								case SC_MIDDAY_ROLLCALL:
+								case SC_AFTERNOON_ROLLCALL:
 								case SC_EVENING_ROLLCALL:
 									if (player.isInZone(ZONE_ROLLCALL))
 										break onPlace;
@@ -816,7 +816,7 @@ class NPC implements Constants {
 									if (player.isInZone(ZONE_CANTEEN))
 										break onPlace;
 									break;
-								case SC_EXCERCISE_PERIOD:
+								case SC_EXERCISE_PERIOD:
 									if (player.isInZone(ZONE_GYM))
 										break onPlace;
 									break;
@@ -1892,7 +1892,7 @@ class NPC implements Constants {
 			int schedule = map.schedule;
 			switch (schedule) {
 			case SC_MORNING_ROLLCALL:
-			case SC_MIDDAY_ROLLCALL:
+			case SC_AFTERNOON_ROLLCALL:
 			case SC_EVENING_ROLLCALL:
 				if (!map.playerWasOnRollcall && isInZone(ZONE_ROLLCALL)) {
 					map.playerWasOnRollcall = true;
@@ -1904,7 +1904,7 @@ class NPC implements Constants {
 					map.playerWasOnMeal = true;
 				}
 				break;
-			case SC_EXCERCISE_PERIOD:
+			case SC_EXERCISE_PERIOD:
 				if (!map.playerWasOnExcercise && isInZone(ZONE_GYM)) {
 					map.playerWasOnExcercise = true;
 				}

@@ -36,6 +36,7 @@ public class MapCompiler implements Constants {
 
 		int npcLevel = 2;
 		int fightFreq = 2;
+		String routineSet = "MedSec";
 		
 		Vector<int[]> zones = new Vector<>();
 
@@ -607,6 +608,8 @@ public class MapCompiler implements Constants {
 							npcLevel = Integer.parseInt(sb.toString());
 						} else if ("FightFreq".equals(key)) {
 							fightFreq = Integer.parseInt(sb.toString());
+						} else if ("RoutineSet".equals(key)) {
+							routineSet = sb.toString();
 						} else {
 							System.out.println("Ignored property: " + key + "=" + sb.toString());
 						}
@@ -770,7 +773,7 @@ public class MapCompiler implements Constants {
 
 		try (DataOutputStream out = new DataOutputStream(Files.newOutputStream(outputPath))) {
 			// version
-			out.writeInt(2);
+			out.writeInt(3);
 
 			byte map = MAP_OTHER;
 			switch (inputPath.getFileName().toString()) {
@@ -958,6 +961,84 @@ public class MapCompiler implements Constants {
 				out.writeShort(arr[0]);
 				out.writeByte(arr[1]);
 				out.writeByte(arr[2]);
+			}
+
+			// schedule TODO
+			if ("MinSec".equals(routineSet)) {
+				/*  0 */ out.writeByte(SC_LIGHTSOUT);
+				/*  1 */ out.writeByte(SC_LIGHTSOUT);
+				/*  2 */ out.writeByte(SC_LIGHTSOUT);
+				/*  3 */ out.writeByte(SC_LIGHTSOUT);
+				/*  4 */ out.writeByte(SC_LIGHTSOUT);
+				/*  5 */ out.writeByte(SC_LIGHTSOUT);
+				/*  6 */ out.writeByte(SC_LIGHTSOUT);
+				/*  7 */ out.writeByte(SC_LIGHTSOUT);
+				/*  8 */ out.writeByte(SC_MORNING_ROLLCALL);
+				/*  9 */ out.writeByte(SC_BREAKFAST);
+				/* 10 */ out.writeByte(SC_FREE_PERIOD);
+				/* 11 */ out.writeByte(SC_FREE_PERIOD);
+				/* 12 */ out.writeByte(SC_LUNCH);
+				/* 13 */ out.writeByte(SC_WORK_PERIOD);
+				/* 14 */ out.writeByte(SC_WORK_PERIOD);
+				/* 15 */ out.writeByte(SC_WORK_PERIOD);
+				/* 16 */ out.writeByte(SC_EXCERCISE_PERIOD);
+				/* 17 */ out.writeByte(SC_SHOWER_BLOCK);
+				/* 18 */ out.writeByte(SC_EVENING_MEAL);
+				/* 19 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 20 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 21 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 22 */ out.writeByte(SC_EVENING_ROLLCALL);
+				/* 23 */ out.writeByte(SC_LIGHTSOUT);
+			} else if ("MaxSec".equals(routineSet)) {
+				/*  0 */ out.writeByte(SC_LIGHTSOUT);
+				/*  1 */ out.writeByte(SC_LIGHTSOUT);
+				/*  2 */ out.writeByte(SC_LIGHTSOUT);
+				/*  3 */ out.writeByte(SC_LIGHTSOUT);
+				/*  4 */ out.writeByte(SC_LIGHTSOUT);
+				/*  5 */ out.writeByte(SC_LIGHTSOUT);
+				/*  6 */ out.writeByte(SC_LIGHTSOUT);
+				/*  7 */ out.writeByte(SC_LIGHTSOUT);
+				/*  8 */ out.writeByte(SC_LIGHTSOUT);
+				/*  9 */ out.writeByte(SC_MORNING_ROLLCALL);
+				/* 10 */ out.writeByte(SC_BREAKFAST);
+				/* 11 */ out.writeByte(SC_WORK_PERIOD);
+				/* 12 */ out.writeByte(SC_WORK_PERIOD);
+				/* 13 */ out.writeByte(SC_WORK_PERIOD);
+				/* 14 */ out.writeByte(SC_AFTERNOON_ROLLCALL);
+				/* 15 */ out.writeByte(SC_FREE_PERIOD);
+				/* 16 */ out.writeByte(SC_EXCERCISE_PERIOD);
+				/* 17 */ out.writeByte(SC_EVENING_MEAL);
+				/* 18 */ out.writeByte(SC_SHOWER_BLOCK);
+				/* 19 */ out.writeByte(SC_EVENING_ROLLCALL);
+				/* 20 */ out.writeByte(SC_LIGHTSOUT);
+				/* 21 */ out.writeByte(SC_LIGHTSOUT);
+				/* 22 */ out.writeByte(SC_LIGHTSOUT);
+				/* 23 */ out.writeByte(SC_LIGHTSOUT);
+			} else /* if ("MedSec".equals(routineSet)) */ {
+				/*  0 */ out.writeByte(SC_LIGHTSOUT);
+				/*  1 */ out.writeByte(SC_LIGHTSOUT);
+				/*  2 */ out.writeByte(SC_LIGHTSOUT);
+				/*  3 */ out.writeByte(SC_LIGHTSOUT);
+				/*  4 */ out.writeByte(SC_LIGHTSOUT);
+				/*  5 */ out.writeByte(SC_LIGHTSOUT);
+				/*  6 */ out.writeByte(SC_LIGHTSOUT);
+				/*  7 */ out.writeByte(SC_LIGHTSOUT);
+				/*  8 */ out.writeByte(SC_MORNING_ROLLCALL);
+				/*  9 */ out.writeByte(SC_BREAKFAST);
+				/* 10 */ out.writeByte(SC_WORK_PERIOD);
+				/* 11 */ out.writeByte(SC_WORK_PERIOD);
+				/* 12 */ out.writeByte(SC_WORK_PERIOD);
+				/* 13 */ out.writeByte(SC_AFTERNOON_ROLLCALL);
+				/* 14 */ out.writeByte(SC_FREE_PERIOD);
+				/* 15 */ out.writeByte(SC_FREE_PERIOD);
+				/* 16 */ out.writeByte(SC_EVENING_MEAL);
+				/* 17 */ out.writeByte(SC_EXCERCISE_PERIOD);
+				/* 18 */ out.writeByte(SC_SHOWER_BLOCK);
+				/* 19 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 20 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 21 */ out.writeByte(SC_EVENING_FREETIME);
+				/* 22 */ out.writeByte(SC_EVENING_ROLLCALL);
+				/* 23 */ out.writeByte(SC_LIGHTSOUT);
 			}
 
 			out.writeShort(0xFFEF);

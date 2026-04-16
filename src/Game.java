@@ -19,18 +19,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// region Canvas
 
 	static final String[] scheduleStrings = {
+			"",
 			"Lights out",
 			"Morning Rollcall",
+			"Lockdown",
 			"Breakfast",
+			"Free Period",
+			"Lunch",
 			"Work Period",
-			"Mid-day Rollcall",
-			"Afternoon Free Time",
-			"Evening Meal",
 			"Exercise Period",
 			"Shower Block",
+			"Evening Meal",
 			"Evening Free Time",
 			"Evening Rollcall",
-			"Lockdown"
+			"Afternoon Rollcall",
 	};
 
 	static final String[] jobStrings = {
@@ -512,10 +514,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// TODO
 				fontColor = FONT_COLOR_WHITE;
-				String t = "Save progress?";
-				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) - 10, FONT_REGULAR);
+				String t = "Would you like to sleep until morning";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) - 5, FONT_REGULAR);
+				t = "and save your current progress?";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 5, FONT_REGULAR);
 				t = "Left soft: Ok, Right soft: Cancel";
-				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 10, FONT_REGULAR);
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 20, FONT_REGULAR);
 			} else if (saveProblem) {
 				pausedOverlay = true;
 
@@ -1556,8 +1560,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	byte[][] solid;
 	short[][] chipped; // {count, [progress, pos] ..} for each layer
 
+	byte[] mapSchedule;
+
 	int time = 7*60 + 50, day; // day count starts from 0
-	int schedule, prevSchedule;
+	int schedule = SC_LIGHTSOUT, prevSchedule = SC_LIGHTSOUT;
 	int tickCounter;
 
 	boolean cellsClosed = true;
@@ -1620,6 +1626,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				droppedItems = new int[4][1 + (128 << 1)];
 				chipped = new short[4][1 + (128 << 1)];
 				solid = new byte[4][width * height];
+
+				mapSchedule = new byte[24];
 
 				inmates = in.readByte() & 0xFF;
 				guards = in.readByte() & 0xFF;
@@ -1819,6 +1827,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 						containers[idx++] = obj;
 						idx += (containers[idx] = in.readByte() & 0xFF) + 1;
+					}
+				}
+
+				// schedule
+				{
+					for (int i = 0; i < 24; ++i) {
+						mapSchedule[i] = in.readByte();
 					}
 				}
 
@@ -2423,142 +2438,97 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				++day;
 			}
 			if (!lockdown && (time % 60 == 0 || schedule == SC_LOCKDOWN)) {
-				boolean wasLockdown = schedule == SC_LOCKDOWN;
-				m: {
-					int hour = time / 60;
-					int music;
-					playerSeenByGuards = false;
-					switch (hour) {
-					case 8:
-						inSolitary = false;
-						music = Sound.MUSIC_ROLLCALL;
-						schedule = SC_MORNING_ROLLCALL;
-						cellsClosed = false;
-						playerWasOnRollcall = false;
-						updateDoors();
-						break;
-					case 9:
-						playerWasOnMeal = false;
+				playerSeenByGuards = false;
+				routine: {
+					int schedule = mapSchedule[time / 60];
+					int prevSchedule = this.schedule;
+					if (prevSchedule == schedule) break routine;
+
+					switch (prevSchedule) {
+					case SC_MORNING_ROLLCALL:
+					case SC_AFTERNOON_ROLLCALL:
+					case SC_EVENING_ROLLCALL:
 						if (!playerWasOnRollcall) {
 							playerWasOnRollcall = true;
 							startLockdown();
-							break m;
+							break routine;
 						}
-						music = Sound.MUSIC_CANTEEN;
-						schedule = SC_BREAKFAST;
-						updateDoors();
 						break;
-					case 10:
+					case SC_BREAKFAST:
+					case SC_LUNCH:
+					case SC_EVENING_MEAL:
 						if (!playerWasOnMeal) {
 							playerWasOnMeal = true;
 							heat += 30;
 						}
-						music = player.job != 0 ? Sound.MUSIC_WORK : Sound.MUSIC_GENERIC;
-						schedule = SC_WORK_PERIOD;
-						updateDoors();
 						break;
-					case 11:
-					case 12:
-						music = player.job != 0 ? Sound.MUSIC_WORK : Sound.MUSIC_GENERIC;
-						schedule = SC_WORK_PERIOD;
-						if (!wasLockdown) break m;
-						break;
-					case 13:
+					case SC_WORK_PERIOD:
 						if (player.job != 0 && player.jobQuota < MAX_JOB_QUOTA) {
 							// fire player
 							jobs[player.job] &= ~JOB_OCCUPIED_BIT;
 							player.job = 0;
 							note = NOTE_JOB_LOST;
-//							Sound.playEffect(Sound.SFX_OPEN);
+//				Sound.playEffect(Sound.SFX_OPEN);
 						}
-						music = Sound.MUSIC_ROLLCALL;
-						schedule = SC_MIDDAY_ROLLCALL;
-						playerWasOnRollcall = false;
 						break;
-					case 14:
-						if (!playerWasOnRollcall) {
-							playerWasOnRollcall = true;
-							startLockdown();
-							break m;
-						}
-						music = Sound.MUSIC_GENERIC;
-						schedule = SC_AFTERNOON_FREETIME;
-						break;
-					case 15:
-						music = Sound.MUSIC_GENERIC;
-						schedule = SC_AFTERNOON_FREETIME;
-						if (!wasLockdown) break m;
-						break;
-					case 16:
-						playerWasOnMeal = false;
-						music = Sound.MUSIC_CANTEEN;
-						schedule = SC_EVENING_MEAL;
-						updateDoors();
-						break;
-					case 17:
-						playerWasOnExcercise = false;
-						if (!playerWasOnMeal) {
-							playerWasOnMeal = true;
-							heat += 30;
-						}
-						music = Sound.MUSIC_WORKOUT;
-						schedule = SC_EXCERCISE_PERIOD;
-						updateDoors();
-						break;
-					case 18:
-						playerWasOnShowers = false;
+					case SC_EXERCISE_PERIOD:
 						if (!playerWasOnExcercise) {
 							playerWasOnExcercise = true;
 							heat += 30;
 						}
-						music = Sound.MUSIC_SHOWER;
-						schedule = SC_SHOWER_BLOCK;
 						break;
-					case 19:
+					case SC_SHOWER_BLOCK:
 						if (!playerWasOnShowers) {
 							playerWasOnShowers = true;
 							heat += 30;
 						}
-						music = Sound.MUSIC_GENERIC;
-						schedule = SC_EVENING_FREETIME;
 						break;
-					case 20:
-					case 21:
-						music = Sound.MUSIC_GENERIC;
-						schedule = SC_EVENING_FREETIME;
-						if (!wasLockdown) break m;
-						break;
-					case 22:
-						music = Sound.MUSIC_ROLLCALL;
-						schedule = SC_EVENING_ROLLCALL;
-						updateDoors();
-						playerWasOnRollcall = false;
-						break;
-					case 23:
-						if (!playerWasOnRollcall) {
-							playerWasOnRollcall = true;
-							startLockdown();
-							break m;
-						}
-						music = Sound.MUSIC_LIGHTSOUT;
-						schedule = SC_LIGHTSOUT;
-						break;
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-						music = Sound.MUSIC_LIGHTSOUT;
-						schedule = SC_LIGHTSOUT;
-						if (!wasLockdown) break m;
-						break;
-					default:
-						break m;
 					}
 
+					int music;
+					switch (schedule) {
+					case SC_MORNING_ROLLCALL:
+						inSolitary = false;
+						music = Sound.MUSIC_ROLLCALL;
+						cellsClosed = false;
+						playerWasOnRollcall = false;
+						updateDoors();
+						break;
+					case SC_BREAKFAST:
+//		case SC_LUNCH:
+					case SC_EVENING_MEAL:
+						playerWasOnMeal = false;
+						music = Sound.MUSIC_CANTEEN;
+						break;
+					case SC_WORK_PERIOD:
+						music = player.job != 0 ? Sound.MUSIC_WORK : Sound.MUSIC_GENERIC;
+						player.jobQuota = 0;
+						break;
+					case SC_AFTERNOON_ROLLCALL:
+					case SC_EVENING_ROLLCALL:
+						music = Sound.MUSIC_ROLLCALL;
+						playerWasOnRollcall = false;
+						break;
+					case SC_FREE_PERIOD:
+					case SC_EVENING_FREETIME:
+						music = Sound.MUSIC_GENERIC;
+						break;
+					case SC_EXERCISE_PERIOD:
+						playerWasOnExcercise = false;
+						music = Sound.MUSIC_WORKOUT;
+						break;
+					case SC_SHOWER_BLOCK:
+						playerWasOnShowers = false;
+						music = Sound.MUSIC_SHOWER;
+						break;
+					case SC_LIGHTSOUT:
+						music = Sound.MUSIC_LIGHTSOUT;
+						break;
+					default:
+						break routine;
+					}
+					this.schedule = schedule;
+					updateDoors();
 					Sound.stopEffect();
 					Sound.playEffect(Sound.SFX_BELL);
 					Sound.playMusic(music);

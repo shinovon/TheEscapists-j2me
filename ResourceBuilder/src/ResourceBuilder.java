@@ -40,6 +40,8 @@ public class ResourceBuilder implements Constants {
 		};
 		
 		String map = args.length >= 4 ? args[3] : "shanktonstatepen";
+
+		if (args.length >= 5 && "-force".equals(args[4])) force = true;
 		
 		try {
 			items();
