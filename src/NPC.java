@@ -210,7 +210,7 @@ class NPC implements Constants {
 				animationSequence[2] = 26;
 				animationSequence[3] = 27;
 				animationSequence[4] = 28;
-				frame = ai ? trainingFrame >> 2 : (map.trainingTimer * 3) / 40;
+				frame = ai ? trainingFrame >> 2 : (map.trainingTimer * 3 * 30) / (40 * TPS);
 				break;
 			default:
 				animationSequence[0] = direction * 2;
@@ -362,7 +362,7 @@ class NPC implements Constants {
 				if (attackTimer != 0)
 					break attack;
 
-				attackTimer = 37 - (statSpeed / 5);
+				attackTimer = ((37 - (statSpeed / 5)) * TPS) / 30;
 				if (!ai) {
 					map.action = ACT_NONE;
 					map.progress = 0;
@@ -2003,8 +2003,9 @@ class NPC implements Constants {
 					}
 					animation = ANIM_REGULAR;
 				} else if (map.trainingTimer != 0) {
+					final int t = (40 * TPS) / 30;
 					if (gymObject == Objects.TRAINING_WEIGHT) {
-						if (map.trainingTimer >= 40 && !map.trainingBlocked) {
+						if (map.trainingTimer >= t && !map.trainingBlocked) {
 							map.trainingBlocked = true;
 							map.fatigue += 5;
 							if (++map.trainingRepeats % 2 == 0) {
@@ -2014,8 +2015,8 @@ class NPC implements Constants {
 						}
 						map.trainingTimer--;
 					} else if (gymObject == Objects.TRAINING_TREADMILL) {
-						if (map.trainingTimer > 38 && map.trainingCooldown == 0) {
-							map.trainingCooldown = 40;
+						if (map.trainingTimer > t - 2 && map.trainingCooldown == 0) {
+							map.trainingCooldown = t;
 							map.fatigue += 3;
 							if (++map.trainingRepeats % 3 == 0) {
 								statSpeed++;
@@ -2023,8 +2024,8 @@ class NPC implements Constants {
 						}
 						if ((tick & 1) == 0) map.trainingTimer--;
 					}
-					if (map.trainingTimer > 40) {
-						map.trainingTimer = 40;
+					if (map.trainingTimer > t) {
+						map.trainingTimer = t;
 					}
 					if (map.trainingCooldown > 0) {
 						map.trainingCooldown--;

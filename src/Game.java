@@ -439,7 +439,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					String a;
 					if (player.training) {
 						a = (player.gymObject == Objects.TRAINING_TREADMILL ? "Distance: " : "Repeats: ") + trainingRepeats;
-						t = (trainingTimer * 50) / 40;
+						t = (trainingTimer * 50 * 30) / (40 * TPS);
 					} else if (action != NPC.ACT_NONE) {
 						switch (action) {
 						case NPC.ACT_READING:
@@ -956,7 +956,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										player.dialogTimer = TPS * 2;
 									} else if (!trainingBlocked) {
 										if (key != trainingLastKey) {
-											trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? 4 : 8;
+											final int t = (4 * TPS) / 30;
+											trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? t : t * 2;
 										}
 										trainingLastKey = key;
 									}
@@ -990,7 +991,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							player.dialogTimer = TPS * 2;
 						} else if (!trainingBlocked) {
 							if (key != trainingLastKey) {
-								trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? 4 : 8;
+								final int t = (4 * TPS) / 30;
+								trainingTimer += player.gymObject == Objects.TRAINING_TREADMILL ? t : t * 2;
 							}
 							trainingLastKey = key;
 						}

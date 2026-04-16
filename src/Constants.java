@@ -8,13 +8,13 @@ public interface Constants {
 	//  so that proguard will omit this class
 	
 	static final int TPS = 30;
-	static final int TIME_TICKS = (TPS * 42 / 60); // ticks per ingame second
-	static final int ANIMATION_TICKS = 8; // ticks per animation cycle
-	static final int PLAYER_SPEED = 4; // per tick
-	static final int ANIMATE_SPEED = 2;
-	static final int NPC_SPEED = 3;
-	static final int OTHER_NPC_SPEED = 2;
-	static final int FADE_SPEED = 6;
+	static final int TIME_TICKS = (TPS * 42) / 60; // ticks per ingame second
+	static final int ANIMATION_TICKS = (8 * TPS) / 30; // ticks per animation cycle
+	static final int PLAYER_SPEED = (4 * 30) / TPS; // per tick
+	static final float ANIMATE_SPEED = (2f * 30) / TPS;
+	static final float NPC_SPEED = (3f * 30) / TPS;
+	static final float OTHER_NPC_SPEED = (2f * 30) / TPS;
+	static final int FADE_SPEED = (6 * 30) / TPS;
 	
 	static final int TILE_SIZE = 16;
 	static final int NPC_VIEW_DISTANCE = 6 * 6 * TILE_SIZE * TILE_SIZE; // squared
@@ -35,7 +35,7 @@ public interface Constants {
 	
 //#if FALSE
 	// default config for development
-	static final long FPS_LIMIT = 30;
+	static final long FPS_LIMIT = TPS;
 
 	static final boolean BUFFER_SCREEN = false;
 	static final boolean DRAW_SHADOWS = true;
@@ -50,7 +50,7 @@ public interface Constants {
 	static final boolean PREFETCH_SFX = false;
 //#else
 //#if FPS_LIMIT == ""
-//#	static final long FPS_LIMIT = 30;
+//#	static final long FPS_LIMIT = TPS;
 //#else
 //#expand static final long FPS_LIMIT = %FPS_LIMIT%;
 //#endif
