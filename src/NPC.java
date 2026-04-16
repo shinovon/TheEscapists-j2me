@@ -2578,9 +2578,9 @@ class NPC implements Constants {
 							}
 						}
 						if (b == COLL_NONE && item == -1) {
-							item = map.peekItem(x, y, layer);
-							if (item != -1 && item != Items.ITEM_NULL) {
-								if (addItem(item, true)) {
+							int peekItem = map.peekItem(x, y, layer);
+							if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
+								if (addItem(peekItem, true)) {
 									map.deleteItem(x, y, layer);
 								} else {
 									dialog = "Inventory full";
@@ -2630,9 +2630,9 @@ class NPC implements Constants {
 
 						if (b == COLL_NONE && item == -1) {
 							// pickup item
-							item = map.peekItem(x, y, layer);
-							if (item != -1 && item != Items.ITEM_NULL) {
-								if (addItem(item, true)) {
+							int peekItem = map.peekItem(x, y, layer);
+							if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
+								if (addItem(peekItem, true)) {
 									map.deleteItem(x, y, layer);
 								} else {
 									dialog = "Inventory full";

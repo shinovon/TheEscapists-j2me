@@ -963,7 +963,7 @@ public class MapCompiler implements Constants {
 				out.writeByte(arr[2]);
 			}
 
-			// schedule TODO
+			// schedule
 			if ("MinSec".equals(routineSet)) {
 				/*  0 */ out.writeByte(SC_LIGHTSOUT);
 				/*  1 */ out.writeByte(SC_LIGHTSOUT);
