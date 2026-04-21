@@ -3028,6 +3028,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (USE_M3G) {
 			setup3D(g, viewWidth, viewHeight);
 			if (use3D) {
+				float xOffset = TILE_SIZE - viewWidth / 2f;
+				float yOffset = viewHeight / 2f;
 				if (DRAW_LIGHTS && layer == LAYER_GROUND && lights != null) {
 					Transform t = transform;
 					short[] lights = this.lights;
@@ -3042,21 +3044,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 
 						t.setIdentity();
-						t.postTranslate(x + TILE_SIZE - viewWidth / 2f, viewHeight / 2f - y, 5);
+						t.postTranslate(x + xOffset, yOffset - y, 5);
 						graphics3D.render(lightVertexBuffer, lightStrip, lightAppearance, t);
 					}
 				}
 
-				transform.setIdentity();
+				// global lighting
 
-				// vent tint
+				transform.setIdentity();
 				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
+					// vent tint
 					globalVertexBuffer.setDefaultColor(0x7F7F7F);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
-				}
-
-				// global lighting
-				if (layer == LAYER_UNDERGROUND) {
+				} else if (layer == LAYER_UNDERGROUND) {
 					// TODO
 				} else if ((time < 7 * 60 + 128 || time > 21 * 60)
 						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
