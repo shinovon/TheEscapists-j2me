@@ -3622,6 +3622,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				Texture2D tex = new Texture2D(light3dTexture);
 				tex.setBlending(Texture2D.FUNC_REPLACE);
+				tex.setFiltering(Texture2D.FILTER_NEAREST, Texture2D.FILTER_NEAREST);
 
 				lightAppearance = new Appearance();
 				lightAppearance.setTexture(0, tex);
@@ -3629,10 +3630,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				CompositingMode cm = new CompositingMode();
 				cm.setBlending(CompositingMode.ALPHA_ADD);
 				cm.setAlphaThreshold(0.5f);
+				cm.setDepthTestEnable(false);
+				cm.setDepthWriteEnable(false);
 				lightAppearance.setCompositingMode(cm);
 
 				PolygonMode pm = new PolygonMode();
 				pm.setShading(PolygonMode.SHADE_FLAT);
+				pm.setCulling(PolygonMode.CULL_NONE);
+				pm.setPerspectiveCorrectionEnable(false);
 				lightAppearance.setPolygonMode(pm);
 			}
 
@@ -3660,10 +3665,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				CompositingMode cm = new CompositingMode();
 				cm.setBlending(CompositingMode.MODULATE);
+				cm.setDepthTestEnable(false);
+				cm.setDepthWriteEnable(false);
 				globalAppearance.setCompositingMode(cm);
 
 				PolygonMode pm = new PolygonMode();
 				pm.setShading(PolygonMode.SHADE_FLAT);
+				pm.setCulling(PolygonMode.CULL_NONE);
+				pm.setPerspectiveCorrectionEnable(false);
 				globalAppearance.setPolygonMode(pm);
 
 				update3DLightingColor();
