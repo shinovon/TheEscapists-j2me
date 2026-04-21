@@ -1837,7 +1837,7 @@ class NPC implements Constants {
 		} else if (health > maxHealth) {
 			// limit health
 			health = maxHealth;
-		} else if (health < maxHealth) {
+		} else if (health < maxHealth && health >= 0) {
 			// restore health
 			if ((animation == ANIM_LYING && tick % TPS == 0)
 					|| (tick % (TPS * 3) == 0)) {
