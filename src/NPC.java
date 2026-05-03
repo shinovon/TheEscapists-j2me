@@ -2255,8 +2255,8 @@ class NPC implements Constants {
 					if (animationTimer == 0 && !climbed) {
 						hit: {
 							if (carry != null) {
-								x = this.x / TILE_SIZE;
-								y = (this.y + 5) / TILE_SIZE;
+								int x = this.x / TILE_SIZE;
+								int y = (this.y + 5) / TILE_SIZE;
 								if (map.solid[layer][x + y * map.width] != 0) {
 									Sound.playEffect(Sound.SFX_LOSE);
 								} else {
