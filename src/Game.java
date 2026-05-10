@@ -2414,9 +2414,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int size = width * height;
 			for (int layer = 0; layer < 4; ++layer) {
 				for (int i = 0; i < size; ++i) {
+					if (layer == LAYER_UNDERGROUND) {
+						tiles[layer][i] = 0;
+						solid[layer][i] = COLL_SOLID;
+						continue;
+					}
 					byte t = tiles[layer][i];
 					if (t < 0) {
 						tiles[layer][i] = (byte) -t;
+						solid[layer][i] = COLL_SOLID;
 					} else if (t == 100) {
 						tiles[layer][i] = 0;
 					}
@@ -2424,10 +2430,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int[] items = droppedItems[layer];
 				items[0] = 0;
 				size = (items.length - 1) >> 1;
+				// TODO remove only illegal items?
 				for (int i = 0; i < size; ++i) {
-					items[(i << 1) + 1] = 0;
+					items[(i << 1) + 1] = Items.ITEM_NULL;
 					items[(i << 1) + 2] = 0;
 				}
+				// TODO clean chipped state properly
+				chipped[layer][0] = 0;
 			}
 
 			initMap();
