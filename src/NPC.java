@@ -2971,7 +2971,7 @@ class NPC implements Constants {
 
 						// drop selected item
 						if (item != -1) {
-							int r = map.dropItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, inventory[slot], layer);
+							int r = map.dropItem(x, y, inventory[slot], layer);
 							if (r == 0) {
 								Sound.playEffect(Sound.SFX_THROW);
 								inventory[slot] = Items.ITEM_NULL;
