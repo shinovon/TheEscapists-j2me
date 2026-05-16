@@ -975,6 +975,21 @@ class NPC implements Constants {
 		} else if (aiState == AI_WAYPOINT) {
 			// waypoint: go to point, stay there
 			if (targetReached) {
+				if (guard && typedId == 0 && (map.schedule == SC_MORNING_ROLLCALL
+						|| map.schedule == SC_AFTERNOON_ROLLCALL
+						|| map.schedule == SC_EVENING_ROLLCALL)) {
+					// rollcall speech TODO
+					// shakedown names TODO
+					if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0)) {
+						if (rng.nextInt(2) != 0) {
+							nextDialogTimer = TPS >> 1;
+						} else {
+							dialog = "Random text";
+							dialogTimer = 2 * TPS;
+							nextDialogTimer = 3 * TPS;
+						}
+					}
+				}
 				if (pathEndDir != -1) {
 					direction = pathEndDir;
 				}

@@ -55,6 +55,7 @@
 - [x] Posters/Fake walls
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
+- [ ] Shops
 
 # OST
 
