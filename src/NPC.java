@@ -2160,7 +2160,7 @@ class NPC implements Constants {
 								map.tiles[LAYER_UNDERGROUND][y * map.width + x] = 100;
 								map.solid[LAYER_UNDERGROUND][y * map.width + x] = COLL_NONE;
 							} else {
-								if (rng.nextInt(3) == 0 || true) {
+								if (rng.nextInt(3) == 0) {
 									map.setBreakProgress(x, y, layer, 120);
 								} else {
 									map.setBreakProgress(x, y, layer, 100);

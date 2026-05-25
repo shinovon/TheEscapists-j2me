@@ -2077,16 +2077,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int x = (pos & 0xFF);
 					int y = ((pos >> 8) & 0xFF);
 					pos = y * width + x;
-					byte tile = tiles[pos];
 					p = p & 0xFF;
 
 					if (p >= 100) {
+						byte t = tiles[pos];
+						byte m = t < 0 ? (byte) -t : t;
 						if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
 							solid[pos] = p >= 120 ? COLL_SOLID : COLL_NONE;
-						} else if (isSolidTile(tile < 0 ? (byte) -tile : tile) != COLL_NONE) {
-							tiles[pos] = tile < 0 ? tile : (byte) -tile;
+						} else if (isSolidTile(m) != COLL_NONE) {
+							tiles[pos] = (byte) -m;
 							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;
+							if (p == 102) {
+								tiledLayer[l].setCell(x, y, m);
+							}
 						}
 					}
 				}
