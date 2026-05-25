@@ -25,38 +25,38 @@
 - [x] NPC Gym
 - [x] Saves
 - [x] Global lighting
-- [ ] Crafting (WIP)
 - [x] Adaptiveness or scaling
 - [x] Object interaction
-- [ ] NPC interaction (WIP)
 - [x] Settings
 - [x] Own map format
 - [x] Digging
 - [x] Other NPCs
-- [ ] Cameras
-- [ ] Localization
 - [x] NPC Jobs
-- [ ] Player jobs (WIP, only janitor and gardener are finished)
 - [x] Player training
 - [x] Solitary
 - [x] Map routine sets
-- [ ] Profile
-- [ ] Tasks
 - [x] Desk moving
 - [x] Riot
+- [x] Ladders
+- [x] Chipping walls
+- [x] Posters/Fake walls
+- [x] Random NPC names
+- [ ] Crafting (WIP)
+- [ ] NPC interaction (WIP)
+- [ ] Cameras
+- [ ] Localization
+- [ ] Player jobs (WIP, only janitor and gardener are finished)
+- [ ] Profile
+- [ ] Tasks
 - [ ] Characters setup screen
 - [ ] NPC random inventory
-- [x] Ladders
 - [ ] Mines (san pancho)
 - [ ] Visual effects (fights, digging, training)
 - [ ] Recruiting
 - [ ] Bundle more maps in one package?
-- [x] Chipping walls
-- [x] Posters/Fake walls
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
-- [x] Random NPC names
 
 # OST
 
