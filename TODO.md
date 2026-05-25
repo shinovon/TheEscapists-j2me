@@ -47,11 +47,11 @@
 - [ ] Localization
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
 - [ ] Profile
-- [ ] Tasks
+- [ ] Tasks, Journal
 - [ ] Characters setup screen
 - [ ] NPC random inventory
 - [ ] Mines (san pancho)
-- [ ] Visual effects (fights, digging, training)
+- [ ] Visual effects / Particles (fights, digging, training)
 - [ ] Recruiting
 - [ ] Bundle more maps in one package?
 - [ ] Vents (unscrewing, cutting slats)
