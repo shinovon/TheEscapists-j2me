@@ -2371,8 +2371,7 @@ class NPC implements Constants {
 												case Items.PLASTIC_FORK:
 													if (checkFatigued()) break hit;
 													if (checkInventoryFull()) break hit;
-
-													// TODO reduce durability
+													reduceDurability(slot);
 													break;
 												default:
 													break chip;
@@ -2396,7 +2395,7 @@ class NPC implements Constants {
 												case Items.CUTTING_FLOSS:
 												case Items.FILE:
 													if (checkFatigued()) break hit;
-													// TODO reduce durability
+													reduceDurability(slot);
 													break;
 												default:
 													break chip;
@@ -2448,7 +2447,7 @@ class NPC implements Constants {
 												if (checkInventoryFull()) break hit;
 												// TODO check stability
 
-												// TODO reduce durability
+												reduceDurability(slot);
 												break;
 											default:
 												break dig;
@@ -3164,6 +3163,21 @@ class NPC implements Constants {
 		dialog = "Inventory full";
 		dialogTimer = TPS * 2;
 		return true;
+	}
+
+	void reduceDurability(int slot) {
+		int item = inventory[slot] & Items.ITEM_ID_MASK;
+		int v = (inventory[slot] & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
+
+		v -= 5; // TODO must depend on item
+
+		if (v <= 0) {
+			dialog = "The " + Game.getItemName(item) + " breaks...";
+			dialogTimer = TPS * 2;
+			inventory[slot] = Items.ITEM_NULL;
+			return;
+		}
+		inventory[slot] = (inventory[slot] & ~Items.ITEM_DURABILITY_MASK) | (v << Items.ITEM_DURABILITY_SHIFT);
 	}
 
 //endregion Player

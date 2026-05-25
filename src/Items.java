@@ -1,14 +1,15 @@
 /*
-Copyright (c) 2024-2025 Arman Jussupgaliyev
+Copyright (c) 2024-2026 Arman Jussupgaliyev
 */
 /** @noinspection UnnecessaryModifier*/
 public interface Items {
 
 	static final int ITEM_NULL = 0;
-	static final int ITEM_DEFAULT_DURABILITY = 100 << 9;
+	static final int ITEM_DURABILITY_SHIFT = 9;
+	static final int ITEM_DEFAULT_DURABILITY = 100 << ITEM_DURABILITY_SHIFT;
 	static final int ITEM_MASK = 0xFFFF;
-	static final int ITEM_ID_MASK = (1 << 9) - 1;
-	static final int ITEM_DURABILITY_MASK = ((1 << 7) - 1) << 9;
+	static final int ITEM_ID_MASK = (1 << ITEM_DURABILITY_SHIFT) - 1;
+	static final int ITEM_DURABILITY_MASK = ((1 << 7) - 1) << ITEM_DURABILITY_SHIFT;
 	static final int ITEM_DECAY_MASK = 0xFFF00000;
 	
 	static final int CELL_KEY = 0,

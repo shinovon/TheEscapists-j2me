@@ -407,8 +407,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	//			g.drawLine(w - 23, 0, w - 23, h);
 
 				// schedule
-				StringBuffer stringBuffer = Game.stringBuffer;
-				stringBuffer.setLength(0);
+				StringBuffer sb = Game.stringBuffer;
+				sb.setLength(0);
 
 				putDigitsToCharBuffer(time / 60, 0);
 				charBuffer[2] = ':';
@@ -417,13 +417,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				charBuffer[6] = '-';
 				charBuffer[7] = ' ';
 
-				stringBuffer.append(scheduleStrings[schedule])
+				sb.append(scheduleStrings[schedule])
 						.append(" (Day ")
 						.append(day + 1)
 						.append(')');
 
-				n = stringBuffer.length();
-				stringBuffer.getChars(0, n, charBuffer, 8);
+				n = sb.length();
+				sb.getChars(0, n, charBuffer, 8);
 				s[n + 8] = 0;
 				fontColor = FONT_COLOR_GREY_23;
 				drawText(g, s, 5, h - 14, FONT_REGULAR);
@@ -438,7 +438,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int t;
 					String a;
 					if (player.training) {
-						a = (player.gymObject == Objects.TRAINING_TREADMILL ? "Distance: " : "Repeats: ") + trainingRepeats;
+						sb.setLength(0);
+						a = sb.append(player.gymObject == Objects.TRAINING_TREADMILL ? "Distance: " : "Repeats: ")
+								.append(trainingRepeats).toString();
 						t = (trainingTimer * 50 * 30) / (40 * TPS);
 					} else if (action != NPC.ACT_NONE) {
 						switch (action) {
@@ -490,10 +492,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //				g.fillRect(w - 22, 0, 22, h);
 
 				// inventory items
+				Image itemsImg = itemsTexture;
 				x = w - 21;
 				for (int i = 0; i < 6; ++i) {
 					int y = i * 22 + 1;
-					int item = player.inventory[i] & Items.ITEM_ID_MASK;
+					int item = player.inventory[i];
 //					g.setColor(0x434343);
 //					g.fillRect(x + 1, y + 1, 18, 18);
 //					g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
@@ -501,10 +504,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (selectedInventory == i) {
 						g.setColor(0x97479B);
 						g.drawRect(x, y, 19, 19);
+
+						if (item != Items.ITEM_NULL) {
+							String t = getItemName(item);
+							if (hasDurability(item)) {
+								sb.setLength(0);
+								t = sb.append(t).append(" (")
+										.append((item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT)
+										.append("%)").toString();
+							}
+							int tw = textWidth(t, FONT_REGULAR);
+							fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
+							g.setColor(0x212121);
+							g.fillRect(x - 9 - tw, y + 2, tw + 6, 15);
+							g.setColor(0);
+							g.drawRect(x - 9 - tw, y + 2, tw + 6, 15);
+							drawText(g, t, x - 6 - tw, y + 5, FONT_REGULAR);
+							fontColor = FONT_COLOR_WHITE;
+						}
 					}
-					if (player.inventory[i] == Items.ITEM_NULL)
+					if (item == Items.ITEM_NULL)
 						continue;
-					g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
+					item &= Items.ITEM_ID_MASK;
+					g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
 				}
 			}
 
@@ -645,12 +667,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 							int item = containers[idx + 3 + i];
 							if (item != Items.ITEM_NULL) {
+								int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
 								item &= Items.ITEM_ID_MASK;
 								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
 
-
 								if (selectedSlot == i) {
 									String t = getItemName(item);
+									if (hasDurability(item)) {
+										StringBuffer sb = stringBuffer;
+										sb.setLength(0);
+										t = sb.append(t).append(" (").append(durability).append("%)").toString();
+									}
 									int tw = textWidth(t, FONT_REGULAR);
 									fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
 									g.setColor(0x212121);
@@ -5010,6 +5037,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.LIGHTWEIGHT_PICKAXE:
 		case Items.FLIMSY_CUTTERS:
 		case Items.LIGHTWEIGHT_CUTTERS:
+		case Items.MULTITOOL:
+		case Items.PLASTIC_SPOON:
+		case Items.POWERED_SCREWDRIVER:
+		case Items.CROWBAR:
 			return true;
 		default:
 			return false;
@@ -5129,7 +5160,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// endregion Items
 
-	// region NPC
+	// region NPC text
 
 	String pickName() {
 		String s;
@@ -6301,7 +6332,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return "Error!";
 	}
 
-	// endregion NPC constants
+	// endregion NPC text
 
 	// region Textures
 
