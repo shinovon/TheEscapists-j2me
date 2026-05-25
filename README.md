@@ -11,7 +11,7 @@ The Escapists fan demake for J2ME platform.
 - Rendering engine is finished, but needs optimization.
 - There is no gameplay yet, some mechanics are implemented, but you can't beat the game.
 
-See [TODO](/TODO.md) for more details
+See [TODO.md](/TODO.md) for more details
 
 ## Disclaimer
 
@@ -57,4 +57,4 @@ Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on
 - Alpha blending support is required for shadows.
 - Audio mixing and WAV support are required to play sound effects.
 
-see src/Constants.java
+see `src/Constants.java`
