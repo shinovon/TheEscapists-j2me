@@ -5557,11 +5557,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_GYM = 1;
 	static final int TEXT_SHOWER = 2;
 	static final int TEXT_BANTER = 3;
+	static final int TEXT_LOCKDOWN = 4;
 
 	static final int TEXT_CANTEEN_COUNT = 66;
 	static final int TEXT_GYM_COUNT = 34;
 	static final int TEXT_SHOWER_COUNT = 43;
 	static final int TEXT_BANTER_COUNT = 228;
+	static final int TEXT_LOCKDOWN_COUNT = 31;
 
 	static String getRandomText(int type, int n) {
 		n += 1;
@@ -6328,6 +6330,72 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			break;
 		}
+		case TEXT_LOCKDOWN:
+			switch (n) {
+			case 1:
+				return "How long's this gonna take?";
+			case 2:
+				return "Did someone escape?";
+			case 3:
+				return "Maybe someone escaped!";
+			case 4:
+				return "Sigh..";
+			case 5:
+				return "Not again!";
+			case 6:
+				return "What now?";
+			case 7:
+				return "Who's responsible for this?";
+			case 8:
+				return "Sort it out!";
+			case 9:
+				return "I demand my phone call";
+			case 10:
+				return "Someone flew the nest";
+			case 11:
+				return "Why should we be punished?";
+			case 12:
+				return "This is outrageous!";
+			case 13:
+				return "I'm taking this up with the union!";
+			case 14:
+				return "Wasting away in here!";
+			case 15:
+				return "Yawn..";
+			case 16:
+				return "Might as well just end it all";
+			case 17:
+				return "Boring..";
+			case 18:
+				return "I have places to be";
+			case 19:
+				return "Guards can't even count";
+			case 20:
+				return "Guards, learn to count!";
+			case 21:
+				return "He's probably long gone!";
+			case 22:
+				return "Who's playing hide and seek?";
+			case 23:
+				return "Let's speed this up";
+			case 24:
+				return "I'm late for my manicure!";
+			case 25:
+				return "Things to do, places to go, people to end";
+			case 26:
+				return "This is a violation of my rights!";
+			case 27:
+				return "Unshackle us!";
+			case 28:
+				return "Freeedommm!";
+			case 29:
+				return "Probably beyond the wall by now!";
+			case 30:
+				return "Who's the escapist?";
+			case 31:
+				return "Houdini strikes again!";
+			}
+			break;
 		}
 		return "Error!";
 	}

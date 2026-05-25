@@ -522,13 +522,20 @@ class NPC implements Constants {
 					textType = Game.TEXT_GYM;
 					textCount = Game.TEXT_GYM_COUNT;
 				} else if (aiState == AI_WAYPOINT && targetReached) {
-					if (map.schedule != SC_SHOWER_BLOCK) {
+					if (map.schedule == SC_SHOWER_BLOCK) {
+						p = 50;
+						delay = 7;
+						textType = Game.TEXT_SHOWER;
+						textCount = Game.TEXT_SHOWER_COUNT;
+					} else if (map.schedule == SC_LOCKDOWN) {
+						// TODO
+						p = 50;
+						delay = 7;
+						textType = Game.TEXT_LOCKDOWN;
+						textCount = Game.TEXT_LOCKDOWN_COUNT;
+					} else {
 						break say;
 					}
-					p = 50;
-					delay = 7;
-					textType = Game.TEXT_SHOWER;
-					textCount = Game.TEXT_SHOWER_COUNT;
 				} else {
 					break say;
 				}
