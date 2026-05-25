@@ -5565,7 +5565,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_BANTER_COUNT = 228;
 	static final int TEXT_LOCKDOWN_COUNT = 31;
 
-	static String getRandomText(int type, int n) {
+	static String getInmateText(int type, int n) {
 		n += 1;
 		switch (type) {
 		case TEXT_CANTEEN:
@@ -6396,6 +6396,225 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				return "Houdini strikes again!";
 			}
 			break;
+		}
+		return "Error!";
+	}
+
+
+	static final int TEXT_ROLLCALL_COMMENCE = 0;
+	static final int TEXT_ROLLCALL_SHAKEDOWNS = 1;
+	static final int TEXT_ROLLCALL_NAMES = 2;
+	static final int TEXT_ROLLCALL_BANTER = 3;
+	static final int TEXT_ROLLCALL_COMMENCE_COUNT = 19;
+	static final int TEXT_ROLLCALL_SHAKEDOWNS_COUNT = 5;
+	static final int TEXT_ROLLCALL_BANTER_COUNT = 71;
+
+	static String getRollcallText(int stage, int n) {
+		n += 1;
+		switch (stage) {
+		case TEXT_ROLLCALL_COMMENCE:
+			switch (n) {
+			case 1:
+				return "Line up you maggots!";
+			case 2:
+				return "Settle down now!";
+			case 3:
+				return "Face forward you cretins!";
+			case 4:
+				return "Get in line morons!";
+			case 5:
+				return "Shut up and face me!";
+			case 6:
+				return "Stand to attention!";
+			case 7:
+				return "Face the front!";
+			case 8:
+				return "Shut your cakeholes!";
+			case 9:
+				return "Chop chop!";
+			case 10:
+				return "Let's do this";
+			case 11:
+				return "Shut it!";
+			case 12:
+				return "Look at the state of you all..";
+			case 13:
+				return "Time do you call this?";
+			case 14:
+				return "Salute me..";
+			case 15:
+				return "Settle ladies..";
+			case 16:
+				return "Oi!";
+			case 17:
+				return "Shut your mouths";
+			case 18:
+				return "Quiet!";
+			case 19:
+				return "Your king has arrived!";
+			}
+			break;
+		case TEXT_ROLLCALL_SHAKEDOWNS:
+			switch (n) {
+			case 1:
+				return "The maggots due a cell shakedown are as follows...";
+			case 2:
+				return "The lucky winners of todays shakedowns are...";
+			case 3:
+				return "The following scum are due a cell toss...";
+			case 4:
+				return "The cretins about to get their cells searched are..";
+			case 5:
+				return "The following morons have won a cell search...";
+			}
+			break;
+		case TEXT_ROLLCALL_NAMES:
+			break;
+		case TEXT_ROLLCALL_BANTER:
+			switch (n) {
+			case 1:
+				return "Just remember who's in charge here";
+			case 2:
+				return "The guards rule this place, not you cons";
+			case 3:
+				return "It's not a problem to dish out beatings";
+			case 4:
+				return "Any of you step out line you'll get clubbed";
+			case 5:
+				return "So just watch your backs y'hear?";
+			case 6:
+				return "Causing trouble is a shortcut to the infirmary";
+			case 7:
+				return "Don't even look at us unless we say so";
+			case 8:
+				return "When we say jump, you say 'how high?'";
+			case 9:
+				return "This is the way it is, get used to it";
+			case 10:
+				return "Frankly, we're sick of the lot of you";
+			case 11:
+				return "You eat when we tell you to eat";
+			case 12:
+				return "You sleep when we tell you to sleep";
+			case 13:
+				return "You all probably think you're smart";
+			case 14:
+				return "We will crush you like bugs";
+			case 15:
+				return "Keep out of mischief";
+			case 16:
+				return "Whoever trashed the canteen is in big trouble";
+			case 17:
+				return "Whoever flooded the gym will be destroyed";
+			case 18:
+				return "Whoever broke into the utility shed is finished";
+			case 19:
+				return "These boots were made for stomping";
+			case 20:
+				return "We have zero toleration for you maggots";
+			case 21:
+				return "Do you think prison is a joke?";
+			case 22:
+				return "I'll erase that look in your eyes";
+			case 23:
+				return "I just have to click my fingers and you're finished";
+			case 24:
+				return "I'll wipe that smirk off your faces";
+			case 25:
+				return "I am the judge and executioner here";
+			case 26:
+				return "I'm what counts out here";
+			case 27:
+				return "We've heard whispers of a breakout";
+			case 28:
+				return "The only thing breaking out around here is your teeth";
+			case 29:
+				return "We're paid well to keep you cretins in line";
+			case 30:
+				return "Some idiot was snooping around after lights out";
+			case 31:
+				return "One of you maggots raided the tool shed";
+			case 32:
+				return "Whoever sent death threats to the warden will be punished";
+			case 33:
+				return "Be a problem and i'll eject your teeth";
+			case 34:
+				return "Don't you be rolling your eyes at me";
+			case 35:
+				return "The last person who stepped out of line was flattened";
+			case 36:
+				return "Let me tell you cons how it is";
+			case 37:
+				return "Do we look stupid to you?";
+			case 38:
+				return "Put your hand up if you think we're stupid";
+			case 39:
+				return "Remember when you lot were important? Me neither";
+			case 40:
+				return "Someone's been smuggling spoons out the canteen";
+			case 41:
+				return "Someone's been tampering with the wardens chair";
+			case 42:
+				return "Someone's been tampering with the wardens hat";
+			case 43:
+				return "Who here thinks the rules don't apply to them?";
+			case 44:
+				return "Do you think you have rights or something?";
+			case 45:
+				return "You're all filth";
+			case 46:
+				return "We should put you all down";
+			case 47:
+				return "How many times do we have to repeat ourselves?";
+			case 48:
+				return "The rules are there to be followed";
+			case 49:
+				return "Someone's been tampering with the outer fence";
+			case 50:
+				return "One of you is due a good hidin'";
+			case 51:
+				return "Someone's been tampering with the wardens toupee";
+			case 52:
+				return "As my mother always used to say...";
+			case 53:
+				return "While we're on the subject...";
+			case 54:
+				return "Look at me when i'm shouting at you!";
+			case 55:
+				return "A streaking incident has been reported";
+			case 56:
+				return "That reminds me...";
+			case 57:
+				return "Which one of you is going to clean my shoe?";
+			case 58:
+				return "Someone pilfered the wardens underwear";
+			case 59:
+				return "As I used to say to my cheating ex...";
+			case 60:
+				return "I'll nod when you can speak";
+			case 61:
+				return "As my dear old nan used to say...";
+			case 62:
+				return "Pay attention";
+			case 63:
+				return "The canteen rations are being rationed";
+			case 64:
+				return "Have you washed behind your ears?";
+			case 65:
+				return "Mess about and you'll be eating soil";
+			case 66:
+				return "Never forget you're the dross of society";
+			case 67:
+				return "You have no friends";
+			case 68:
+				return "Your family have disowned you";
+			case 69:
+				return "Did I say you could cough?!";
+			case 70:
+				return "You will address me as your king";
+			case 71:
+				return "We suspect an escapist among us";
+			}
 		}
 		return "Error!";
 	}

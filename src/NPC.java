@@ -110,7 +110,7 @@ class NPC implements Constants {
 	int wakeupTimer = -1;
 	int angerTimer;
 	int trainingFrame = 0;
-	int aiWorkState;
+	int aiWorkState; // or rollcall text for guards
 	int animationFrame;
 
 	int fighting;
@@ -543,7 +543,7 @@ class NPC implements Constants {
 					if (rng.nextInt(p) != 0) {
 						nextDialogTimer = TPS >> 1;
 					} else {
-						dialog = Game.getRandomText(textType, rng.nextInt(textCount));
+						dialog = Game.getInmateText(textType, rng.nextInt(textCount));
 						dialogTimer = (TPS * 2);
 						nextDialogTimer = TPS * delay;
 					}
@@ -619,6 +619,7 @@ class NPC implements Constants {
 					case SC_EVENING_ROLLCALL:
 						// rollcall
 						aiState = AI_WAYPOINT;
+						aiWorkState = 0;
 						pathX = map.guardRollcallPositions[pos];
 						pathY = map.guardRollcallPositions[pos + 1];
 						pathEndDir = map.rollcallFace ? DIR_DOWN : DIR_UP;
@@ -994,15 +995,30 @@ class NPC implements Constants {
 				if (guard && typedId == 0 && (map.schedule == SC_MORNING_ROLLCALL
 						|| map.schedule == SC_AFTERNOON_ROLLCALL
 						|| map.schedule == SC_EVENING_ROLLCALL)) {
-					// rollcall speech TODO
-					// shakedown names TODO
 					if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0)) {
 						if (rng.nextInt(2) != 0) {
 							nextDialogTimer = TPS >> 1;
 						} else {
-							dialog = "Random text";
+							if (aiWorkState == Game.TEXT_ROLLCALL_NAMES) {
+								// shakedown names TODO
+								dialog = "";
+							} else {
+								int count;
+								if (aiWorkState == Game.TEXT_ROLLCALL_COMMENCE) {
+									count = Game.TEXT_ROLLCALL_COMMENCE_COUNT;
+								} else if (aiWorkState == Game.TEXT_ROLLCALL_SHAKEDOWNS) {
+									count = Game.TEXT_ROLLCALL_SHAKEDOWNS_COUNT;
+								} else if (aiWorkState == Game.TEXT_ROLLCALL_BANTER) {
+									count = Game.TEXT_ROLLCALL_BANTER_COUNT;
+								} else {
+									// should not be reachable
+									return;
+								}
+								dialog = Game.getRollcallText(aiWorkState, rng.nextInt(count));
+							}
+							nextDialogTimer = 2 * TPS;
 							dialogTimer = 2 * TPS;
-							nextDialogTimer = 3 * TPS;
+							if (aiWorkState != Game.TEXT_ROLLCALL_BANTER) aiWorkState++;
 						}
 					}
 				}
