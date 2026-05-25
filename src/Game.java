@@ -1757,7 +1757,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								NPC npc = chars[npcNum] = new NPC(this);
 								npc.id = npcNum++;
 								npc.typedId = addedInmates++;
-								npc.name = "Inmate" + addedInmates;
+								npc.name = pickName();
 								npc.x = (npc.bedX = x) * TILE_SIZE;
 								npc.y = (npc.bedY = (y - 1)) * TILE_SIZE + 2;
 								npc.animation = NPC.ANIM_LYING;
@@ -1771,7 +1771,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								NPC npc = chars[npcNum] = new NPC(this);
 								npc.id = npcNum++;
 								npc.typedId = addedGuards++;
-								npc.name = "Officer " + addedGuards;
+								npc.name = pickName();
 								npc.outfitItem = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 								npc.weapon = Items.BATON | Items.ITEM_DEFAULT_DURABILITY;
 								npc.x = x * TILE_SIZE;
@@ -5128,6 +5128,1180 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	};
 
 	// endregion Items
+
+	// region NPC
+
+	String pickName() {
+		String s;
+		loop: while (true) {
+			s = getName(NPC.rng.nextInt(TEXT_NAMES_COUNT));
+			if (s == null)
+				continue; // should not be reachable
+			for (int i = 0; i < npcNum; ++i) {
+				if (chars[i] != null && s.equals(chars[i].name))
+					continue loop;
+			}
+			return s;
+		}
+	}
+
+	static final int TEXT_NAMES_COUNT = 124;
+
+	static String getName(int n) {
+		switch (n) {
+		case 0:
+			return "Simon";
+		case 1:
+			return "Mike";
+		case 2:
+			return "Chris";
+		case 3:
+			return "Rich";
+		case 4:
+			return "Steve";
+		case 5:
+			return "Levi";
+		case 6:
+			return "Taylor";
+		case 7:
+			return "Martin";
+		case 8:
+			return "Gary";
+		case 9:
+			return "Shane";
+		case 10:
+			return "Darren";
+		case 11:
+			return "Adam";
+		case 12:
+			return "Lee";
+		case 13:
+			return "Craig";
+		case 14:
+			return "Matt";
+		case 15:
+			return "Stuart";
+		case 16:
+			return "Ricky";
+		case 17:
+			return "Trevor";
+		case 18:
+			return "Carl";
+		case 19:
+			return "Leeroy";
+		case 20:
+			return "Jared";
+		case 21:
+			return "Wayne";
+		case 22:
+			return "John";
+		case 23:
+			return "William";
+		case 24:
+			return "Edgar";
+		case 25:
+			return "Nick";
+		case 26:
+			return "Walder";
+		case 27:
+			return "Brad";
+		case 28:
+			return "Ross";
+		case 29:
+			return "Max";
+		case 30:
+			return "Paul";
+		case 31:
+			return "Hans";
+		case 32:
+			return "Clark";
+		case 33:
+			return "Hank";
+		case 34:
+			return "Walt";
+		case 35:
+			return "Pierre";
+		case 36:
+			return "Larcen";
+		case 37:
+			return "Ervin";
+		case 38:
+			return "Buster";
+		case 39:
+			return "Marcus";
+		case 40:
+			return "Whitney";
+		case 41:
+			return "Gregg";
+		case 42:
+			return "Chung";
+		case 43:
+			return "Rory";
+		case 44:
+			return "Marshall";
+		case 45:
+			return "Gil";
+		case 46:
+			return "Terrell";
+		case 47:
+			return "Odell";
+		case 48:
+			return "Samuel";
+		case 49:
+			return "Lance";
+		case 50:
+			return "Raphael";
+		case 51:
+			return "Sang";
+		case 52:
+			return "Shelby";
+		case 53:
+			return "Rolando";
+		case 54:
+			return "Micah";
+		case 55:
+			return "Ronald";
+		case 56:
+			return "Noah";
+		case 57:
+			return "Liam";
+		case 58:
+			return "Jacob";
+		case 59:
+			return "Mason";
+		case 60:
+			return "William";
+		case 61:
+			return "Ethan";
+		case 62:
+			return "Michael";
+		case 63:
+			return "Alexander";
+		case 64:
+			return "Jayden";
+		case 65:
+			return "Daniel";
+		case 66:
+			return "Elijah";
+		case 67:
+			return "Aiden";
+		case 68:
+			return "James";
+		case 69:
+			return "Benjamin";
+		case 70:
+			return "Matthew";
+		case 71:
+			return "Jackson";
+		case 72:
+			return "Logan";
+		case 73:
+			return "David";
+		case 74:
+			return "Anthony";
+		case 75:
+			return "Joseph";
+		case 76:
+			return "Joshua";
+		case 77:
+			return "Andrew";
+		case 78:
+			return "Lucas";
+		case 79:
+			return "Isaac";
+		case 80:
+			return "Caleb";
+		case 81:
+			return "Henry";
+		case 82:
+			return "Carter";
+		case 83:
+			return "Hunter";
+		case 84:
+			return "Owen";
+		case 85:
+			return "Sebastian";
+		case 86:
+			return "Isaiah";
+		case 87:
+			return "Wyatt";
+		case 88:
+			return "Gavin";
+		case 89:
+			return "Julian";
+		case 90:
+			return "Aaron";
+		case 91:
+			return "Cameron";
+		case 92:
+			return "Tobias";
+		case 93:
+			return "Chase";
+		case 94:
+			return "Bentley";
+		case 95:
+			return "Xavier";
+		case 96:
+			return "Mick";
+		case 97:
+			return "Cooper";
+		case 98:
+			return "Luis";
+		case 99:
+			return "Jessie";
+		case 100:
+			return "Bruce";
+		case 101:
+			return "Morales";
+		case 102:
+			return "Heiko";
+		case 103:
+			return "Irwingvh";
+		case 104:
+			return "Tasty";
+		case 105:
+			return "Rahool";
+		case 106:
+			return "Wolferine";
+		case 107:
+			return "Fraggdya";
+		case 108:
+			return "Boogie";
+		case 109:
+			return "Supercol";
+		case 110:
+			return "LeVeque";
+		case 111:
+			return "Keno";
+		case 112:
+			return "Blanks";
+		case 113:
+			return "Morris";
+		case 114:
+			return "Radford";
+		case 115:
+			return "MD";
+		case 116:
+			return "Mickknew";
+		case 117:
+			return "Spud";
+		case 118:
+			return "Steptoe";
+		case 119:
+			return "Rodney";
+		case 120:
+			return "Jevon";
+		case 121:
+			return "Jamal";
+		case 122:
+			return "Wesker";
+		case 123:
+			return "Redford";
+		}
+		return null;
+	}
+
+	static final int TEXT_ATTACKED_COUNT = 57;
+
+	static String getAttackedText(int n) {
+		n += 1;
+		switch (n) {
+		case 1:
+			return "Help!";
+		case 2:
+			return "Huh?!";
+		case 3:
+			return "The heck!";
+		case 4:
+			return "OMD!";
+		case 5:
+			return "WTH!";
+		case 6:
+			return "Stop!";
+		case 7:
+			return "Dont!";
+		case 8:
+			return "No!";
+		case 9:
+			return "Right then..";
+		case 10:
+			return "It's on!";
+		case 11:
+			return "Bring it!";
+		case 12:
+			return "Here we go!";
+		case 13:
+			return "Why?";
+		case 14:
+			return "Why me?";
+		case 15:
+			return "Idiot";
+		case 16:
+			return "Time for a beat down";
+		case 17:
+			return "You're due a pasting";
+		case 18:
+			return "Time for a good hidin'";
+		case 19:
+			return "You're done";
+		case 20:
+			return "Wave goodbye to your teeth";
+		case 21:
+			return "Why you..";
+		case 22:
+			return "Alrighty then";
+		case 23:
+			return "Who the..";
+		case 24:
+			return "LOL!";
+		case 25:
+			return "Moron";
+		case 26:
+			return "You want some?";
+		case 27:
+			return "ORLY?";
+		case 28:
+			return "Bad move";
+		case 29:
+			return "Come on then!";
+		case 30:
+			return "Good times";
+		case 31:
+			return "Boom!";
+		case 32:
+			return "Here it comes";
+		case 33:
+			return "Comin' at ya!";
+		case 34:
+			return "Whats the meaning of this?";
+		case 35:
+			return "Haymaker comin' up";
+		case 36:
+			return "How rude";
+		case 37:
+			return "You muppet!";
+		case 38:
+			return "LMAO!";
+		case 39:
+			return "Wow";
+		case 40:
+			return "Easy boy";
+		case 41:
+			return "LOL!!!!";
+		case 42:
+			return "Hadoken!";
+		case 43:
+			return "Sonic boom!";
+		case 44:
+			return "Oi!";
+		case 45:
+			return "Let's settle this";
+		case 46:
+			return "Ouch";
+		case 47:
+			return "Why the ear man?";
+		case 48:
+			return "Bro?";
+		case 49:
+			return "Hear me out";
+		case 50:
+			return "Im under attack!";
+		case 51:
+			return "Requesting assistance!";
+		case 52:
+			return "Call the cops!";
+		case 53:
+			return "Dial 911!";
+		case 54:
+			return "Somebody help me!";
+		case 55:
+			return "Fool of a Took!";
+		case 57:
+			return "Please..";
+		}
+		return null;
+	}
+
+	static final int TEXT_CANTEEN = 0;
+	static final int TEXT_GYM = 1;
+	static final int TEXT_SHOWER = 2;
+	static final int TEXT_BANTER = 3;
+
+	static final int TEXT_CANTEEN_COUNT = 66;
+	static final int TEXT_GYM_COUNT = 34;
+	static final int TEXT_SHOWER_COUNT = 43;
+	static final int TEXT_BANTER_COUNT = 228;
+
+	static String getRandomText(int type, int n) {
+		n += 1;
+		switch (type) {
+		case TEXT_CANTEEN:
+			switch (n) {
+			case 1:
+				return "You call this food?";
+			case 2:
+				return "There's a hair in my soup";
+			case 3:
+				return "Who threw that?";
+			case 4:
+				return "This is disgusting";
+			case 5:
+				return "Better hand over your pudding";
+			case 6:
+				return "Man im stuffed";
+			case 7:
+				return "Waiter!";
+			case 8:
+				return "Sick of this slop";
+			case 9:
+				return "Any seconds?";
+			case 10:
+				return "Tastes like soil";
+			case 11:
+				return "You gonna finish that?";
+			case 12:
+				return "Mind if i finish that?";
+			case 13:
+				return "I feel sick";
+			case 14:
+				return "This smells funny";
+			case 15:
+				return "This is rank";
+			case 16:
+				return "There's a fly in my mash";
+			case 17:
+				return "Try cooking it once in a while";
+			case 18:
+				return "You tried this?";
+			case 19:
+				return "Taste that";
+			case 20:
+				return "Eugh";
+			case 21:
+				return "I refuse to ingest this";
+			case 22:
+				return "I need my carbs";
+			case 23:
+				return "Guard! someone took my pudding!";
+			case 24:
+				return "My pudding is missing!";
+			case 25:
+				return "Yo i'm still hungry";
+			case 26:
+				return "Lap it up kid";
+			case 27:
+				return "Is this food?";
+			case 28:
+				return "I'll need a mint after this";
+			case 29:
+				return "Imagine having real food";
+			case 30:
+				return "Just pretend it's nice";
+			case 31:
+				return "It's not bad really";
+			case 32:
+				return "Bit overcooked";
+			case 33:
+				return "I've had better";
+			case 34:
+				return "Pass that salt";
+			case 35:
+				return "Could do with some seasoning";
+			case 36:
+				return "It's missing something";
+			case 37:
+				return "This resembles vomit";
+			case 38:
+				return "Who runs this kitchen?";
+			case 39:
+				return "The chef needs eliminating";
+			case 40:
+				return "+1 to the chef";
+			case 41:
+				return "Slow down";
+			case 42:
+				return "Don't talk with your gob full";
+			case 43:
+				return "Hand over the cake";
+			case 44:
+				return "Gimme that pudding";
+			case 45:
+				return "Call this a serving?";
+			case 46:
+				return "You planning on finishing that?";
+			case 47:
+				return "Shut the hell up fool";
+			case 48:
+				return "Do you mind?";
+			case 49:
+				return "Real food would be nice";
+			case 50:
+				return "Will y'all keep it down while I savour the flavor?";
+			case 51:
+				return "It's barely cooked";
+			case 52:
+				return "Reminds me of dog food";
+			case 53:
+				return "Smells rank";
+			case 54:
+				return "Honestly, smell that";
+			case 55:
+				return "That isn't a head hair..";
+			case 56:
+				return "Ditch the chef!";
+			case 57:
+				return "I vote this meal 10! ...out of 100";
+			case 58:
+				return "Awful this is";
+			case 59:
+				return "Your pudding or your soul, choose";
+			case 60:
+				return "Wouldn't mind the recipe";
+			case 61:
+				return "Waiter!";
+			case 62:
+				return "There's a meal in my fly!";
+			case 63:
+				return "Heck is this slop?";
+			case 64:
+				return "Code red!";
+			case 65:
+				return "Seat's taken boy";
+			case 66:
+				return "Only having three puddings 'cos i'm on a diet";
+			}
+			break;
+		case TEXT_GYM:
+			switch (n) {
+			case 1:
+				return "Working up a sweat";
+			case 2:
+				return "*gasp*";
+			case 3:
+				return "Need a drink";
+			case 4:
+				return "Check out these quads";
+			case 5:
+				return "Watch me flex";
+			case 6:
+				return "Working them abs";
+			case 7:
+				return "Let's get sweaty";
+			case 8:
+				return "What do you bench?";
+			case 9:
+				return "Push it";
+			case 10:
+				return "I'm pacing myself";
+			case 11:
+				return "Try and keep up";
+			case 12:
+				return "Crank it up";
+			case 13:
+				return "Hurry up pal";
+			case 14:
+				return "You done yet?";
+			case 15:
+				return "Gotta do my quads next";
+			case 16:
+				return "I'm not even tensing";
+			case 17:
+				return "Not even trying here";
+			case 18:
+				return "Nothing to it";
+			case 19:
+				return "I got this";
+			case 20:
+				return "Taking it easy";
+			case 21:
+				return "Started at the bottom";
+			case 22:
+				return "After im done on here I'ma clap you one";
+			case 23:
+				return "Pure muscle here";
+			case 24:
+				return "This is all me";
+			case 25:
+				return "Couldn't photoshop these abs if you tried";
+			case 26:
+				return "Staring at my abs? don't blame ya..";
+			case 27:
+				return "Training up to clip a guard";
+			case 28:
+				return "Getting hench over here";
+			case 29:
+				return "Ain't stopping till I'm hench!";
+			case 30:
+				return "*roar*";
+			case 31:
+				return "This is why no one messes with me";
+			case 32:
+				return "Seen these biceps?";
+			case 33:
+				return "I can even throw guards";
+			case 34:
+				return "Ever benchpressed a guard?";
+			}
+			break;
+		case TEXT_SHOWER:
+			switch (n) {
+			case 1:
+				return "I could be a friend to you";
+			case 2:
+				return "We could be friends";
+			case 3:
+				return "Pass the soap";
+			case 4:
+				return "Don't you be looking at my tools";
+			case 5:
+				return "You looking at?";
+			case 6:
+				return "Water's cold man!";
+			case 7:
+				return "You're invading my personal space";
+			case 8:
+				return "Oh I know you weren't just looking there";
+			case 9:
+				return "Keep your eyes north fool";
+			case 10:
+				return "Keep it down will ya";
+			case 11:
+				return "Hand over that soap";
+			case 12:
+				return "Who's got the soap?";
+			case 13:
+				return "Where the soap at?";
+			case 14:
+				return "Just lathering up";
+			case 15:
+				return "Budge up will ya";
+			case 16:
+				return "No shame here";
+			case 17:
+				return "Express yourself";
+			case 18:
+				return "It's too hot";
+			case 19:
+				return "Ouch my eyes!";
+			case 20:
+				return "Move";
+			case 21:
+				return "You cold or something?";
+			case 22:
+				return "Call me sometime";
+			case 23:
+				return "Any conditioner?";
+			case 24:
+				return "You guards enjoying the view?";
+			case 25:
+				return "This is the spot where i knocked some guys tooth out";
+			case 26:
+				return "I've made many friends in here";
+			case 27:
+				return "Well this is romantic";
+			case 28:
+				return "There's a perimeter 'round here";
+			case 29:
+				return "Oh do hush";
+			case 30:
+				return "Something wrong?";
+			case 31:
+				return "Seriously...";
+			case 32:
+				return "Drains clogged";
+			case 33:
+				return "My favorite place";
+			case 34:
+				return "Call yourself a man?";
+			case 35:
+				return "LOL!";
+			case 36:
+				return "I won't sleep tonight now";
+			case 37:
+				return "What's seen can't be unseen";
+			case 38:
+				return "What did your wife reckon to that?";
+			case 39:
+				return "Whats that rash you've got there, fella?";
+			case 40:
+				return "Hold me";
+			case 41:
+				return "Do you know that when you look at me it is a salvation?";
+			case 42:
+				return "I could drive on this road forever...";
+			case 43:
+				return "Would be happy with just one minute in your arms";
+			}
+			break;
+		case TEXT_BANTER: {
+			// TODO
+			String guard = "Guard";
+			String inmate = "Inmate";
+			StringBuffer sb = Game.stringBuffer;
+			sb.setLength(0);
+			switch (n) {
+			case 1:
+				return "This place is a dump";
+			case 2:
+				return "This place is garbage";
+			case 3:
+				return "Oh you didn't know? Everyone in here's innocent";
+			case 4:
+				return "Innocent are ya? Same here";
+			case 5:
+				return "Oh you're innocent? Aren't we all";
+			case 6:
+				return "The guards are more crooked than the cons!";
+			case 7:
+				return "Trust no one";
+			case 8:
+				return "No one can be trusted";
+			case 9:
+				return "Someone took a dump in my sink";
+			case 10:
+				return "Someone took a dump on my bed";
+			case 11:
+				return "Parole meeting coming up, better keep my nose clean";
+			case 12:
+				return "I got rejected for early release";
+			case 13:
+				return "I gotta shank someone";
+			case 14:
+				return "I'm gonna find a little guy and start a fight";
+			case 15:
+				return "Don't look now but i think the screws are watching";
+			case 16:
+				return "I think i'm being watched";
+			case 17:
+				return "Is it me or is it warm in here?";
+			case 18:
+				return "Bit cold ain't it?";
+			case 19:
+				return "Chilly in here or what?";
+			case 20:
+				return "Freezing in here isn't it!";
+			case 21:
+				return "Boiling in here!";
+			case 22:
+				return "Has the aircon packed up again?";
+			case 23:
+				return "Nothing works in this place";
+			case 24:
+				return "I'm sure the screws are plotting something";
+			case 25:
+				return "A storm's brewing";
+			case 26:
+				return "Something big is gonna happen";
+			case 27:
+				return "I feel a change in the wind";
+			case 28:
+				return "Something big's going down";
+			case 29:
+				return "I used to be a butcher you know";
+			case 30:
+				return "I used to be a barber you know";
+			case 31:
+				return "I used to be a cab driver you know";
+			case 32:
+				return "I used to be a CEO you know";
+			case 33:
+				return "I used to be a builder you know";
+			case 34:
+				return "I used to own my own company you know";
+			case 35:
+				return "I used to run my own business you know";
+			case 36:
+				return "I used to be a game developer you know";
+			case 37:
+				return "I used to be homeless you know";
+			case 38:
+				return "I used to be a hitman you know";
+			case 39:
+				return "I used to be a con man you know";
+			case 40:
+				return "After that I opted for good times";
+			case 41:
+				return "So I switched gender";
+			case 43:
+				return "Ended up ending him in the end";
+			case 44:
+				return "He actually flew after that uppercut";
+			case 45:
+				return "Ended up in the gutter";
+			case 46:
+				return "Then I became a minion of the system";
+			case 47:
+				return "My lawyer played me bro";
+			case 48:
+				return "My lawyer was a double agent";
+			case 49:
+				return "Anything I did was in self defense";
+			case 50:
+				return "You played Spud's Quest? Brilliant game";
+			case 51:
+				return "Can't wait to break out";
+			case 52:
+				return "Just who does he think he is eh?";
+			case 53:
+				return "Who does he think he's talking to";
+			case 54:
+				return "Must be difficult being cross-eyed";
+			case 55:
+				return "Yawn";
+			case 56:
+				return "Sleepy...";
+			case 57:
+				return "Does my bum look big in this?";
+			case 58:
+				return "You smell nice";
+			case 59:
+				return "What is that smell?";
+			case 60:
+				return "Something stinks";
+			case 61:
+				return "Eugh smells like something died";
+			case 62:
+				return "I'm gonna be sick";
+			case 63:
+				return "I'm a victim of good times";
+			case 64:
+				return "I'm a victim of flexism";
+			case 65:
+				return "I'm a victim of heightism";
+			case 66:
+				return "See me flex";
+			case 67:
+				return "Been working out loads";
+			case 68:
+				return "I've been taking protein shakes";
+			case 69:
+				return "Been bulking up big time";
+			case 70:
+				return "You need biceps like these";
+			case 71:
+				return "Had to teach someone a lesson earlier";
+			case 72:
+				return "Had to batter someone earlier";
+			case 73:
+				return "Had to knock some sense into someone earlier";
+			case 74:
+				return "Had to remind someone of their position earlier";
+			case 75:
+				return "Had to chastise someone earlier";
+			case 76:
+				return "Had to punish someone earlier";
+			case 77:
+				return "He better not try it";
+			case 78:
+				return "I'd love to see him try me";
+			case 79:
+				return "He better watch his back";
+			case 80:
+				return "He's crusing for a bruising";
+			case 81:
+				return "I gotta go wing chun someone";
+			case 82:
+				return "I should go all bruce lee on them";
+			case 83:
+				return "He's testing my patience";
+			case 84:
+				return "My fist left a dent in his forehead";
+			case 85:
+				return "He spat out a tooth after i'd finished";
+			case 86:
+				return "They were in a heap on the floor after I'd done my thing";
+			case 87:
+				return "Tread lightly";
+			case 88:
+				return "I'm not in danger, I am the danger";
+			case 89:
+				return "Say my name";
+			case 90:
+				return "That was the day I split his wig";
+			case 91:
+				return "That day, when it rained...";
+			case 92:
+				return "Better call Paul!";
+			case 93:
+				return "That son of a gun crossed me";
+			case 94:
+				return "That son of a gun betrayed me";
+			case 95:
+				return "That son of a gun snitched on me";
+			case 96:
+				return "Can you hear that?";
+			case 97:
+				return "I've been working on my one inch punch";
+			case 98:
+				return "She said I was the father!";
+			case 99:
+				return "You gotta be kidding me right..";
+			case 100:
+				return "There were only eight of them so I had to take them out";
+			case 101:
+				return sb.append("I heard").append(guard).append("'s wife ran off with another guy").toString();
+			case 102:
+				return sb.append("I heard ").append(guard).append("'s wife left him").toString();
+			case 103:
+				return sb.append("Apparently ").append(guard).append("'s wife filed for divorce").toString();
+			case 104:
+				return sb.append("Apparently ").append(guard).append("'s wife passed away").toString();
+			case 105:
+				return sb.append("I heard ").append(guard).append("'s wife is pressing charges against him").toString();
+			case 106:
+				return sb.append("I heard ").append(guard).append("'s wife is sueing him").toString();
+			case 107:
+				return sb.append("I heard ").append(guard).append("'s wife ran off with another woman").toString();
+			case 108:
+				return sb.append("Apparently ").append(guard).append("'s dog died").toString();
+			case 109:
+				return sb.append("Apparently ").append(guard).append("'s dog got put down ").toString();
+			case 110:
+				return sb.append("I heard ").append(guard).append("'s cat died").toString();
+			case 111:
+				return sb.append("Apparently ").append(guard).append("'s cat got ran over").toString();
+			case 112:
+				return sb.append("I heard ").append(guard).append("'s cat attacked him").toString();
+			case 113:
+				return sb.append("Apparently ").append(guard).append("'s an alcoholic").toString();
+			case 114:
+				return sb.append(guard).append(" deleted one of my teeth bro!").toString();
+			case 115:
+				return sb.append(guard).append(" knocked my chin outta alignment!").toString();
+			case 116:
+				return sb.append(guard).append(" combed my hair with a brick!").toString();
+			case 117:
+				return sb.append("I heard ").append(guard).append("'s having therapy").toString();
+			case 118:
+				return sb.append("I heard ").append(guard).append("'s having marriage councelling").toString();
+			case 119:
+				return sb.append("Apparently ").append(guard).append("'s cheating on his mistress").toString();
+			case 120:
+				return sb.append("I heard ").append(guard).append("'s split with his wife").toString();
+			case 121:
+				return sb.append("Apparently ").append(guard).append("'s into men").toString();
+			case 122:
+				return sb.append("Looking forward to ").append(guard).append("'s getting fired").toString();
+			case 123:
+				return sb.append("I'm told ").append(guard).append("'s getting made redundant").toString();
+			case 124:
+				return sb.append("I heard ").append(guard).append("'s on the mobs hitlist").toString();
+			case 125:
+				return sb.append("Heard ").append(guard).append("'s in line for a beatdown").toString();
+			case 126:
+				return sb.append("I'm told ").append(guard).append("'s getting a beating tomorrow").toString();
+			case 127:
+				return sb.append("Spread word that ").append(guard).append(" had his wings clipped").toString();
+			case 128:
+				return sb.append("Apparently ").append(guard).append(" ended up on his back").toString();
+			case 129:
+				return sb.append("Apparently ").append(guard).append(" got robbed by an old geezer ").toString();
+			case 130:
+				return sb.append("Unfortunately ").append(inmate).append("'s up for release soon").toString();
+			case 131:
+				return sb.append("Apparently ").append(inmate).append("'s planning a breakout").toString();
+			case 132:
+				return sb.append("I heard ").append(inmate).append("'s wife passed away").toString();
+			case 133:
+				return sb.append("I'm told ").append(inmate).append("'s wife moved on").toString();
+			case 134:
+				return sb.append("I heard ").append(inmate).append("'s wife stopped writing").toString();
+			case 135:
+				return sb.append("I heard ").append(inmate).append("'s wife got took out").toString();
+			case 136:
+				return sb.append("I heard ").append(inmate).append("'s wife died").toString();
+			case 137:
+				return sb.append("I heard ").append(inmate).append("'s wife got arrested").toString();
+			case 138:
+				return sb.append("I heard ").append(inmate).append("'s in for a beating").toString();
+			case 139:
+				return sb.append("Apparently ").append(inmate).append("'s scheduled a seein' to").toString();
+			case 140:
+				return sb.append("Apparently ").append(inmate).append("'s in here for breaking and decorating").toString();
+			case 141:
+				return sb.append("Apparently ").append(inmate).append("'s in here for armed robbery").toString();
+			case 142:
+				return sb.append("I heard ").append(inmate).append("'s was framed").toString();
+			case 143:
+				return sb.append("I'm told ").append(inmate).append("'s in here for robbing yo' momma").toString();
+			case 144:
+				return sb.append("I'm told ").append(inmate).append(" is an undercover cop").toString();
+			case 145:
+				return sb.append("I heard ").append(inmate).append("'s an FBI informant").toString();
+			case 146:
+				return sb.append("I'm told ").append(inmate).append("'s a snitch").toString();
+			case 147:
+				return sb.append("I'm told ").append(inmate).append("'s a rat").toString();
+			case 148:
+				return sb.append("I'm told ").append(inmate).append("'s got some problem with me").toString();
+			case 149:
+				return sb.append("I heard ").append(inmate).append("'s after you").toString();
+			case 150:
+				return sb.append("I heard ").append(inmate).append("'s smuggling stuff").toString();
+			case 151:
+				return "Sometimes I laugh myself to sleep";
+			case 152:
+				return "A shotgun would be handy right now";
+			case 153:
+				return "Ended up eating my own shorts";
+			case 154:
+				return "Turns out my bro was my sis";
+			case 155:
+				return "I have nothing to declare but my innocence";
+			case 156:
+				return "They tore my cell to bits";
+			case 157:
+				return "Well they upturfed my entire cell";
+			case 158:
+				return "My toilet's broke again";
+			case 159:
+				return "Toilet's clogged up again man";
+			case 160:
+				return "So my wife stopped visiting when she heard that";
+			case 161:
+				return "So my wife stopped ringing when she heard that";
+			case 162:
+				return "The first rule of fight club is you do not talk about fight club";
+			case 163:
+				return "The screws in this place are mental";
+			case 164:
+				return "The guards in this place are a joke";
+			case 165:
+				return "The screws in this place are stupid";
+			case 166:
+				return "The guards in this place are nuts";
+			case 167:
+				return "You plotting an escape or what?";
+			case 168:
+				return "I hear there's an escape plot";
+			case 169:
+				return "If there was an escape plot I'd hope to be invited";
+			case 170:
+				return "Ever thought about escaping?";
+			case 171:
+				return "I predict a riot";
+			case 172:
+				return "I'm bored, wanna start a riot?";
+			case 173:
+				return "We should flood the gym";
+			case 174:
+				return "We should flood the canteen";
+			case 175:
+				return "We should flood the library";
+			case 176:
+				return "We should trash the canteen up";
+			case 177:
+				return "We should trash the gym up";
+			case 178:
+				return "We should trash the library";
+			case 179:
+				return "...That's what started me thinking";
+			case 180:
+				return "...That's what started me collecting stamps";
+			case 181:
+				return "...so I turned to crime";
+			case 182:
+				return "...so I spat some bars";
+			case 183:
+				return "I doubt that very much";
+			case 184:
+				return "I've always said that";
+			case 185:
+				return "I tend to agree";
+			case 186:
+				return "I just got out the SHU";
+			case 187:
+				return "The SHU is hell";
+			case 188:
+				return "The SHU can send you bonkers";
+			case 189:
+				return "So did you finish Spud's Quest or what?";
+			case 190:
+				return "Like I was saying...";
+			case 191:
+				return "Am I rambling?";
+			case 192:
+				return "Did I stutter?";
+			case 193:
+				return "Am I boring you?";
+			case 194:
+				return "They tried to jump me";
+			case 195:
+				return "I found a hair in my food";
+			case 196:
+				return "The dinners here taste like vomit";
+			case 197:
+				return "I could see it was about to turn ugly so I got outta there";
+			case 198:
+				return "*burp*";
+			case 199:
+				return "Been working on some new rumours";
+			case 200:
+				return "*hic*";
+			case 201:
+				return "He said what?";
+			case 202:
+				return "He's diggin' his own grave";
+			case 203:
+				return "You dropped one? ..or two?";
+			case 204:
+				return "Does he realize who i am?";
+			case 205:
+				return "Waiting on karma";
+			case 206:
+				return "Pretend you're having fun";
+			case 207:
+				return "Aint so bad";
+			case 208:
+				return "Adriaaaan!";
+			case 209:
+				return "Got a meeting in 10...";
+			case 210:
+				return "I often think I'm having too much fun";
+			case 211:
+				return "I downvoted this place online";
+			case 212:
+				return "You can never have too much fun";
+			case 213:
+				return "I'm having too much fun";
+			case 214:
+				return "Did someone squeak?";
+			case 215:
+				return "Hipsters..";
+			case 216:
+				return "I make the rules";
+			case 217:
+				return "I'm what counts out here";
+			case 218:
+				return "I took one for the team";
+			case 219:
+				return "I only fight small people";
+			case 220:
+				return "Wanna know how i got these scars?";
+			case 221:
+				return "Got battered with a spoon you know";
+			case 222:
+				return "So he came at me with a spoon";
+			case 223:
+				return "I had to fight off 10 men with just a spoon!";
+			case 224:
+				return "I'm here to amuse you?";
+			case 225:
+				return "Funny how?";
+			case 226:
+				return "I think he took his wallet!";
+			case 227:
+				return "I'm being trolled";
+			case 228:
+				return "What we have here is a failure to communicate";
+			}
+			break;
+		}
+		}
+		return "Error!";
+	}
+
+	// endregion NPC constants
 
 	// region Textures
 

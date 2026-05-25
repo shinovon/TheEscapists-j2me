@@ -19,7 +19,7 @@
 - [x] Inmates
 - [x] Guards
 - [x] Stats
-- [ ] NPC Speech text
+- [x] NPC speech text
 - [x] NPC fighting
 - [x] Player fighting
 - [x] NPC Gym
@@ -56,6 +56,7 @@
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
+- [x] Random NPC names
 
 # OST
 

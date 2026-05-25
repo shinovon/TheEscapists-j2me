@@ -505,21 +505,30 @@ class NPC implements Constants {
 		if (inmate) {
 			say: {
 				int p, delay;
+				int textType, textCount;
 				if (aiState == AI_ROAM) {
 					p = 20;
 					delay = 5;
+					textType = Game.TEXT_BANTER;
+					textCount = Game.TEXT_BANTER_COUNT;
 				} else if (aiState == AI_MEAL && sitting) {
 					p = 70;
 					delay = 10;
+					textType = Game.TEXT_CANTEEN;
+					textCount = Game.TEXT_CANTEEN_COUNT;
 				} else if (aiState == AI_GYM && training) {
 					p = 50;
 					delay = 7;
+					textType = Game.TEXT_GYM;
+					textCount = Game.TEXT_GYM_COUNT;
 				} else if (aiState == AI_WAYPOINT && targetReached) {
 					if (map.schedule != SC_SHOWER_BLOCK) {
 						break say;
 					}
 					p = 50;
 					delay = 7;
+					textType = Game.TEXT_SHOWER;
+					textCount = Game.TEXT_SHOWER_COUNT;
 				} else {
 					break say;
 				}
@@ -527,7 +536,7 @@ class NPC implements Constants {
 					if (rng.nextInt(p) != 0) {
 						nextDialogTimer = TPS >> 1;
 					} else {
-						dialog = "Random text";
+						dialog = Game.getRandomText(textType, rng.nextInt(textCount));
 						dialogTimer = (TPS * 2);
 						nextDialogTimer = TPS * delay;
 					}
@@ -1682,7 +1691,7 @@ class NPC implements Constants {
 			return;
 
 		if (inmate) {
-			dialog = "LOL!";
+			dialog = Game.getAttackedText(rng.nextInt(Game.TEXT_ATTACKED_COUNT));
 			dialogTimer = (TPS * 2);
 		} else if (guard) {
 			if (visible) {
