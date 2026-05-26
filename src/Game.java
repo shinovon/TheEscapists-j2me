@@ -1482,7 +1482,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
 						y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
 					} else {
-						float t = deltaTime >= 1 ? 0.5f : 0.5f * deltaTime;
+						float t = deltaTime >= 1 ? CAMERA_SPEED : CAMERA_SPEED * deltaTime;
 						x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE / 2)) - x) * t, 0), width * TILE_SIZE - viewWidth);
 						y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE / 2)) - y) * t, 0), height * TILE_SIZE - viewHeight);
 					}

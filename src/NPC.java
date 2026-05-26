@@ -1043,6 +1043,7 @@ class NPC implements Constants {
 				animation = ANIM_LYING;
 				xFloat = x = bedX * TILE_SIZE;
 				yFloat = y = bedY * TILE_SIZE + 2;
+				correctPath = false;
 			} else if (!correctPath) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;

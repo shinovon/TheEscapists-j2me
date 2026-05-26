@@ -15,6 +15,7 @@ public interface Constants {
 	static final float NPC_SPEED = (3f * 30) / TPS;
 	static final float OTHER_NPC_SPEED = (2f * 30) / TPS;
 	static final int FADE_SPEED = (6 * 30) / TPS;
+	static final float CAMERA_SPEED = 0.4f;
 	
 	static final int TILE_SIZE = 16;
 	static final int NPC_VIEW_DISTANCE = 6 * 6 * TILE_SIZE * TILE_SIZE; // squared
