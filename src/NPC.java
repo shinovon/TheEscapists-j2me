@@ -2639,6 +2639,7 @@ class NPC implements Constants {
 								layer = LAYER_UNDERGROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
+								map.resetCamera = true;
 								break interact;
 							}
 							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
@@ -2646,6 +2647,7 @@ class NPC implements Constants {
 								layer = LAYER_GROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
+								map.resetCamera = true;
 								break interact;
 							}
 						}
@@ -2691,12 +2693,14 @@ class NPC implements Constants {
 								layer = LAYER_UNDERGROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
+								map.resetCamera = true;
 								break interact;
 							}
 							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
 								layer = LAYER_GROUND;
 								xFloat = this.x = x * TILE_SIZE;
 								yFloat = this.y = y * TILE_SIZE;
+								map.resetCamera = true;
 								break interact;
 							}
 						}
@@ -2975,12 +2979,14 @@ class NPC implements Constants {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
 									layer++;
+									map.resetCamera = true;
 									break interact;
 								}
 								if (obj == Objects.LADDER_DOWN) {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
 									layer--;
+									map.resetCamera = true;
 									break interact;
 								}
 							}

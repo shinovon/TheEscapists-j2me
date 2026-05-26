@@ -71,6 +71,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean noTextures;
 
 	float x, y;
+	boolean resetCamera;
 
 	int screen;
 
@@ -1188,7 +1189,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.FAKE_WALL_BLOCK | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -1481,10 +1482,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 						x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
 						y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
+					} else if (resetCamera) {
+						resetCamera = false;
+						x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
+						y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
 					} else if (!paused && !pausedOverlay) {
 						float t = deltaTime >= 1 ? CAMERA_SPEED : CAMERA_SPEED * deltaTime;
-						x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE / 2)) - x) * t, 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE / 2)) - y) * t, 0), height * TILE_SIZE - viewHeight);
+						x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE >> 1)) - x) * t, 0), width * TILE_SIZE - viewWidth);
+						y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE >> 1)) - y) * t, 0), height * TILE_SIZE - viewHeight);
 					}
 				}
 
@@ -2392,8 +2397,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			schedule = SC_LIGHTSOUT;
 			cellsClosed = true;
 			entranceOpen = false;
-			x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE / 2), 0), width * TILE_SIZE - viewWidth);
-			y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE / 2), 0), height * TILE_SIZE - viewHeight);
+			resetCamera = true;
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
 			// reset npcs
