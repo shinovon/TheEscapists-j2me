@@ -323,10 +323,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// HUD
 			{
 				fontColor = FONT_COLOR_WHITE;
-	//			drawText(g, "$ " + money, 0, 0, FONT_REGULAR);
-	//			drawText(g, "HP " + player.health, 0, 11, FONT_REGULAR);
-	//			drawText(g, "HEAT " + heat, 0, 22, FONT_REGULAR);
-	//			drawText(g, "FATIGUE " + fatigue, 0, 33, FONT_REGULAR);
 				int n;
 				int x;
 				NPC player = this.player;
