@@ -59,6 +59,8 @@
 - [ ] Shops
 - [ ] Tips
 - [ ] Shakedowns
+- [ ] Toilets
+- [ ] Achievements
 
 # OST
 
@@ -76,6 +78,5 @@
 # Misc
 
 - Update desks random items by time
-- Toilet interface
 - Lockdown midi
 - Use pngout for resources?

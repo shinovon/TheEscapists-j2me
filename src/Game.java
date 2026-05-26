@@ -294,7 +294,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
 		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
-			int x = Math.round(this.x), y = Math.round(this.y);
+			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
 			int layer = player.layer;
 			if (layer == LAYER_ROOF) {
 				paintMap(g, x, y, w, h, LAYER_GROUND);
