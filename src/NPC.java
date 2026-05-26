@@ -1854,10 +1854,7 @@ class NPC implements Constants {
 			chaseTarget = null;
 			map.action = ACT_NONE;
 			map.progress = 0;
-
-			// fadeout
-			animationTimer = TPS * 3;
-			map.ingameFadeOut = map.viewWidth;
+			animationTimer = 0;
 
 			if (map.lockdown) {
 				map.lockdown = false;
@@ -1882,6 +1879,8 @@ class NPC implements Constants {
 				}
 				training = false;
 			}
+			respawnPlayer();
+			return;
 		} else if (health > maxHealth) {
 			// limit health
 			health = maxHealth;
@@ -2574,14 +2573,14 @@ class NPC implements Constants {
 								int dx = npc.x - this.x;
 								int dy = npc.y - this.y;
 								int d = dx * dx + dy * dy;
-								if (d < TILE_SIZE * TILE_SIZE) {
-									if (npc.health == 0) {
+								if (npc.health == 0) {
+									if (d < TILE_SIZE * TILE_SIZE) {
 										Sound.playEffect(Sound.SFX_PICKUP);
 										carry = npc;
 										npc.carried = true;
-									} else if (npc.inmate || npc.guard) {
-										chaseTarget = npc;
 									}
+								} else if (npc.inmate || npc.guard) {
+									chaseTarget = npc;
 								}
 							}
 						}
