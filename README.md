@@ -35,9 +35,19 @@ javac -d bin src/*.java
 java -cp bin ResourceBuilder ../res "~/CTFAK/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/" shanktonstapen
 ```
 
-For compiling the game you may use IntelliJ IDEA integrated with KEmulator nnmod, or Eclipse IDE (not newer than 2024-06!) with MTJ plugin.
+To compile the game you may use IntelliJ IDEA integrated with KEmulator nnmod, or Eclipse IDE (not newer than 2021-06!) with MTJ plugin and preprocessing enabled.
+
+### Eclipse
+
+[Eclipse setup guide for Windows](https://github.com/shinovon/KEmulator/wiki/Setting-up-Eclipse-IDE-for-J2ME-on-Windows-guide-(2025)) \
+[Eclipse setup guide for Linux](https://github.com/shinovon/KEmulator/wiki/Setting-up-Eclipse-IDE-for-J2ME-on-Linux-x86_64-(2025)) \
+[Preprocessing setup guide in Russian](https://github.com/shinovon/KEmulator/wiki/Setting-up-Eclipse-IDE-for-J2ME-on-Windows-guide-(2025))
+
+### IntelliJ IDEA
 
 To open project in IntelliJ IDEA, open KEmulator nnmod, Tools>IntelliJ IDEA Support, go through setup steps, then in "Fix a project after clone" section, press "Choose a project".
+
+Does not support preprocessing for platform-specific builds, so generic config will be used.
 
 ## Requirements
 
