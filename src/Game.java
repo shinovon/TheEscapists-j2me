@@ -293,7 +293,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
 		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
-			int x = (int) this.x, y = (int) this.y;
+			int x = Math.round(this.x), y = Math.round(this.y);
 			int layer = player.layer;
 			if (layer == LAYER_ROOF) {
 				paintMap(g, x, y, w, h, LAYER_GROUND);
@@ -1482,8 +1482,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
 						y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
 					} else {
-						x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE / 2), 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE / 2), 0), height * TILE_SIZE - viewHeight);
+						float t = deltaTime >= 1 ? 0.5f : 0.5f * deltaTime;
+						x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE / 2)) - x) * t, 0), width * TILE_SIZE - viewWidth);
+						y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE / 2)) - y) * t, 0), height * TILE_SIZE - viewHeight);
 					}
 				}
 
