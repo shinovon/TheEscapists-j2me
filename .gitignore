@@ -1,6 +1,7 @@
 /.settings/
 /.mtj.tmp/
-/deployed/
+/deployed/**
+!/deployed/release.sh
 /bin/
 /.idea/**
 !/.idea/artifacts
