@@ -3548,20 +3548,34 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		// characters dialogs
+		int fh = fontCharHeight[FONT_REGULAR];
 		for (int i = 0; i < renderChars.length; ++i) {
 			NPC npc = renderChars[i];
 			if (npc == null || npc.layer != layer || !npc.visible) continue;
 
 			int x = (int) npc.x - viewX, y = (int) npc.y - viewY;
 			if (npc.dialog != null) {
-				String s = npc.dialog;
-				int w = textWidth(s, FONT_REGULAR);
+				String[] r = npc.dialogRender;
+				if (r == null) {
+					npc.dialogRender = r = getStringArray(npc.dialog, 160, FONT_REGULAR);
+					npc.dialogW = splitResultWidth;
+					npc.dialogH = r.length * fh + 5;
+				}
+				int w = npc.dialogW;
+				int h = npc.dialogH;
 				fontColor = FONT_COLOR_BLACK;
 				g.setColor(!npc.ai ? 0xFFFF57 : npc.bodyId == Textures.GUARD ? 0xA9E6FC : 0xFFFFFF);
-				g.fillRect(x + 8 - (w >> 1) - 3, y - 18, w + 6, 15);
+				g.fillRect(x + 8 - (w >> 1) - 3, y - 3 - h, w + 6, h);
 				g.setColor(0);
-				g.drawRect(x + 8 - (w >> 1) - 3, y - 18, w + 6, 15);
-				drawText(g, s, x + 8 - (w >> 1), y - 15, FONT_REGULAR);
+				g.drawRect(x + 8 - (w >> 1) - 3, y - 3 - h, w + 6, h);
+				int ty = 0;
+				int lines = r.length;
+				for (int j = 0; j < lines; ++j) {
+					String s = r[j];
+					int lw = textWidth(s, FONT_REGULAR);
+					drawText(g, s, x + 8 - (lw >> 1), y - h + ty, FONT_REGULAR);
+					ty += fh;
+				}
 				fontColor = FONT_COLOR_WHITE;
 			}
 			if (interactNPC == npc && npc.name != null) {
@@ -6743,8 +6757,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	private static Image[][] fontCacheImages;
 	private static int[] fontCacheIdx;
 
+	// preallocated temp buffers;
 	static char[] charBuffer = new char[100];
 	static StringBuffer stringBuffer = new StringBuffer();
+	static Vector tempVector = new Vector(5);
+
+	private static int splitResultWidth; // output of getStringArray
 
 	static void loadFonts() {
 		fontCharWidth = new int[FONTS_COUNT];
@@ -6956,11 +6974,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static String[] getStringArray(String text, int maxWidth, int font) {
 		if (text == null || text.length() == 0 || text.equals(" ")) {
+			splitResultWidth = 0;
 			return new String[0];
 		}
-		Vector v = new Vector(3);
+		Vector v = tempVector;
+		v.setSize(0);
 		char[] chars = text.toCharArray();
-		if (text.indexOf('\n') > -1) {
+		if (text.indexOf('\n') != -1) {
 			int j = 0;
 			for (int i = 0; i < text.length(); i++) {
 				if (chars[i] == '\n') {
@@ -6968,39 +6988,48 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					j = i + 1;
 				}
 			}
-			v.addElement(text.substring(j, text.length()));
+			v.addElement(text.substring(j));
 		} else {
 			v.addElement(text);
 		}
+		int resWidth = 0;
 		for (int i = 0; i < v.size(); i++) {
 			String s = (String) v.elementAt(i);
-			if (textWidth(s, font) >= maxWidth) {
+			int tw = textWidth(s, font);
+			if (tw >= maxWidth) {
 				int i1 = 0;
 				for (int i2 = 0; i2 < s.length(); i2++) {
 					if (textWidth(s.substring(i1, i2+1), font) >= maxWidth) {
-						boolean space = false;
-						for (int j = i2; j > i1; j--) {
-							char c = s.charAt(j);
-							if (c == ' ' || (c >= ',' && c <= '/')) {
-								space = true;
-								v.setElementAt(s.substring(i1, j + 1), i);
-								v.insertElementAt(s.substring(j + 1), i + 1);
-								i += 1;
-								i2 = i1 = j + 1;
-								break;
+						space: {
+							for (int j = i2; j > i1; j--) {
+								char c = s.charAt(j);
+								if (c == ' ' || (c >= ',' && c <= '/')) {
+									String t = s.substring(i1, j + 1);
+									tw = textWidth(t, font);
+									if (tw > resWidth) resWidth = tw;
+									v.setElementAt(t, i);
+									v.insertElementAt(s.substring(j + 1), i + 1);
+									i += 1;
+									i2 = i1 = j + 1;
+									break space;
+								}
 							}
-						}
-						if (!space) {
 							i2 = i2 - 2;
-							v.setElementAt(s.substring(i1, i2), i);
+							String t = s.substring(i1, i2);
+							tw = textWidth(t, font);
+							if (tw > resWidth) resWidth = tw;
+							v.setElementAt(t, i);
 							v.insertElementAt(s.substring(i2), i + 1);
 							i2 = i1 = i2 + 1;
 							i += 1;
 						}
 					}
 				}
+			} else if (tw > resWidth) {
+				resWidth = tw;
 			}
 		}
+		splitResultWidth = resWidth;
 		String[] arr = new String[v.size()];
 		v.copyInto(arr);
 		return arr;

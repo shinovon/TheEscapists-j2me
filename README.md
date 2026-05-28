@@ -16,8 +16,7 @@ See [TODO.md](/TODO.md) for more details
 
 ## Disclaimer
 
-All rights to the original game belong to Mouldy Toof Studios and Team17.
-<br>
+All rights to the original game belong to Mouldy Toof Studios and Team17.\
 This repository does not contain any original game assets or decompiled code.
 
 ## Building
@@ -54,12 +53,10 @@ Does not support preprocessing for platform-specific builds, so generic config w
 
 MIDP 2.0, CLDC 1.1
 
-Screen size: At least 176x220.
-<br>
+Screen size: At least 176x220.\
 Render is adaptive, but interface elements and textures won't scale, so higher than 640x360 is not recommended.
 
-Memory: At least 1.5 MB of heap, and 1.5 MB of separate image memory.
-
+Memory: At least 1.5 MB of heap, and 1.5 MB of separate image memory.\
 Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on platform)
 
 ### Optional requirements
