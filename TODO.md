@@ -59,8 +59,9 @@
 - [ ] Shops
 - [ ] Tips
 - [ ] Shakedowns
-- [ ] Toilets
+- [ ] Toilets (WIP)
 - [ ] Achievements
+- [ ] Visitation
 
 # OST
 

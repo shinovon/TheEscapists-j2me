@@ -634,7 +634,61 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				Image itemsImg = itemsTexture;
 
 				if (toilet) {
-					// TODO toilet gui
+					int nw = 95;
+					int nh = 80;
+					int nx = (w - nw) >> 1;
+					int ny = (h - nh) >> 1;
+
+					g.setColor(0x333333);
+					g.fillRect(nx, ny, nw, nh);
+					g.setColor(0);
+					g.drawRect(nx, ny, nw - 1, nh - 1);
+
+					fontColor = FONT_COLOR_ORANGE;
+					String s = "TOILET";
+					drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, ny + 9, FONT_BOLD);
+
+					int y = ny + 26;
+					for (int i = 0; i < 3; ++i) {
+						int x = nx + 14 + 22 * i;
+
+						g.setColor(0x212121);
+						g.fillRect(x + 1, y + 1, 18, 18);
+						g.setColor(selectedSlot == i ? 0xFFFFFF : 0x0F0F0F);
+						g.drawRect(x, y, 19, 19);
+
+						int item = containers[idx + 3 + i];
+						if (item != Items.ITEM_NULL) {
+							int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
+							item &= Items.ITEM_ID_MASK;
+							g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
+
+							if (selectedSlot == i) {
+								String t = getItemName(item);
+								if (hasDurability(item)) {
+									StringBuffer sb = stringBuffer;
+									sb.setLength(0);
+									t = sb.append(t).append(" (").append(durability).append("%)").toString();
+								}
+								int tw = textWidth(t, FONT_REGULAR);
+								fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
+								g.setColor(0x212121);
+								g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+								g.setColor(0);
+								g.drawRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+								drawText(g, t, x + 8 - (tw >> 1), y - 15, FONT_REGULAR);
+								fontColor = FONT_COLOR_WHITE;
+							}
+						}
+					}
+
+					g.setColor(0);
+					g.drawRect(nx + 10, ny + 54, 73, 18);
+					g.setColor(selectedSlot == -2 ? 0x5787E7 : 0x1F1F1F);
+					g.drawRect(nx + 11, ny + 55, 71, 16);
+					fontColor = FONT_COLOR_GREY_7F;
+					s = "FLUSH";
+					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 60, FONT_REGULAR);
 				} else {
 					int nw = 120;
 					int nh = 110;
@@ -644,7 +698,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.setColor(0x333333);
 					g.fillRect(nx, ny, nw, nh);
 					g.setColor(0);
-					g.drawRect(nx, ny, nw - 1, nh -1);
+					g.drawRect(nx, ny, nw - 1, nh - 1);
 
 					fontColor = FONT_COLOR_GREY_7F;
 					// TODO name
@@ -932,7 +986,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							break;
 						case FIRE:
 							if (selectedSlot == -2 && toilet) {
-								// flush
+								// flush TODO
 								break;
 							}
 							if (selectedSlot == -1) {
@@ -943,6 +997,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							takeItem(containerOpen, selectedSlot);
 							break;
 						}
+					}
+				} else if (craftingOpen) {
+					// TODO crafting navigation
+					if (key == -7) {
+						// exit
+						craftingOpen = false;
+						selectedSlot = 0;
+						selectedInventory = lastSelectedInventory;
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -1002,12 +1064,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									updateInteractFocus = true;
 								}
 								break;
+							case GAME_C:
+								// crafting
+								craftingOpen = true;
+								lastSelectedInventory = selectedInventory;
+								selectedInventory = -1;
+								selectedSlot = 0;
+								break;
 							}
 						} catch (Exception ignored) {}
 					} else if (key == '*') {
 					} else if (key == '#') {
 					} else if (key == '0') {
-						// crafting TODO
+						// crafting
+						craftingOpen = true;
+						lastSelectedInventory = selectedInventory;
+						selectedInventory = -1;
+						selectedSlot = 0;
 					} else if (player.training && (key == '1' || key == '3')) {
 						if (fatigue >= 100) {
 							Sound.playEffect(Sound.SFX_LOSE);
@@ -4571,7 +4644,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.BAR_OF_CHOCOLATE:
 			return "Bar of Chocolate";
 		case Items.ROLL_OF_TOILET_PAPER:
-			return "Roll of Toiler Paper";
+			return "Roll of Toilet Paper";
 		case Items.SOAP:
 			return "Soap";
 		case Items.PACK_OF_PLAYING_CARDS:
