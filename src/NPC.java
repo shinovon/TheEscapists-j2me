@@ -1515,6 +1515,10 @@ class NPC implements Constants {
 		if (this.ai) {
 			return (s & COLL_BIT_SOLID_AI) != 0;
 		}
+		if (s == COLL_DETECTOR && carry != null) {
+			canClimb = false;
+			return true;
+		}
 		if (climbed && (s == COLL_DESK || s == COLL_TABLE)) {
 			return false;
 		}
