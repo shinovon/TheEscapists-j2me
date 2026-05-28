@@ -126,7 +126,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean saveDialog;
 	boolean saveProblem;
 	boolean craftingOpen;
-	int[] craftSlots;
+	int[] craftSlots = new int[3];
 
 	boolean debugFreecam;
 
@@ -687,6 +687,36 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						y += 22;
 					}
 				}
+			} else if (craftingOpen) {
+				pausedOverlay = true;
+
+				int nw = 95;
+				int nh = 80;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x333333);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				fontColor = FONT_COLOR_ORANGE;
+				String s = "CRAFTING";
+				drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, ny + 9, FONT_BOLD);
+
+				int y = ny + 26;
+				for (int i = 0; i < 3; ++i) {
+					int x = nx + 14 + 22 * i;
+					drawItemSlot(g, x, y, craftSlots[i], selectedSlot == i);
+				}
+
+				g.setColor(0);
+				g.drawRect(nx + 10, ny + 54, 73, 18);
+				g.setColor(selectedSlot == -2 ? 0x5787E7 : 0x1F1F1F);
+				g.drawRect(nx + 11, ny + 55, 71, 16);
+				fontColor = FONT_COLOR_GREY_7F;
+				s = "CRAFT";
+				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 59, FONT_REGULAR);
 			} else {
 				pausedOverlay = false;
 			}
@@ -973,11 +1003,124 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				} else if (craftingOpen) {
 					// TODO crafting navigation
+					final int slots = 3;
 					if (key == -7) {
 						// exit
 						craftingOpen = false;
 						selectedSlot = 0;
 						selectedInventory = lastSelectedInventory;
+						for (int i = 0; i < slots; i++) {
+							if (craftSlots[i] == Items.ITEM_NULL) continue;
+							player.addItem(craftSlots[i], false);
+							craftSlots[i] = Items.ITEM_NULL;
+						}
+					} else if (key == -6) {
+						// switch between inventory and container
+						if (selectedSlot == -1) {
+							selectedSlot = 0;
+							selectedInventory = -1;
+						} else {
+							selectedSlot = -1;
+							selectedInventory = 0;
+						}
+					} else if (!altControls && key >= '1' && key <= '6') {
+						// select inventory
+						int slot = key - '1';
+						if (player.inventory[slot] != Items.ITEM_NULL) {
+							selectedSlot = -1;
+							selectedInventory = slot;
+						} else {
+							selectedInventory = -1;
+						}
+					} else {
+						// container navigation
+						switch (gameAction) {
+						case UP:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot == -2) selectedSlot = 0;
+							break;
+						case DOWN:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							selectedSlot = -2;
+							break;
+						case LEFT:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot == -2) break;
+							if (selectedSlot-- == 0) {
+								selectedSlot = slots - 1;
+							}
+							break;
+						case RIGHT:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (selectedSlot == -2) break;
+							if (++selectedSlot == slots) {
+								selectedSlot = 0;
+							}
+							break;
+						case FIRE:
+							if (selectedSlot == -2) {
+								int r = craft();
+								if (r == -1) {
+									Sound.playEffect(Constants.SFX_LOSE);
+									// TODO nothing happens message
+								} else if (r < 0) {
+									Sound.playEffect(Constants.SFX_LOSE);
+									// TODO not enough intellect message
+								} else if (!player.addItem(r | Items.ITEM_DEFAULT_DURABILITY, false)) {
+									Sound.playEffect(Constants.SFX_LOSE);
+									// TODO inventory full message
+								} else {
+									Sound.playEffect(Constants.SFX_ACCOLADE);
+									craftSlots[0] = Items.ITEM_NULL;
+									craftSlots[1] = Items.ITEM_NULL;
+									craftSlots[2] = Items.ITEM_NULL;
+								}
+								break;
+							}
+							if (selectedSlot == -1) {
+								int slot = selectedInventory;
+								if (slot == -1) break;
+								int item = player.inventory[slot];
+								if (item == Items.ITEM_NULL) break;
+
+								put: {
+									for (int i = 0; i < slots; ++i) {
+										if (craftSlots[i] == Items.ITEM_NULL) {
+											craftSlots[i] = item;
+											player.inventory[slot] = Items.ITEM_NULL;
+											break put;
+										}
+									}
+									Sound.playEffect(Sound.SFX_LOSE);
+								}
+								break;
+							}
+							if (player.addItem(craftSlots[selectedSlot], true)) {
+								craftSlots[selectedSlot] = Items.ITEM_NULL;
+								break;
+							}
+							break;
+						}
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -1041,8 +1184,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								// crafting
 								craftingOpen = true;
 								lastSelectedInventory = selectedInventory;
-								selectedInventory = -1;
-								selectedSlot = 0;
+								selectedInventory = 0;
+								selectedSlot = -1;
 								break;
 							}
 						} catch (Exception ignored) {}
@@ -1052,8 +1195,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						// crafting
 						craftingOpen = true;
 						lastSelectedInventory = selectedInventory;
-						selectedInventory = -1;
-						selectedSlot = 0;
+						selectedInventory = 0;
+						selectedSlot = -1;
 					} else if (player.training && (key == '1' || key == '3')) {
 						if (fatigue >= 100) {
 							Sound.playEffect(Sound.SFX_LOSE);
@@ -1232,6 +1375,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
 					player.inventory[2] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
+
+					player.inventory[3] = Items.RAZOR_BLADE | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[4] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -5119,8 +5265,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int craft() {
 		int[] s = new int[] { -1, -1, -1 };
 		int intellect = player.statIntellect;
+		int items = 0;
 		if (craftSlots[0] != Items.ITEM_NULL) {
 			s[0] = craftSlots[0] & Items.ITEM_ID_MASK;
+			items++;
 		}
 		if (craftSlots[1] != Items.ITEM_NULL) {
 			int t = craftSlots[1] & Items.ITEM_ID_MASK;
@@ -5132,6 +5280,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			} else {
 				s[1] = t;
 			}
+			items++;
 		}
 
 		if (craftSlots[2] != Items.ITEM_NULL) {
@@ -5148,13 +5297,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			} else {
 				s[2] = t;
 			}
+			items++;
 		}
+
+		if (items < 2) return -1;
 
 		int[] recipies = Game.recipies;
 		int l = recipies.length;
 		for (int i = 0; i < l; i += 5) {
 			if (recipies[i + 1] == s[0] && recipies[i + 2] == s[1] && recipies[i + 3] == s[2]) {
-				if (recipies[i + 4] < intellect) return - recipies[i + 4];
+				if (recipies[i + 4] > intellect) return -recipies[i + 4];
 				return recipies[i];
 			}
 		}
@@ -6809,7 +6961,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	private static Image[][] fontCacheImages;
 	private static int[] fontCacheIdx;
 
-	// preallocated temp buffers;
+	// preallocated temp buffers
 	static char[] charBuffer = new char[100];
 	static StringBuffer stringBuffer = new StringBuffer();
 	static Vector tempVector = new Vector(5);
@@ -6997,6 +7149,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return x;
 	}
 
+	// only accepts positive numbers
 	static int intToCharBuffer(int n, int i) {
 		int start = i;
 		char[] chars = charBuffer;

@@ -41,7 +41,8 @@
 - [x] Chipping walls
 - [x] Posters/Fake walls
 - [x] Random NPC names
-- [ ] Crafting (WIP)
+- [x] Crafting (WIP)
+- [x] Toilets (WIP)
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Localization
@@ -59,9 +60,9 @@
 - [ ] Shops
 - [ ] Tips
 - [ ] Shakedowns
-- [ ] Toilets (WIP)
 - [ ] Achievements
 - [ ] Visitation
+- [ ] NPC inventory looting
 
 # OST
 
