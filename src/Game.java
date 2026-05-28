@@ -1670,7 +1670,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 						if (debugFreecam) {
 							int actions = keyStates;
-							float speed = 6 * deltaTime;
+							float speed = 6;
 							if ((actions & GameCanvas.UP_PRESSED) != 0) {
 								y -= speed;
 							}
@@ -1690,9 +1690,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
 							y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
 						} else if (!paused && !pausedOverlay) {
-							float t = deltaTime >= 1 ? CAMERA_SPEED : CAMERA_SPEED * deltaTime;
-							x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE >> 1)) - x) * t, 0), width * TILE_SIZE - viewWidth);
-							y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE >> 1)) - y) * t, 0), height * TILE_SIZE - viewHeight);
+							x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE >> 1)) - x) * CAMERA_SPEED, 0), width * TILE_SIZE - viewWidth);
+							y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE >> 1)) - y) * CAMERA_SPEED, 0), height * TILE_SIZE - viewHeight);
 						}
 						ticksC++;
 						globalCounter++;
