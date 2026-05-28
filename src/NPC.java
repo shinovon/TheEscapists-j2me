@@ -1924,18 +1924,25 @@ class NPC implements Constants {
 			statIntellect = 100;
 
 		if (map.heat < 99 && getCollision(8, 8, true) == COLL_DETECTOR) {
-			boolean hasContraband = false;
+			boolean hasContraband = false, hasPouch = false;
 			for (int i = 0; i < 6; ++i) {
-				if (inventory[i] != Items.ITEM_NULL && Game.isIllegal(inventory[i] & Items.ITEM_ID_MASK)) {
+				int item = inventory[i] & Items.ITEM_ID_MASK;
+				if (inventory[i] != Items.ITEM_NULL && Game.isIllegal(item)) {
+					if (item == Items.CONTRABAND_POUCH || item == Items.DURABLE_CONTRABAND_POUCH) {
+						hasPouch = true;
+						hasContraband = false;
+						break;
+					}
 					hasContraband = true;
 					break;
 				}
 			}
-			if (hasContraband) {
+			if (hasContraband && !hasPouch) {
 				// TODO animate detector object
 				map.heat = 100;
 				Sound.playEffect(Sound.SFX_HP);
 			}
+			// TODO reduce pouch durability
 		}
 
 		if (layer == LAYER_GROUND) {
@@ -2872,10 +2879,9 @@ class NPC implements Constants {
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
 												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-												// TODO
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
-												map.money += 20;
+												map.money += 40;
 											} else {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
@@ -3201,7 +3207,25 @@ class NPC implements Constants {
 		int item = inventory[slot] & Items.ITEM_ID_MASK;
 		int v = (inventory[slot] & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
 
-		v -= 5; // TODO must depend on item
+		switch (item) {
+		case Items.PLASTIC_FORK:
+		case Items.PLASTIC_KNIFE:
+		case Items.PLASTIC_SPOON:
+		case Items.DURABLE_CONTRABAND_POUCH:
+			v -= 15;
+			break;
+		case Items.FILE:
+			v -= 10;
+			break;
+		case Items.FLIMSY_CUTTERS:
+		case Items.CUTTING_FLOSS:
+			v -= 8;
+			break;
+			// TODO
+		default:
+			v -= 5;
+			break;
+		}
 
 		if (v <= 0) {
 			dialog = "The " + Game.getItemName(item) + " breaks...";

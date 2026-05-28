@@ -5058,6 +5058,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.PLASTIC_SPOON:
 		case Items.POWERED_SCREWDRIVER:
 		case Items.CROWBAR:
+		case Items.CUTTING_FLOSS:
+		case Items.CONTRABAND_POUCH:
+		case Items.DURABLE_CONTRABAND_POUCH:
 			return true;
 		default:
 			return false;
