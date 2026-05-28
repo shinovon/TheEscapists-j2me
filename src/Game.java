@@ -631,7 +631,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				int idx = containerOpen;
 				int[] containers = this.containers;
-				Image itemsImg = itemsTexture;
 
 				if (toilet) {
 					int nw = 95;
@@ -651,35 +650,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int y = ny + 26;
 					for (int i = 0; i < 3; ++i) {
 						int x = nx + 14 + 22 * i;
-
-						g.setColor(0x212121);
-						g.fillRect(x + 1, y + 1, 18, 18);
-						g.setColor(selectedSlot == i ? 0xFFFFFF : 0x0F0F0F);
-						g.drawRect(x, y, 19, 19);
-
-						int item = containers[idx + 3 + i];
-						if (item != Items.ITEM_NULL) {
-							int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
-							item &= Items.ITEM_ID_MASK;
-							g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
-
-							if (selectedSlot == i) {
-								String t = getItemName(item);
-								if (hasDurability(item)) {
-									StringBuffer sb = stringBuffer;
-									sb.setLength(0);
-									t = sb.append(t).append(" (").append(durability).append("%)").toString();
-								}
-								int tw = textWidth(t, FONT_REGULAR);
-								fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
-								g.setColor(0x212121);
-								g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
-								g.setColor(0);
-								g.drawRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
-								drawText(g, t, x + 8 - (tw >> 1), y - 15, FONT_REGULAR);
-								fontColor = FONT_COLOR_WHITE;
-							}
-						}
+						drawItemSlot(g, x, y, containers[idx + 3 + i], selectedSlot == i);
 					}
 
 					g.setColor(0);
@@ -688,7 +659,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(nx + 11, ny + 55, 71, 16);
 					fontColor = FONT_COLOR_GREY_7F;
 					s = "FLUSH";
-					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 60, FONT_REGULAR);
+					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 59, FONT_REGULAR);
 				} else {
 					int nw = 120;
 					int nh = 110;
@@ -711,34 +682,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							int x = nx + 6 + 22 * col;
 							int i = (col + row * 5);
 
-							g.setColor(0x212121);
-							g.fillRect(x + 1, y + 1, 18, 18);
-							g.setColor(selectedSlot == i ? 0xFFFFFF : 0x0F0F0F);
-							g.drawRect(x, y, 19, 19);
-
-							int item = containers[idx + 3 + i];
-							if (item != Items.ITEM_NULL) {
-								int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
-								item &= Items.ITEM_ID_MASK;
-								g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
-
-								if (selectedSlot == i) {
-									String t = getItemName(item);
-									if (hasDurability(item)) {
-										StringBuffer sb = stringBuffer;
-										sb.setLength(0);
-										t = sb.append(t).append(" (").append(durability).append("%)").toString();
-									}
-									int tw = textWidth(t, FONT_REGULAR);
-									fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
-									g.setColor(0x212121);
-									g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
-									g.setColor(0);
-									g.drawRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
-									drawText(g, t, x + 8 - (tw >> 1), y - 15, FONT_REGULAR);
-									fontColor = FONT_COLOR_WHITE;
-								}
-							}
+							drawItemSlot(g, x, y, containers[idx + 3 + i], selectedSlot == i);
 						}
 						y += 22;
 					}
@@ -815,7 +759,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-
 		if (!BUFFER_SCREEN) {
 			drawGame();
 		} else if (w == vw && h == vh || noScaling) {
@@ -865,6 +808,36 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginFrameSection(Profiler.FRAME_FLUSH);
 		flushGraphics();
+	}
+
+	static void drawItemSlot(Graphics g, int x, int y, int item, boolean selected) {
+		g.setColor(0x212121);
+		g.fillRect(x + 1, y + 1, 18, 18);
+		g.setColor(selected ? 0xFFFFFF : 0x0F0F0F);
+		g.drawRect(x, y, 19, 19);
+
+		if (item != Items.ITEM_NULL) {
+			int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
+			item &= Items.ITEM_ID_MASK;
+			g.drawRegion(itemsTexture, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
+
+			if (selected) {
+				String t = getItemName(item);
+				if (hasDurability(item)) {
+					StringBuffer sb = stringBuffer;
+					sb.setLength(0);
+					t = sb.append(t).append(" (").append(durability).append("%)").toString();
+				}
+				int tw = textWidth(t, FONT_REGULAR);
+				fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
+				g.setColor(0x212121);
+				g.fillRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+				g.setColor(0);
+				g.drawRect(x + 8 - (tw >> 1) - 3, y - 18, tw + 6, 15);
+				drawText(g, t, x + 8 - (tw >> 1), y - 15, FONT_REGULAR);
+				fontColor = FONT_COLOR_WHITE;
+			}
+		}
 	}
 
 	public void keyPressed(int key) {
@@ -3485,6 +3458,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								int p = getBreakProgress(x, y, layer);
 								if (p == 100 && layer != LAYER_UNDERGROUND) break box;
 
+								StringBuffer sb = stringBuffer;
+								sb.setLength(0);
+
 								switch (item) {
 								// both chipping and digging
 								case Items.STURDY_SHOVEL:
@@ -3495,20 +3471,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_PICKAXE:
 								case Items.FLIMSY_PICKAXE:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip Wall (" + (100 - p) + "%)";
+										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
 										break interact;
 									}
 									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = "Dig (" + p + "%)";
+										s = sb.append("Dig (").append(p).append("%)").toString();
 										break interact;
 									}
 									if (layer == LAYER_UNDERGROUND) {
 										if (t == 0) {
-											s = "Dig (" + p + "%)";
+											s = sb.append("Dig (").append(p).append("%)").toString();
 											break interact;
 										}
 										if (b == COLL_SOLID && t == 100) {
-											s = "Chip Stone (" + (p - 120) + "%)";
+											s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 											break interact;
 										}
 										if (b == COLL_NONE && t == 100
@@ -3516,7 +3492,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 											p = getBreakProgress(x, y, LAYER_GROUND);
 											if (p == 100) break box;
-											s = "Dig Up (" + p + "%)";
+											s = sb.append("Dig Up (").append(p).append("%)").toString();
 											break interact;
 										}
 									}
@@ -3527,11 +3503,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.CROWBAR:
 								case Items.PLASTIC_FORK:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = "Chip Wall (" + (100 - p) + "%)";
+										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
 										break interact;
 									}
 									if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
-										s = "Chip Stone (" + (p - 120) + "%)";
+										s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 										break interact;
 									}
 									break box;
@@ -3543,11 +3519,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.CUTTING_FLOSS:
 								case Items.FILE:
 									if (t == 23) {
-										s = "Cut Bars (" + (100 - p) + "%)";
+										s = sb.append("Cut Bars (").append(100 - p).append("%)").toString();
 										break interact;
 									}
 									if (t == 77 || t == 81) {
-										s = "Cut Fence (" + (100 - p) + "%)";
+										s = sb.append("Cut Fence (").append(100 - p).append("%)").toString();
 										break interact;
 									}
 									break box;
@@ -3555,16 +3531,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.TROWEL:
 								case Items.PLASTIC_SPOON:
 									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = "Dig (" + p + "%)";
+										s = sb.append("Dig (").append(p).append("%)").toString();
 										break interact;
 									}
 									if (layer == LAYER_UNDERGROUND) {
 										if (t == 0) {
-											s = "Dig (" + p + "%)";
+											s = sb.append("Dig (").append(p).append("%)").toString();
 											break interact;
 										}
 										if (b == COLL_SOLID && t == 100) {
-											s = "Chip Stone (" + (p - 120) + "%)";
+											s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 											break interact;
 										}
 										if (b == COLL_NONE && t == 100
@@ -3572,7 +3548,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 											p = getBreakProgress(x, y, LAYER_GROUND);
 											if (p == 100) break box;
-											s = "Dig Up (" + p + "%)";
+											s = sb.append("Dig Up (").append(p).append("%)").toString();
 											break interact;
 										}
 									}

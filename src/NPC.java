@@ -3228,7 +3228,9 @@ class NPC implements Constants {
 		}
 
 		if (v <= 0) {
-			dialog = "The " + Game.getItemName(item) + " breaks...";
+			StringBuffer sb = Game.stringBuffer;
+			sb.setLength(0);
+			dialog = sb.append("The ").append(Game.getItemName(item)).append(" breaks...").toString();
 			dialogTimer = TPS * 2;
 			inventory[slot] = Items.ITEM_NULL;
 			return;
