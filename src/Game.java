@@ -494,10 +494,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				for (int i = 0; i < 6; ++i) {
 					int y = i * 22 + 1;
 					int item = player.inventory[i];
-//					g.setColor(0x434343);
-//					g.fillRect(x + 1, y + 1, 18, 18);
-//					g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
-//					g.drawRect(x, y, 19, 19);
+					g.setColor(0x434343);
+					g.fillRect(x + 1, y + 1, 18, 18);
+					g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
+					g.drawRect(x, y, 19, 19);
 					if (selectedInventory == i) {
 						g.setColor(0x97479B);
 						g.drawRect(x, y, 19, 19);
