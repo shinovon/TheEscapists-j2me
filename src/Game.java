@@ -1667,35 +1667,35 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								animationFrame = 0;
 							tickMap();
 						}
+
+						if (debugFreecam) {
+							int actions = keyStates;
+							float speed = 6 * deltaTime;
+							if ((actions & GameCanvas.UP_PRESSED) != 0) {
+								y -= speed;
+							}
+							if ((actions & GameCanvas.DOWN_PRESSED) != 0) {
+								y += speed;
+							}
+							if ((actions & GameCanvas.LEFT_PRESSED) != 0) {
+								x -= speed;
+							}
+							if ((actions & GameCanvas.RIGHT_PRESSED) != 0) {
+								x += speed;
+							}
+							x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
+							y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
+						} else if (resetCamera) {
+							resetCamera = false;
+							x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
+							y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
+						} else if (!paused && !pausedOverlay) {
+							float t = deltaTime >= 1 ? CAMERA_SPEED : CAMERA_SPEED * deltaTime;
+							x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE >> 1)) - x) * t, 0), width * TILE_SIZE - viewWidth);
+							y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE >> 1)) - y) * t, 0), height * TILE_SIZE - viewHeight);
+						}
 						ticksC++;
 						globalCounter++;
-					}
-
-					if (debugFreecam) {
-						int actions = keyStates;
-						float speed = 6 * deltaTime;
-						if ((actions & GameCanvas.UP_PRESSED) != 0) {
-							y -= speed;
-						}
-						if ((actions & GameCanvas.DOWN_PRESSED) != 0) {
-							y += speed;
-						}
-						if ((actions & GameCanvas.LEFT_PRESSED) != 0) {
-							x -= speed;
-						}
-						if ((actions & GameCanvas.RIGHT_PRESSED) != 0) {
-							x += speed;
-						}
-						x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
-					} else if (resetCamera) {
-						resetCamera = false;
-						x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
-					} else if (!paused && !pausedOverlay) {
-						float t = deltaTime >= 1 ? CAMERA_SPEED : CAMERA_SPEED * deltaTime;
-						x = Math.min(Math.max(x + ((player.x - (viewWidth >> 1) + (TILE_SIZE >> 1)) - x) * t, 0), width * TILE_SIZE - viewWidth);
-						y = Math.min(Math.max(y + ((player.y - (viewHeight >> 1) + (TILE_SIZE >> 1)) - y) * t, 0), height * TILE_SIZE - viewHeight);
 					}
 				}
 
