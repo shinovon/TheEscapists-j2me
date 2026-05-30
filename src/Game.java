@@ -3322,7 +3322,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
 				&& !pausedOverlay
-				&& action == NPC.ACT_NONE && player.animation == NPC.ANIM_REGULAR && !player.training
+				&& action == NPC.ACT_NONE
+				&& (player.animation == NPC.ANIM_REGULAR || player.animation == NPC.ANIM_FOOD)
+				&& !player.training && !player.inCabinet && !player.animatingInCabinet && !player.sitting
 				&& (keyStates & (UP_PRESSED | DOWN_PRESSED | LEFT_PRESSED | RIGHT_PRESSED)) == 0) {
 			// interact focus
 			box: {
