@@ -5,15 +5,16 @@
       <alias/>
    </signing>
    <configurations>
-      <configuration active="false" name="S60">
+      <configuration active="true" name="S60">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
+            <symbol name="FONT_CACHE_SIZE" value="128"/>
             <symbol name="PREFETCH_SFX" value="true"/>
             <symbol name="USE_TILED_LAYER" value="false"/>
             <symbol name="PREFETCH_MUSIC" value="true"/>
          </symbolSet>
       </configuration>
-      <configuration active="true" name="S40">
+      <configuration active="false" name="S40">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="USE_TILED_LAYER" value="true"/>

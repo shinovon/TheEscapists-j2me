@@ -7096,7 +7096,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static int drawText(Graphics g, String text, int x, int y, int font) {
-		int i = 0;
+		int l = text.length();
+		if (l == 0) return x;
 
 		int charWidth = fontCharWidth[font];
 		int charHeight = fontCharHeight[font];
@@ -7114,13 +7115,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		Image[] fontCacheImages = Game.fontCacheImages[font];
 		int[] fontCacheIdx = Game.fontCacheIdx;
 
-		int l = text.length();
+		int i = 0;
 		while (i < l) {
 			// x = drawChar(g, chars[idx++], x, y, font);
 			char c = text.charAt(i++);
 			if (c == ' ') {
-				// space
-				x += halfCharWidth;
+				x += charWidth / 2;
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
@@ -7128,24 +7128,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			int w = fontWidths[c];
 
+			int id = c | (fontColor << 16);
+			int cacheIdx = (c + (fontColor * 94)) % FONT_CACHE_SIZE;
+
 			Image img;
-			img: {
-				int id = (c & 0xFFFF) | (fontColor << 16);
-
-				// try to get from cache
-				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
-					if (cacheChars[j] == id) {
-						img = fontCacheImages[j];
-						break img;
-					}
-				}
-				// not in cache, create image
-
-				// save some pixels by storing only effective width of chars
+			if (cacheChars[cacheIdx] == id && fontCacheImages[cacheIdx] != null) {
+				img = fontCacheImages[cacheIdx];
+			} else {
 				byte[] charsData = fontData[c];
+				int dest = 0;
+
 				for (int cy = 0; cy < charHeight; ++cy) {
-					for (int cx = 0; cx < w; ++cx) {
-						rgb[cx + cy * w] = charsData[cx + cy * charWidth] != 0 ? color : 0;
+					int src = cy * charWidth;
+					int end = src + w;
+
+					while (src < end) {
+						rgb[dest++] = charsData[src++] != 0 ? color : 0;
 					}
 				}
 
@@ -7156,10 +7154,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
 
 				// put to cache
-				int idx = fontCacheIdx[font];
-				cacheChars[idx] = id;
-				fontCacheImages[idx] = img;
-				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
+				cacheChars[cacheIdx] = id;
+				fontCacheImages[cacheIdx] = img;
 			}
 
 			g.drawImage(img, x, y, 0);
@@ -7186,13 +7182,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int[] cacheChars = fontCacheChars[font];
 		Image[] fontCacheImages = Game.fontCacheImages[font];
-		int[] fontCacheIdx = Game.fontCacheIdx;
 
 		while (i < chars.length && chars[i] != 0) {
 			// x = drawChar(g, chars[idx++], x, y, font);
 			char c = chars[i++];
 			if (c == ' ') {
-				// space
 				x += charWidth / 2;
 				continue;
 			}
@@ -7201,24 +7195,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			int w = fontWidths[c];
 
+			int id = c | (fontColor << 16);
+			int cacheIdx = (c + (fontColor * 94)) & (FONT_CACHE_SIZE - 1); // % FONT_CACHE_SIZE;
+
 			Image img;
-			img: {
-				int id = (c & 0xFFFF) | (fontColor << 16);
-
-				// try to get from cache
-				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
-					if (cacheChars[j] == id) {
-						img = fontCacheImages[j];
-						break img;
-					}
-				}
-				// not in cache, create image
-
-				// save some pixels by storing only effective width of chars
+			if (cacheChars[cacheIdx] == id && fontCacheImages[cacheIdx] != null) {
+				img = fontCacheImages[cacheIdx];
+			} else {
 				byte[] charsData = fontData[c];
+				int dest = 0;
+
 				for (int cy = 0; cy < charHeight; ++cy) {
-					for (int cx = 0; cx < w; ++cx) {
-						rgb[cx + cy * w] = charsData[cx + cy * charWidth] != 0 ? color : 0;
+					int src = cy * charWidth;
+					int end = src + w;
+
+					while (src < end) {
+						rgb[dest++] = charsData[src++] != 0 ? color : 0;
 					}
 				}
 
@@ -7229,10 +7221,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
 
 				// put to cache
-				int idx = fontCacheIdx[font];
-				cacheChars[idx] = id;
-				fontCacheImages[idx] = img;
-				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
+				cacheChars[cacheIdx] = id;
+				fontCacheImages[cacheIdx] = img;
 			}
 
 			g.drawImage(img, x, y, 0);

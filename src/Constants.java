@@ -276,7 +276,12 @@ public interface Constants {
 
 // region Font
 
+	// must be power of two
+//#if FONT_CACHE_SIZE == ""
 	static final int FONT_CACHE_SIZE = 64;
+//#else
+//#expand static final int FONT_CACHE_SIZE = %FONT_CACHE_SIZE%;
+//#endif
 	static final int FONTS_COUNT = 2;
 
 	static final int FONT_REGULAR = 0;
