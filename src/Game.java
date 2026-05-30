@@ -7398,8 +7398,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			nodeG[cur] = -1;
 			nodeH[cur] = -1;
 
-			nx = cur % width;
 			ny = cur / width;
+			nx = cur - ny * width;
 
 			// finish
 			if (nx == targetX && ny == targetY)
@@ -7458,8 +7458,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (i != startDir) g += 5;
 
 				// h cost is euclidean distance
-				dx = Math.abs(x - targetX);
-				dy = Math.abs(y - targetY);
+				dx = /*Math.abs*/(x - targetX);
+				dy = /*Math.abs*/(y - targetY);
+				// TODO use octile distance?
+				//h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
 				h = dx*dx + dy*dy;
 
 				// check if node is not already open
@@ -7513,8 +7515,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// oob check
 			if (i >= res.length - 1) return false;
 
-			res[i++] = (short) (cur % width);
-			res[i++] = (short) (cur / width);
+			int y = cur / width;
+			res[i++] = (short) (cur - y * width);
+			res[i++] = (short) y;
 			cur = nodeParent[cur];
 		}
 		// set result length

@@ -34,11 +34,11 @@ public class Profiler implements Constants {
 	static final int FRAME_FLUSH = 4;
 	
 	static final int[] frameColors = new int[] {
-			0xFF0000, // red
-			0xFFFF00, // yellow
-			0x00FF00, // green
-			0x00FFFF, // cyan
-			0x0000FF, // blue
+			0xFF0000, // red - tick
+			0xFFFF00, // yellow - render
+			0x00FF00, // green - hud
+			0x00FFFF, // cyan - blit
+			0x0000FF, // blue - flush
 	};
 	
 	// render sections
@@ -50,12 +50,12 @@ public class Profiler implements Constants {
 	static final int RENDER_3D = 5;
 	
 	static final int[] renderColors = new int[] {
-			0xFF0000, // red
-			0xFFFF00, // yellow
-			0x00FF00, // green
-			0x0000FF, // blue
-			0x00FFFF, // cyan
-			0xFF00FF, // purple
+			0xFF0000, // red - bg
+			0xFFFF00, // yellow - tiles
+			0x00FF00, // green - objects
+			0x0000FF, // blue - characters
+			0x00FFFF, // cyan - blit
+			0xFF00FF, // purple - flush
 	};
 	
 	private static long frameStart, lastFrameSection;
