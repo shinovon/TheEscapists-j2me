@@ -54,8 +54,8 @@ public class Profiler implements Constants {
 			0xFFFF00, // yellow - tiles
 			0x00FF00, // green - objects
 			0x0000FF, // blue - characters
-			0x00FFFF, // cyan - blit
-			0xFF00FF, // purple - flush
+			0x00FFFF, // cyan - top objects
+			0xFF00FF, // purple - 3d
 	};
 	
 	private static long frameStart, lastFrameSection;
