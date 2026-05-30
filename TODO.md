@@ -71,14 +71,13 @@
 - [x] Lights out
 - [x] Rollcall
 - [x] Canteen
-- [ ] Shower
+- [x] Shower
 - [x] Workout
 - [x] Work
 - [x] Escaped
-- [x] Lockdown (mp3)
+- [x] Lockdown
 
 # Misc
 
 - Update desks random items by time
-- Lockdown midi
 - Use pngout for resources?
