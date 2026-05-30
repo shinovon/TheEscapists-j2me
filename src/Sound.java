@@ -60,7 +60,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			loadMusic(MUSIC_GENERIC, "/generic.mid");
 			loadMusic(MUSIC_CANTEEN, "/canteen.mid");
 			loadMusic(MUSIC_ROLLCALL, "/rollcall.mid");
-			loadMusic(MUSIC_SHOWER, "/generic.mid"/*"/shower.mid"*/);
+			loadMusic(MUSIC_SHOWER, "/shower.mid");
 			loadMusic(MUSIC_WORK, "/work.mid");
 			loadMusic(MUSIC_WORKOUT, "/workout.mid");
 			loadMusic(MUSIC_LOCKDOWN, "/generic.mid"/*"/lockdown.mp3"*/);
@@ -158,7 +158,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 								res = "/rollcall.mid";
 								break;
 							case MUSIC_SHOWER:
-								res = "/generic.mid"/*"/shower.mid"*/;
+								res = "/shower.mid";
 								break;
 							case MUSIC_WORK:
 								res = "/work.mid";
