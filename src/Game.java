@@ -7079,15 +7079,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static int textWidth(String text, int font) {
 		int i = 0, x = 0;
 		int l = text.length();
+		int halfCharWidth = fontCharWidth[font] / 2;
+		int[] fontWidths = Game.fontWidths[font];
+
 		while (i < l) {
 			int c = text.charAt(i++);
 			if (c == ' ') {
-				x += fontCharWidth[font] / 2;
+				x += halfCharWidth;
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
 			c -= '!';
-			x += fontWidths[font][c] + 1;
+			x += fontWidths[c] + 1;
 		}
 		return x;
 	}
@@ -7097,6 +7100,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int charWidth = fontCharWidth[font];
 		int charHeight = fontCharHeight[font];
+		int halfCharWidth = charWidth / 2;
 
 		int fontColor = Game.fontColor;
 		int color = FONT_COLORS[fontColor];
@@ -7116,7 +7120,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			char c = text.charAt(i++);
 			if (c == ' ') {
 				// space
-				x += charWidth / 2;
+				x += halfCharWidth;
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
