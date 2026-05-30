@@ -7075,10 +7075,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static int textWidth(String text, int font) {
-		char[] chars = text.toCharArray();
 		int i = 0, x = 0;
-		while (i < chars.length) {
-			int c = chars[i++];
+		int l = text.length();
+		while (i < l) {
+			int c = text.charAt(i++);
 			if (c == ' ') {
 				x += fontCharWidth[font] / 2;
 				continue;
@@ -7091,9 +7091,79 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static int drawText(Graphics g, String text, int x, int y, int font) {
-		return drawText(g, text.toCharArray(), x, y, font);
+		int i = 0;
+
+		int charWidth = fontCharWidth[font];
+		int charHeight = fontCharHeight[font];
+
+		int fontColor = Game.fontColor;
+		int color = FONT_COLORS[fontColor];
+
+		int[] rgb = Game.intBuffer;
+
+		int[] fontWidths = Game.fontWidths[font];
+		byte[][] fontData = Game.fontData[font];
+
+		int[] cacheChars = fontCacheChars[font];
+		Image[] fontCacheImages = Game.fontCacheImages[font];
+		int[] fontCacheIdx = Game.fontCacheIdx;
+
+		int l = text.length();
+		while (i < l) {
+			// x = drawChar(g, chars[idx++], x, y, font);
+			char c = text.charAt(i++);
+			if (c == ' ') {
+				// space
+				x += charWidth / 2;
+				continue;
+			}
+			if (c < ' ' || c > '~') continue;
+			c -= '!';
+
+			int w = fontWidths[c];
+
+			Image img;
+			img: {
+				int id = (c & 0xFFFF) | (fontColor << 16);
+
+				// try to get from cache
+				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+					if (cacheChars[j] == id) {
+						img = fontCacheImages[j];
+						break img;
+					}
+				}
+				// not in cache, create image
+
+				// save some pixels by storing only effective width of chars
+				byte[] charsData = fontData[c];
+				for (int cy = 0; cy < charHeight; ++cy) {
+					for (int cx = 0; cx < w; ++cx) {
+						rgb[cx + cy * w] = charsData[cx + cy * charWidth] != 0 ? color : 0;
+					}
+				}
+
+//				int n = charWidth * charHeight;
+//				for (int i = 0; i < n; ++i) {
+//					rgb[i] = charsData[c][i] != 0 ? color : 0;
+//				}
+				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+
+				// put to cache
+				int idx = fontCacheIdx[font];
+				cacheChars[idx] = id;
+				fontCacheImages[idx] = img;
+				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
+			}
+
+			g.drawImage(img, x, y, 0);
+			x += w + 1;
+		}
+		// return new x position
+		return x;
 	}
 
+	// same as above
 	static int drawText(Graphics g, char[] chars, int x, int y, int font) {
 		int i = 0;
 
@@ -7120,7 +7190,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				x += charWidth / 2;
 				continue;
 			}
-			if (c < ' ' || c > '~') return x;
+			if (c < ' ' || c > '~') continue;
 			c -= '!';
 
 			int w = fontWidths[c];
@@ -7201,11 +7271,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 		Vector v = tempVector;
 		v.setSize(0);
-		char[] chars = text.toCharArray();
 		if (text.indexOf('\n') != -1) {
 			int j = 0;
-			for (int i = 0; i < text.length(); i++) {
-				if (chars[i] == '\n') {
+			int l = text.length();
+			for (int i = 0; i < l; i++) {
+				if (text.charAt(i) == '\n') {
 					v.addElement(text.substring(j, i));
 					j = i + 1;
 				}
