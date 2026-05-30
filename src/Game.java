@@ -6978,7 +6978,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	private static int[][] fontCacheChars;
 	private static Image[][] fontCacheImages;
-	private static int[] fontCacheIdx;
 
 	// preallocated temp buffers
 	static char[] charBuffer = new char[100];
@@ -6994,7 +6993,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		fontData = new byte[FONTS_COUNT][][];
 		fontCacheChars = new int[FONT_CACHE_SIZE][];
 		fontCacheImages = new Image[FONT_CACHE_SIZE][];
-		fontCacheIdx = new int[FONT_CACHE_SIZE];
 
 		if (!loadFont(FONT_REGULAR, FONT_REGULAR_RES)) {
 			throw new Error();
@@ -7113,14 +7111,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int[] cacheChars = fontCacheChars[font];
 		Image[] fontCacheImages = Game.fontCacheImages[font];
-		int[] fontCacheIdx = Game.fontCacheIdx;
 
 		int i = 0;
 		while (i < l) {
 			// x = drawChar(g, chars[idx++], x, y, font);
 			char c = text.charAt(i++);
 			if (c == ' ') {
-				x += charWidth / 2;
+				x += halfCharWidth;
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
@@ -7171,6 +7168,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int charWidth = fontCharWidth[font];
 		int charHeight = fontCharHeight[font];
+		int halfCharWidth = charWidth / 2;
 
 		int fontColor = Game.fontColor;
 		int color = FONT_COLORS[fontColor];
@@ -7187,7 +7185,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// x = drawChar(g, chars[idx++], x, y, font);
 			char c = chars[i++];
 			if (c == ' ') {
-				x += charWidth / 2;
+				x += halfCharWidth;
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
