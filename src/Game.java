@@ -301,6 +301,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
 			drawText(g, "Alternative controls: ".concat(altControls ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
 			i++;
+			
+			fontColor = FONT_COLOR_GREY_7F;
+			if (version != null) {
+				s = version;
+				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 0, FONT_REGULAR);
+			}
+			if (LOGGING && build != null) {
+				s = build;
+				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 9, FONT_REGULAR);
+			}
 		} else if (state == 7) {
 			// escaped
 			fontColor = FONT_COLOR_ORANGE;

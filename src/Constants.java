@@ -278,7 +278,7 @@ public interface Constants {
 
 	// must be power of two
 //#if FONT_CACHE_SIZE == ""
-	static final int FONT_CACHE_SIZE = 64;
+	static final int FONT_CACHE_SIZE = 128;
 //#else
 //#expand static final int FONT_CACHE_SIZE = %FONT_CACHE_SIZE%;
 //#endif
