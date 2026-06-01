@@ -4382,7 +4382,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case 81:
 			return COLL_SOLID_TRANSPARENT;
 		case 24:
-		case 94:
+//		case 94:
 		// water
 		case 54:
 		case 58:
@@ -6978,6 +6978,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	private static int[][] fontCacheChars;
 	private static Image[][] fontCacheImages;
+	private static int[] fontCacheIdx;
 
 	// preallocated temp buffers
 	static char[] charBuffer = new char[100];
@@ -6993,6 +6994,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		fontData = new byte[FONTS_COUNT][][];
 		fontCacheChars = new int[FONT_CACHE_SIZE][];
 		fontCacheImages = new Image[FONT_CACHE_SIZE][];
+		fontCacheIdx = new int[FONT_CACHE_SIZE];
 
 		if (!loadFont(FONT_REGULAR, FONT_REGULAR_RES)) {
 			throw new Error();
@@ -7111,6 +7113,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int[] cacheChars = fontCacheChars[font];
 		Image[] fontCacheImages = Game.fontCacheImages[font];
+		int[] fontCacheIdx = Game.fontCacheIdx;
 
 		int i = 0;
 		while (i < l) {
@@ -7125,13 +7128,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			int w = fontWidths[c];
 
-			int id = c | (fontColor << 16);
-			int cacheIdx = (c + (fontColor * 94)) % FONT_CACHE_SIZE;
-
 			Image img;
-			if (cacheChars[cacheIdx] == id && fontCacheImages[cacheIdx] != null) {
-				img = fontCacheImages[cacheIdx];
-			} else {
+			img: {
+				int id = c | (fontColor << 16);
+
+				// try to get from cache
+				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+					if (cacheChars[j] == id) {
+						img = fontCacheImages[j];
+						break img;
+					}
+				}
+				// not in cache, create image
 				byte[] charsData = fontData[c];
 				int dest = 0;
 
@@ -7151,8 +7159,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
 
 				// put to cache
-				cacheChars[cacheIdx] = id;
-				fontCacheImages[cacheIdx] = img;
+				int idx = fontCacheIdx[font];
+				cacheChars[idx] = id;
+				fontCacheImages[idx] = img;
+				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 			}
 
 			g.drawImage(img, x, y, 0);
@@ -7193,13 +7203,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			int w = fontWidths[c];
 
-			int id = c | (fontColor << 16);
-			int cacheIdx = (c + (fontColor * 94)) & (FONT_CACHE_SIZE - 1); // % FONT_CACHE_SIZE;
-
 			Image img;
-			if (cacheChars[cacheIdx] == id && fontCacheImages[cacheIdx] != null) {
-				img = fontCacheImages[cacheIdx];
-			} else {
+			img: {
+				int id = c | (fontColor << 16);
+
+				// try to get from cache
+				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+					if (cacheChars[j] == id) {
+						img = fontCacheImages[j];
+						break img;
+					}
+				}
+				// not in cache, create image
 				byte[] charsData = fontData[c];
 				int dest = 0;
 
@@ -7219,8 +7234,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
 
 				// put to cache
-				cacheChars[cacheIdx] = id;
-				fontCacheImages[cacheIdx] = img;
+				int idx = fontCacheIdx[font];
+				cacheChars[idx] = id;
+				fontCacheImages[idx] = img;
+				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 			}
 
 			g.drawImage(img, x, y, 0);
