@@ -47,7 +47,8 @@ To compile the game you may use IntelliJ IDEA integrated with KEmulator nnmod, o
 
 To open project in IntelliJ IDEA, open KEmulator nnmod, Tools>IntelliJ IDEA Support, go through setup steps, then in "Fix a project after clone" section, press "Choose a project".
 
-Does not support preprocessing for platform-specific builds, so generic config will be used.
+Does not support preprocessing for platform-specific builds, so generic config will be used.\
+see `src/Constants.java`
 
 ## Requirements
 
@@ -65,4 +66,16 @@ Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on
 - Alpha blending support is required for shadows.
 - Audio mixing and WAV support are required to play sound effects.
 
-see `src/Constants.java`
+## Tested devices
+
+Main testing and target devices:
+- Nokia E52 (240x320, S60v3.2, 600 MHz)
+- Sony Ericsson K770 (240x320, A100, 220 MHz)
+- Nokia 6700c (240x320, S40v6, 600 MHz)
+- Nokia E72 (320x240, S60v3.2, 600 MHz)
+
+Secondary (Works but slow):
+- Nokia E7 (640x360, S60v5.3, 600 MHz)
+- Nokia E90 (240x320, S60v3.1, 332 MHz)
+- Sony Ericsson W810 (176x220, A100, 110 MHz)
+- Nokia N72 (176x208, S60v2.8, 220 MHz)
