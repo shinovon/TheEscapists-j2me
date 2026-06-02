@@ -15,7 +15,4 @@ proguard-local.cfg
 
 /orig_res/**
 !dummy.txt
-/res/map
-!/res/logo.png
-!/res/shadow.png
 /.processed/
