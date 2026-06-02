@@ -52,12 +52,14 @@ see `src/Constants.java`
 
 ## Requirements
 
-MIDP 2.0, CLDC 1.1
+**API support**: MIDP 2.0, CLDC 1.1
 
-Screen size: At least 176x220.\
+**Keyboard**: Nokia/SE layout
+
+**Screen size**: At least 176x220.\
 Render is adaptive, but interface elements and textures won't scale, so higher than 640x360 is not recommended.
 
-Memory: At least 1.5 MB of heap, and 1.5 MB of separate image memory.\
+**Memory**: At least 1.5 MB of heap, and 1.5 MB of separate image memory.\
 Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on platform)
 
 ### Optional requirements
@@ -74,7 +76,7 @@ Main testing and target devices:
 - Nokia 6700c (240x320, S40v6, 600 MHz)
 - Nokia E72 (320x240, S60v3.2, 600 MHz)
 
-Secondary (Works but slow):
+Secondary (Works but low performance):
 - Nokia E7 (640x360, S60v5.3, 600 MHz)
 - Nokia E90 (240x320, S60v3.1, 332 MHz)
 - Sony Ericsson W810 (176x220, A100, 110 MHz)
