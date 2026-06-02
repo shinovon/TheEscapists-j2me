@@ -2755,6 +2755,7 @@ class NPC implements Constants {
 							}
 							if (b == COLL_TABLE) {
 								if (obj == Objects.SERVING_TABLE
+										&& animation != ANIM_FOOD
 										// if there is food left
 										&& (map.objects[layer][idx + 2] & 0xFF) != 2) {
 									// pick food
