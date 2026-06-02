@@ -13,9 +13,8 @@ proguard-local.cfg
 *.jar
 *.zip
 
-/res/*.png
-/res/*.wav
-/res/*.mp3
+/orig_res/**
+!dummy.txt
 /res/map
 !/res/logo.png
 !/res/shadow.png

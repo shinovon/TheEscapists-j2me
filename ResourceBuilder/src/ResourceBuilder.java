@@ -34,6 +34,15 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 public class ResourceBuilder implements Constants {
+
+	static final String[] maps = {
+			"perks",
+			"stalagflucht",
+			"shanktonstatepen",
+			"jungle",
+			"sanpancho",
+			"irongate",
+	};
 	
 	static Path decompiledDir;
 	static Path[] unsortedImagesDirs;
@@ -56,10 +65,8 @@ public class ResourceBuilder implements Constants {
 				Paths.get("Sorted Images", "[6] game", "[UNSORTED]"),
 				Paths.get("Sorted Images", "[11] tutorial", "[UNSORTED]"),
 		};
-		
-		String map = args.length >= 4 ? args[3] : "shanktonstatepen";
 
-		if (args.length >= 5 && "-force".equals(args[4])) force = true;
+		if (args.length >= 4 && "-force".equals(args[3])) force = true;
 		
 		try {
 			items();
@@ -68,8 +75,6 @@ public class ResourceBuilder implements Constants {
 			huds();
 			title();
 			icon();
-			ground("ground_" + map + ".gif");
-			tiles("tiles_" + map + ".gif", "tiles.png");
 			character("Inmate", "inmate.png", 4);
 			character("Inmate 2", "inmate2.png", 4);
 			character("Inmate 3", "inmate3.png", 4);
@@ -82,7 +87,10 @@ public class ResourceBuilder implements Constants {
 			character("Extra NPCs_2", "doctor.png", 1);
 			character("Tower Guard_0", "sniper.png", 1);
 			sounds();
-			map(map + ".map");
+
+			for (String map: maps) {
+				map(map);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -544,7 +552,7 @@ public class ResourceBuilder implements Constants {
 		writePng(img, resDir.resolve(out));
 	}
 	
-	static void ground(String name) throws IOException {
+	static void ground(String in, String out) throws IOException {
 		Path dir = gameDir.resolve("Data").resolve("images");
 
 		Path soilPath = dir.resolve("soil.gif");
@@ -553,7 +561,7 @@ public class ResourceBuilder implements Constants {
 		}
 		BufferedImage soil = ImageIO.read(soilPath.toFile());
 
-		Path groundPath = dir.resolve(name);
+		Path groundPath = dir.resolve(in);
 		if (!Files.exists(groundPath)) {
 			throw new IOException(groundPath.toString());
 		}
@@ -564,13 +572,13 @@ public class ResourceBuilder implements Constants {
 		g.drawImage(ground.getSubimage(0, 0, 48, 48), 0, 0, null);
 		g.drawImage(soil.getSubimage(0, 0, 48, 48), TILE_SIZE * 3, 0, null);
 		
-		writePng(img, resDir.resolve("ground.png"));
+		writePng(img, resDir.resolve(out));
 	}
 	
-	static void tiles(String name, String out) throws IOException {
+	static void tiles(String in, String out) throws IOException {
 		Path dir = gameDir.resolve("Data").resolve("images");
 		
-		Path path = dir.resolve(name);
+		Path path = dir.resolve(in);
 		if (!Files.exists(path)) {
 			throw new IOException(path.toString());
 		}
@@ -651,9 +659,15 @@ public class ResourceBuilder implements Constants {
 		Files.copy(titlePath, resDir.resolve("title.png"), StandardCopyOption.REPLACE_EXISTING);
 	}
 	
-	static void map(String name) throws Exception {
-		Path path = gameDir.resolve("Data").resolve("Maps").resolve(name);
-		MapCompiler.process(path, resDir.resolve("map"));
+	static void map(String map) throws Exception {
+		System.out.println();
+		System.out.println("Map: " + map);
+
+		tiles("tiles_" + map + ".gif", "tiles_" + map + ".png");
+		ground("ground_" + map + ".gif", "ground_" + map + ".png");
+
+		Path path = gameDir.resolve("Data").resolve("Maps").resolve(map + ".map");
+		MapCompiler.process(path, resDir.resolve(map));
 	}
 
 	static void sounds() throws Exception {

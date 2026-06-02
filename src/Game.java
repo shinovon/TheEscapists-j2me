@@ -1800,7 +1800,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Map
 
-	String file = "/map";
+	String file = "/shanktonstatepen"; // TODO
 
 	NPC player;
 	NPC[] chars, renderChars;
@@ -6889,10 +6889,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static void loadTextures() {
 		try {
-			tilesTexture = loadTiles("/tiles.png");
+			tilesTexture = loadTiles("/tiles_shanktonstatepen.png"); // TODO
+			groundTexture = loadTiles("/ground_shanktonstatepen.png");
+
 			itemsTexture = loadTiles("/items.png");
 			objectsTexture = loadTiles("/objects.png");
-			groundTexture = loadTiles("/ground.png");
 			if (DRAW_SHADOWS) shadowsTexture = loadTiles("/shadow.png");
 			if (DRAW_LIGHTS && USE_M3G) {
 				light3dTexture = (Image2D) Loader.load("/light.png")[0];
