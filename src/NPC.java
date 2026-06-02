@@ -2283,16 +2283,16 @@ class NPC implements Constants {
 				climb = false;
 
 				if ((actions & GameCanvas.UP_PRESSED) != 0
-						&& !checkCollision(0, 4) && !checkCollision(15, 4)) {
-					if (checkCollision(0, 5 - PLAYER_SPEED) || checkCollision(15, 5 - PLAYER_SPEED)) {
+						&& !checkCollision(2, 4) && !checkCollision(15 - 2, 4)) {
+					if (checkCollision(2, 5 - PLAYER_SPEED) || checkCollision(15 - 2, 5 - PLAYER_SPEED)) {
 						y -= Math.min(PLAYER_SPEED, (y + 5) % TILE_SIZE);
 					} else {
 						y -= PLAYER_SPEED;
 					}
 					direction = NPC.DIR_UP;
 				} else if ((actions & GameCanvas.DOWN_PRESSED) != 0) {
-					if (!checkCollision(0, 16) && !checkCollision(15, 16)) {
-						if (checkCollision(0, 16 + PLAYER_SPEED) || checkCollision(15, 16 + PLAYER_SPEED)) {
+					if (!checkCollision(2, 16) && !checkCollision(15 - 2, 16)) {
+						if (checkCollision(2, 16 + PLAYER_SPEED) || checkCollision(15 - 2, 16 + PLAYER_SPEED)) {
 							y += Math.min(PLAYER_SPEED, TILE_SIZE - (y % TILE_SIZE));
 						} else {
 							y += PLAYER_SPEED;
@@ -2304,16 +2304,16 @@ class NPC implements Constants {
 				}
 
 				if ((actions & GameCanvas.LEFT_PRESSED) != 0
-						&& !checkCollision(-1, 5) && !checkCollision(-1, 15)) {
-					if (checkCollision(-1 - PLAYER_SPEED, 5) || checkCollision(-1, 15)) {
+						&& !checkCollision(-1, 5 + 2) && !checkCollision(-1, 15 - 2)) {
+					if (checkCollision(-1 - PLAYER_SPEED, 5 + 2) || checkCollision(-1 - PLAYER_SPEED, 15 - 2)) {
 						x -= Math.min(PLAYER_SPEED, x % TILE_SIZE);
 					} else {
 						x -= PLAYER_SPEED;
 					}
 					direction = NPC.DIR_LEFT;
 				} else if ((actions & GameCanvas.RIGHT_PRESSED) != 0) {
-					if (!checkCollision(16, 5) && !checkCollision(16, 15)) {
-						if (checkCollision(16 + PLAYER_SPEED, 5) || checkCollision(16 + PLAYER_SPEED, 15)) {
+					if (!checkCollision(16, 5 + 2) && !checkCollision(16, 15 - 2)) {
+						if (checkCollision(16 + PLAYER_SPEED, 5 + 2) || checkCollision(16 + PLAYER_SPEED, 15 - 2)) {
 							x += Math.min(PLAYER_SPEED, TILE_SIZE - (x % TILE_SIZE));
 						} else {
 							x += PLAYER_SPEED;

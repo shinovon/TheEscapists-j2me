@@ -28,9 +28,9 @@ public interface Constants {
 	static final int TPS = 30;
 	static final int TIME_TICKS = (TPS * 42) / 60; // ticks per ingame second
 	static final int ANIMATION_TICKS = (8 * TPS) / 30; // ticks per animation cycle
-	static final int PLAYER_SPEED = (4 * 30) / TPS; // per tick
+	static final int PLAYER_SPEED = (3 * 30) / TPS; // per tick
 	static final float ANIMATE_SPEED = (2f * 30) / TPS;
-	static final float NPC_SPEED = (3f * 30) / TPS;
+	static final float NPC_SPEED = (2.4f * 30) / TPS;
 	static final float OTHER_NPC_SPEED = (2f * 30) / TPS;
 	static final int FADE_SPEED = (6 * 30) / TPS;
 	static final float CAMERA_SPEED = 0.4f;
