@@ -48,39 +48,58 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	static int volumeSfx = 60;
 	static int lastMusic = -1;
 	static int lastEffect = -1;
+
+	static boolean musicPrefetched;
+	static boolean sfxPrefetched;
 	
 	private static Sound inst;
 	
 	static void load() {
 		inst = new Sound();
 
-		if (PREFETCH_MUSIC) {
-			loadMusic(MUSIC_THEME, "/theme.mid");
-			loadMusic(MUSIC_LIGHTSOUT, "/lights.mid");
-			loadMusic(MUSIC_GENERIC, "/generic.mid");
-			loadMusic(MUSIC_CANTEEN, "/canteen.mid");
-			loadMusic(MUSIC_ROLLCALL, "/rollcall.mid");
-			loadMusic(MUSIC_SHOWER, "/shower.mid");
-			loadMusic(MUSIC_WORK, "/work.mid");
-			loadMusic(MUSIC_WORKOUT, "/workout.mid");
-			loadMusic(MUSIC_LOCKDOWN, "/lockdown.mid");
-			loadMusic(MUSIC_ESCAPED, "/escaped.mid");
-		}
-
-		if (!NO_SFX && PREFETCH_SFX) {
-			loadEffect(SFX_ACCOLADE, "/accolade.wav");
-			loadEffect(SFX_BELL, "/bell.wav");
-			loadEffect(SFX_BUY, "/buy.wav");
-			loadEffect(SFX_CLOSE, "/close.wav");
-			loadEffect(SFX_DOOR, "/door.wav");
-			loadEffect(SFX_ENHIT, "/en_hit.wav");
-			loadEffect(SFX_OPEN, "/open.wav");
-			loadEffect(SFX_PICKUP, "/pickup.wav");
-			loadEffect(SFX_PLIP, "/plip.wav");
-			loadEffect(SFX_RUMBLE, "/rumble.wav");
-			loadEffect(SFX_LOSE, "/lose.wav");
-			loadEffect(SFX_THROW, "/throw.wav");
-			loadEffect(SFX_HP, "/hp.wav");
+		// prefetching sounds causes out of memory exceptions on n96,
+		// and then crashes the jvm when continuing to create more players.
+		// so the fallback to S40 method was introduced.
+		prefetch: {
+			if (PREFETCH_MUSIC) {
+				try {
+					loadMusic(MUSIC_THEME, "/theme.mid");
+					loadMusic(MUSIC_LIGHTSOUT, "/lights.mid");
+					loadMusic(MUSIC_GENERIC, "/generic.mid");
+					loadMusic(MUSIC_CANTEEN, "/canteen.mid");
+					loadMusic(MUSIC_ROLLCALL, "/rollcall.mid");
+					loadMusic(MUSIC_SHOWER, "/shower.mid");
+					loadMusic(MUSIC_WORK, "/work.mid");
+					loadMusic(MUSIC_WORKOUT, "/workout.mid");
+					loadMusic(MUSIC_LOCKDOWN, "/lockdown.mid");
+					loadMusic(MUSIC_ESCAPED, "/escaped.mid");
+					musicPrefetched = true;
+				} catch (Exception e) {
+					unloadMusic();
+					break prefetch;
+				}
+			}
+	
+			if (!NO_SFX && PREFETCH_SFX) {
+				try {
+					loadEffect(SFX_ACCOLADE, "/accolade.wav");
+					loadEffect(SFX_BELL, "/bell.wav");
+					loadEffect(SFX_BUY, "/buy.wav");
+					loadEffect(SFX_CLOSE, "/close.wav");
+					loadEffect(SFX_DOOR, "/door.wav");
+					loadEffect(SFX_ENHIT, "/en_hit.wav");
+					loadEffect(SFX_OPEN, "/open.wav");
+					loadEffect(SFX_PICKUP, "/pickup.wav");
+					loadEffect(SFX_PLIP, "/plip.wav");
+					loadEffect(SFX_RUMBLE, "/rumble.wav");
+					loadEffect(SFX_LOSE, "/lose.wav");
+					loadEffect(SFX_THROW, "/throw.wav");
+					loadEffect(SFX_HP, "/hp.wav");
+					sfxPrefetched = true;
+				} catch (Exception e) {
+					unloadEffects();
+				}
+			}
 		}
 		
 		new Thread(inst, "Music").start();
@@ -101,13 +120,13 @@ public class Sound implements Runnable, PlayerListener, Constants {
 					if (o == EVENT_STOP_MUSIC || o == EVENT_START_MUSIC) {
 						if (lastMusicPlayer != null && lastMusicPlayer.getState() >= Player.CLOSED) {
 							lastMusicPlayer.stop();
-							if (!PREFETCH_MUSIC) {
+							if (!PREFETCH_MUSIC || !musicPrefetched) {
 								lastMusicPlayer.deallocate();
 								lastMusicPlayer.close();
 							}
 							lastMusicPlayer = null;
 						}
-						if (PREFETCH_MUSIC) {
+						if (PREFETCH_MUSIC && musicPrefetched) {
 							for (int i = 0; i < COUNT_MUSIC; ++i) {
 								Player p = music[i];
 								if (p != null && p.getState() >= Player.STARTED) {
@@ -119,13 +138,13 @@ public class Sound implements Runnable, PlayerListener, Constants {
 					} else if (!NO_SFX && (o == EVENT_STOP_EFFECT || o == EVENT_START_EFFECT)) {
 						if (lastEffectPlayer != null && lastEffectPlayer.getState() >= Player.CLOSED) {
 							lastEffectPlayer.stop();
-							if (!PREFETCH_SFX) {
+							if (!PREFETCH_SFX || !sfxPrefetched) {
 								lastEffectPlayer.deallocate();
 								lastEffectPlayer.close();
 							}
 							lastEffectPlayer = null;
 						}
-						if (PREFETCH_SFX) {
+						if (PREFETCH_SFX && sfxPrefetched) {
 							for (int i = 0; i < COUNT_EFFECTS; ++i) {
 								Player p = effects[i];
 								if (p != null && p.getState() >= Player.STARTED) {
@@ -137,7 +156,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 					}
 					if (o == EVENT_START_MUSIC) {
 						Player p = currentMusicPlayer;
-						if (!PREFETCH_MUSIC) {
+						if (!PREFETCH_MUSIC || !musicPrefetched) {
 							String res;
 							String type = "audio/midi";
 							int loopCount = -1;
@@ -199,7 +218,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 					if (!NO_SFX && o == EVENT_START_EFFECT) {
 						Player p = currentEffectPlayer;
 
-						if (!PREFETCH_SFX) {
+						if (!PREFETCH_SFX || !sfxPrefetched) {
 							String res;
 							switch (lastEffect) {
 							case SFX_ACCOLADE:
@@ -284,15 +303,14 @@ public class Sound implements Runnable, PlayerListener, Constants {
 		}
 	}
 	
-	private static void loadMusic(int id, String res) {
+	private static void loadMusic(int id, String res) throws Exception {
 		try {
-			Player p = Manager.createPlayer("".getClass().getResourceAsStream(res), "audio/midi");
+			Player p = music[id] = Manager.createPlayer("".getClass().getResourceAsStream(res), "audio/midi");
 			p.realize();
 			p.prefetch();
 			p.setLoopCount(-1);
 			p.addPlayerListener(inst);
 			setVolume(p, volumeMusic);
-			music[id] = p;
 		} catch (Exception e) {
 			if (LOGGING) {
 				Profiler.log("loadMusic failed");
@@ -300,17 +318,17 @@ public class Sound implements Runnable, PlayerListener, Constants {
 				Profiler.log(e.toString());
 			}
 			e.printStackTrace();
+			throw e;
 		}
 	}
 	
-	private static void loadEffect(int id, String res) {
+	private static void loadEffect(int id, String res) throws Exception {
 		try {
-			Player p = Manager.createPlayer("".getClass().getResourceAsStream(res), "audio/wav");
+			Player p = effects[id] = Manager.createPlayer("".getClass().getResourceAsStream(res), "audio/wav");
 			p.realize();
 			p.prefetch();
 			p.addPlayerListener(inst);
 			setVolume(p, volumeSfx);
-			effects[id] = p;
 		} catch (Exception e) {
 			if (LOGGING) {
 				Profiler.log("loadEffect failed");
@@ -318,6 +336,31 @@ public class Sound implements Runnable, PlayerListener, Constants {
 				Profiler.log(e.toString());
 			}
 			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	private static void unloadMusic() {
+		for (int i = 0; i < music.length; i++) {
+			if (music[i] == null) {
+				continue;
+			}
+			try {
+				music[i].close();
+			} catch (Exception ignored) {}
+			music[i] = null;
+		}
+	}
+
+	private static void unloadEffects() {
+		for (int i = 0; i < effects.length; i++) {
+			if (effects[i] == null) {
+				continue;
+			}
+			try {
+				effects[i].close();
+			} catch (Exception ignored) {}
+			effects[i] = null;
 		}
 	}
 	
@@ -337,7 +380,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	
 	static void setMusicVolume(int v) {
 		volumeMusic = v;
-		if (PREFETCH_MUSIC) {
+		if (PREFETCH_MUSIC && musicPrefetched) {
 			for (int i = 0; i < COUNT_MUSIC; ++i) {
 				setVolume(music[i], v);
 			}
@@ -355,7 +398,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	
 	static void setEffectVolume(int v) {
 		volumeSfx = v;
-		if (PREFETCH_SFX) {
+		if (PREFETCH_SFX && sfxPrefetched) {
 			for (int i = 0; i < COUNT_MUSIC; ++i) {
 				setVolume(effects[i], v);
 			}
@@ -363,7 +406,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	}
 	
 	synchronized static void stopMusic() {
-		if (PREFETCH_MUSIC) {
+		if (PREFETCH_MUSIC && musicPrefetched) {
 			if (currentMusicPlayer == null) return;
 			currentMusicPlayer = null;
 		}
@@ -387,7 +430,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 		if (volumeMusic <= 0) {
 			return;
 		}
-		if (PREFETCH_MUSIC) {
+		if (PREFETCH_MUSIC && musicPrefetched) {
 			Player p = music[id];
 			if (p == null) {
 				queue.addElement(EVENT_STOP_MUSIC);
@@ -405,7 +448,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	
 	synchronized static void playEffect(int id) {
 		if (NO_SFX || volumeSfx <= 0) return;
-		if (!PREFETCH_SFX) {
+		if (!PREFETCH_SFX || !sfxPrefetched) {
 			if (lastEffect == id && currentEffectPlayer != null) return;
 			lastEffect = id;
 		} else {
@@ -421,7 +464,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 	
 	synchronized static void resumeMusic() {
 		if (volumeMusic <= 0 || lastMusic == -1) return;
-		if (PREFETCH_MUSIC) {
+		if (PREFETCH_MUSIC && musicPrefetched) {
 			if (currentMusicPlayer != null) return;
 			Player p = music[lastMusic];
 			if (p == null) return;
