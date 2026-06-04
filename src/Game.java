@@ -2336,7 +2336,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else if (isSolidTile(m) != COLL_NONE) {
 							tiles[pos] = (byte) -m;
 							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;
-							if (p == 102) {
+							if (USE_TILED_LAYER && p == 102) {
 								tiledLayer[l].setCell(x, y, m);
 							}
 						}
