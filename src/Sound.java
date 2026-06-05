@@ -308,7 +308,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 			Player p = music[id] = Manager.createPlayer("".getClass().getResourceAsStream(res), "audio/midi");
 			p.realize();
 			p.prefetch();
-			p.setLoopCount(-1);
+			if (id != MUSIC_ESCAPED) p.setLoopCount(-1);
 			p.addPlayerListener(inst);
 			setVolume(p, volumeMusic);
 		} catch (Exception e) {
