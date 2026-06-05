@@ -2302,11 +2302,25 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	void initMap() {
-		// fill collision lookup
+		int width = this.width;
+		int height = this.height;
+
 		boolean initSeats = canteenSeatsPositions[0] == 0;
 		for (int l = 0; l < 4; ++l) {
 			byte[] tiles = this.tiles[l];
 			byte[] solid = this.solid[l];
+
+			if (USE_TILED_LAYER) {
+				// fill tiled layer
+				for (int y = 0; y < height; ++y) {
+					for (int x = 0; x < width; ++x) {
+						byte t = tiles[x + y * width];
+						tiledLayer[l].setCell(x, y, t == 100 || t == 96 || t == 92 ? 0 : t < 0 ? 13 : t);
+					}
+				}
+			}
+
+			// fill collision lookup
 			for (int i = 0; i < width * height; ++i) {
 				byte t = tiles[i];
 				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : isSolidTile(t);
@@ -2336,8 +2350,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else if (isSolidTile(m) != COLL_NONE) {
 							tiles[pos] = (byte) -m;
 							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;
-							if (USE_TILED_LAYER && p == 102) {
-								tiledLayer[l].setCell(x, y, m);
+							if (USE_TILED_LAYER) {
+								tiledLayer[l].setCell(x, y, p == 102 ? m : 13);
 							}
 						}
 					}
@@ -2376,20 +2390,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							if (solid[p] == COLL_SOLID && (s == COLL_SOLID_INTERACT || s == COLL_DETECTOR)) continue;
 							solid[p] = s;
 						}
-					}
-				}
-			}
-		}
-
-		// fill tiled layer
-		if (USE_TILED_LAYER) {
-			int width = this.width;
-			int height = this.height;
-			for (int layer = 0; layer < 4; ++layer) {
-				for (int y = 0; y < height; ++y) {
-					for (int x = 0; x < width; ++x) {
-						byte t = tiles[layer][x + y * width];
-						tiledLayer[layer].setCell(x, y, t == 100 || t == 96 || t == 92 ? 0 : t < 0 ? 13 : t);
 					}
 				}
 			}
