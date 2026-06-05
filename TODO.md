@@ -63,6 +63,7 @@
 - [ ] Achievements
 - [ ] Visitation
 - [ ] NPC inventory looting
+- [ ] Snipers
 
 # OST
 

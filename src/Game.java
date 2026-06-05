@@ -2613,6 +2613,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			cellsClosed = true;
 			entranceOpen = false;
 			resetCamera = true;
+			guardsDown = 0;
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
 			// reset npcs
@@ -2798,11 +2799,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					Sound.playEffect(Sound.SFX_BELL);
 					Sound.playMusic(music);
 				}
-				if (willLockdown) {
-					schedule = SC_LOCKDOWN;
-					willLockdown = false;
-					lockdown = true;
-				}
 			} else {
 				if (!cellsClosed && (time == 1 || (time >= 23 * 60 + 20 && player.isInZone(ZONE_PLAYER_CELL)))) {
 					cellsClosed = true;
@@ -2810,6 +2806,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					Sound.playEffect(Sound.SFX_RUMBLE);
 				}
 				if (lockdown) {
+					if (time % 60 == 0) {
+						updateDoors();
+					}
 					if (guardsDown >= 4) {
 						if (!entranceOpen) {
 							entranceOpen = true;
@@ -2828,6 +2827,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (USE_M3G && time >= 7 * 60 && time <= 21 * 60 + 128 && globalVertexBuffer != null) {
 				update3DLightingColor();
 			}
+		}
+		if (willLockdown) {
+			schedule = SC_LOCKDOWN;
+			willLockdown = false;
+			lockdown = true;
 		}
 
 		// tick characters
@@ -2860,12 +2864,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 			}
-		}
-
-		if (willLockdown) {
-			schedule = SC_LOCKDOWN;
-			willLockdown = false;
-			lockdown = true;
 		}
 
 		if (lockdown && tick % TPS == 0) {
