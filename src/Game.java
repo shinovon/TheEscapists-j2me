@@ -871,8 +871,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static void drawItemSlot(Graphics g, int x, int y, int item, boolean selected) {
 		g.setColor(0x212121);
 		g.fillRect(x + 1, y + 1, 18, 18);
-		g.setColor(selected ? 0xFFFFFF : 0x0F0F0F);
-		g.drawRect(x, y, 19, 19);
+		if (selected) {
+			g.setColor(0xFFFFFF);
+			g.drawRect(x, y, 19, 19);
+		} else {
+			g.setColor(0x111111);
+			g.drawLine(x + 1, y, x + 18, y);
+			g.drawLine(x, y + 1, x, y + 18);
+			g.setColor(0x606060);
+			g.drawLine(x + 1, y + 19, x + 18, y + 19);
+			g.drawLine(x + 19, y + 1, x + 19, y + 18);
+		}
 
 		if (item != Items.ITEM_NULL) {
 			int durability = (item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
