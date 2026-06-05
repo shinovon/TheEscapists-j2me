@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2022 Arman Jussupgaliyev
+Copyright (c) 2022-2025 Arman Jussupgaliyev
 */
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
@@ -13,18 +13,19 @@ import javax.imageio.ImageIO;
 public class FontCompiler {
 
 	public static void main(String[] args) {
-		File bitmap = new File("./fontbold.png");
 		File chars = new File("./font.txt");
-		File out = new File("../res/fontb");
-		if(out.exists())
-			out.delete();
-		int cw = 8;
-		int ch = 10;
 		int cols = 16;
 		int rows = 6;
 		int ver = 1;
-		String name = "TE-B";
+		convert(new File("./font.png"), chars, new File("../res/fontr"), 7, 10, cols, rows, ver, "TE-R");
+		convert(new File("./fontbold.png"), chars, new File("../res/fontb"), 8, 10, cols, rows, ver, "TE-B");
+
+	}
+
+	private static void convert(File bitmap, File chars, File out, int cw, int ch, int cols, int rows, int ver, String name) {
 		try {
+			if(out.exists())
+				out.delete();
 			DataOutputStream d = new DataOutputStream(new FileOutputStream(out));
 			//magic
 			d.writeInt(0xDE11CFAB);
@@ -57,12 +58,27 @@ public class FontCompiler {
 			byte[] bb = new byte[bl];
 			bis.read(bb);
 			bis.close();
-			//bitmap length
-			d.writeInt(bl);
-			//bitmap bytes
-			d.write(bb);
+//			//bitmap length
+//			d.writeInt(bl);
+//			//bitmap bytes
+//			d.write(bb);
+
+
 			//calc widths
 			BufferedImage bmp = ImageIO.read(bitmap);
+
+			// write 1-bit map
+			for (int y = 0; y < rows; y++) {
+				for (int x = 0; x < cols; x++) {
+					for (int i = 0; i < ch; i++) {
+						for (int j = 0; j < cw; j++) {
+							int r = bmp.getRGB(j+x*cw, i+y*ch);
+							d.writeByte((byte) ((r >> 24) & 0xFF));
+						}
+					}
+				}
+			}
+
 			int[][] widths = new int[cols][rows];
 			for(int y = 0; y<rows; y++) {
 				for(int x = 0; x<cols; x++) {
@@ -87,6 +103,8 @@ public class FontCompiler {
 			// end
 			d.flush();
 			d.close();
+
+			System.out.println("Wrote " + out);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
