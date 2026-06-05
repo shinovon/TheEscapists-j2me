@@ -3322,15 +3322,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				// global lighting
 
 				transform.setIdentity();
-				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
-					// vent tint
-					globalVertexBuffer.setDefaultColor(0x7F7F7F);
-					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
-				} else if (layer == LAYER_UNDERGROUND) {
+				if (layer == LAYER_UNDERGROUND) {
 					// TODO
 				} else if ((time < 7 * 60 + 128 || time > 21 * 60)
 						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
 					globalVertexBuffer.setDefaultColor(globalLightColor);
+					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				}
+				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
+					// vent tint
+					globalVertexBuffer.setDefaultColor(0x7F7F7F);
+					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				}
+				if (pausedOverlay && layer == player.layer) {
+					// pause tint
+					globalVertexBuffer.setDefaultColor(0x7F7F7F);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
 				}
 				release3D();
