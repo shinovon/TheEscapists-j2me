@@ -73,6 +73,7 @@ public class ResourceBuilder implements Constants {
 			objects();
 			light();
 			huds();
+			markers();
 			title();
 			icon();
 			character("Inmate", "inmate.png", 4);
@@ -685,6 +686,47 @@ public class ResourceBuilder implements Constants {
 		g.drawImage(crew, 100, 44, 100 + 9, 44 + 11, 217, 28, 217 + 9, 28 + 11, null);
 		
 		writePng(img, resDir.resolve("huds.png"));
+	}
+
+	static void markers() throws IOException {
+		BufferedImage img = new BufferedImage(64, 32, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = img.getGraphics();
+
+		g.drawImage(ImageIO.read(getImagePath("Marker - Vendor_0-0_0.png").toFile()), 0, 0, null);
+		g.drawImage(ImageIO.read(getImagePath("Marker - Vendor_5-0_0.png").toFile()).getSubimage(2, 0, 4, 9), 7, 0, null);
+
+		BufferedImage font = ImageIO.read(getImagePath("2178.png").toFile());
+		g.drawImage(font.getSubimage(1, 9, 5, 7), 11, 0, null);
+		g.drawImage(font.getSubimage(45, 2, 6, 6), 16, 0, null);
+		g.drawImage(font.getSubimage(10, 9, 5, 7), 22, 0, null);
+
+//		g.drawImage(font.getSubimage(30, 17, 5, 7), 0, 23, null);
+//		g.drawImage(font.getSubimage(5, 17, 5, 7), 5, 23, null);
+//		g.drawImage(font.getSubimage(100, 17, 4, 7), 10, 23, null);
+
+		g.drawImage(font.getSubimage(95, 9, 5, 7), 0, 23, null);
+		g.drawImage(font.getSubimage(101, 9, 4, 7), 5, 23, null);
+		g.drawImage(font.getSubimage(90, 9, 5, 7), 9, 23, null);
+
+		g.drawImage(font.getSubimage(46, 9, 4, 7), 15, 23, null);
+		g.drawImage(font.getSubimage(70, 9, 5, 7), 19, 23, null);
+		g.drawImage(font.getSubimage(101, 9, 4, 7), 24, 23, null);
+
+		g.drawImage(font.getSubimage(95, 9, 5, 7), 30, 23, null);
+		g.drawImage(font.getSubimage(80, 9, 5, 7), 35, 23, null);
+		g.drawImage(font.getSubimage(20, 9, 5, 7), 40, 23, null);
+
+		g.drawImage(ImageIO.read(getImagePath("2327.png").toFile()), 27, 0, null);
+		g.drawImage(ImageIO.read(getImagePath("1456.png").toFile()), 34, 0, null);
+		g.drawImage(ImageIO.read(getImagePath("660.png").toFile()), 41, 0, null);
+
+		font = ImageIO.read(getImagePath("587.png").toFile());
+		g.drawImage(font.getSubimage(80, 1, 50, 7), 0, 9, null);
+
+		font = ImageIO.read(getImagePath("94.png").toFile());
+		g.drawImage(font.getSubimage(80, 1, 50, 7), 0, 16, null);
+
+		writePng(img, resDir.resolve("markers.png"));
 	}
 	
 	static void icon() throws IOException {
