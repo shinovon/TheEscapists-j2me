@@ -157,6 +157,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedMenu;
 	boolean hasSave;
 
+	int effect;
+	int effectX, effectY;
+	int effectTimer;
+
 	Game() {
 		super(false);
 		version = TE.midlet.getAppProperty("MIDlet-Version");
@@ -2843,6 +2847,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			lockdown = true;
 		}
 
+		if (effectTimer != 0) {
+			--effectTimer;
+		}
+
 		// tick characters
 
 		int tick = tickCounter;
@@ -3341,6 +3349,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 				release3D();
 			}
+		}
+
+		if (effect != 0 && effectTimer != 0) {
+			g.drawRegion(itemsTexture, ((effect & 0xFF) % TILE_SIZE) * TILE_SIZE, (effect / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, effectX - viewX, effectY - viewY, 0);
 		}
 
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
@@ -6895,6 +6907,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static Image shadowsTexture;
 	static Image2D light3dTexture;
 	static Image hudSymbolsTexture;
+	static Image markersTexture;
 
 	static int[] intBuffer = new int[256];
 
@@ -6937,6 +6950,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			loadSpritesheet(Textures.OUTFIT_INMATE, "/outfit0.png");
 			loadSpritesheet(Textures.OUTFIT_GUARD, "/outfit1.png");
 			hudSymbolsTexture = loadTiles("/huds.png");
+			markersTexture = loadTiles("/markers.png");
 		} catch (Exception e) {
 			if (LOGGING) {
 				Profiler.log("loadTextures failed");

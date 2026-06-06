@@ -407,6 +407,11 @@ class NPC implements Constants {
 
 				chaseTarget.damage(this, damage);
 
+				map.effect = 224 + rng.nextInt(5);
+				map.effectX = chaseTarget.x;
+				map.effectY = chaseTarget.y;
+				map.effectTimer = 3;
+
 				if (chaseTarget.health <= 0) {
 					chaseTarget = null;
 					if (ai) {
