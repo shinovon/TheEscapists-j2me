@@ -97,7 +97,7 @@ public class ResourceBuilder implements Constants {
 	}
 	
 	static void items() throws IOException {
-		final String[] names = {
+		final String[] items = {
 				"Items_0-0_0.png",
 				"Items_0-1_0.png",
 				"Items_0-2_0.png",
@@ -292,13 +292,57 @@ public class ResourceBuilder implements Constants {
 		
 		BufferedImage img = new BufferedImage(TILE_SIZE * 16, TILE_SIZE * 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.getGraphics();
-		for (int i = 0; i < names.length; ++i) {
-			Path path = getImagePath(names[i]);
+		for (int i = 0; i < items.length; ++i) {
+			Path path = getImagePath(items[i]);
 			if (path == null) {
 				continue;
 			}
 			BufferedImage tile = ImageIO.read(path.toFile());
 			g.drawImage(tile, (i % 16) * TILE_SIZE, (i / 16) * TILE_SIZE, null);
+		}
+
+		final String[] fx = {
+				"fx_4-0_0.png",
+				"fx_4-0_1.png",
+				"fx_4-0_2.png",
+				"fx_4-1_0.png",
+				"fx_4-2_0.png",
+				"fx_4-3_0.png",
+				"fx_4-3_1.png",
+				"fx_4-3_2.png",
+				"fx_4-3_3.png",
+				"fx_4-3_4.png",
+				"fx_5-0_0.png",
+				"fx_5-0_1.png",
+				"fx_5-0_2.png",
+				"fx_5-0_3.png",
+				"fx_5-0_4.png",
+				null,
+				"dust_4-0_0.png",
+				"dust_4-0_1.png",
+				"dust_4-0_2.png",
+				"dust_4-0_3.png",
+				"dust_4-0_4.png",
+				"dust_4-0_5.png",
+				"dust_4-0_6.png",
+				"dust_4-0_7.png",
+				"dust_4-16_0.png",
+				"dust_4-16_1.png",
+				"dust_4-16_2.png",
+				"dust_4-16_3.png",
+				"dust_4-16_4.png",
+		};
+
+		for (int i = 0; i < fx.length; ++i) {
+			if (fx[i] == null) {
+				continue;
+			}
+			Path path = getImagePath(fx[i]);
+			if (path == null) {
+				continue;
+			}
+			BufferedImage tile = ImageIO.read(path.toFile());
+			g.drawImage(tile, (i % 16) * TILE_SIZE, (i / 16) * TILE_SIZE + 224, null);
 		}
 		
 		writePng(img, resDir.resolve("items.png"));
