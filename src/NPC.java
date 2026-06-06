@@ -2502,7 +2502,8 @@ class NPC implements Constants {
 
 								if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
 									if (((layer == LAYER_UNDERGROUND && (t == 0
-											|| Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])))
+											|| (Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
+											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
 											|| (layer == LAYER_GROUND && Game.isDiggable(t)
 											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1 && map.getBreakProgress(x, y, layer) < 100))
 											) {
