@@ -157,6 +157,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedMenu;
 	boolean hasSave;
 
+	int wallEffect;
+	int wallEffectX, wallEffectY;
+	int wallEffectTimer;
+
 	int effect;
 	int effectX, effectY;
 	int effectTimer;
@@ -2847,6 +2851,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			lockdown = true;
 		}
 
+		// tick effects
+
+		if (wallEffectTimer != 0) {
+			int effect = wallEffect;
+			if (--wallEffectTimer == 0 && ((effect >= 229 && effect < 229 + 4) || (effect >= 234 && effect < 234 + 4)
+					|| (effect >= 240 && effect < 240 + 7)  || (effect >= 248 && effect < 248 + 4))) {
+				wallEffectTimer = 2;
+				wallEffect++;
+			}
+		}
+
 		if (effectTimer != 0) {
 			--effectTimer;
 		}
@@ -3215,6 +3230,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				sprite &= 0xFF;
 				g.drawRegion(objectsImg, ((sprite & 0xFF) % TILE_SIZE) * TILE_SIZE, (sprite / TILE_SIZE) * TILE_SIZE, w, h, 0, x, y - h + TILE_SIZE, 0);
 			}
+		}
+
+		if (wallEffect != 0 && wallEffectTimer != 0) {
+			g.drawRegion(itemsTexture, ((wallEffect & 0xFF) % TILE_SIZE) * TILE_SIZE, (wallEffect / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, wallEffectX - viewX, wallEffectY - viewY, 0);
 		}
 
 		Profiler.beginRenderSection(Profiler.RENDER_CHARACTERS);

@@ -2281,6 +2281,20 @@ class NPC implements Constants {
 					map.progress = 0;
 				} else if (map.action != ACT_READING && map.action != ACT_SEARCHING && map.progress % (TPS / 2) == 1) {
 					Sound.playEffect(Constants.SFX_OPEN);
+					switch (map.action) {
+					case ACT_DIGGING:
+						map.wallEffect = layer == LAYER_UNDERGROUND ? 229 : 234;
+						map.wallEffectX = map.actionTargetX * TILE_SIZE;
+						map.wallEffectY = map.actionTargetY * TILE_SIZE;
+						map.wallEffectTimer = 2;
+						break;
+					case ACT_CHIPPING:
+						map.wallEffect = 240;
+						map.wallEffectX = map.actionTargetX * TILE_SIZE;
+						map.wallEffectY = map.actionTargetY * TILE_SIZE;
+						map.wallEffectTimer = 2;
+						break;
+					}
 				}
 			} else if (animation == NPC.ANIM_REGULAR || animation == NPC.ANIM_FOOD) {
 				// movement
