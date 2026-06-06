@@ -1082,6 +1082,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						switch (gameAction) {
 						case UP:
 							if (selectedSlot == -1) {
+								//noinspection UnusedAssignment
 								if (selectedInventory-- == 0) {
 									selectedInventory = 5;
 								}
@@ -1100,12 +1101,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							break;
 						case LEFT:
 							if (selectedSlot == -1) {
+								//noinspection UnusedAssignment
 								if (selectedInventory-- == 0) {
 									selectedInventory = 5;
 								}
 								break;
 							}
 							if (selectedSlot == -2) break;
+							//noinspection UnusedAssignment
 							if (selectedSlot-- == 0) {
 								selectedSlot = slots - 1;
 							}
@@ -1235,7 +1238,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 						} catch (Exception ignored) {}
 					} else if (key == '*') {
+						// TODO
 					} else if (key == '#') {
+						// TODO
 					} else if (key == '0') {
 						// crafting
 						craftingOpen = true;
@@ -1420,9 +1425,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
 					player.inventory[2] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
-
-					player.inventory[3] = Items.RAZOR_BLADE | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[4] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -1783,8 +1785,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// limit FPS
 				long delay = (1000L / FPS_LIMIT) - (System.currentTimeMillis() - now);
-				if (delay > 0) Thread.sleep(delay);
-				else Thread.yield();
+				if (delay > 0) {
+					//noinspection BusyWait
+					Thread.sleep(delay);
+				} else Thread.yield();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2481,6 +2485,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int objIdx = containers[idx++];
 				int owner = containers[idx++];
 				if (owner == -Objects.TOILET) {
+					containers[idx + 1] = Items.ITEM_NULL;
+					containers[idx + 2] = Items.ITEM_NULL;
+					containers[idx + 3] = Items.ITEM_NULL;
 				} else if (owner == -Objects.JOB_GARDENING_TOOLS) {
 					for (j = 0; j < 20; ++j) {
 						containers[idx + 1 + j] = Items.HOE | Items.ITEM_DEFAULT_DURABILITY;
@@ -2530,8 +2537,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (owner == -Objects.DESK) {
 						short[] objects = this.objects[LAYER_GROUND];
 						byte[] solid = this.solid[LAYER_GROUND];
-						int w = width;
-						int h = height;
 
 						int x = objects[objIdx + 3];
 						int y = objects[objIdx + 4];
@@ -2563,8 +2568,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break;
 								}
 								if ((x1 != x0 || y1 != y0)
-										&& x1 >= 0 && y1 >= 0 && x1 < w && y1 < h) {
-									byte s = solid[x1 + y1 * w];
+										&& x1 >= 0 && y1 >= 0 && x1 < width && y1 < height) {
+									byte s = solid[x1 + y1 * width];
 									if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_DOOR) {
 										break;
 									}
@@ -3163,7 +3168,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				int pos = chipped[(i << 1) + 2];
 				int x = (pos & 0xFF) * TILE_SIZE - viewX;
-				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;;
+				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;
 				if (x < -TILE_SIZE || y < -TILE_SIZE || x >= viewWidth + TILE_SIZE || y >= viewHeight + TILE_SIZE) {
 					continue;
 				}
@@ -3183,7 +3188,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				int pos = items[(i << 1) + 2];
 				int x = (pos & 0xFF) * TILE_SIZE - viewX;
-				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;;
+				int y = ((pos >> 8) & 0xFF) * TILE_SIZE - viewY;
 				if (x < -TILE_SIZE || y < -TILE_SIZE || x >= viewWidth + TILE_SIZE || y >= viewHeight + TILE_SIZE) {
 					continue;
 				}
@@ -3349,18 +3354,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				// global lighting
 
 				transform.setIdentity();
-				if (layer == LAYER_UNDERGROUND) {
+				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
+					// vent tint
+					globalVertexBuffer.setDefaultColor(0x7F7F7F);
+					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
+				} else if (layer == LAYER_UNDERGROUND) {
 					// TODO
 				} else if ((time < 7 * 60 + 128 || time > 21 * 60)
 						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
 					globalVertexBuffer.setDefaultColor(globalLightColor);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
 				}
-				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
-					// vent tint
-					globalVertexBuffer.setDefaultColor(0x7F7F7F);
-					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
-				}
+
 				if (pausedOverlay && layer == player.layer) {
 					// pause tint
 					globalVertexBuffer.setDefaultColor(0x7F7F7F);
@@ -4083,7 +4088,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	void deleteItem(int x, int y, int layer) {
-		int[] items = droppedItems[layer];;
+		int[] items = droppedItems[layer];
 		int n = items[0];
 		int pos = (x & 0xFF) | ((y & 0xFF) << 8);
 
@@ -6979,6 +6984,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
+	// not used yet
+	static void unloadTextures() {
+		tilesTexture = null;
+		groundTexture = null;
+		itemsTexture = null;
+		objectsTexture = null;
+		if (DRAW_SHADOWS) shadowsTexture = null;
+		hudSymbolsTexture = null;
+		markersTexture = null;
+		//noinspection ExplicitArrayFilling // invalid warning for cldc
+		for (int i = 0; i < sprites.length; i++) {
+			sprites[i] = null;
+		}
+		System.gc();
+	}
+
 	private static Image loadTiles(String res) {
 		try {
 			return Image.createImage(res);
@@ -7070,6 +7091,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					return false;
 				}
 				// skip font name
+				//noinspection ResultOfMethodCallIgnored
 				d.skip(9);
 				int charWidth = fontCharWidth[idx] = d.read();
 				int charHeight = fontCharHeight[idx] = d.read();
@@ -7097,6 +7119,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //				}
 
 				// so it's skipped
+				//noinspection ResultOfMethodCallIgnored
 				d.skip(d.readInt());
 
 				int i;
