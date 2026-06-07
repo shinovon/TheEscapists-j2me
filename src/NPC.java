@@ -1409,7 +1409,7 @@ class NPC implements Constants {
 				chaseTarget = null;
 				correctPath = false;
 				aiWaitTimer = TPS;
-			} else if (!correctPath || (tick & 4) == 0) {
+			} else if (!correctPath || (tick & 7) == 0) {
 				if (dist > TILE_SIZE * TILE_SIZE) {
 					// pick random offsets of position
 					if (tick % TPS == 0) {
@@ -1418,14 +1418,14 @@ class NPC implements Constants {
 					}
 					tx += targetOffsetX;
 					ty += targetOffsetY;
-					pathX = tx / TILE_SIZE;
-					pathY = (ty + 5) / TILE_SIZE;
+					pathX = (tx + 7) / TILE_SIZE;
+					pathY = (ty + 7) / TILE_SIZE;
 					if (map.solid[LAYER_GROUND][pathX + pathY * map.width] != 0) {
 						// if offset is solid, pick original position
 						tx = chaseTarget.x;
 						ty = chaseTarget.y;
-						pathX = tx / TILE_SIZE;
-						pathY = (ty + 5) / TILE_SIZE;
+						pathX = (tx + 7) / TILE_SIZE;
+						pathY = (ty + 7) / TILE_SIZE;
 					}
 					path: {
 						if ((map.solid[LAYER_GROUND][pathX + pathY * map.width] & COLL_BIT_SOLID_AI) != 0) {
@@ -1446,7 +1446,7 @@ class NPC implements Constants {
 								break path;
 							}
 						}
-						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
 						} else {

@@ -36,8 +36,8 @@ public interface Constants {
 	static final float CAMERA_SPEED = 0.4f;
 	
 	static final int TILE_SIZE = 16;
-	static final int NPC_VIEW_DISTANCE = 6 * 6 * TILE_SIZE * TILE_SIZE; // squared
-	static final int NPC_CHASE_LOSE_DISTANCE = 12 * 12 * TILE_SIZE * TILE_SIZE; // squared
+	static final int NPC_VIEW_DISTANCE = 5 * 5 * TILE_SIZE * TILE_SIZE; // squared
+	static final int NPC_CHASE_LOSE_DISTANCE = 10 * 10 * TILE_SIZE * TILE_SIZE; // squared
 	static final int NPC_INTERACT_DISTANCE = 3 * TILE_SIZE * TILE_SIZE; // squared
 
 	static final int SHADOW_COLOR = 0x50000000;
