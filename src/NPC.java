@@ -1998,7 +1998,6 @@ class NPC implements Constants {
 						break;
 					}
 					hasContraband = true;
-					break;
 				}
 			}
 			if (hasContraband && !hasPouch) {
@@ -3277,7 +3276,6 @@ class NPC implements Constants {
 	}
 
 	boolean checkInventoryFull() {
-		boolean p = false;
 		for (int i = 0; i < 6; ++i) {
 			if (inventory[i] == Items.ITEM_NULL) {
 				return false;

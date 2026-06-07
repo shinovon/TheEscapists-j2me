@@ -298,7 +298,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			if (!NO_SFX) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "SFX volume: ".concat(Integer.toString(Sound.volumeSfx)), 40, 60 + i * 12, FONT_REGULAR);
+				drawText(g, "SFX volume: ".concat(Integer.toString(Sound.volumeSfx)), 40, 60, FONT_REGULAR);
 				i++;
 			}
 
@@ -320,7 +320,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
 			drawText(g, "Alternative controls: ".concat(altControls ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
-			i++;
+//			i++;
 
 			fontColor = FONT_COLOR_GREY_7F;
 			if (version != null) {
@@ -1380,7 +1380,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							altControls = !altControls;
 							break set;
 						}
-						i--;
+//						i--;
 					}
 				} else if (key == -6 || key == -7) {
 					writeConfig();
@@ -4292,7 +4292,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (time % 60 == 0 || prevSchedule == SC_LOCKDOWN) {
 					objects[idx + 2] = (short) (7 | (objects[idx + 2] & 0xFF00));
 				}
-				continue;
+//				continue;
 			}
 		}
 	}
@@ -4318,7 +4318,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
-	boolean addObject(int object, int sprite, int w, int h, int x, int y, int layer) {
+	void addObject(int object, int sprite, int w, int h, int x, int y, int layer) {
 		short[] objects = this.objects[layer];
 		int idx = (objects[0]++) << 2;
 
@@ -4326,8 +4326,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		objects[idx + 2] = (short) ((sprite) | ((w & 0x3) << 8) | ((h & 0x3) << 10));
 		objects[idx + 3] = (short) x;
 		objects[idx + 4] = (short) y;
-
-		return true;
 	}
 
 	int getObjectIdxAt(int x, int y, int layer) {
@@ -4435,11 +4433,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	void openContainer(int objIdx) {
 		int idx = getContainer(objIdx);
 		if (idx == -1) return;
-		if (containers[idx + 1] == -Objects.TOILET) {
-			toilet = true;
-		} else {
-			toilet = false;
-		}
+		toilet = containers[idx + 1] == -Objects.TOILET;
 		lastSelectedInventory = selectedInventory;
 		selectedInventory = -1;
 		containerOpen = idx;

@@ -284,7 +284,7 @@ public class Sound implements Runnable, PlayerListener, Constants {
 							}
 						}
 						lastEffectPlayer = p;
-						continue;
+//						continue;
 					}
 				}
 			}
