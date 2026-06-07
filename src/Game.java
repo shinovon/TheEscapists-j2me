@@ -4157,6 +4157,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return false;
 	}
 
+	int findZone(int zone) {
+		int[] zones = this.zones;
+		int n = zones[0];
+		for (int i = 0; i < n; ++i) {
+			int idx = i * 5 + 1;
+			if (zones[idx + 4] != zone) continue;
+			return idx;
+		}
+		return -1;
+	}
+
 	// endregion Map zones
 
 	// region Map objects

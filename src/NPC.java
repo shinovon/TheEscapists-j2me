@@ -1050,6 +1050,27 @@ class NPC implements Constants {
 				}
 				if (pathEndDir != -1) {
 					direction = pathEndDir;
+				} else if (correctPath && guard && typedId < 3) {
+					face: {
+						int zone;
+						switch (map.schedule) {
+						case SC_BREAKFAST:
+						case SC_LUNCH:
+						case SC_EVENING_MEAL:
+							zone = ZONE_CANTEEN;
+							break;
+						case SC_EXERCISE_PERIOD:
+							zone = ZONE_GYM;
+							break;
+						case SC_SHOWER_BLOCK:
+							zone = ZONE_SHOWER;
+							break;
+						default:
+							break face;
+						}
+						zone = map.findZone(zone);
+						moveTowards((map.zones[zone] + map.zones[zone + 2]) / 2, (map.zones[zone + 1] + map.zones[zone + 3]) / 2, 0.1f);
+					}
 				}
 				correctPath = false;
 			} else if (!correctPath) {
