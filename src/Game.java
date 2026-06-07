@@ -1841,6 +1841,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		player.load(Textures.INMATE4, Textures.OUTFIT_INMATE);
 		npcNum = 1;
 
+		DataInputStream saveData = null;
+		if (!newGame) {
+			{
+				RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, false);
+				byte[] data = r.getRecord(1);
+				r.closeRecordStore();
+				saveData = new DataInputStream(new ByteArrayInputStream(data));
+			}
+
+			if (saveData.readInt() != SAVE_VERSION) {
+				mapError = 3;
+				return false;
+			}
+			file = saveData.readUTF();
+		}
+
 		{
 			InputStream stream = null;
 			if (file.charAt(0) == '/') {
@@ -2106,33 +2122,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		if (!newGame) {
+		if (saveData != null) {
 			try {
-				DataInputStream d;
-				{
-					RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, false);
-					byte[] data = r.getRecord(1);
-					r.closeRecordStore();
-					d = new DataInputStream(new ByteArrayInputStream(data));
-				}
-
-				if (d.readInt() != SAVE_VERSION) {
+				if (saveData.readByte() != map) {
 					mapError = 3;
 					return false;
 				}
-				if (d.readByte() != map) {
-					mapError = 3;
-					return false;
-				}
-				if (d.readInt() != mapVersion) {
+				if (saveData.readInt() != mapVersion) {
 					mapError = 3;
 					return false;
 				}
 
-				day = d.readInt();
-				money = d.readInt();
+				day = saveData.readInt();
+				money = saveData.readInt();
 				for (int i = 0; i < jobs[0]; ++i) {
-					jobs[1 + i] = d.readInt();
+					jobs[1 + i] = saveData.readInt();
 				}
 
 				int[] containers = this.containers;
@@ -2140,51 +2144,51 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int idx = 1;
 				for (int i = 0; i < containers[0]; ++i) {
 					int objIdx = containers[idx++];
-					containers[idx++] = d.readInt();
+					containers[idx++] = saveData.readInt();
 					int count = containers[idx++];
 					for (int j = 0; j < count; ++j) {
-						containers[idx++] = d.readInt();
+						containers[idx++] = saveData.readInt();
 					}
 					// container position
-					groundObjects[objIdx + 3] = d.readByte();
-					groundObjects[objIdx + 4] = d.readByte();
+					groundObjects[objIdx + 3] = saveData.readByte();
+					groundObjects[objIdx + 4] = saveData.readByte();
 				}
 
 				int i;
-				while ((i = d.readShort()) != -1) {
-					chars[i].load(d);
+				while ((i = saveData.readShort()) != -1) {
+					chars[i].load(saveData);
 				}
 
 				for (int l = 0; l < 4; ++l) {
 					int[] items = this.droppedItems[l];
-					int n = d.readInt();
+					int n = saveData.readInt();
 					if (n > (items.length - 1) >> 1) {
 						this.droppedItems[l] = items = new int[(n << 1) + 1];
 					}
 					items[0] = n;
 					for (i = 0; i < n; ++i) {
-						items[(i << 1) + 1] = d.readInt();
-						items[(i << 1) + 2] = d.readInt();
+						items[(i << 1) + 1] = saveData.readInt();
+						items[(i << 1) + 2] = saveData.readInt();
 					}
 
 					short[] chipped = this.chipped[l];
-					n = d.readShort();
+					n = saveData.readShort();
 					if (n > (chipped.length - 1) >> 1) {
 						this.chipped[l] = chipped = new short[(n << 1) + 1];
 					}
 					chipped[0] = (short) n;
 					for (i = 0; i < n; ++i) {
-						chipped[(i << 1) + 1] = d.readShort();
-						chipped[(i << 1) + 2] = d.readShort();
+						chipped[(i << 1) + 1] = saveData.readShort();
+						chipped[(i << 1) + 2] = saveData.readShort();
 					}
 
 					short[] objects = this.objects[l];
-					while ((i = d.readShort()) != -1) {
+					while ((i = saveData.readShort()) != -1) {
 						i = i << 2;
-						objects[i + 1] = d.readShort();
-						objects[i + 2] = d.readShort();
-						objects[i + 3] = d.readByte();
-						objects[i + 4] = d.readByte();
+						objects[i + 1] = saveData.readShort();
+						objects[i + 2] = saveData.readShort();
+						objects[i + 3] = saveData.readByte();
+						objects[i + 4] = saveData.readByte();
 					}
 				}
 			} catch (Exception e) {
@@ -2220,6 +2224,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			DataOutputStream d = new DataOutputStream(baos);
 
 			d.writeInt(SAVE_VERSION);
+			d.writeUTF(file);
 			d.writeByte(map);
 			d.writeInt(mapVersion);
 

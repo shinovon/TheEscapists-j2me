@@ -53,6 +53,7 @@ class NPC implements Constants {
 	static final int AI_MEAL = 6;
 	static final int AI_GYM = 7;
 	static final int AI_WORK = 8;
+	static final int AI_SHAKEDOWN = 9;
 
 	static final int ACT_NONE = 0;
 	static final int ACT_READING = 1;
