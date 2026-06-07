@@ -97,8 +97,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	float fadeIn, fadeOut;
 	float ingameFadeIn, ingameFadeOut;
 
-	// 0: init, 1: text, 2: menu, 3: game, 4: paused, 5: settings, 6: loading, 7: won
-	int state = 0;
+	static final int STATE_INIT = 0;
+	static final int STATE_LOGO = 1;
+	static final int STATE_MENU = 2;
+	static final int STATE_GAME = 3;
+	static final int STATE_PAUSED = 4;
+	static final int STATE_SETTINGS = 5;
+	static final int STATE_LOADING = 6;
+	static final int STATE_ESCAPED = 7;
+	static final int STATE_CHOOSE_MAP = 8;
+
+	int state = STATE_INIT;
 	boolean exiting;
 	int mapError;
 
@@ -186,7 +195,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int w = viewWidth, h = viewHeight;
 
-		if (state == 0) {
+		if (state == STATE_INIT) {
 			g.setColor(0x231F20);
 			g.fillRect(0, 0, viewWidth, viewHeight);
 			if (noTextures) {
@@ -201,10 +210,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		g.setColor(0);
 		g.fillRect(0, 0, w, h);
 
-		if (state == 1) {
+		if (state == STATE_LOGO) {
 			// logo
 //			drawText(g, "asdfsdfas", 60, 20);
-		} else if (state == 2) {
+		} else if (state == STATE_MENU) {
 			// title screen
 			g.drawImage(bgImg, (viewWidth - bgImg.getWidth()) >> 1, (viewHeight - bgImg.getHeight()) >> 2, 0);
 			String s;
@@ -241,7 +250,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				s = build;
 				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 9, FONT_REGULAR);
 			}
-		} else if (state == 6) {
+		} else if (state == STATE_LOADING) {
 			// loading
 			fontColor = FONT_COLOR_WHITE;
 			String s;
@@ -260,7 +269,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				break;
 			}
 			drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
-		} else if (state == 4) {
+		} else if (state == STATE_PAUSED) {
 			// paused
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "GAME PAUSED";
@@ -269,7 +278,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			s = "Press fire to resume";
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
-		} else if (state == 5) {
+		} else if (state == STATE_SETTINGS) {
 			// settings
 			int i = 0;
 			fontColor = FONT_COLOR_ORANGE;
@@ -311,7 +320,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				s = build;
 				drawText(g, s, w - textWidth(s, FONT_REGULAR) - 1, 9, FONT_REGULAR);
 			}
-		} else if (state == 7) {
+		} else if (state == STATE_ESCAPED) {
 			// escaped
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "ESCAPED";
@@ -347,7 +356,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginFrameSection(Profiler.FRAME_HUD);
 
-		if (state == 3 && mapLoaded) {
+		if (state == STATE_GAME && mapLoaded) {
 			// HUD
 			{
 				fontColor = FONT_COLOR_WHITE;
@@ -726,7 +735,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		if (PROFILER && state == 3) {
+		if (PROFILER && state == STATE_GAME) {
 			g.setColor(0xABABAB);
 			g.fillRect(0, h - 30, 176, 2);
 			int t = (int) (Profiler.frameEndRes - Profiler.frameStartRes);
@@ -890,7 +899,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			try {
 				gameAction = getGameAction(key);
 			} catch (Exception ignored) {}
-			if (mapLoaded && state == 3 && !paused) {
+			if (mapLoaded && state == STATE_GAME && !paused) {
 				if (saveDialog) {
 					if (key == -6) {
 						save = true;
@@ -1143,7 +1152,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						softPressed = true;
 					} else if (key == -7) {
 						paused = true;
-						state = 4;
+						state = STATE_PAUSED;
 //						action = NPC.ACT_NONE;
 //						progress = 0;
 					} else if (altControls) {
@@ -1258,7 +1267,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 					}
 				}
-			} else if (state == 2) {
+			} else if (state == STATE_MENU) {
 				if (gameAction == UP) {
 					if (selectedMenu-- == 0)
 						selectedMenu = 3;
@@ -1273,19 +1282,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					mapError = 0;
 					if (selectedMenu == 0) {
 						newGame = true;
-						state = 6;
+						state = STATE_LOADING;
 					} else if (selectedMenu == 1) {
 						newGame = false;
-						state = 6;
+						state = STATE_LOADING;
 					} else if (selectedMenu == 2) {
-						state = 5;
+						state = STATE_SETTINGS;
 					} else if (selectedMenu == 3) {
 						TE.midlet.notifyDestroyed();
 					}
 				} else if (key == -7) {
 					TE.midlet.notifyDestroyed();
 				}
-			} else if (state == 5) {
+			} else if (state == STATE_SETTINGS) {
 				int numSettings = 0;
 				if (!NO_SFX) numSettings++;
 				numSettings++; // music volume
@@ -1354,16 +1363,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				} else if (key == -6 || key == -7) {
 					writeConfig();
-					state = mapLoaded ? 4 : 2;
+					state = mapLoaded ? STATE_PAUSED : STATE_MENU;
 				}
-			} else if (state == 4) {
+			} else if (state == STATE_PAUSED) {
 				if (gameAction == FIRE) {
 					paused = false;
-					state = 3;
+					state = STATE_GAME;
 				} else if (key == -6) {
-					state = 5;
+					state = STATE_SETTINGS;
 				}
-			} else if (state == 7) {
+			} else if (state == STATE_ESCAPED) {
 				TE.midlet.notifyDestroyed();
 			}
 			if (!altControls) {
@@ -1541,7 +1550,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				hasSave = true;
 			} catch (Exception ignored) {}
 
-			state = 1;
+			state = STATE_LOGO;
 			paused = true;
 			if (BUFFER_SCREEN) drawGame();
 			drawScreen();
@@ -1556,7 +1565,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						Sound.stopMusic();
 						wasPaused = true;
 					}
-					if (state == 3) state = 4;
+					if (state == STATE_GAME) state = STATE_PAUSED;
 					paused = true;
 					Thread.sleep(200);
 					continue;
@@ -1587,7 +1596,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					fadeIn -= ((FADE_SPEED * viewWidth) / 320f) * animDeltaTime;
 					if (fadeIn <= 0) {
 						fadeIn = 0;
-						if (state == 3) {
+						if (state == STATE_GAME) {
 							paused = false;
 						}
 					}
@@ -1600,7 +1609,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							TE.midlet.notifyDestroyed();
 						} else {
 							Sound.playMusic(MUSIC_ESCAPED);
-							state = 7;
+							state = STATE_ESCAPED;
 						}
 					}
 				} else if (mapLoaded) {
@@ -1695,7 +1704,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
-				if (state == 6 && mapError == 0) {
+				if (state == STATE_LOADING && mapError == 0) {
 					// start game
 					if (BUFFER_SCREEN) drawGame();
 					drawScreen();
@@ -1716,7 +1725,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							Sound.playMusic(Sound.MUSIC_LIGHTSOUT);
 							Thread.sleep(1000);
 							paused = true;
-							state = 3;
+							state = STATE_GAME;
 							fadeIn = viewWidth >> 1;
 						}
 					} catch (RecordStoreException e) {
@@ -1726,14 +1735,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						e.printStackTrace();
 					}
 					if (mapError == 0) mapError = 1;
-				} else if (state == 1) {
+				} else if (state == STATE_LOGO) {
 					if (BUFFER_SCREEN) drawGame();
 					drawScreen();
 
 					Sound.playEffect(Sound.SFX_RUMBLE);
 					bgImg = Image.createImage("/title.png");
 					fadeIn = viewWidth >> 1;
-					state = 2;
+					state = STATE_MENU;
 				} else {
 					if (BUFFER_SCREEN) drawGame();
 					drawScreen();
