@@ -2143,7 +2143,7 @@ class NPC implements Constants {
 					case ACT_READING:
 						Sound.playEffect(Constants.SFX_CLOSE);
 						statIntellect++;
-						map.addHitMarker(-102, x + 1, y - 6);
+						map.addHitMarker(-102, this.x + 1, this.y - 6);
 						break;
 					case ACT_CLEANING: {
 						int idx = map.getObjectIdxAt(x, y, layer);
