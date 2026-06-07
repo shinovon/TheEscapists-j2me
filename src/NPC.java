@@ -2625,14 +2625,14 @@ class NPC implements Constants {
 									// heal
 									inventory[slot] = Items.ITEM_NULL;
 									if ((health += s) > maxHealth) health = maxHealth;
-									map.addHitMarker(-106, x + 5, y - 5);
+									map.addHitMarker(-106, this.x + 5, this.y - 5);
 									break hit;
 								}
 								if ((s = Game.getItemEnergy(item)) != 0) {
 									// restore fatigue
 									inventory[slot] = Items.ITEM_NULL;
 									if ((map.fatigue -= s) < 0) map.fatigue = 0;
-									map.addHitMarker(-107, x + 5, y - 6);
+									map.addHitMarker(-107, this.x + 5, this.y - 6);
 									break hit;
 								}
 
