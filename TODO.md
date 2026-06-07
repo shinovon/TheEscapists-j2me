@@ -45,6 +45,7 @@
 - [x] Toilets (WIP)
 - [x] Visual effects
 - [x] Hit markers
+- [x] Bundle more maps in one package
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Localization
@@ -55,7 +56,6 @@
 - [ ] NPC random inventory
 - [ ] Mines (san pancho)
 - [ ] Recruiting
-- [ ] Bundle more maps in one package (WIP)
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops

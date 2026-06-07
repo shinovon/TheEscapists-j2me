@@ -92,6 +92,8 @@ public class MapCompiler implements Constants {
 		
 		int beds = 0;
 
+		String tileset = "shanktonstatepen";
+
 		// read
 		byte[] decrypted = BlowfishCompatEncryption.decrypt(Files.readAllBytes(inputPath));
 		try (InputStreamReader r = new InputStreamReader(new ByteArrayInputStream(decrypted))) {
@@ -628,6 +630,8 @@ public class MapCompiler implements Constants {
 							fightFreq = Integer.parseInt(sb.toString());
 						} else if ("RoutineSet".equals(key)) {
 							routineSet = sb.toString();
+						} else if ("Tileset".equals(key)) {
+							tileset = sb.toString();
 						} else {
 							System.out.println("Ignored property: " + key + "=" + sb.toString());
 						}
@@ -792,31 +796,40 @@ public class MapCompiler implements Constants {
 
 		try (DataOutputStream out = new DataOutputStream(Files.newOutputStream(outputPath))) {
 			// version
-			out.writeInt(3);
+			out.writeInt(4);
 
 			byte map = MAP_OTHER;
 			switch (inputPath.getFileName().toString()) {
 			case "perks.map":
 				map = MAP_PERKS;
+				tileset = "perks";
 				break;
 			case "stalagflucht.map":
 				map = MAP_STALAGFLUCHT;
+				tileset = "stalagflucht";
 				break;
 			case "shanktonstatepen.map":
 				map = MAP_SHANKTONSTATEPEN;
+				tileset = "shanktonstatepen";
 				break;
 			case "jungle.map":
 				map = MAP_JUNGLE;
+				tileset = "jungle";
 				break;
 			case "sanpancho.map":
 				map = MAP_SANPANCHO;
+				tileset = "sanpancho";
 				break;
 			case "irongate.map":
 				map = MAP_IRONGATE;
+				tileset = "irongate";
 				break;
 			}
 
 			out.writeByte(map);
+
+			out.writeUTF("/tiles_" + tileset + ".png");
+			out.writeUTF("/ground_" + tileset + ".png");
 
 			out.writeByte(npcLevel);
 			out.writeByte(fightFreq);

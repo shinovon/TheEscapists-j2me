@@ -67,6 +67,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			"Librarian",
 	};
 
+	static final String[] maps = {
+			"Center Perks", "perks",
+			"Stalag Flucht", "stalagflucht",
+			"Shankton State Pen", "shanktonstatepen",
+			"Jungle Compound", "jungle",
+			"San Pancho", "sanpancho",
+			"HMP Irongate", "irongate",
+	};
+
 	String version;
 	String build;
 
@@ -105,7 +114,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int STATE_SETTINGS = 5;
 	static final int STATE_LOADING = 6;
 	static final int STATE_ESCAPED = 7;
-	static final int STATE_CHOOSE_MAP = 8;
+	static final int STATE_MAP_SELECT = 8;
 
 	int state = STATE_INIT;
 	boolean exiting;
@@ -165,6 +174,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	int selectedMenu;
 	boolean hasSave;
+
+	int selectedMap;
 
 	Game() {
 		super(false);
@@ -329,6 +340,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			s = "Press any key to exit";
 			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
+		} else if (state == STATE_MAP_SELECT) {
+			// choose map
+			fontColor = FONT_COLOR_ORANGE;
+			String s = "SELECT A PRISON";
+			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 20, FONT_BOLD);
+
+			int n = maps.length >> 1;
+			for (int i = 0; i < n; ++i) {
+				fontColor = selectedMap == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+				drawText(g, s = maps[i << 1], (w - textWidth(s, FONT_REGULAR)) >> 1, 60 + i * 12, FONT_REGULAR);
+			}
 		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
@@ -1281,8 +1303,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				} else if (gameAction == FIRE) {
 					mapError = 0;
 					if (selectedMenu == 0) {
-						newGame = true;
-						state = STATE_LOADING;
+						state = STATE_MAP_SELECT;
 					} else if (selectedMenu == 1) {
 						newGame = false;
 						state = STATE_LOADING;
@@ -1371,6 +1392,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					state = STATE_GAME;
 				} else if (key == -6) {
 					state = STATE_SETTINGS;
+				}
+			} else if (state == STATE_MAP_SELECT) {
+				int n = maps.length >> 1;
+				if (gameAction == UP) {
+					if (--selectedMap == -1) selectedMap = n - 1;
+				} else if (gameAction == DOWN) {
+					if (++selectedMap == n) selectedMap = 0;
+				} else if (gameAction == FIRE) {
+					newGame = true;
+					file = "/".concat(maps[(selectedMap << 1) | 1]);
+					state = STATE_LOADING;
+				} else if (key == -7) {
+					state = STATE_MENU;
 				}
 			} else if (state == STATE_ESCAPED) {
 				TE.midlet.notifyDestroyed();
@@ -1503,7 +1537,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			loadTextures();
 
-			if (tilesTexture == null) {
+			if (objectsTexture == null) {
 				noTextures = true;
 				if (BUFFER_SCREEN) drawGame();
 				drawScreen();
@@ -1798,7 +1832,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Map
 
-	String file = "/shanktonstatepen"; // TODO
+	String file = "/shanktonstatepen";
 
 	NPC player;
 	NPC[] chars, renderChars;
@@ -1850,6 +1884,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		player.load(Textures.INMATE4, Textures.OUTFIT_INMATE);
 		npcNum = 1;
 
+		String tilesetFile;
+		String groundFile;
+
 		DataInputStream saveData = null;
 		if (!newGame) {
 			{
@@ -1879,6 +1916,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				mapVersion = in.readInt();
 
 				map = in.readByte();
+
+				tilesetFile = in.readUTF();
+				groundFile = in.readUTF();
+
 				npcLevel = in.readByte();
 				fightFreq = in.readByte();
 
@@ -2205,6 +2246,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				mapError = 2;
 				return false;
 			}
+		}
+
+		// load map textures
+		{
+			tilesTexture = loadTiles(tilesetFile);
+			groundTexture = loadTiles(groundFile);
 		}
 
 		initMap();
@@ -7027,9 +7074,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static void loadTextures() {
 		try {
-			tilesTexture = loadTiles("/tiles_shanktonstatepen.png"); // TODO
-			groundTexture = loadTiles("/ground_shanktonstatepen.png");
-
 			itemsTexture = loadTiles("/items.png");
 			objectsTexture = loadTiles("/objects.png");
 			if (DRAW_SHADOWS) shadowsTexture = loadTiles("/shadow.png");
@@ -7073,18 +7117,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	// not used yet
-	static void unloadTextures() {
+	static void unloadMapTextures() {
 		tilesTexture = null;
 		groundTexture = null;
-		itemsTexture = null;
-		objectsTexture = null;
-		if (DRAW_SHADOWS) shadowsTexture = null;
-		hudSymbolsTexture = null;
-		markersTexture = null;
-		//noinspection ExplicitArrayFilling // invalid warning for cldc
-		for (int i = 0; i < sprites.length; i++) {
-			sprites[i] = null;
-		}
 		System.gc();
 	}
 
