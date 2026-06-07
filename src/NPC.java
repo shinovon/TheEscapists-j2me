@@ -1703,9 +1703,12 @@ class NPC implements Constants {
 	private void heat(String dialog, int amount) {
 		map.heat += amount;
 		heatTimer = TPS * 3;
-		this.dialog = dialog;
-		dialogTimer = TPS * 2;
+		if (dialog != null) {
+			this.dialog = dialog;
+			dialogTimer = TPS * 2;
+		}
 		if (amount > 0 || visible) {
+//			map.addHitMarker(-104, x + 9, y - 7);
 			Sound.playEffect(Sound.SFX_LOSE);
 		}
 	}
@@ -1923,17 +1926,21 @@ class NPC implements Constants {
 			if ((animation == ANIM_LYING && tick % TPS == 0)
 					|| (tick % (TPS * 3) == 0)) {
 				health++;
+//				if (map.fatigue == 0) map.addHitMarker(-106, x + 5, y - 5);
 			}
 		}
 		if (map.fatigue != 0) {
 			// restore fatigue
 			if (tick % TPS == 0) {
-				if (sitting) {
-					map.fatigue -= animation == ANIM_FOOD ? 6 : (3 - rng.nextInt(2));
-				} else if (lastShower != -1) {
-					map.fatigue -= 4;
-				} else if (animation == ANIM_LYING) {
-					map.fatigue -= 2;
+				marker: {
+					if (sitting) {
+						map.fatigue -= animation == ANIM_FOOD ? 6 : (3 - rng.nextInt(2));
+					} else if (lastShower != -1) {
+						map.fatigue -= 4;
+					} else if (animation == ANIM_LYING) {
+						map.fatigue -= 2;
+					} else break marker;
+					map.addHitMarker(-107, x + 5, y - 6);
 				}
 				if (tick % (TPS * 5) == 0) {
 					map.fatigue--;
@@ -2098,6 +2105,7 @@ class NPC implements Constants {
 							map.fatigue += 5;
 							if (++map.trainingRepeats % 2 == 0) {
 								statStrength++;
+								map.addHitMarker(-101, x + 1, y - 6);
 							}
 							Sound.playEffect(SFX_THROW);
 						}
@@ -2108,6 +2116,7 @@ class NPC implements Constants {
 							map.fatigue += 3;
 							if (++map.trainingRepeats % 3 == 0) {
 								statSpeed++;
+								map.addHitMarker(-103, x + 1, y - 6);
 							}
 						}
 						if ((tick & 1) == 0) map.trainingTimer--;
@@ -2134,6 +2143,7 @@ class NPC implements Constants {
 					case ACT_READING:
 						Sound.playEffect(Constants.SFX_CLOSE);
 						statIntellect++;
+						map.addHitMarker(-102, x + 1, y - 6);
 						break;
 					case ACT_CLEANING: {
 						int idx = map.getObjectIdxAt(x, y, layer);
@@ -2589,12 +2599,14 @@ class NPC implements Constants {
 									// heal
 									inventory[slot] = Items.ITEM_NULL;
 									if ((health += s) > maxHealth) health = maxHealth;
+									map.addHitMarker(-106, x + 5, y - 5);
 									break hit;
 								}
 								if ((s = Game.getItemEnergy(item)) != 0) {
 									// restore fatigue
 									inventory[slot] = Items.ITEM_NULL;
 									if ((map.fatigue -= s) < 0) map.fatigue = 0;
+									map.addHitMarker(-107, x + 5, y - 6);
 									break hit;
 								}
 

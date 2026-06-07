@@ -3364,6 +3364,44 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					continue;
 				}
 				int v = hitMarkers[i << 2];
+				if (v == -107) {
+					// fatigue
+					g.drawRegion(markersImg, 11, 0, 5, 7, 0,
+							hitMarkers[(i << 2) | 2] - viewX,
+							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
+					continue;
+				}
+				if (v == -106) {
+					// health
+					g.drawRegion(markersImg, 16, 0, 6, 6, 0,
+							hitMarkers[(i << 2) | 2] - viewX,
+							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
+					continue;
+				}
+				if (v == -105) {
+					// opinion
+					g.drawRegion(markersImg, 22, 0, 5, 7, 0,
+							hitMarkers[(i << 2) | 2] - viewX,
+							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
+					continue;
+				}
+				if (v == -104) {
+					// heat
+					g.drawRegion(markersImg, 27, 0, 7, 8, 0,
+							hitMarkers[(i << 2) | 2] - viewX,
+							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
+					continue;
+				}
+				if (v < -100) {
+					// -101: strength
+					// -102: intellect
+					// -103: speed
+					int sx = v == -102 ? 15 : v == -103 ? 30 : 0;
+					g.drawRegion(markersImg, sx, 23, 15, 7, 0,
+							hitMarkers[(i << 2) | 2] - viewX,
+							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
+					continue;
+				}
 				int sy = 9;
 				if (v < 0) {
 					v = -v;
@@ -4269,7 +4307,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static final int MAP_EFFECTS_COUNT = 2;
 	static final int HIT_MARKERS_COUNT = 10;
-	static final int HIT_MARKER_TIME = TPS;
+	static final int HIT_MARKER_TIME = TPS + 5;
 	int[] effects = new int[4 * MAP_EFFECTS_COUNT]; // {[effect, timer, x, y], ...}
 	int[] hitMarkers = new int[4 * HIT_MARKERS_COUNT]; // {[number, timer, x, y], ...}
 
