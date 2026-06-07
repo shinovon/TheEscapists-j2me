@@ -10,7 +10,7 @@ The Escapists fan demake for J2ME platform.
 - Original maps parser is finished.
 - Rendering engine is finished, but needs optimization.
 - The game can be beaten with cheats.
-- Some important mechanics are not yet implemented, e.g looting pockets.
+- Some important mechanics are not yet implemented, e.g item randomization and shops.
 
 See [TODO.md](/TODO.md) for more details
 
