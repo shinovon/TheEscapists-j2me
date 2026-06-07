@@ -397,6 +397,11 @@ class NPC implements Constants {
 
 				if (visible) {
 					Sound.playEffect(Sound.SFX_ENHIT);
+					int i = map.effects[1] == 0 ? 0 : 4;
+					map.effects[i] = 224;
+					map.effects[i + 1] = 1;
+					map.effects[i + 2] = chaseTarget.x;
+					map.effects[i + 3] = chaseTarget.y;
 				}
 
 				int damage = statStrength / 14;
@@ -406,11 +411,6 @@ class NPC implements Constants {
 				}
 
 				chaseTarget.damage(this, damage);
-
-				map.effect = 224 + rng.nextInt(5);
-				map.effectX = chaseTarget.x;
-				map.effectY = chaseTarget.y;
-				map.effectTimer = 3;
 
 				if (chaseTarget.health <= 0) {
 					chaseTarget = null;
@@ -2230,7 +2230,7 @@ class NPC implements Constants {
 								map.solid[LAYER_UNDERGROUND][y * map.width + x] = COLL_NONE;
 							} else {
 								if (rng.nextInt(3) == 0) {
-									map.setBreakProgress(x, y, layer, 120);
+									map.setBreakProgress(x, y, layer, 120 + 50);
 								} else {
 									map.setBreakProgress(x, y, layer, 100);
 									map.solid[layer][y * map.width + x] = COLL_NONE;
@@ -2283,16 +2283,15 @@ class NPC implements Constants {
 					Sound.playEffect(Constants.SFX_OPEN);
 					switch (map.action) {
 					case ACT_DIGGING:
-						map.wallEffect = layer == LAYER_UNDERGROUND ? 229 : 234;
-						map.wallEffectX = map.actionTargetX * TILE_SIZE;
-						map.wallEffectY = map.actionTargetY * TILE_SIZE;
-						map.wallEffectTimer = 2;
-						break;
+						map.effects[4] = 234;
+						map.effects[5] = 2;
+						map.effects[6] = map.actionTargetX * TILE_SIZE;
+						map.effects[7] = map.actionTargetY * TILE_SIZE;
 					case ACT_CHIPPING:
-						map.wallEffect = 240;
-						map.wallEffectX = map.actionTargetX * TILE_SIZE;
-						map.wallEffectY = map.actionTargetY * TILE_SIZE;
-						map.wallEffectTimer = 2;
+						map.effects[0] = 240;
+						map.effects[1] = 2;
+						map.effects[2] = map.actionTargetX * TILE_SIZE;
+						map.effects[3] = map.actionTargetY * TILE_SIZE;
 						break;
 					}
 				}

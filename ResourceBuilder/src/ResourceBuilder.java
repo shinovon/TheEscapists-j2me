@@ -689,7 +689,7 @@ public class ResourceBuilder implements Constants {
 	}
 
 	static void markers() throws IOException {
-		BufferedImage img = new BufferedImage(64, 32, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(50, 30, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.getGraphics();
 
 		g.drawImage(ImageIO.read(getImagePath("Marker - Vendor_0-0_0.png").toFile()), 0, 0, null);

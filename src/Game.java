@@ -157,13 +157,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedMenu;
 	boolean hasSave;
 
-	int wallEffect;
-	int wallEffectX, wallEffectY;
-	int wallEffectTimer;
-
-	int effect;
-	int effectX, effectY;
-	int effectTimer;
+	int[] effects = new int[8]; // {effect,x,y,timer} x2
 
 	Game() {
 		super(false);
@@ -363,36 +357,33 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int x;
 				NPC player = this.player;
 				char[] s = charBuffer;
-				Image hudSymbolsTexture = Game.hudSymbolsTexture;
+				Image fontImg = Game.hudSymbolsTexture;
 
 				// money
-				g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
-				drawNumber(g, money, hudSymbolsTexture, 0, 0, 9, 11, 13, 2);
+				g.drawRegion(fontImg, 90, 0, 9, 11, 0, 4, 2, 0);
+				drawNumber(g, money, fontImg, 0, 0, 9, 11, 13, 2);
 
 				// health
-				g.drawRegion(hudSymbolsTexture, 90, 11, 9, 11, 0, 3, 14, 0);
-				drawNumber(g, player.health, hudSymbolsTexture, 0, 11, 9, 11, 13, 14);
+				g.drawRegion(fontImg, 90, 11, 9, 11, 0, 3, 14, 0);
+				drawNumber(g, player.health, fontImg, 0, 11, 9, 11, 13, 14);
 
 				// heat
-				g.drawRegion(hudSymbolsTexture, 90, 22, 9, 11, 0, 3, 26, 0);
-				drawNumber(g, heat, hudSymbolsTexture, 0, 22, 9, 11, 13, 26);
+				g.drawRegion(fontImg, 90, 22, 9, 11, 0, 3, 26, 0);
+				drawNumber(g, heat, fontImg, 0, 22, 9, 11, 13, 26);
 
 				// fatigue
-				g.drawRegion(hudSymbolsTexture, 90, 33, 9, 11, 0, 3, 38, 0);
-				drawNumber(g, fatigue, hudSymbolsTexture, 0, 33, 9, 11, 13, 38);
+				g.drawRegion(fontImg, 90, 33, 9, 11, 0, 3, 38, 0);
+				drawNumber(g, fatigue, fontImg, 0, 33, 9, 11, 13, 38);
 
 				// general debug
-				fontColor = FONT_COLOR_WHITE;
+				fontImg = Game.markersTexture;
 				// fps
-				n = intToCharBuffer(fps, 0);
-				drawText(g, s, 0, 55, FONT_REGULAR);
+				drawNumber(g, fps, fontImg, 0, 9, 5, 7, 0, 55);
 				// tps
-				intToCharBuffer(tps, 0);
-				drawText(g, s, n * 7 + 4, 55, FONT_REGULAR);
+				drawNumber(g, tps, fontImg, 0, 9, 5, 7, 5*3, 55);
 				// used heap
 				Runtime r = Runtime.getRuntime();
-				intToCharBuffer((int) (r.totalMemory() - r.freeMemory()) / 1024, 0);
-				drawText(g, s, 0, 66, FONT_REGULAR);
+				drawNumber(g, (int) (r.totalMemory() - r.freeMemory()) / 1024, fontImg, 0, 9, 5, 7, 0, 55+8);
 
 				// bottom
 
@@ -2837,17 +2828,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		// tick effects
 
-		if (wallEffectTimer != 0) {
-			int effect = wallEffect;
-			if (--wallEffectTimer == 0 && ((effect >= 229 && effect < 229 + 4) || (effect >= 234 && effect < 234 + 4)
-					|| (effect >= 240 && effect < 240 + 7)  || (effect >= 248 && effect < 248 + 4))) {
-				wallEffectTimer = 2;
-				wallEffect++;
+		for (int i = 0; i < 2; ++i) {
+			if (effects[(i << 2) | 1] != 0) {
+				int effect = effects[i << 2];
+				if (--effects[(i << 2) | 1] == 0 && ((effect >= 229 && effect < 229 + 4) || (effect >= 234 && effect < 234 + 4)
+						|| (effect >= 240 && effect < 240 + 7) || (effect >= 248 && effect < 248 + 4)
+						|| (effect >= 224 && effect < 224 + 2))) {
+					effects[(i << 2) | 1] = 2;
+					effects[i << 2]++;
+				}
 			}
-		}
-
-		if (effectTimer != 0) {
-			--effectTimer;
 		}
 
 		// tick characters
@@ -3216,10 +3206,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		if (wallEffect != 0 && wallEffectTimer != 0) {
-			g.drawRegion(itemsTexture, ((wallEffect & 0xFF) % TILE_SIZE) * TILE_SIZE, (wallEffect / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, wallEffectX - viewX, wallEffectY - viewY, 0);
-		}
-
 		Profiler.beginRenderSection(Profiler.RENDER_CHARACTERS);
 
 		// characters
@@ -3302,6 +3288,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		// effects
+
+		for (int i = 0; i < 2; ++i) {
+			int effect = effects[i << 2];
+			if (effect != 0 && effects[(i << 2) | 1] != 0) {
+				g.drawRegion(itemsTexture, ((effect & 0xFF) % TILE_SIZE) * TILE_SIZE, (effect / TILE_SIZE) * TILE_SIZE,
+						TILE_SIZE, TILE_SIZE, 0,
+						effects[(i << 2) | 2] - viewX, effects[(i << 2) | 3] - viewY, 0);
+			}
+		}
+
 		Profiler.beginRenderSection(Profiler.RENDER_3D);
 
 		// lights
@@ -3353,11 +3350,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				release3D();
 			}
 		}
-
-		if (effect != 0 && effectTimer != 0) {
-			g.drawRegion(itemsTexture, ((effect & 0xFF) % TILE_SIZE) * TILE_SIZE, (effect / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, effectX - viewX, effectY - viewY, 0);
-		}
-
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
 				&& !pausedOverlay
 				&& action == NPC.ACT_NONE
