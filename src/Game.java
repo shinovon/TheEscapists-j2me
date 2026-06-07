@@ -363,44 +363,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int x;
 				NPC player = this.player;
 				char[] s = charBuffer;
+				Image hudSymbolsTexture = Game.hudSymbolsTexture;
 
 				// money
 				g.drawRegion(hudSymbolsTexture, 90, 0, 9, 11, 0, 4, 2, 0);
-				n = intToCharBuffer(money, 0);
-				x = 13;
-				for (int i = 0; i < n; i++) {
-					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 0, 9, 11, 0, x, 2, 0);
-					x += 9;
-				}
+				drawNumber(g, money, hudSymbolsTexture, 0, 0, 9, 11, 13, 2);
 
 				// health
 				g.drawRegion(hudSymbolsTexture, 90, 11, 9, 11, 0, 3, 14, 0);
-				n = intToCharBuffer(player.health, 0);
-				x = 13;
-				for (int i = 0; i < n; i++) {
-					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 11, 9, 11, 0, x, 14, 0);
-					x += 9;
-				}
+				drawNumber(g, player.health, hudSymbolsTexture, 0, 11, 9, 11, 13, 14);
 
 				// heat
 				g.drawRegion(hudSymbolsTexture, 90, 22, 9, 11, 0, 3, 26, 0);
-				n = intToCharBuffer(heat, 0);
-				x = 13;
-				for (int i = 0; i < n; i++) {
-					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 22, 9, 11, 0, x, 26, 0);
-					x += 9;
-				}
-				g.drawRegion(hudSymbolsTexture, 100, 22, 9, 11, 0, x, 26, 0);
+				drawNumber(g, heat, hudSymbolsTexture, 0, 22, 9, 11, 13, 26);
 
 				// fatigue
 				g.drawRegion(hudSymbolsTexture, 90, 33, 9, 11, 0, 3, 38, 0);
-				n = intToCharBuffer(fatigue, 0);
-				x = 13;
-				for (int i = 0; i < n; i++) {
-					g.drawRegion(hudSymbolsTexture, (s[i] - '0') * 9, 33, 9, 11, 0, x, 38, 0);
-					x += 9;
-				}
-				g.drawRegion(hudSymbolsTexture, 100, 33, 9, 11, 0, x, 38, 0);
+				drawNumber(g, fatigue, hudSymbolsTexture, 0, 33, 9, 11, 13, 38);
 
 				// general debug
 				fontColor = FONT_COLOR_WHITE;
@@ -7325,6 +7304,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 		// return new x position
 		return x;
+	}
+
+	static void drawNumber(Graphics g, int v, Image img, int sx, int sy, int cw, int ch, int dx, int dy) {
+		char[] s = charBuffer;
+		int n = intToCharBuffer(v, 0);
+		for (int i = 0; i < n; i++) {
+			g.drawRegion(img, sx + (s[i] - '0') * cw, sy, cw, ch, 0, dx, dy, 0);
+			dx += cw;
+		}
 	}
 
 	// only accepts positive numbers
