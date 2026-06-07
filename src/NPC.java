@@ -798,6 +798,10 @@ class NPC implements Constants {
 		// guard heat cooldown
 		if (heatTimer != 0) --heatTimer;
 
+		if (guard && animation == ANIM_REGULAR && aiState != AI_ATTACK && ((tick + id) & 7) == 0) {
+			map.deleteItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, layer);
+		}
+
 		NPC player = map.player;
 		npcVision: {
 			if (((tick + id) & 1) != 0) break npcVision;
