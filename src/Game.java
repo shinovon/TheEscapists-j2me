@@ -157,8 +157,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int selectedMenu;
 	boolean hasSave;
 
-	int[] effects = new int[8]; // {effect,x,y,timer} x2
-
 	Game() {
 		super(false);
 		version = TE.midlet.getAppProperty("MIDlet-Version");
@@ -2828,7 +2826,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		// tick effects
 
-		for (int i = 0; i < 2; ++i) {
+		for (int i = 0; i < MAP_EFFECTS_COUNT; ++i) {
 			if (effects[(i << 2) | 1] != 0) {
 				int effect = effects[i << 2];
 				if (--effects[(i << 2) | 1] == 0 && ((effect >= 229 && effect < 229 + 4) || (effect >= 234 && effect < 234 + 4)
@@ -2838,6 +2836,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					effects[i << 2]++;
 				}
 			}
+		}
+
+		for (int i = 0; i < HIT_MARKERS_COUNT; ++i) {
+			if (hitMarkers[(i << 2) | 1] == 0) {
+				continue;
+			}
+			--hitMarkers[(i << 2) | 1];
 		}
 
 		// tick characters
@@ -3350,6 +3355,28 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				release3D();
 			}
 		}
+
+		// hit markers
+		{
+			Image markersImg = markersTexture;
+			for (int i = 0; i < HIT_MARKERS_COUNT; ++i) {
+				if (hitMarkers[(i << 2) | 1] == 0) {
+					continue;
+				}
+				int v = hitMarkers[i << 2];
+				int sy = 9;
+				if (v < 0) {
+					v = -v;
+					sy = 16;
+				}
+				drawNumber(g, v, markersImg, 0, sy, 5, 7,
+						hitMarkers[(i << 2) | 2] - viewX,
+						hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY);
+			}
+		}
+
+		// overlay
+
 		if ((player.climbed ? layer == LAYER_VENT : player.layer == layer)
 				&& !pausedOverlay
 				&& action == NPC.ACT_NONE
@@ -4237,6 +4264,33 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	// endregion Map objects
+
+	// region Effects
+
+	static final int MAP_EFFECTS_COUNT = 2;
+	static final int HIT_MARKERS_COUNT = 10;
+	static final int HIT_MARKER_TIME = TPS;
+	int[] effects = new int[4 * MAP_EFFECTS_COUNT]; // {[effect, timer, x, y], ...}
+	int[] hitMarkers = new int[4 * HIT_MARKERS_COUNT]; // {[number, timer, x, y], ...}
+
+	void addHitMarker(int number, int x, int y) {
+		int[] hitMarkers = this.hitMarkers;
+		for (int i = 0; i < HIT_MARKERS_COUNT; ++i) {
+			if (hitMarkers[(i << 2) | 1] == 0) {
+				hitMarkers[i << 2] = number;
+				hitMarkers[(i << 2) | 1] = HIT_MARKER_TIME;
+				hitMarkers[(i << 2) | 2] = x;
+				hitMarkers[(i << 2) | 3] = y;
+				return;
+			}
+		}
+		hitMarkers[0] = number;
+		hitMarkers[1] = HIT_MARKER_TIME;
+		hitMarkers[2] = x;
+		hitMarkers[3] = y;
+	}
+
+	// endregion Effects
 
 	// region Containers
 

@@ -43,6 +43,8 @@
 - [x] Random NPC names
 - [x] Crafting (WIP)
 - [x] Toilets (WIP)
+- [x] Visual effects
+- [x] Hit markers
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Localization
@@ -52,7 +54,6 @@
 - [ ] Characters setup screen
 - [ ] NPC random inventory
 - [ ] Mines (san pancho)
-- [ ] Visual effects / Particles (fights, digging, training)
 - [ ] Recruiting
 - [ ] Bundle more maps in one package?
 - [ ] Vents (unscrewing, cutting slats)

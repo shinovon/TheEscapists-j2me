@@ -1728,6 +1728,10 @@ class NPC implements Constants {
 		}
 		if (n < 1) n = 1;
 
+		if (visible) {
+			map.addHitMarker(source.ai ? -n : n, x + (TILE_SIZE / 2), y + (TILE_SIZE / 2));
+		}
+
 		health -= n;
 		if (health < 0) {
 			health = 0;
@@ -2288,6 +2292,7 @@ class NPC implements Constants {
 						map.effects[6] = map.actionTargetX * TILE_SIZE;
 						map.effects[7] = map.actionTargetY * TILE_SIZE;
 					case ACT_CHIPPING:
+					case ACT_CUTTING:
 						map.effects[0] = 240;
 						map.effects[1] = 2;
 						map.effects[2] = map.actionTargetX * TILE_SIZE;
