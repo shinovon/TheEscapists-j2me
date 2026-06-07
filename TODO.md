@@ -55,7 +55,7 @@
 - [ ] NPC random inventory
 - [ ] Mines (san pancho)
 - [ ] Recruiting
-- [ ] Bundle more maps in one package?
+- [ ] Bundle more maps in one package (WIP)
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
