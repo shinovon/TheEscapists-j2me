@@ -2165,13 +2165,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		allocatePathfind();
 
-		if (USE_TILED_LAYER) {
-			tiledLayer = new TiledLayer[4];
-			for (int i = 0; i < 4; ++i) {
-				tiledLayer[i] = new TiledLayer(width, height, tilesTexture, TILE_SIZE, TILE_SIZE);
-			}
-		}
-
 		if (saveData != null) {
 			try {
 				if (saveData.readByte() != map) {
@@ -2253,6 +2246,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			tilesTexture = loadTiles(tilesetFile);
 			groundTexture = loadTiles(groundFile);
 		}
+
+		if (USE_TILED_LAYER) {
+			tiledLayer = new TiledLayer[4];
+			for (int i = 0; i < 4; ++i) {
+				tiledLayer[i] = new TiledLayer(width, height, tilesTexture, TILE_SIZE, TILE_SIZE);
+			}
+		}
+
 
 		initMap();
 		System.gc();
