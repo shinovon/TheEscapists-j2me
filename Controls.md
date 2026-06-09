@@ -35,7 +35,7 @@ star, 0, and pound are reserved
 ## Ingame (Alternative controls enabled)
 In this mode, game keys are respected. Soft keys are the same as above.
 
-GAME_A (1) and GAME_B (3) scroll through inventory slots.
+GAME_A (usually 7 or 3) and GAME_B (9 or 3) scroll through inventory slots.
 
 
 
