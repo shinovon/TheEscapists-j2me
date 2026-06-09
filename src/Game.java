@@ -100,8 +100,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	float x, y;
 	boolean resetCamera;
 
-	int screen;
-
 	Image bgImg;
 	float fadeIn, fadeOut;
 	float ingameFadeIn, ingameFadeOut;
