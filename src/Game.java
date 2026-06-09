@@ -1267,23 +1267,41 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							selectedInventory = -1;
 						}
 						updateInteractFocus = true;
-					} else if (!(key >= '0' && key <= '9')) {
-						// dpad
-						switch (gameAction) {
-						case UP:
+//					} else if (!(key >= '0' && key <= '9')) {
+//						switch (gameAction) {
+//						case UP:
+//							keyStates |= UP_PRESSED;
+//							break;
+//						case DOWN:
+//							keyStates |= DOWN_PRESSED;
+//							break;
+//						case LEFT:
+//							keyStates |= LEFT_PRESSED;
+//							break;
+//						case RIGHT:
+//							keyStates |= RIGHT_PRESSED;
+//							break;
+//						case FIRE:
+//							firePressed = true;
+//							keyStates |= FIRE_PRESSED;
+//							break;
+//						}
+					} else {
+//						// dpad
+						switch (key) {
+						case -1:
 							keyStates |= UP_PRESSED;
 							break;
-						case DOWN:
+						case -2:
 							keyStates |= DOWN_PRESSED;
 							break;
-						case LEFT:
+						case -3:
 							keyStates |= LEFT_PRESSED;
 							break;
-						case RIGHT:
+						case -4:
 							keyStates |= RIGHT_PRESSED;
 							break;
-						case FIRE:
-							firePressed = true;
+						case -5:
 							keyStates |= FIRE_PRESSED;
 							break;
 						}
