@@ -1300,6 +1300,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							keyStates |= RIGHT_PRESSED;
 							break;
 						case -5:
+							firePressed = true;
 							keyStates |= FIRE_PRESSED;
 							break;
 						}
