@@ -56,13 +56,14 @@
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
 - [ ] Recruiting
-- [ ] Vents (unscrewing, cutting slats)
+- [ ] Vents (unscrewing, cutting slats) (WIP)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
 - [ ] Help
 - [ ] Shakedowns
 - [ ] Snipers
 - [ ] NPC opinions
+- [ ] Digging stability
 
 # Low priority
 
