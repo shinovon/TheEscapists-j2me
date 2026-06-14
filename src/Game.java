@@ -489,6 +489,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						case NPC.ACT_DIGGING:
 							a = "Digging";
 							break;
+						case NPC.ACT_CUTTING:
+						case NPC.ACT_CUTTING_VENT:
+							a = "Cutting";
+							break;
+						case NPC.ACT_UNSCREWING:
+							a = "Unscrewing";
+							break;
 						default:
 							break progressbar;
 						}
@@ -3721,25 +3728,42 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					interact: {
 						if (player.climbed) {
-							// TODO
+							// TODO vents
 //							if (objects == null) break box;
-//							boolean found = false;
-//							s = "Unscrew";
 //							for (int i = -1; i < 4; ++i) {
-//								x = player.x / TILE_SIZE;
-//								y = (player.y + 5) / TILE_SIZE;
+//								x = (player.x + 7) / TILE_SIZE;
+//								y = (player.y + 7) / TILE_SIZE;
 //								if (i != -1) {
 //									x += Game.PATH_DIR_POSITIONS[i << 1];
 //									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
 //								}
-//								int idx = getObjectIdxAt(x, y, layer);
+//								int idx = getObjectIdxAt(x, y, LAYER_VENT);
 //								int obj = objects[idx + 1];
-//								if (obj == Objects.VENT) {
-//									// TODO check vent state
-//									if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
-//										break interact;
-//									}
+//								if (obj != Objects.VENT) continue;
+//
+//								int p = getBreakProgress(x, y, LAYER_VENT);
+//								if (p == 100) {
+//									break box;
 //								}
+//
+//								StringBuffer sb = stringBuffer;
+//								sb.setLength(0);
+//
+//								switch (item) {
+//								case Items.SCREWDRIVER:
+//								case Items.POWERED_SCREWDRIVER:
+//									s = sb.append("Unscrew (").append(p).append("%)").toString();
+//									break interact;
+//								case Items.PLASTIC_KNIFE:
+//								case Items.STURDY_CUTTERS:
+//								case Items.FLIMSY_CUTTERS:
+//								case Items.LIGHTWEIGHT_CUTTERS:
+//								case Items.CUTTING_FLOSS:
+//								case Items.FILE:
+//									s = sb.append("Cut (").append(p).append("%)").toString();
+//									break interact;
+//								}
+//								break;
 //							}
 							break box;
 						} else {
@@ -3924,9 +3948,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										case Objects.PAYPHONE:
 											s = "Payphone";
 											break interact;
-										case Objects.VENT_SLATS:
-											s = "Vent Slats"; // TODO
-											break interact;
 										}
 									}
 									if (b == COLL_GYM) {
@@ -3990,7 +4011,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break box;
 							} else {
-								byte t = tiles[layer][y * width + x];
+								byte t = layer == LAYER_VENT && objects != null
+										&& (objects[getObjectIdxAt(x, y, layer) + 1] & 0xFF) == Objects.VENT_SLATS
+										? -1 : tiles[layer][y * width + x];
 								border = true;
 
 								// TODO optimize
@@ -4036,9 +4059,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										}
 									}
 									break box;
-								// chipping
+								// chipping and unscrewing
 								case Items.POWERED_SCREWDRIVER:
 								case Items.SCREWDRIVER:
+									if (layer == LAYER_VENT && t == -1) {
+										// TODO
+										s = sb.append("Unscrew (").append(100 - p).append("%)").toString();
+										break interact;
+									}
+									if (b == COLL_SOLID && (t == 21 || t == 25)) {
+										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
+										break interact;
+									}
+									if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
+										s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
+										break interact;
+									}
+									break box;
+								// chipping
 								case Items.CROWBAR:
 								case Items.PLASTIC_FORK:
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
@@ -4057,6 +4095,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_CUTTERS:
 								case Items.CUTTING_FLOSS:
 								case Items.FILE:
+									if (layer == LAYER_VENT && t == -1) {
+										// TODO
+										s = sb.append("Cut Slats (").append(100 - p).append("%)").toString();
+										break interact;
+									}
 									if (t == 23) {
 										s = sb.append("Cut Bars (").append(100 - p).append("%)").toString();
 										break interact;
@@ -4830,7 +4873,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.JOB_SELECTION:
 		case Objects.SINK:
 		case Objects.GUARD_BED:
-		case Objects.VENT_SLATS:
 		case Objects.TRAINING_BOOKSHELF:
 		case Objects.VISITATION_GUEST_SEAT:
 		case Objects.VISITATION_PLAYER_SEAT:
@@ -4848,6 +4890,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.GENERATOR:
 		case Objects.SUN_LOUNGER:
 			return Game.COLL_SOLID_INTERACT;
+		case Objects.VENT_SLATS:
+			return Game.COLL_SOLID;
 		case Objects.DINING_TABLE:
 		case Objects.SERVING_TABLE:
 		case Objects.CUTLERY_TABLE:

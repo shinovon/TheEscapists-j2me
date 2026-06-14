@@ -62,6 +62,8 @@ class NPC implements Constants {
 	static final int ACT_CHIPPING = 4;
 	static final int ACT_DIGGING = 5;
 	static final int ACT_CUTTING = 6;
+	static final int ACT_UNSCREWING = 7;
+	static final int ACT_CUTTING_VENT = 8;
 
 	static Random rng = new Random();
 
@@ -2477,8 +2479,56 @@ class NPC implements Constants {
 				xFloat = x;
 				yFloat = y;
 
-				if (map.firePressed) {
-					if (animationTimer == 0 && !climbed) {
+				if (map.firePressed && animationTimer == 0) {
+					if (climbed) {
+						// TODO vents
+//						hit: {
+//							int slot = map.selectedInventory;
+//							int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+//									inventory[slot] & Items.ITEM_ID_MASK : -1;
+//							if (slot != -1) {
+//								map.lastSelectedInventory = map.selectedInventory;
+//								map.selectedInventory = -1;
+//							}
+//							switch (item) {
+//							case Items.SCREWDRIVER:
+//							case Items.POWERED_SCREWDRIVER:
+//							case Items.PLASTIC_KNIFE:
+//							case Items.STURDY_CUTTERS:
+//							case Items.FLIMSY_CUTTERS:
+//							case Items.LIGHTWEIGHT_CUTTERS:
+//							case Items.CUTTING_FLOSS:
+//							case Items.FILE:
+//								break;
+//							default:
+//								break hit;
+//							}
+//
+//							for (int i = -1; i < 4; ++i) {
+//								int x = (this.x + 7) / TILE_SIZE;
+//								int y = (this.y + 7) / TILE_SIZE;
+//								if (i != -1) {
+//									x += Game.PATH_DIR_POSITIONS[i << 1];
+//									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+//								}
+//								int idx = map.getObjectIdxAt(x, y, LAYER_VENT);
+//								int obj = map.objects[LAYER_VENT][idx + 1];
+//								if (obj != Objects.VENT) continue;
+//
+//								int p = map.getBreakProgress(x, y, LAYER_VENT);
+//								if (p == 100) break hit;
+//
+//								if (checkFatigued()) break hit;
+//								moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+//								map.action = item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER
+//										? ACT_UNSCREWING : ACT_CUTTING_VENT;
+//								map.actionTargetX = x;
+//								map.actionTargetY = y;
+//								map.progress = 0;
+//								break hit;
+//							}
+//						}
+					} else {
 						hit: {
 							if (carry != null) {
 								int x = this.x / TILE_SIZE;
@@ -2554,6 +2604,10 @@ class NPC implements Constants {
 							if (item != -1) {
 								byte t = map.tiles[layer][y * map.width + x];
 								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
+									if (layer == LAYER_VENT && map.objects[LAYER_VENT] != null
+											&& (map.objects[LAYER_VENT][map.getObjectIdxAt(x, y, layer) + 1] & 0xFF) == Objects.VENT_SLATS) {
+										t = -1;
+									}
 									int p = map.getBreakProgress(x, y, layer);
 									if (p != 100) {
 										if (t == 21 || t == 25 || (t == 100 && layer == LAYER_UNDERGROUND && p >= 120)) {
@@ -2588,7 +2642,7 @@ class NPC implements Constants {
 											}
 										} else if (t == 23 || t == 77 || t == 81) {
 											// fences
-											chip: {
+											cut: {
 												switch (item) {
 												case Items.PLASTIC_KNIFE:
 												case Items.STURDY_CUTTERS:
@@ -2600,7 +2654,7 @@ class NPC implements Constants {
 													reduceDurability(slot);
 													break;
 												default:
-													break chip;
+													break cut;
 												}
 												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 												map.action = ACT_CUTTING;
@@ -2610,6 +2664,48 @@ class NPC implements Constants {
 												map.progress = 0;
 												break hit;
 											}
+										}
+									} else if (layer == LAYER_VENT && t == -1) {
+										// vent slats
+										unscrew: {
+											switch (item) {
+											case Items.SCREWDRIVER:
+											case Items.POWERED_SCREWDRIVER:
+												if (checkFatigued()) break hit;
+												reduceDurability(slot);
+												break;
+											default:
+												break unscrew;
+											}
+											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+											map.action = ACT_UNSCREWING;
+											map.actionParam = item;
+											map.actionTargetX = x;
+											map.actionTargetY = y;
+											map.progress = 0;
+											break hit;
+										}
+										cut: {
+											switch (item) {
+											case Items.PLASTIC_KNIFE:
+											case Items.STURDY_CUTTERS:
+											case Items.FLIMSY_CUTTERS:
+											case Items.LIGHTWEIGHT_CUTTERS:
+											case Items.CUTTING_FLOSS:
+											case Items.FILE:
+												if (checkFatigued()) break hit;
+												reduceDurability(slot);
+												break;
+											default:
+												break cut;
+											}
+											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+											map.action = ACT_CUTTING_VENT;
+											map.actionParam = item;
+											map.actionTargetX = x;
+											map.actionTargetY = y;
+											map.progress = 0;
+											break hit;
 										}
 									}
 									if (item == Items.COMB) {
@@ -2634,7 +2730,7 @@ class NPC implements Constants {
 											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
 											|| (layer == LAYER_GROUND && Game.isDiggable(t)
 											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1 && map.getBreakProgress(x, y, layer) < 100))
-											) {
+									) {
 										dig: {
 											switch (item) {
 											case Items.STURDY_SHOVEL:
@@ -2676,7 +2772,7 @@ class NPC implements Constants {
 											// put wall back
 											if (t != -21 && t != -25) break hit;
 											map.setBreakProgress(x, y, layer, 90);
-											map.tiles[layer][pos] = (byte)-t;
+											map.tiles[layer][pos] = (byte) -t;
 											map.solid[layer][pos] = COLL_SOLID;
 											if (USE_TILED_LAYER) {
 												map.tiledLayer[layer].setCell(x, y, -t);
