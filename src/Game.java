@@ -2684,6 +2684,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				idx += containers[idx] + 1;
 			}
+		} else {
+			for (int i = 1; i < n; ++i) {
+				NPC npc = chars[i];
+				if (npc == null || !npc.inmate || npc.job != 0) continue;
+
+				for (int k = 1; k < COUNT_JOBS; ++k) {
+					if ((jobs[k] & JOB_EXISTING_BIT) == 0 || (jobs[k] & JOB_OCCUPIED_BIT) != 0)
+						continue;
+					npc.job = k;
+					jobs[k] |= JOB_OCCUPIED_BIT;
+					break;
+				}
+			}
 		}
 
 		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
