@@ -500,7 +500,24 @@ class NPC implements Constants {
 				wakeupTimer = TPS * 20;
 				angerTimer = TPS * 10 + rng.nextInt(TPS * 50);
 			} else if (layer == LAYER_GROUND && --wakeupTimer == 0) {
-				if (guard) map.guardsDown--;
+				if (guard) {
+					map.guardsDown--;
+					boolean hasKey = false;
+					loop: for (int i = 0; i < 6; ++i) {
+						switch (inventory[i] & Items.ITEM_ID_MASK) {
+						case Items.CELL_KEY:
+						case Items.STAFF_KEY:
+						case Items.ENTRANCE_KEY:
+						case Items.UTILITY_KEY:
+						case Items.WORK_KEY:
+							hasKey = true;
+							break loop;
+						}
+					}
+					if (!hasKey) {
+						map.note = NOTE_SOLITARY;
+					}
+				}
 				wakeupTimer = -1;
 				animation = ANIM_REGULAR;
 				chaseTarget = null;
