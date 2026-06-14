@@ -1879,21 +1879,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									cellsClosed = true;
 									entranceOpen = false;
 
-									// reset npcs
-									int n = npcNum;
-									for (int i = 1; i < n; ++i) {
-										NPC npc = chars[i];
-										if (npc == null) continue;
-										if (npc.inmate) {
-											npc.correctPath = false;
-											npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
-											npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
-											npc.aiState = NPC.AI_SLEEP;
-										}
-									}
-
 									heat = 0;
-									fatigue = 20;
 									initMap();
 								} else {
 									player.respawnPlayer();
@@ -2113,8 +2099,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			InputStream stream = null;
 			if (file.charAt(0) == '/') {
 				stream = getClass().getResourceAsStream(file);
-			} else {
-				// TODO i/o
+//			} else if (file.indexOf(':') != -1) {
+//				stream = Connector.openDataInputStream(file);
 			}
 			if (stream == null) throw new Exception();
 			DataInputStream in = new DataInputStream(stream);
@@ -2275,7 +2261,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							break;
 						}
 						case Objects.AI_WP_GUARD_GENERAL: {
-							// TODO randomize
 							if (addedGuards < guards) {
 								NPC npc = chars[npcNum] = new NPC(this);
 								npc.id = npcNum++;
@@ -2652,30 +2637,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		System.arraycopy(chars, 0, renderChars, 0, chars.length);
-		updateDoors();
-
-		if ((jobs[JOB_JANITOR] & JOB_EXISTING_BIT) != 0 || (jobs[JOB_GARDENING] & JOB_EXISTING_BIT) != 0) {
-			nextDirtPos = NPC.rng.nextInt(roamPositions[0]);
-			updateDirt(0);
-			updateDirt(1);
-		}
-
-		fatigue = 20;
-
 		int n = npcNum;
-		int j = 0;
-		for (int i = 1; i < n; ++i) {
-			NPC npc = chars[i];
-			if (npc == null || !npc.guard) continue;
-
-			// TODO
-			if (npc.typedId > 3 && npc.typedId - 3 < guardBeds[0]) {
-				npc.xFloat = npc.x = (npc.bedX = guardBeds[(j << 1) + 1]) * TILE_SIZE;
-				npc.yFloat = npc.y = (npc.bedY = guardBeds[(j << 1) + 2]) * TILE_SIZE;
-				j++;
-			}
-		}
+		int j;
 
 		if (day == 0) {
 			// first day
@@ -2859,8 +2822,56 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		System.arraycopy(chars, 0, renderChars, 0, chars.length);
+		updateDoors();
+
+		if ((jobs[JOB_JANITOR] & JOB_EXISTING_BIT) != 0 || (jobs[JOB_GARDENING] & JOB_EXISTING_BIT) != 0) {
+			nextDirtPos = NPC.rng.nextInt(roamPositions[0]);
+			updateDirt(0);
+			updateDirt(1);
+		}
+
+		int roamPos;
+		short[] arr = guardRoamPositions;
+		NPC.guardRoamPos = NPC.rng.nextInt(arr[0]);
+
+		// reset npcs
+		j = 0;
+		for (int i = 1; i < n; ++i) {
+			NPC npc = chars[i];
+			if (npc == null) continue;
+
+			if (npc.guard) {
+				// TODO check
+				if (npc.typedId >= 3 && j < guardBeds[0]) {
+					npc.xFloat = npc.x = (npc.bedX = guardBeds[(j << 1) + 1]) * TILE_SIZE;
+					npc.yFloat = npc.y = (npc.bedY = guardBeds[(j << 1) + 2]) * TILE_SIZE;
+					j++;
+				} else {
+					if ((roamPos = NPC.guardRoamPos++) >= arr[0]) {
+						roamPos = NPC.guardRoamPos = 0;
+					}
+					npc.correctPath = false;
+					npc.xFloat = npc.x = guardRoamPositions[(roamPos << 1) + 1] * TILE_SIZE;
+					npc.yFloat = npc.y = guardRoamPositions[(roamPos << 1) + 2] * TILE_SIZE;
+					npc.aiState = NPC.AI_RESET;
+				}
+			} else if (npc.inmate) {
+				npc.correctPath = false;
+				npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
+				npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
+				npc.aiState = NPC.AI_RESET;
+			} else if (npc.bodyId != Textures.SNIPER) {
+				npc.correctPath = false;
+				npc.xFloat = npc.x = npcSpawnX * TILE_SIZE;
+				npc.yFloat = npc.y = npcSpawnY * TILE_SIZE;
+				npc.aiState = NPC.AI_RESET;
+			}
+		}
+
 		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
+		fatigue = 20;
 	}
 
 	void startLockdown() {
@@ -2892,34 +2903,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			guardsDown = 0;
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
-			// reset npcs
-			int n = npcNum;
-			int roamPos;
-			short[] arr = guardRoamPositions;
-			for (int i = 1; i < n; ++i) {
-				NPC npc = chars[i];
-				if (npc == null) continue;
-				if (npc.guard) {
-					if ((roamPos = NPC.guardRoamPos++) >= arr[0]) {
-						roamPos = NPC.guardRoamPos = 0;
-					}
-					npc.correctPath = false;
-					npc.xFloat = npc.x = guardRoamPositions[(roamPos << 1) + 1] * TILE_SIZE;
-					npc.yFloat = npc.y = guardRoamPositions[(roamPos << 1) + 2] * TILE_SIZE;
-					npc.aiState = NPC.AI_RESET;
-				} else if (npc.inmate) {
-					npc.correctPath = false;
-					npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
-					npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
-					npc.aiState = NPC.AI_RESET;
-				} else if (npc.bodyId != Textures.SNIPER) {
-					npc.correctPath = false;
-					npc.xFloat = npc.x = npcSpawnX * TILE_SIZE;
-					npc.yFloat = npc.y = npcSpawnY * TILE_SIZE;
-					npc.aiState = NPC.AI_RESET;
-				}
-			}
-
 			// TODO reset containers
 			removeIllegalItems(getContainerByOwner(0));
 
@@ -2937,7 +2920,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			player.outfitItem = Items.INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 			player.weapon = Items.ITEM_NULL;
 			heat = 0;
-			fatigue = 20;
 			player.job = JOB_UNEMPLOYED;
 			player.layer = LAYER_GROUND;
 			
