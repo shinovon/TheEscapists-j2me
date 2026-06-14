@@ -3017,10 +3017,16 @@ class NPC implements Constants {
 								case Objects.JOB_FABRIC_CHEST:
 									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
 									break interact;
+								case Objects.JOB_DELIVERIES_TRUCK:
+									if (job == JOB_DELIVERIES) {
+										addItem(rng.nextInt(2) == 0 ?
+												(Items.PACKAGE_A | Items.ITEM_DEFAULT_DURABILITY) :
+												(Items.PACKAGE_B | Items.ITEM_DEFAULT_DURABILITY), true);
+									}
+									break interact;
 
 								case Objects.JOB_METAL_TOOLS:
 									if (item == Items.SHEET_OF_METAL) {
-										// TODO
 										Sound.playEffect(Sound.SFX_RUMBLE);
 										inventory[slot] = Items.LICENSE_PLATE;
 										break interact;
@@ -3052,6 +3058,7 @@ class NPC implements Constants {
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
 												&& map.schedule == SC_WORK_PERIOD) {
 											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+												// TODO
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 40;
@@ -3071,7 +3078,7 @@ class NPC implements Constants {
 												// TODO
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
-												map.money += 20;
+												map.money += 70;
 											} else {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
@@ -3088,7 +3095,26 @@ class NPC implements Constants {
 												// TODO
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
-												map.money += 20;
+												map.money += 45;
+											} else {
+												Sound.playEffect(Sound.SFX_BUY);
+											}
+										}
+										break interact;
+									}
+									break;
+								case Objects.JOB_DELIVERIES_RED_BOX:
+								case Objects.JOB_DELIVERIES_BLUE_BOX:
+									if ((item == Items.PACKAGE_A && obj == Objects.JOB_DELIVERIES_BLUE_BOX)
+											|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
+										inventory[slot] = Items.ITEM_NULL;
+										if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
+												&& map.schedule == SC_WORK_PERIOD) {
+											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+												// TODO
+												Sound.playEffect(Sound.SFX_HP);
+												jobQuota = MAX_JOB_QUOTA;
+												map.money += 55;
 											} else {
 												Sound.playEffect(Sound.SFX_BUY);
 											}
