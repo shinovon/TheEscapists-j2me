@@ -47,6 +47,7 @@
 - [x] Hit markers
 - [x] Bundle more maps in one package
 - [x] NPC random inventory
+- [x] NPC inventory looting
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Localization
@@ -63,8 +64,8 @@
 - [ ] Shakedowns
 - [ ] Achievements
 - [ ] Visitation
-- [ ] NPC inventory looting
 - [ ] Snipers
+- [ ] NPC opinions
 
 # OST
 

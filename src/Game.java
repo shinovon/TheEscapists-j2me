@@ -658,6 +658,40 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			} else if (inventoryOpen != null) {
 				// looting npc TODO
 				pausedOverlay = true;
+
+				int nw = 128;
+				int nh = 90;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x333333);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				NPC npc = inventoryOpen;
+				int[] inventory = npc.inventory;
+
+				StringBuffer sb = stringBuffer;
+				sb.setLength(0);
+
+				fontColor = npc.guard ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_YELLOW;
+				String s = sb.append(npc.name).append("'s pockets").toString();
+				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 6, FONT_REGULAR);
+
+				int y = ny + 29;
+				for (int i = 0; i < 3; ++i) {
+					int x = nx + 13 + 22 * i;
+					drawItemSlot(g, x, y, inventory[i], selectedSlot == i);
+				}
+				y = ny + 54;
+				for (int i = 0; i < 3; ++i) {
+					int x = nx + 13 + 22 * i;
+					drawItemSlot(g, x, y, inventory[i + 3], selectedSlot == i + 3);
+				}
+
+				drawItemSlot(g, nx + 93, ny + 29, npc.weapon, selectedSlot == 6);
+				drawItemSlot(g, nx + 93, ny + 54, npc.outfitItem, selectedSlot == 7);
 			} else if (containerOpen != -1) {
 				// desk open
 				pausedOverlay = true;
@@ -949,6 +983,132 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// TODO
 					if (key == -7) {
 						inventoryOpen = null;
+						selectedSlot = 0;
+						selectedInventory = lastSelectedInventory;
+					} else if (key == -6) {
+						// switch between inventory and container
+						if (selectedSlot == -1) {
+							selectedSlot = 0;
+							selectedInventory = -1;
+						} else {
+							selectedSlot = -1;
+							selectedInventory = 0;
+						}
+					} else if (!altControls && key >= '1' && key <= '6') {
+						// select inventory
+						int slot = key - '1';
+						if (player.inventory[slot] != Items.ITEM_NULL) {
+							selectedSlot = -1;
+							selectedInventory = slot;
+						} else {
+							selectedInventory = -1;
+						}
+					} else {
+						// container navigation
+						switch (gameAction) {
+						case UP:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot == 6) {
+								selectedSlot = 7;
+							} else if (selectedSlot == 7) {
+								selectedSlot = 6;
+							} else if (selectedSlot < 3) {
+								selectedSlot += 3;
+							} else if (selectedSlot < 6) {
+								selectedSlot -= 3;
+							}
+							break;
+						case DOWN:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (selectedSlot == 6) {
+								selectedSlot = 7;
+							} else if (selectedSlot == 7) {
+								selectedSlot = 6;
+							} else if (selectedSlot < 3) {
+								selectedSlot += 3;
+							} else if (selectedSlot < 6) {
+								selectedSlot -= 3;
+							}
+							break;
+						case LEFT:
+							if (selectedSlot == -1) {
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot == -2) break;
+							if (selectedSlot == 0) {
+								selectedSlot = 6;
+							} else if (selectedSlot == 3) {
+								selectedSlot = 7;
+							} else if (selectedSlot == 6) {
+								selectedSlot = 2;
+							} else if (selectedSlot == 7) {
+								selectedSlot = 5;
+							} else {
+								selectedSlot--;
+							}
+							break;
+						case RIGHT:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (selectedSlot == -2) break;
+							if (selectedSlot == 2) {
+								selectedSlot = 6;
+							} else if (selectedSlot == 5) {
+								selectedSlot = 7;
+							} else if (selectedSlot == 6) {
+								selectedSlot = 0;
+							} else if (selectedSlot == 7) {
+								selectedSlot = 3;
+							} else {
+								selectedSlot++;
+							}
+							break;
+						case FIRE:
+							if (selectedSlot == -1) {
+								if (inventoryOpen.addItem(player.inventory[selectedInventory], false)) {
+									player.inventory[selectedInventory] = Items.ITEM_NULL;
+								} else {
+									Sound.playEffect(SFX_LOSE);
+								}
+								break;
+							}
+							if (selectedSlot == 6) {
+								// take weapon
+								if (player.addItem(inventoryOpen.weapon, true)) {
+									inventoryOpen.weapon = Items.ITEM_NULL;
+								}
+								break;
+							}
+							if (selectedSlot == 7) {
+								// take outfit
+								if (player.addItem(inventoryOpen.outfitItem, true)) {
+									inventoryOpen.outfitItem = Items.ITEM_NULL;
+									inventoryOpen.outfitId = -1;
+								}
+								break;
+							}
+							if (player.addItem(inventoryOpen.inventory[selectedSlot], true)) {
+								inventoryOpen.inventory[selectedSlot] = Items.ITEM_NULL;
+							}
+							break;
+						}
 					}
 				} else if (containerOpen != -1) {
 					int slots = toilet ? 3 : 20;

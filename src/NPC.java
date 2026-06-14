@@ -626,27 +626,31 @@ class NPC implements Constants {
 			targetReached = false;
 			pathEndDir = -1;
 
-			// TODO outfit was stolen while unconcious, go change it
-//			if (outfitItem == Items.ITEM_NULL) {
-//				aiState = AI_WAYPOINT;
-//				if (inmate) {
-//					if (map.solid[0][bedX + 1 + bedY * map.width] != 0) {
-//						pathX = bedX - 1;
-//					} else {
-//						pathX = bedX + 1;
-//					}
-//					pathY = bedY;
-//					correctPath = false;
-//				} else {
-//					int idx = map.findObject(Objects.GUARD_BED, LAYER_GROUND, 0);
-//					pathX = bedX;
-//					pathY = bedY;
-//					correctPath = false;
-//				}
-//			} else
 			if (chaseTarget != null && chaseTarget.health > 0) {
 				// start attacking
 				aiState = AI_ATTACK;
+			} else if ((guard || inmate) && outfitItem == Items.ITEM_NULL) {
+				// outfit was stolen while unconscious, go change it
+				aiState = AI_WAYPOINT;
+				if (inmate) {
+					if (map.solid[0][bedX + 1 + bedY * map.width] != 0) {
+						pathX = bedX - 1;
+					} else {
+						pathX = bedX + 1;
+					}
+					pathY = bedY;
+					correctPath = false;
+				} else {
+					if (bedX == 0) {
+						int obj = map.findObject(Objects.GUARD_BED, LAYER_GROUND, 0);
+						pathX = map.objects[LAYER_GROUND][obj + 3];
+						pathY = map.objects[LAYER_GROUND][obj + 4];
+					} else {
+						pathX = bedX;
+						pathY = bedY;
+					}
+					correctPath = false;
+				}
 			} else if (guard) {
 				// guards schedule
 				if (map.schedule == SC_LIGHTSOUT && bedX != 0 && bedY != 0) {
@@ -1067,6 +1071,13 @@ class NPC implements Constants {
 							if (aiWorkState != Game.TEXT_ROLLCALL_BANTER) aiWorkState++;
 						}
 					}
+				}
+				if (outfitItem == Items.ITEM_NULL) {
+					outfitId = guard ? Textures.OUTFIT_GUARD : Textures.OUTFIT_INMATE;
+					outfitItem = guard ? Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY
+							: (Items.INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY);
+					aiState = AI_RESET;
+					aiWaitTimer = TPS;
 				}
 				if (pathEndDir != -1) {
 					direction = pathEndDir;
@@ -3195,9 +3206,11 @@ class NPC implements Constants {
 							NPC npc = map.interactNPC;
 
 							if (npc.health <= 0) {
-								// TODO loot
+								// loot
+								map.inventoryOpen = npc;
+								Sound.playEffect(Sound.SFX_OPEN);
 							} else {
-								// TODO open menu
+								// TODO open profile
 							}
 						}
 					}
