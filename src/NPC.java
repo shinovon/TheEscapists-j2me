@@ -1108,8 +1108,10 @@ class NPC implements Constants {
 			if (x / TILE_SIZE == pathX && (y + 5) / TILE_SIZE == pathY) {
 				// stay at the point
 				animation = ANIM_LYING;
-				animateToX = bedX * TILE_SIZE;
-				animateToY = bedY * TILE_SIZE + 2;
+				if (x != bedX * TILE_SIZE || y != bedY * TILE_SIZE + 2) {
+					animateToX = bedX * TILE_SIZE;
+					animateToY = bedY * TILE_SIZE + 2;
+				}
 				correctPath = false;
 			} else if (!correctPath && ((tick + id) & 3) == 0) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
@@ -1849,6 +1851,8 @@ class NPC implements Constants {
 				int[] items = Game.CARRY_WEAPONS;
 				int item = items[NPC.rng.nextInt(items.length)];
 				weapon = item | Items.ITEM_DEFAULT_DURABILITY;
+			} else if (rng.nextInt(3) == 0) {
+				weapon = Items.ITEM_NULL;
 			}
 			return;
 		}
