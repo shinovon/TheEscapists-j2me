@@ -1820,6 +1820,54 @@ class NPC implements Constants {
 		return false;
 	}
 
+	void updateItems() {
+		if (!ai) return;
+		for (int i = 0; i < 6; ++i) {
+			inventory[i] = Items.ITEM_NULL;
+		}
+		if (inmate) {
+			int numItems = rng.nextInt(3);
+			for (int i = 0; i < numItems; ++i) {
+				int[] items = Game.NPC_CARRY;
+				int item = items[NPC.rng.nextInt(items.length)];
+				inventory[i] = item | Items.ITEM_DEFAULT_DURABILITY;
+			}
+			if (rng.nextInt(4) == 0) {
+				int[] items = Game.CARRY_WEAPONS;
+				int item = items[NPC.rng.nextInt(items.length)];
+				weapon = item | Items.ITEM_DEFAULT_DURABILITY;
+			}
+			return;
+		}
+		if (guard) {
+			key: {
+				int key;
+				// TODO check order in original game
+				switch (typedId) {
+				case 0:
+					key = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					break;
+				case 1:
+					key = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					break;
+				case 2:
+					key = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					break;
+				case 3:
+					key = Items.STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					break;
+				case 4:
+					key = Items.WORK_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					break;
+				default:
+					break key;
+				}
+				inventory[0] = key;
+			}
+			weapon = Items.BATON | Items.ITEM_DEFAULT_DURABILITY;
+		}
+	}
+
 	private String debugName() {
 		if (!LOGGING) return null;
 		return (!ai ? "player" : guard ? "guard" : inmate ? "inmate" : "other") + typedId + '(' + id + ')';

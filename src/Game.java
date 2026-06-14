@@ -2538,6 +2538,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				npc.statRespect = Math.max(5, Math.min(90, 60 - b + NPC.rng.nextInt(30)));
 				npc.health = npc.statStrength >> 1;
 
+				npc.updateItems();
+
 				if (npc.inmate) {
 					if (jobsLeft > 0) {
 						for (int k = 1; k < COUNT_JOBS; ++k) {
@@ -2685,6 +2687,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
+		guardsDown = 0;
 	}
 
 	void startLockdown() {
@@ -2804,6 +2807,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				++day;
 			}
 			if (!lockdown && (time % 60 == 0 || schedule == SC_LOCKDOWN)) {
+				if ((time / 60) % 3 == 0) {
+					// update npc inventory every 3 hours
+					NPC[] chars = this.chars;
+					int n = chars.length;
+					for (int i = 1; i < n; ++i) {
+						if (chars[i] == null) continue;
+						chars[i].updateItems();
+					}
+				}
 				playerSeenByGuards = false;
 				routine: {
 					int schedule = mapSchedule[time / 60];
@@ -2963,10 +2975,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		NPC[] chars = this.chars;
 		int n = chars.length;
 		for (int i = 0; i < n; ++i) {
-			if (chars[i] != null) {
-				if (i != 0) chars[i].tickAI(tick);
-				chars[i].tick(tick);
-			}
+			if (chars[i] == null) continue;
+			if (i != 0) chars[i].tickAI(tick);
+			chars[i].tick(tick);
 		}
 
 		// sort characters for rendering, so that southern will be rendered on top
@@ -4915,6 +4926,27 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			Items.GREEN_HERB, 15,
 //			Items.RED_HERB, 25,
 			Items.NAILS, 40,
+	};
+
+	static final int[] CARRY_WEAPONS = {
+			Items.PLASTIC_KNIFE,
+			Items.PILLOW,
+			Items.PLASTIC_FORK,
+			Items.MOP,
+			Items.COMB_SHIV,
+			Items.COMB_BLADE,
+			Items.TOOTHBRUSH_SHIV,
+			Items.CROWBAR,
+			Items.SOCK_MACE,
+			Items.SUPER_SOCK_MACE,
+			Items.WOODEN_BAT,
+			Items.HAMMER,
+//			Items.BATON,
+//			Items.GLASS_SHANK,
+//			Items.KNUCKLE_DUSTER,
+//			Items.SPIKED_BAT,
+//			Items.NUNCHUKS,
+//			Items.WHIP
 	};
 
 	static int getItemDecay(int id) {
