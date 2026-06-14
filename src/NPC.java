@@ -1079,7 +1079,7 @@ class NPC implements Constants {
 				}
 				correctPath = false;
 			} else if (!correctPath) {
-				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+				if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
 				} else if (LOGGING) {
@@ -1093,8 +1093,8 @@ class NPC implements Constants {
 			if (x / TILE_SIZE == pathX && (y + 5) / TILE_SIZE == pathY) {
 				// stay at the point
 				animation = ANIM_LYING;
-				xFloat = x = bedX * TILE_SIZE;
-				yFloat = y = bedY * TILE_SIZE + 2;
+				animateToX = bedX * TILE_SIZE;
+				animateToY = bedY * TILE_SIZE;
 				correctPath = false;
 			} else if (!correctPath) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {

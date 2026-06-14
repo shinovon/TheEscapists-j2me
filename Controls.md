@@ -39,7 +39,7 @@ In this mode, game keys are respected. Soft keys are the same as above.
 
 GAME_A (7) and GAME_B (9) scroll through inventory slots\
 GAME_C (\*) - Profile/journal (TODO)\
-GAME_D (#) - Crafting (TODO)
+GAME_D (#) - Crafting
 
 
 
