@@ -2683,6 +2683,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				idx += containers[idx] + 1;
 			}
 		}
+
+		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 	}
 
 	void startLockdown() {
