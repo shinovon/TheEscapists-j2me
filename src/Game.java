@@ -2636,8 +2636,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		int n = npcNum;
-		int j;
+		int n, j;
 
 		if (day == 0) {
 			// first day
@@ -2649,6 +2648,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				jobsLeft -= 1;
 			}
 
+			n = npcNum;
 			for (int i = 1; i < n; ++i) {
 				NPC npc = chars[i];
 				if (npc == null || (!npc.inmate && !npc.guard)) continue;
@@ -2836,6 +2836,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		// reset npcs
 		j = 0;
+		n = npcNum;
 		for (int i = 1; i < n; ++i) {
 			NPC npc = chars[i];
 			if (npc == null) continue;
