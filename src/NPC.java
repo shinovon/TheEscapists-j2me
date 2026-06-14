@@ -986,7 +986,7 @@ class NPC implements Constants {
 
 		itemVision: {
 			if (!guard) break itemVision;
-			if (((tick + id) & 8) != 0) break itemVision;
+			if (((tick + id) & 7) != 0) break itemVision;
 			if (aiState == AI_ATTACK) break itemVision;
 
 			// TODO scan area for illegal items
@@ -1018,14 +1018,12 @@ class NPC implements Constants {
 				pathX = arr[idx];
 				pathY = arr[idx + 1];
 				nextRoamPos = false;
-				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, inmate, path)) {
+				if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, inmate, path)
+						// fallback
+						|| map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
-					// fallback
-				} else if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
-					correctPath = true;
-					pathStep = 0;
-				} else {
+				} {
 					if (LOGGING) Profiler.log(debugName() + " cannot pathfind to roam");
 					correctPath = false;
 					nextRoamPos = true;
@@ -1095,7 +1093,7 @@ class NPC implements Constants {
 					}
 				}
 				correctPath = false;
-			} else if (!correctPath) {
+			} else if (!correctPath && ((tick + id) & 3) == 0) {
 				if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
@@ -1113,7 +1111,7 @@ class NPC implements Constants {
 				animateToX = bedX * TILE_SIZE;
 				animateToY = bedY * TILE_SIZE;
 				correctPath = false;
-			} else if (!correctPath) {
+			} else if (!correctPath && ((tick + id) & 3) == 0) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
@@ -1156,7 +1154,7 @@ class NPC implements Constants {
 							direction = pathEndDir;
 						}
 					}
-				} else if (!correctPath) {
+				} else if (!correctPath && ((tick + id) & 3) == 0) {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
@@ -1177,7 +1175,7 @@ class NPC implements Constants {
 				if (targetReached) {
 					animation = ANIM_FOOD;
 					correctPath = false;
-				} else if (!correctPath) {
+				} else if (!correctPath && ((tick + id) & 3) == 0) {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
@@ -1244,7 +1242,7 @@ class NPC implements Constants {
 						direction = pathEndDir;
 					}
 				}
-			} else if (!correctPath && !training) {
+			} else if (!correctPath && !training && ((tick + id) & 3) == 0) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
@@ -1262,11 +1260,9 @@ class NPC implements Constants {
 						pathX = map.dirt[0];
 						pathY = map.dirt[1];
 						nextRoamPos = false;
-						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, inmate, path)) {
-							correctPath = true;
-							pathStep = 0;
-							// fallback
-						} else if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, inmate, path)
+								// fallback
+								|| map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
 						} else {
@@ -3227,7 +3223,7 @@ class NPC implements Constants {
 
 		if (climbed || map.selectedInventory != -1) {
 			map.interactNPC = null;
-		} else if ((tick & 4) == 0 || wasTryingToMove) {
+		} else if ((tick & 3) == 0 || wasTryingToMove) {
 			map.interactNPC = getInteractNPC();
 		}
 
