@@ -46,6 +46,7 @@
 - [x] Visual effects
 - [x] Hit markers
 - [x] Bundle more maps in one package
+- [x] NPC random inventory
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Localization
@@ -53,7 +54,6 @@
 - [ ] Profile
 - [ ] Tasks, Journal
 - [ ] Characters setup screen
-- [ ] NPC random inventory
 - [ ] Mines (san pancho)
 - [ ] Recruiting
 - [ ] Vents (unscrewing, cutting slats)
