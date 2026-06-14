@@ -1023,7 +1023,7 @@ class NPC implements Constants {
 						|| map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
-				} {
+				} else {
 					if (LOGGING) Profiler.log(debugName() + " cannot pathfind to roam");
 					correctPath = false;
 					nextRoamPos = true;
@@ -1109,7 +1109,7 @@ class NPC implements Constants {
 				// stay at the point
 				animation = ANIM_LYING;
 				animateToX = bedX * TILE_SIZE;
-				animateToY = bedY * TILE_SIZE;
+				animateToY = bedY * TILE_SIZE + 2;
 				correctPath = false;
 			} else if (!correctPath && ((tick + id) & 3) == 0) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
