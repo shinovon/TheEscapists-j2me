@@ -31,7 +31,7 @@
 - [x] Own map format
 - [x] Digging
 - [x] Other NPCs
-- [x] NPC Jobs (except for mailman and librarian)
+- [x] NPC Jobs
 - [x] Player training
 - [x] Solitary
 - [x] Map routine sets

@@ -72,7 +72,7 @@ class NPC implements Constants {
 	static int canteenSeatPos;
 	static int showerPos = rng.nextInt(10);
 	static int gymPos;
-	
+
 	private Sprite body;
 	private Sprite outfit;
 	
@@ -131,6 +131,7 @@ class NPC implements Constants {
 	int trainingFrame = 0;
 	int aiWorkState; // or rollcall text for guards
 	int animationFrame;
+	int desk;
 
 	int fighting;
 
@@ -587,7 +588,7 @@ class NPC implements Constants {
 					if (rng.nextInt(p) != 0) {
 						nextDialogTimer = TPS >> 1;
 					} else {
-						dialog = Game.getInmateText(textType, rng.nextInt(textCount));
+						dialog = map.getInmateText(textType, rng.nextInt(textCount));
 						dialogTimer = (TPS * 2);
 						nextDialogTimer = TPS * delay;
 					}
@@ -1361,7 +1362,9 @@ class NPC implements Constants {
 				}
 				case JOB_WOODSHOP:
 				case JOB_TAILOR:
-				case JOB_DELIVERIES: {
+				case JOB_DELIVERIES:
+				case JOB_MAILMAN:
+				case JOB_LIBRARY: {
 					int obj;
 					int i = aiWorkState;
 					if (!correctPath) {
@@ -1376,15 +1379,30 @@ class NPC implements Constants {
 							obj = i == 0 ? Objects.JOB_DELIVERIES_TRUCK :
 									rng.nextInt(2) == 0 ? Objects.JOB_DELIVERIES_BLUE_BOX : Objects.JOB_DELIVERIES_RED_BOX;
 							break;
+						case JOB_MAILMAN:
+							obj = i == 0 ? Objects.JOB_MAILROOM_FILE : Objects.DESK;
+							break;
+						case JOB_LIBRARY:
+							obj = i == 0 ? Objects.JOB_BOOK_CHEST : Objects.DESK;
+							break;
 						default:
 							break work;
 						}
 
-						obj = map.findObject(obj, LAYER_GROUND, 0);
-						if (obj == -1) break work;
+						int x, y;
+						if (obj == Objects.DESK) {
+							obj = map.containers[map.pickRandomNPC(false).desk];
+							if (obj == -1) break work;
 
-						int x = map.objects[LAYER_GROUND][obj + 3];
-						int y = map.objects[LAYER_GROUND][obj + 4];
+							x = map.objects[LAYER_GROUND][obj + 3];
+							y = map.objects[LAYER_GROUND][obj + 4];
+						} else {
+							obj = map.findObject(obj, LAYER_GROUND, 0);
+							if (obj == -1) break work;
+
+							x = map.objects[LAYER_GROUND][obj + 3];
+							y = map.objects[LAYER_GROUND][obj + 4];
+						}
 
 						solid: {
 							if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
@@ -1418,11 +1436,6 @@ class NPC implements Constants {
 						this.targetReached = false;
 						correctPath = false;
 					}
-					break;
-				}
-				case JOB_MAILMAN:
-				case JOB_LIBRARY: {
-					// TODO
 					break;
 				}
 				}

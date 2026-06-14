@@ -2316,6 +2316,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						containers[idx++] = in.readShort() << 2;
 						int obj = in.readByte() & 0xFF;
 						if (obj == Objects.PLAYER_DESK) {
+							player.desk = idx - 1;
 							obj = 0;
 						} else {
 							obj = -obj;
@@ -2787,6 +2788,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 							if (res != null) {
 								containers[idx - 1] = res.id;
+								res.desk = idx - 2;
 								break;
 							}
 						}
@@ -5821,7 +5823,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// endregion Items
 
-	// region NPC text
+	// region NPC
+
+	NPC pickRandomNPC(boolean guard) {
+		int n = npcNum;
+		NPC res;
+
+		do {
+			res = chars[NPC.rng.nextInt(n)];
+		} while (res == null || !(guard ? res.guard : res.inmate));
+
+		return res;
+	}
 
 	String pickName() {
 		String s;
@@ -6226,7 +6239,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_BANTER_COUNT = 228;
 	static final int TEXT_LOCKDOWN_COUNT = 31;
 
-	static String getInmateText(int type, int n) {
+	String getInmateText(int type, int n) {
 		n += 1;
 		switch (type) {
 		case TEXT_CANTEEN:
@@ -6528,9 +6541,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			break;
 		case TEXT_BANTER: {
-			// TODO
-			String guard = "Guard";
-			String inmate = "Inmate";
+			String guard = "Officer ".concat(pickRandomNPC(true).name);
+			String inmate = pickRandomNPC(false).name;
 			StringBuffer sb = Game.stringBuffer;
 			sb.setLength(0);
 			switch (n) {
