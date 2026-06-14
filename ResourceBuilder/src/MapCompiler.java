@@ -444,6 +444,35 @@ public class MapCompiler implements Constants {
 								h++;
 								y++;
 								break;
+							case Objects.JOB_DELIVERIES_TRUCK:
+								checkLayer("deliveries truck", objectId, x, y, layer, LAYER_GROUND);
+								// TODO
+								int side = inputPath.getFileName().toString().equals("sanpancho") ? 1 : 3;
+								switch (side) {
+								case 0:
+									sprite = 195;
+									w += 2;
+									h++;
+									break;
+								case 1:
+									sprite = 110;
+									w++;
+									h += 2;
+									break;
+								case 2:
+									sprite = 198;
+									w += 2;
+									h++;
+									break;
+								case 3:
+									sprite = 170;
+									w++;
+									h += 2;
+									break;
+								default:
+									break object;
+								}
+								break;
 							case Objects.TRAINING_BOOKSHELF:
 								checkLayer("bookshelf", objectId, x, y, layer, LAYER_GROUND);
 								sprite = 226;
