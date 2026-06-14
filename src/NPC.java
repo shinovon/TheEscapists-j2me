@@ -1966,7 +1966,7 @@ class NPC implements Constants {
 					} else if (animation == ANIM_LYING) {
 						map.fatigue -= 2;
 					} else break marker;
-					map.addHitMarker(-107, x + 5, y - 6);
+					map.addHitMarker(-107, x + 6, y - 6);
 				}
 				if (tick % (TPS * 5) == 0) {
 					map.fatigue--;
@@ -2631,7 +2631,7 @@ class NPC implements Constants {
 									// restore fatigue
 									inventory[slot] = Items.ITEM_NULL;
 									if ((map.fatigue -= s) < 0) map.fatigue = 0;
-									map.addHitMarker(-107, this.x + 5, this.y - 6);
+									map.addHitMarker(-107, this.x + 6, this.y - 6);
 									break hit;
 								}
 
@@ -3214,6 +3214,9 @@ class NPC implements Constants {
 				inventory[i] = Items.ITEM_NULL;
 			}
 		}
+
+		// release input keys
+		map.keyStates &= ~(GameCanvas.UP_PRESSED | GameCanvas.DOWN_PRESSED | GameCanvas.LEFT_PRESSED | GameCanvas.RIGHT_PRESSED);
 	}
 
 	NPC getInteractNPC() {

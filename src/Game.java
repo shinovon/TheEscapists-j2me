@@ -1232,6 +1232,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								selectedInventory = 0;
 								selectedSlot = -1;
 								break;
+							case GAME_D:
+								// TODO
+								break;
 							}
 						} catch (Exception ignored) {}
 					} else if (key == '*') {
@@ -1244,7 +1247,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						lastSelectedInventory = selectedInventory;
 						selectedInventory = 0;
 						selectedSlot = -1;
-					} else if (player.training && (key == '1' || key == '3')) {
+					} else if (player.training && (key == '1' || key == '3'
+							|| key == 'Q' || key == 'E' || key == 'q' || key == 'e')) {
 						if (fatigue >= 100) {
 							Sound.playEffect(Sound.SFX_LOSE);
 							player.dialog = "You are too fatigued";
@@ -1288,15 +1292,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //						// dpad
 						switch (key) {
 						case -1:
+						case 'W':
+						case 'w':
 							keyStates |= UP_PRESSED;
 							break;
 						case -2:
+						case 'S':
+						case 's':
 							keyStates |= DOWN_PRESSED;
 							break;
 						case -3:
+						case 'A':
+						case 'a':
 							keyStates |= LEFT_PRESSED;
 							break;
 						case -4:
+						case 'D':
+						case 'd':
 							keyStates |= RIGHT_PRESSED;
 							break;
 						case -5:
@@ -1472,9 +1484,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} catch (Exception ignored) {}
 	}
 
-	public void keyRepeated(int key) {
-		super.keyRepeated(key);
-	}
+//	public void keyRepeated(int key) {
+//		super.keyRepeated(key);
+//	}
 
 	public void keyReleased(int key) {
 		super.keyReleased(key);
@@ -1502,15 +1514,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else {
 			switch (key) {
 			case -1:
+			case 'W':
+			case 'w':
 				keyStates &= ~UP_PRESSED;
 				break;
 			case -2:
+			case 'S':
+			case 's':
 				keyStates &= ~DOWN_PRESSED;
 				break;
 			case -3:
+			case 'A':
+			case 'a':
 				keyStates &= ~LEFT_PRESSED;
 				break;
 			case -4:
+			case 'D':
+			case 'd':
 				keyStates &= ~RIGHT_PRESSED;
 				break;
 			case -5:
