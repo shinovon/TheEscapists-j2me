@@ -2749,7 +2749,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							int x2 = npc.bedX, y2 = npc.bedY;
 							int dx = x - x2;
 							int dy = y - y2;
-							if (dx * dx + dy * dy > 5 * 5) {
+							if (dx * dx + dy * dy > 4 * 4) {
 								// too far
 								continue;
 							}
