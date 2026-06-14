@@ -2807,6 +2807,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				idx += containers[idx] + 1;
 			}
 		} else {
+			n = npcNum;
 			for (int i = 1; i < n; ++i) {
 				NPC npc = chars[i];
 				if (npc == null || !npc.inmate || npc.job != 0) continue;
