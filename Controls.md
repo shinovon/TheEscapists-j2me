@@ -1,41 +1,45 @@
 # Game controls
 
-Keycodes layout is Nokia/SE.
-<br>
+Keycodes layout is Nokia/SE.\
 Touch controls support is not planned, at least for now.
 
 
 
 ## Ingame
 
-### Left soft key:
-Drop selected item / Pickup item / Interact with object / Interact with nearby NPC
-<br>
+### Left soft key (O):
+Drop selected item / Pickup item / Interact with object / Interact with nearby NPC\
 (ordered by priority starting from highest)
 
 ### Middle soft key/Fire:
-Use selected item / Drop carrying NPC / Attack nearby NPC
-<br>
+Use selected item / Drop carrying NPC / Attack nearby NPC\
 (ordered by priority starting from highest)
 
-### Right soft key:
-Exit or pause
+### Right soft key (P):
+Pause menu
 
 ### Numpad:
-1-6 correspond to inventory slots
-<br>
-7-9 currently do debug things or cheats
-<br>
-star, 0, and pound are reserved
-<br>
-(maybe *: journal, 0: crafting, #: profile)
+1-6 correspond to inventory slots\
+7 - Profile (TODO)\
+8 - Journal (TODO)\
+9 - Crafting\
+0 - Load game (TODO)
+
+### QWERTY:
+WASD - Movement\
+Z - Profile (TODO)\
+X - Journal (TODO)\
+C - Crafting\
+V - Load game (TODO)
 
 
 
 ## Ingame (Alternative controls enabled)
 In this mode, game keys are respected. Soft keys are the same as above.
 
-GAME_A (usually 7 or 3) and GAME_B (9 or 3) scroll through inventory slots.
+GAME_A (7) and GAME_B (9) scroll through inventory slots\
+GAME_C (\*) - Profile/journal (TODO)\
+GAME_D (#) - Crafting (TODO)
 
 
 
@@ -50,8 +54,8 @@ Move item
 ### Right soft key:
 Exit
 
-## Training
-Smash 1 and 3, or A and B in alt. controls mode.
+## Exercise
+Variation of 1 and 3, A and B in alt. controls mode, or Q and E on QWERTY keyboard.
 
 
 

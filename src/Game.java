@@ -919,6 +919,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			try {
 				gameAction = getGameAction(key);
 			} catch (Exception ignored) {}
+			key = mapKey(key);
 			if (mapLoaded && state == STATE_GAME && !paused) {
 				if (saveDialog) {
 					if (key == -6) {
@@ -1226,29 +1227,31 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							case GAME_C:
+								// TODO profile
+								break;
+							case GAME_D:
 								// crafting
 								craftingOpen = true;
 								lastSelectedInventory = selectedInventory;
 								selectedInventory = 0;
 								selectedSlot = -1;
 								break;
-							case GAME_D:
-								// TODO
-								break;
 							}
 						} catch (Exception ignored) {}
-					} else if (key == '*') {
-						// TODO
-					} else if (key == '#') {
-						// TODO
-					} else if (key == '0') {
+					} else if (key == '7' || key == 'Z') {
+						// TODO profile
+					} else if (key == '8' || key == 'X') {
+						// TODO journal
+					} else if (key == '9' || key == 'C') {
 						// crafting
 						craftingOpen = true;
 						lastSelectedInventory = selectedInventory;
 						selectedInventory = 0;
 						selectedSlot = -1;
+					} else if (key == '0' || key == 'V') {
+						// TODO load
 					} else if (player.training && (key == '1' || key == '3'
-							|| key == 'Q' || key == 'E' || key == 'q' || key == 'e')) {
+							|| key == 'Q' || key == 'E')) {
 						if (fatigue >= 100) {
 							Sound.playEffect(Sound.SFX_LOSE);
 							player.dialog = "You are too fatigued";
@@ -1293,22 +1296,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						switch (key) {
 						case -1:
 						case 'W':
-						case 'w':
 							keyStates |= UP_PRESSED;
 							break;
 						case -2:
 						case 'S':
-						case 's':
 							keyStates |= DOWN_PRESSED;
 							break;
 						case -3:
 						case 'A':
-						case 'a':
 							keyStates |= LEFT_PRESSED;
 							break;
 						case -4:
 						case 'D':
-						case 'd':
 							keyStates |= RIGHT_PRESSED;
 							break;
 						case -5:
@@ -1439,7 +1438,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				TE.midlet.notifyDestroyed();
 			}
 			if (!altControls) {
-				if (key == '9' && mapLoaded) {
+				if (key == '#' && mapLoaded) {
 					// debug time skip
 					time = ((time / 60 + 1) * 60) - 1;
 					playerWasOnRollcall = true;
@@ -1447,7 +1446,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					playerWasOnExcercise = true;
 					playerWasOnShowers = true;
 				}
-				if (key == '8' && mapLoaded) {
+				if (key == '*' && mapLoaded) {
 					// cheat
 					fatigue = 0;
 					money += 50;
@@ -1477,9 +1476,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //					player.inventory[4] = Items.ENTRANCE_KEY | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[5] = Items.CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
 				}
-				if (key == '7' && mapLoaded) {
-					debugFreecam = !debugFreecam;
-				}
+//				if (key == '7' && mapLoaded) {
+//					debugFreecam = !debugFreecam;
+//				}
 			}
 		} catch (Exception ignored) {}
 	}
@@ -1512,25 +1511,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			} catch (Exception ignored) {}
 		} else {
+			key = mapKey(key);
 			switch (key) {
 			case -1:
 			case 'W':
-			case 'w':
 				keyStates &= ~UP_PRESSED;
 				break;
 			case -2:
 			case 'S':
-			case 's':
 				keyStates &= ~DOWN_PRESSED;
 				break;
 			case -3:
 			case 'A':
-			case 'a':
 				keyStates &= ~LEFT_PRESSED;
 				break;
 			case -4:
 			case 'D':
-			case 'd':
 				keyStates &= ~RIGHT_PRESSED;
 				break;
 			case -5:
@@ -1538,6 +1534,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				break;
 			}
 		}
+	}
+
+	private static int mapKey(int key) {
+		if (key == 'O' || key == 'o') {
+			return -6;
+		}
+		if (key == 'P' || key == 'p') {
+			return -7;
+		}
+		if (key >= 'A' && key <= 'Z') {
+			return key - 'A' + 'a';
+		}
+		return key;
 	}
 
 	public void pointerPressed(int x, int y) {
