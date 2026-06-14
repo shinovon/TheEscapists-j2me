@@ -50,7 +50,6 @@
 - [x] NPC inventory looting
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
-- [ ] Localization
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
 - [ ] Profile
 - [ ] Tasks, Journal
@@ -60,12 +59,16 @@
 - [ ] Vents (unscrewing, cutting slats)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
-- [ ] Tips
+- [ ] Help
 - [ ] Shakedowns
-- [ ] Achievements
-- [ ] Visitation
 - [ ] Snipers
 - [ ] NPC opinions
+
+# Low priority
+
+- [ ] Localization
+- [ ] Achievements
+- [ ] Visitation
 
 # OST
 

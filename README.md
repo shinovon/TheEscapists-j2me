@@ -10,7 +10,7 @@ The Escapists fan demake for J2ME platform.
 - Original maps parser is finished.
 - Rendering engine is finished, but needs optimization.
 - The game can be beaten with cheats.
-- Some important mechanics are not yet implemented, e.g item randomization and shops.
+- Some important mechanics are not yet implemented, e.g shops.
 
 See [TODO.md](/TODO.md) for more details
 
@@ -50,7 +50,7 @@ To open project in IntelliJ IDEA, open KEmulator nnmod, Tools>IntelliJ IDEA Supp
 Does not support preprocessing for platform-specific builds, so generic config will be used.\
 see `src/Constants.java`
 
-## Requirements
+## Device requirements
 
 **API support**: MIDP 2.0, CLDC 1.1
 

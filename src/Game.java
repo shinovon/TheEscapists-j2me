@@ -1205,7 +1205,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 					}
 				} else if (craftingOpen) {
-					// TODO crafting navigation
 					final int slots = 3;
 					if (key == -7) {
 						// exit
@@ -3171,7 +3170,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //		}
 
 		if (day == 0 && tick == TPS) {
-			// welcome note TODO
+			// welcome note
 			note = NOTE_WELCOME;
 			Sound.playEffect(Sound.SFX_OPEN);
 		}
@@ -4358,11 +4357,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	int dropItem(int x, int y, int item, int layer) {
 		final int pos = x + y * width;
-		// TODO check object collision
 		if (solid[layer][pos] != COLL_NONE)
 			return -2;
-//		if (getObjectIdxAt(x, y, layer) != -1)
-//			return -2;
 		if (peekItem(x, y, layer) != Items.ITEM_NULL)
 			return -1;
 
@@ -5113,7 +5109,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static String getItemName(int id) {
 		switch (id & Items.ITEM_ID_MASK) {
-		// TODO
 		case Items.CELL_KEY:
 			return "Cell Key";
 		case Items.STAFF_KEY:
