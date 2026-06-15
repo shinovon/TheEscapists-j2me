@@ -2409,14 +2409,15 @@ class NPC implements Constants {
 					}
 					case ACT_UNSCREWING: {
 						int p = map.getBreakProgress(x, y, LAYER_VENT);
-						switch (map.actionParam) {
-						case Items.POWERED_SCREWDRIVER:
-							p += 20;
-							break;
-						case Items.SCREWDRIVER:
-							p += 12;
-							break;
-						}
+//						switch (map.actionParam) {
+//						case Items.POWERED_SCREWDRIVER:
+//							p += 20;
+//							break;
+//						case Items.SCREWDRIVER:
+//							p += 12;
+//							break;
+//						}
+						p += map.actionParam;
 						if (p >= 100) {
 							map.breakWall(x, y, LAYER_VENT);
 							addItem(Items.VENT_COVER | Items.ITEM_DEFAULT_DURABILITY, true);
@@ -2567,9 +2568,13 @@ class NPC implements Constants {
 									if (checkFatigued()) break hit;
 
 									moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-									map.action = item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER
-											? ACT_UNSCREWING : ACT_CUTTING_VENT;
-									map.actionParam = item;
+									if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+										map.action = ACT_UNSCREWING;
+										map.actionParam = item == Items.SCREWDRIVER ? 24 : 40;
+									} else {
+										map.action = ACT_CUTTING_VENT;
+										map.actionParam = item;
+									}
 									map.actionTargetX = x;
 									map.actionTargetY = y;
 									map.progress = 0;
@@ -2584,7 +2589,7 @@ class NPC implements Constants {
 											map.setBreakProgress(x, y, LAYER_VENT, 101);
 											map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
 										} else {
-											map.setBreakProgress(x, y, LAYER_VENT, 10);
+											map.setBreakProgress(x, y, LAYER_VENT, 5);
 											map.objects[LAYER_VENT][idx + 2] = (short) (80 | (1 << 8) | (1 << 10));
 										}
 										break hit;
@@ -2760,7 +2765,7 @@ class NPC implements Constants {
 												}
 												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 												map.action = ACT_UNSCREWING;
-												map.actionParam = item;
+												map.actionParam = item == Items.SCREWDRIVER ? 12 : 20;
 												map.actionTargetX = x;
 												map.actionTargetY = y;
 												map.progress = 0;
@@ -3600,7 +3605,11 @@ class NPC implements Constants {
 		int item = inventory[slot] & Items.ITEM_ID_MASK;
 		int v = (inventory[slot] & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
 
+		// TODO
 		switch (item) {
+		case Items.CONTRABAND_POUCH:
+			v -= 25;
+			break;
 		case Items.PLASTIC_FORK:
 		case Items.PLASTIC_KNIFE:
 		case Items.PLASTIC_SPOON:
@@ -3608,15 +3617,26 @@ class NPC implements Constants {
 			v -= 15;
 			break;
 		case Items.FILE:
+		case Items.SCREWDRIVER:
 			v -= 10;
 			break;
 		case Items.FLIMSY_CUTTERS:
 		case Items.CUTTING_FLOSS:
+		case Items.FLIMSY_PICKAXE:
+		case Items.FLIMSY_SHOVEL:
 			v -= 8;
 			break;
-			// TODO
+		case Items.LIGHTWEIGHT_CUTTERS:
+		case Items.LIGHTWEIGHT_PICKAXE:
+		case Items.LIGHTWEIGHT_SHOVEL:
+		case Items.TROWEL:
 		default:
 			v -= 5;
+			break;
+		case Items.STURDY_CUTTERS:
+		case Items.STURDY_PICKAXE:
+		case Items.STURDY_SHOVEL:
+			v -= 3;
 			break;
 		}
 
