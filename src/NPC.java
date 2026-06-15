@@ -1801,7 +1801,7 @@ class NPC implements Constants {
 		if (n < 1) n = 1;
 
 		if (visible) {
-			map.addHitMarker(source.ai ? -n : n, x + (TILE_SIZE / 2), y + (TILE_SIZE / 2));
+			map.addHitMarker(source.ai ? -n : n, x, y - 8);
 		}
 
 		health -= n;
@@ -1869,7 +1869,7 @@ class NPC implements Constants {
 			inventory[i] = Items.ITEM_NULL;
 		}
 		if (inmate) {
-			int numItems = rng.nextInt(3);
+			int numItems = rng.nextInt(4);
 			for (int i = 0; i < numItems; ++i) {
 				int[] items = Game.NPC_CARRY;
 				int item = items[NPC.rng.nextInt(items.length)];
@@ -3605,10 +3605,15 @@ class NPC implements Constants {
 		int item = inventory[slot] & Items.ITEM_ID_MASK;
 		int v = (inventory[slot] & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT;
 
-		// TODO
 		switch (item) {
+		case Items.TUBE_OF_TOOTHPASTE:
+			v -= 50;
+			break;
 		case Items.CONTRABAND_POUCH:
 			v -= 25;
+			break;
+		case Items.SHAVING_CREAM:
+			v -= 20;
 			break;
 		case Items.PLASTIC_FORK:
 		case Items.PLASTIC_KNIFE:
@@ -3618,24 +3623,31 @@ class NPC implements Constants {
 			break;
 		case Items.FILE:
 		case Items.SCREWDRIVER:
+		case Items.PLASTIC_WORK_KEY:
+		case Items.PLASTIC_UTILITY_KEY:
+		case Items.PLASTIC_STAFF_KEY:
+		case Items.PLASTIC_CELL_KEY:
+		case Items.PLASTIC_ENTRANCE_KEY:
+		case Items.CROWBAR: // TODO ?
 			v -= 10;
 			break;
 		case Items.FLIMSY_CUTTERS:
-		case Items.CUTTING_FLOSS:
 		case Items.FLIMSY_PICKAXE:
 		case Items.FLIMSY_SHOVEL:
+		case Items.CUTTING_FLOSS:
 			v -= 8;
 			break;
 		case Items.LIGHTWEIGHT_CUTTERS:
 		case Items.LIGHTWEIGHT_PICKAXE:
 		case Items.LIGHTWEIGHT_SHOVEL:
 		case Items.TROWEL:
-		default:
+		case Items.POWERED_SCREWDRIVER:
 			v -= 5;
 			break;
 		case Items.STURDY_CUTTERS:
 		case Items.STURDY_PICKAXE:
 		case Items.STURDY_SHOVEL:
+		case Items.MULTITOOL: // TODO ?
 			v -= 3;
 			break;
 		}

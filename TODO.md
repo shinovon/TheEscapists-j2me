@@ -64,6 +64,7 @@
 - [ ] Snipers
 - [ ] NPC opinions
 - [ ] Digging stability
+- [ ] Arrow pointing where to go
 
 # Low priority
 

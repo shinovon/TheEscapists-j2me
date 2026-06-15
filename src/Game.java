@@ -2811,7 +2811,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 						}
 
-						int numItems = NPC.rng.nextInt(5);
+						int numItems = NPC.rng.nextInt(6);
 						for (int k = 0; k < numItems; ++k) {
 							int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
 							int item = items[NPC.rng.nextInt(items.length)];
@@ -2850,7 +2850,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int owner = containers[idx++];
 				if (owner < 1) continue;
 
-				int numItems = NPC.rng.nextInt(5);
+				int numItems = NPC.rng.nextInt(6);
 				for (int k = 0; k < numItems; ++k) {
 					int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
 					int item = items[NPC.rng.nextInt(items.length)];
@@ -3006,7 +3006,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				++day;
 			}
 			if (!lockdown && (time % 60 == 0 || schedule == SC_LOCKDOWN)) {
-				if ((time / 60) % 3 == 0) {
+				if (((time + 30) / 60) % 3 == 0) {
 					// update npc inventory every 3 hours
 					NPC[] chars = this.chars;
 					int n = chars.length;
@@ -5171,6 +5171,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	};
 
+	// 50: 0
 	static final int[] BUY = {
 			Items.GUARD_OUTFIT, 50,
 			Items.LIGHTER, 25,
@@ -5220,7 +5221,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			Items.WOODEN_BAT,
 			Items.HAMMER,
 //			Items.BATON,
-//			Items.GLASS_SHANK,
+			Items.GLASS_SHANK,
 //			Items.KNUCKLE_DUSTER,
 //			Items.SPIKED_BAT,
 //			Items.NUNCHUKS,
