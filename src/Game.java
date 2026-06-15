@@ -32,6 +32,7 @@ import javax.microedition.rms.RecordStoreException;
 import java.io.*;
 import java.util.Vector;
 
+/** @noinspection DataFlowIssue*/ // gives wrong warnings
 public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Canvas
@@ -3152,7 +3153,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		for (int i = 0; i < n; ++i) {
 			if (chars[i] == null) continue;
 			if (i != 0) chars[i].tickAI(tick);
-			chars[i].tick(tick);
+			chars[i].tick();
 		}
 
 		// sort characters for rendering, so that southern will be rendered on top

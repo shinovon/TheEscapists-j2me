@@ -28,6 +28,7 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
 
+/** @noinspection DataFlowIssue*/ // gives wrong warnings
 class NPC implements Constants {
 	
 	static final int ANIM_REGULAR = 0; // walking
@@ -281,7 +282,7 @@ class NPC implements Constants {
 		return map.isInZone((int) x + 7, (int) y + 7, zone);
 	}
 
-	void tick(int tick) {
+	void tick() {
 		if (animationTimer != 0 && --animationTimer == 0) {
 			animation = state;
 		}
@@ -992,13 +993,13 @@ class NPC implements Constants {
 			}
 		}
 
-		itemVision: {
-			if (!guard) break itemVision;
-			if (((tick + id) & 7) != 0) break itemVision;
-			if (aiState == AI_ATTACK) break itemVision;
-
-			// TODO scan area for illegal items
-		}
+		// TODO scan area for illegal items
+//		itemVision: {
+//			if (!guard) break itemVision;
+//			if (((tick + id) & 7) != 0) break itemVision;
+//			if (aiState == AI_ATTACK) break itemVision;
+//
+//		}
 
 		boolean targetReached = this.targetReached;
 		if (!targetReached && correctPath) {
