@@ -2840,6 +2840,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					break;
 				}
 			}
+
+			// refill desks
+			int[] containers = this.containers;
+			if (containers == null) return;
+			n = containers[0];
+			int idx = 1;
+			for (int i = 0; i < n; ++i) {
+				int owner = containers[idx++];
+				if (owner < 1) continue;
+
+				int numItems = NPC.rng.nextInt(5);
+				for (int k = 0; k < numItems; ++k) {
+					int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
+					int item = items[NPC.rng.nextInt(items.length)];
+					containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
+				}
+				containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
+				containers[idx + 2] = Items.TUBE_OF_TOOTHPASTE | Items.ITEM_DEFAULT_DURABILITY;
+				containers[idx + 3] = Items.ROLL_OF_TOILET_PAPER | Items.ITEM_DEFAULT_DURABILITY;
+				containers[idx + 4] = Items.SOAP | Items.ITEM_DEFAULT_DURABILITY;
+
+				idx += containers[idx] + 1;
+			}
 		}
 
 		System.arraycopy(chars, 0, renderChars, 0, chars.length);
@@ -3796,7 +3819,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.LIGHTWEIGHT_CUTTERS:
 								case Items.CUTTING_FLOSS:
 								case Items.FILE:
-									s = sb.append("Cut (").append(100 - p).append("%)").toString();
+									s = sb.append("Cut Vent (").append(100 - p).append("%)").toString();
 									break interact;
 								}
 								break;
@@ -4121,8 +4144,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.POWERED_SCREWDRIVER:
 								case Items.SCREWDRIVER:
 									if (layer == LAYER_VENT && t == -1) {
-										// TODO
-										s = sb.append("Unscrew (").append(100 - p).append("%)").toString();
+										s = sb.append("Slats (").append(100 - p).append("%)").toString();
 										break interact;
 									}
 									if (b == COLL_SOLID && (t == 21 || t == 25)) {
@@ -4154,7 +4176,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.CUTTING_FLOSS:
 								case Items.FILE:
 									if (layer == LAYER_VENT && t == -1) {
-										// TODO
 										s = sb.append("Cut Slats (").append(100 - p).append("%)").toString();
 										break interact;
 									}

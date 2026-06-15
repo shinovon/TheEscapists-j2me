@@ -86,5 +86,4 @@
 
 # Misc
 
-- Update desks random items by time
 - Use pngout for resources?
