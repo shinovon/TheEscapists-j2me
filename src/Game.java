@@ -2595,7 +2595,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (p >= 100) {
 						byte t = tiles[pos];
 						byte m = t < 0 ? (byte) -t : t;
-						if (l == LAYER_UNDERGROUND) {
+						if (l == LAYER_VENT) {
+							int obj = getObjectIdxAt(x, y, l);
+							if (objects[l][obj + 1] == Objects.VENT_SLATS) {
+								solid[pos] = COLL_NONE;
+								objects[l][obj + 2] |= 1 << 12;
+							} else {
+								objects[l][obj + 2] = p == 101 ? (short) (82 | (1 << 8) | (1 << 10)) : (81 | (1 << 8) | (1 << 10));
+							}
+						} else if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
 							solid[pos] = p >= 120 ? COLL_SOLID : COLL_NONE;
 						} else if (isSolidTile(m) != COLL_NONE) {
@@ -3207,7 +3215,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		short[] chipped = this.chipped[layer];
 		byte t = tiles[layer][y * width + x];
 		int sprite;
-		if (layer == LAYER_UNDERGROUND) {
+		if (layer == LAYER_VENT) {
+			sprite = 0;
+		} else if (layer == LAYER_UNDERGROUND) {
 			// can be rock or timber
 			sprite = p >= 120 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
 		} else if (p == 101) {
@@ -3256,6 +3266,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	void breakWall(int x, int y, int layer) {
 		int pos = x + y * width;
 		setBreakProgress(x, y, layer, 100);
+		if (layer == LAYER_VENT) {
+			int obj = getObjectIdxAt(x, y, layer);
+			if (objects[layer][obj + 1] == Objects.VENT_SLATS) {
+				solid[layer][pos] = COLL_NONE;
+				objects[layer][obj + 2] |= 1 << 12;
+			} else {
+				objects[layer][obj + 2] = (short) (81 | (1 << 8) | (1 << 10));
+			}
+			return;
+		}
 		tiles[layer][pos] = (byte) -tiles[layer][pos];
 		solid[layer][pos] = COLL_DIGGED_WALL;
 		if (USE_TILED_LAYER) {
@@ -3755,6 +3775,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										break interact;
 									}
 									break box;
+								} else if (p == 101) {
+									// TODO remove
+									s = "";
+									break interact;
 								}
 
 								StringBuffer sb = stringBuffer;
@@ -3789,11 +3813,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									int idx = getObjectIdxAt(x, y, layer);
 									int obj = idx == -1 ? -1 : objects[idx + 1];
 									if (obj == Objects.LADDER_UP) {
-										s = "Up";
+										s = "Ladder Up";
 										break interact;
 									}
 									if (obj == Objects.LADDER_DOWN) {
-										s = "Down";
+										s = "Ladder Down";
+										break interact;
+									}
+									if (obj == Objects.VENT) {
+										int p = getBreakProgress(x, y, LAYER_VENT);
+										if (p == 101) {
+											// TODO remove
+											s = "";
+										} else /*if (p == 100)*/ {
+											// TODO down
+											s = "";
+										}
 										break interact;
 									}
 								}
@@ -3972,6 +4007,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										}
 										if (obj == Objects.LADDER_DOWN) {
 											s = "Ladder Down";
+											break interact;
+										}
+										if (obj == Objects.VENT) {
+											int p = getBreakProgress(x, y, LAYER_VENT);
+											if (p == 101) {
+												// TODO remove
+												s = "";
+											} else /*if (p == 100)*/ {
+												// TODO down
+												s = "";
+											}
 											break interact;
 										}
 									}
