@@ -1629,7 +1629,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.UTILITY_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+
+					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -3729,42 +3731,51 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					interact: {
 						if (player.climbed) {
 							// TODO vents
-//							if (objects == null) break box;
-//							for (int i = -1; i < 4; ++i) {
-//								x = (player.x + 7) / TILE_SIZE;
-//								y = (player.y + 7) / TILE_SIZE;
-//								if (i != -1) {
-//									x += Game.PATH_DIR_POSITIONS[i << 1];
-//									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-//								}
-//								int idx = getObjectIdxAt(x, y, LAYER_VENT);
-//								int obj = objects[idx + 1];
-//								if (obj != Objects.VENT) continue;
-//
-//								int p = getBreakProgress(x, y, LAYER_VENT);
-//								if (p == 100) {
-//									break box;
-//								}
-//
-//								StringBuffer sb = stringBuffer;
-//								sb.setLength(0);
-//
-//								switch (item) {
-//								case Items.SCREWDRIVER:
-//								case Items.POWERED_SCREWDRIVER:
-//									s = sb.append("Unscrew (").append(p).append("%)").toString();
-//									break interact;
-//								case Items.PLASTIC_KNIFE:
-//								case Items.STURDY_CUTTERS:
-//								case Items.FLIMSY_CUTTERS:
-//								case Items.LIGHTWEIGHT_CUTTERS:
-//								case Items.CUTTING_FLOSS:
-//								case Items.FILE:
-//									s = sb.append("Cut (").append(p).append("%)").toString();
-//									break interact;
-//								}
-//								break;
-//							}
+							if (objects == null) break box;
+							for (int i = -1; i < 4; ++i) {
+								x = (player.x + 7) / TILE_SIZE;
+								y = (player.y + 7) / TILE_SIZE;
+								if (i != -1) {
+									x += Game.PATH_DIR_POSITIONS[i << 1];
+									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+								}
+								int idx = getObjectIdxAt(x, y, LAYER_VENT);
+								int obj = objects[idx + 1];
+								if (obj != Objects.VENT) continue;
+
+								int p = getBreakProgress(x, y, LAYER_VENT);
+
+								if (p == 100) {
+									if (item == -1) {
+										s = "Enter";
+										break interact;
+									} else if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
+										// TODO put
+										s = "";
+										break interact;
+									}
+									break box;
+								}
+
+								StringBuffer sb = stringBuffer;
+								sb.setLength(0);
+
+								switch (item) {
+								case Items.SCREWDRIVER:
+								case Items.POWERED_SCREWDRIVER:
+									s = sb.append("Unscrew (").append(100 - p).append("%)").toString();
+									break interact;
+								case Items.PLASTIC_KNIFE:
+								case Items.STURDY_CUTTERS:
+								case Items.FLIMSY_CUTTERS:
+								case Items.LIGHTWEIGHT_CUTTERS:
+								case Items.CUTTING_FLOSS:
+								case Items.FILE:
+									s = sb.append("Cut (").append(100 - p).append("%)").toString();
+									break interact;
+								}
+								break;
+							}
 							break box;
 						} else {
 							byte b;
