@@ -1993,6 +1993,8 @@ class NPC implements Constants {
 		body.setFrameSequence(animationSequence);
 		body.setRefPixelPosition(8, 8);
 		prevOutfitId = outfitId;
+
+		health = statStrength >> 1;
 	}
 
 // region Player

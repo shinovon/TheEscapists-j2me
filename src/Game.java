@@ -353,15 +353,31 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
+			int vw = w, vh = h;
+			int ox = 0, oy = 0;
+			if (player.layer == LAYER_UNDERGROUND) {
+				vw = 64;
+				vh = 64;
+				ox = (w - vw) / 2;
+				oy = (h - vh) / 2;
+				x += ox;
+				y += oy;
+				g.setClip(ox, oy, vw, vh);
+				g.translate(ox, oy);
+			}
 			int layer = player.layer;
 			if (layer == LAYER_ROOF) {
-				paintMap(g, x, y, w, h, LAYER_GROUND);
+				paintMap(g, x, y, vw, vh, LAYER_GROUND);
 			} else if (layer == LAYER_VENT) {
-				paintMap(g, x, y, w, h, LAYER_GROUND);
+				paintMap(g, x, y, vw, vh, LAYER_GROUND);
 			}
-			paintMap(g, x, y, viewWidth, viewHeight, layer);
+			paintMap(g, x, y, vw, vh, layer);
 			if (player.climbed) {
-				paintMap(g, x, y, w, h, LAYER_VENT);
+				paintMap(g, x, y, vw, vh, LAYER_VENT);
+			}
+			if (player.layer == LAYER_UNDERGROUND) {
+				g.translate(-ox, -oy);
+				g.setClip(0, 0, w, h);
 			}
 		}
 
@@ -862,6 +878,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				viewWidth = w;
 				viewHeight = h;
 			}
+			if (USE_M3G) update3DSize = true;
 		}
 
 		if (!BUFFER_SCREEN) {
@@ -1928,6 +1945,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
 							y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
 						} else if (resetCamera) {
+							if (USE_M3G) update3DSize = true;
 							resetCamera = false;
 							x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
 							y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
@@ -3737,22 +3755,30 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (use3D) {
 				float xOffset = TILE_SIZE - viewWidth / 2f;
 				float yOffset = viewHeight / 2f;
-				if (DRAW_LIGHTS && layer == LAYER_GROUND && lights != null) {
+				if (DRAW_LIGHTS) {
 					Transform t = transform;
-					short[] lights = this.lights;
-					int n = lights[0];
-					for (int i = 0; i < n; ++i) {
-						int idx = i << 1;
+					if (layer == LAYER_GROUND && lights != null) {
+						short[] lights = this.lights;
+						int n = lights[0];
+						for (int i = 0; i < n; ++i) {
+							int idx = i << 1;
 
-						int x = lights[idx + 1] * TILE_SIZE - viewX, y = lights[idx + 2] * TILE_SIZE - viewY;
-						// off-screen culling
-						if (x < -TILE_SIZE * 3 || y < -TILE_SIZE * 3 || x >= viewWidth + TILE_SIZE * 3 || y >= viewHeight + TILE_SIZE * 3) {
-							continue;
+							int x = lights[idx + 1] * TILE_SIZE - viewX, y = lights[idx + 2] * TILE_SIZE - viewY;
+							// off-screen culling
+							if (x < -TILE_SIZE * 3 || y < -TILE_SIZE * 3 || x >= viewWidth + TILE_SIZE * 3 || y >= viewHeight + TILE_SIZE * 3) {
+								continue;
+							}
+
+							t.setIdentity();
+							t.postTranslate(x + xOffset, yOffset - y, 5);
+							graphics3D.render(lightVertexBuffer, lightStrip, lightAppearance, t);
 						}
-
+					} else if (layer == LAYER_UNDERGROUND) {
 						t.setIdentity();
-						t.postTranslate(x + xOffset, yOffset - y, 5);
-						graphics3D.render(lightVertexBuffer, lightStrip, lightAppearance, t);
+						t.postTranslate(0, 0, 5);
+						float f = 1.1f + 0.04f * (float)Math.sin(ticks * 1.5f);
+						t.postScale(f, f, 1f);
+						graphics3D.render(lightVertexBuffer, lightStrip, undergroundAppearance, t);
 					}
 				}
 
@@ -4418,12 +4444,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	VertexBuffer lightVertexBuffer;
 	TriangleStripArray lightStrip;
 	Appearance lightAppearance;
+	VertexBuffer undergroundVertexBuffer;
+	Appearance undergroundAppearance;
 
 	VertexBuffer globalVertexBuffer;
 	TriangleStripArray globalStrip;
 	Appearance globalAppearance;
 
 	int globalLightColor;
+
+	boolean update3DSize;
 
 	private void setup3D(Graphics g, int viewWidth, int viewHeight) {
 		if (!use3D) return;
@@ -4438,9 +4468,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				cameraTransform = new Transform();
 				cameraTransform.postTranslate(0, 0, 10.0f);
 				camera = new Camera();
-				camera.setParallel(viewHeight, (float) viewWidth / (float) viewHeight, 0.1f, 100.0f);
-
 				transform = new Transform();
+				update3DSize = true;
+			}
+			if (update3DSize) {
+				update3DSize = false;
+				camera.setParallel(viewHeight, (float) viewWidth / (float) viewHeight, 0.1f, 100.0f);
 			}
 
 			// init light sprite
@@ -4491,9 +4524,29 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				PolygonMode pm = new PolygonMode();
 				pm.setShading(PolygonMode.SHADE_FLAT);
-				pm.setCulling(PolygonMode.CULL_NONE);
+				pm.setCulling(PolygonMode.CULL_BACK);
 				pm.setPerspectiveCorrectionEnable(false);
 				lightAppearance.setPolygonMode(pm);
+
+				undergroundVertexBuffer = new VertexBuffer();
+				undergroundVertexBuffer.setPositions(vertArray, viewHeight, null);
+				undergroundVertexBuffer.setTexCoords(0, texArray, 1.0f/255.0f, null);
+				undergroundVertexBuffer.setDefaultColor(0xFFFFFFFF);
+
+				tex = new Texture2D(underground3dTexture);
+				tex.setBlending(Texture2D.FUNC_REPLACE);
+				tex.setFiltering(Texture2D.FILTER_NEAREST, Texture2D.FILTER_NEAREST);
+
+				undergroundAppearance = new Appearance();
+				undergroundAppearance.setTexture(0, tex);
+				undergroundAppearance.setPolygonMode(pm);
+
+				cm = new CompositingMode();
+				cm.setBlending(CompositingMode.MODULATE);
+				cm.setAlphaThreshold(0.5f);
+				cm.setDepthTestEnable(false);
+				cm.setDepthWriteEnable(false);
+				undergroundAppearance.setCompositingMode(cm);
 			}
 
 			// init global lighting quad
@@ -4526,7 +4579,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				PolygonMode pm = new PolygonMode();
 				pm.setShading(PolygonMode.SHADE_FLAT);
-				pm.setCulling(PolygonMode.CULL_NONE);
+				pm.setCulling(PolygonMode.CULL_BACK);
 				pm.setPerspectiveCorrectionEnable(false);
 				globalAppearance.setPolygonMode(pm);
 
@@ -7481,6 +7534,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static Image groundTexture;
 	static Image shadowsTexture;
 	static Image2D light3dTexture;
+	static Image2D underground3dTexture;
 	static Image hudSymbolsTexture;
 	static Image markersTexture;
 
@@ -7495,6 +7549,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (DRAW_SHADOWS) shadowsTexture = loadTiles("/shadow.png");
 			if (DRAW_LIGHTS && USE_M3G) {
 				light3dTexture = (Image2D) Loader.load("/light.png")[0];
+				underground3dTexture = (Image2D) Loader.load("/underground.png")[0];
 			}
 
 			loadSpritesheet(Textures.INMATE4, "/inmate4.png");

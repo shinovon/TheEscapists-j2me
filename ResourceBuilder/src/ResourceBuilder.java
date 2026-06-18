@@ -646,6 +646,15 @@ public class ResourceBuilder implements Constants {
 		BufferedImage img = new BufferedImage(TILE_SIZE * 4, TILE_SIZE * 4, BufferedImage.TYPE_INT_ARGB);
 		img.getGraphics().drawImage(ImageIO.read(getImagePath("Light_0-0_0.png").toFile()), 2, 2, null);
 		writePng(img, resDir.resolve("light.png"));
+
+		img = ImageIO.read(getImagePath("Underground_Lighting_0-0_0.png").toFile());
+		img = img.getSubimage((img.getWidth() - 64) / 2, (img.getHeight() - 64) / 2, 64, 64);
+		for (int x = 0; x < 64; ++x) {
+			for (int y = 0; y < 64; ++y) {
+				img.setRGB(x, y, ~(img.getRGB(x, y) & 0xFFFFFF) | 0xFF000000);
+			}
+		}
+		writePng(img, resDir.resolve("underground.png"));
 	}
 	
 	static void huds() throws IOException {
