@@ -1872,7 +1872,7 @@ class NPC implements Constants {
 			int numItems = rng.nextInt(4);
 			for (int i = 0; i < numItems; ++i) {
 				int[] items = Game.NPC_CARRY;
-				int item = items[NPC.rng.nextInt(items.length)];
+				int item = items[1 + NPC.rng.nextInt(items[0])];
 				inventory[i] = item | Items.ITEM_DEFAULT_DURABILITY;
 			}
 			if (rng.nextInt(4) == 0) {

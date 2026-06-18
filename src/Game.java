@@ -2455,7 +2455,104 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				tiledLayer[i] = new TiledLayer(width, height, tilesTexture, TILE_SIZE, TILE_SIZE);
 			}
 		}
+		
+		// load map-specific items
+		DESK1[0] = DESK1_BASE_COUNT;
+		DESK2[0] = DESK2_BASE_COUNT;
+		NPC_CARRY[0] = NPC_CARRY_BASE_COUNT;
+		
+		switch (map) {
+		case MAP_PERKS:
+			DESK1[0] = DESK1_BASE_COUNT + 11;
+			NPC_CARRY[0] = NPC_CARRY_BASE_COUNT + 12;
 
+			DESK1[DESK1_BASE_COUNT + 1] = Items.SPONGE;
+			DESK1[DESK1_BASE_COUNT + 2] = Items.DVD;
+			DESK1[DESK1_BASE_COUNT + 3] = Items.COOKIE;
+			DESK1[DESK1_BASE_COUNT + 4] = Items.MUFFIN;
+			DESK1[DESK1_BASE_COUNT + 5] = Items.SILK_HANDKERCHIEF;
+			DESK1[DESK1_BASE_COUNT + 6] = Items.DELUXE_TOILET_ROLL;
+			DESK1[DESK1_BASE_COUNT + 7] = Items.TEDDY_BEAR;
+			DESK1[DESK1_BASE_COUNT + 8] = Items.HAND_CREAM;
+			DESK1[DESK1_BASE_COUNT + 9] = Items.POSTCARD;
+			DESK1[DESK1_BASE_COUNT + 10] = Items.PEDICURE_KIT;
+			DESK1[DESK1_BASE_COUNT + 11] = Items.HAND_FAN;
+
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 1] = Items.TV_REMOTE;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 2] = Items.SPONGE;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 3] = Items.DVD;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 4] = Items.COOKIE;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 5] = Items.MUFFIN;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 6] = Items.SILK_HANDKERCHIEF;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 7] = Items.DELUXE_TOILET_ROLL;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 8] = Items.TEDDY_BEAR;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 9] = Items.HAND_CREAM;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 10] = Items.POSTCARD;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 11] = Items.PEDICURE_KIT;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 12] = Items.HAND_FAN;
+			break;
+		case MAP_STALAGFLUCHT:
+			DESK1[0] = DESK1_BASE_COUNT + 4;
+			NPC_CARRY[0] = NPC_CARRY_BASE_COUNT + 4;
+
+			DESK1[DESK1_BASE_COUNT + 1] = Items.POCKET_WATCH;
+			DESK1[DESK1_BASE_COUNT + 2] = Items.FAMILY_PHOTO;
+			DESK1[DESK1_BASE_COUNT + 3] = Items.SERVICE_MEDAL;
+			DESK1[DESK1_BASE_COUNT + 4] = Items.DOG_TAG;
+			
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 1] = Items.POCKET_WATCH;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 2] = Items.FAMILY_PHOTO;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 3] = Items.SERVICE_MEDAL;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 4] = Items.DOG_TAG;
+			break;
+		case MAP_JUNGLE:
+			DESK1[0] = DESK1_BASE_COUNT + 6;
+			DESK2[0] = DESK2_BASE_COUNT + 1;
+			NPC_CARRY[0] = NPC_CARRY_BASE_COUNT + 7;
+
+			DESK1[DESK1_BASE_COUNT + 1] = Items.BANANAS;
+			DESK1[DESK1_BASE_COUNT + 2] = Items.GREEN_HERB;
+			DESK1[DESK1_BASE_COUNT + 3] = Items.VINES;
+			DESK1[DESK1_BASE_COUNT + 4] = Items.COCONUT;
+			DESK1[DESK1_BASE_COUNT + 5] = Items.MANGO;
+			DESK1[DESK1_BASE_COUNT + 6] = Items.TRIBAL_DRUM;
+
+			DESK2[DESK2_BASE_COUNT] = Items.RED_HERB;
+			
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 1] = Items.BANANAS;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 2] = Items.GREEN_HERB;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 3] = Items.RED_HERB;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 4] = Items.VINES;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 5] = Items.COCONUT;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 6] = Items.MANGO;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 7] = Items.TRIBAL_DRUM;
+			break;
+		case MAP_SANPANCHO:
+			DESK1[0] = DESK1_BASE_COUNT + 5;
+			NPC_CARRY[0] = NPC_CARRY_BASE_COUNT + 5;
+
+			DESK1[DESK1_BASE_COUNT + 1] = Items.RED_CHILI;
+			DESK1[DESK1_BASE_COUNT + 2] = Items.SAND;
+			DESK1[DESK1_BASE_COUNT + 3] = Items.SOMBRERO;
+			DESK1[DESK1_BASE_COUNT + 4] = Items.PONCHO;
+			DESK1[DESK1_BASE_COUNT + 5] = Items.BURRITO;
+
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 1] = Items.RED_CHILI;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 2] = Items.SAND;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 3] = Items.SOMBRERO;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 4] = Items.PONCHO;
+			NPC_CARRY[NPC_CARRY_BASE_COUNT + 5] = Items.BURRITO;
+			break;
+		default:
+			break;
+		}
+
+		for (int i = 0; i < DESK1[0]; ++i) {
+			System.out.println(getItemName(DESK1[1 + i]));
+		}
+		for (int i = 0; i < DESK2[0]; ++i) {
+			System.out.println(getItemName(DESK2[1 + i]));
+		}
 
 		initMap();
 		System.gc();
@@ -2815,7 +2912,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						int numItems = NPC.rng.nextInt(6);
 						for (int k = 0; k < numItems; ++k) {
 							int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
-							int item = items[NPC.rng.nextInt(items.length)];
+							int item = items[1 + NPC.rng.nextInt(items[0])];
 							containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
 						}
 					}
@@ -2855,7 +2952,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int numItems = NPC.rng.nextInt(6);
 				for (int k = 0; k < numItems; ++k) {
 					int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
-					int item = items[NPC.rng.nextInt(items.length)];
+					int item = items[1 + NPC.rng.nextInt(items[0])];
 					containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
 				}
 				containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
@@ -5011,7 +5108,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Items
 
+	static final int DESK1_BASE_COUNT = 32;
 	static final int[] DESK1 = {
+			DESK1_BASE_COUNT,
 			Items.PACK_OF_MINTS,
 			Items.LIGHTER,
 			Items.WATCH,
@@ -5044,39 +5143,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			Items.DENTAL_FLOSS,
 			Items.TV_REMOTE,
 			Items.NAILS,
-//			// perks
-//			Items.SPONGE,
-//			Items.DVD,
-//			Items.COOKIE,
-//			Items.MUFFIN,
-//			Items.SILK_HANDKERCHIEF,
-//			Items.DELUXE_TOILET_ROLL,
-//			Items.TEDDY_BEAR,
-//			Items.HAND_CREAM,
-//			Items.POSTCARD,
-//			Items.PEDICURE_KIT,
-//			Items.HAND_FAN,
-//			// stalagflucht
-//			Items.POCKET_WATCH,
-//			Items.FAMILY_PHOTO,
-//			Items.SERVICE_MEDAL,
-//			Items.DOG_TAG,
-//			// jungle
-//			Items.BANANAS,
-//			Items.GREEN_HERB,
-//			Items.VINES,
-//			Items.COCONUT,
-//			Items.MANGO,
-//			Items.TRIBAL_DRUM,
-//			// sanpancho
-//			Items.RED_CHILI,
-//			Items.SAND,
-//			Items.SOMBRERO,
-//			Items.PONCHO,
-//			Items.BURRITO,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
 	};
 
+	static final int DESK2_BASE_COUNT = 13;
 	static final int[] DESK2 = {
+			DESK2_BASE_COUNT,
 			Items.TIMBER,
 			Items.ROLL_OF_DUCT_TAPE,
 			Items.DIRT,
@@ -5090,11 +5172,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			Items.CRAFTING_NOTE,
 			Items.COMB_BLADE,
 			Items.MEDIKIT,
-//			// jungle
-//			Items.RED_HERB,
+			// jungle
+			Items.RED_HERB,
 	};
 
+	static final int NPC_CARRY_BASE_COUNT = 35;
 	static final int[] NPC_CARRY = {
+			NPC_CARRY_BASE_COUNT,
 			Items.PACK_OF_MINTS,
 			Items.LIGHTER,
 			Items.WATCH,
@@ -5130,39 +5214,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			Items.CRAFTING_NOTE,
 			Items.DENTAL_FLOSS,
 			Items.NAILS,
-//			// perks
-//			Items.TV_REMOTE,
-//			Items.SPONGE,
-//			Items.DVD,
-//			Items.COOKIE,
-//			Items.MUFFIN,
-//			Items.SILK_HANDKERCHIEF,
-//			Items.DELUXE_TOILET_ROLL,
-//			Items.TEDDY_BEAR,
-//			Items.HAND_CREAM,
-//			Items.POSTCARD,
-//			Items.PEDICURE_KIT,
-//			Items.HAND_FAN,
-//			// stalagflucht
-//			Items.POCKET_WATCH,
-//			Items.FAMILY_PHOTO,
-//			Items.SERVICE_MEDAL,
-//			Items.DOG_TAG,
-//			// jungle
-//			Items.BANANAS,
-//			Items.GREEN_HERB,
-//			Items.RED_HERB,
-//			Items.VINES,
-//			Items.COCONUT,
-//			Items.MANGO,
-//			Items.TRIBAL_DRUM,
-//			// sanpancho
-//			Items.RED_CHILI,
-//			Items.SAND,
-//			Items.SOMBRERO,
-//			Items.PONCHO,
-//			Items.BURRITO,
-
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
 	};
 
 	// 50: 0
