@@ -3771,7 +3771,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
 				}
 
-				if (pausedOverlay && layer == player.layer) {
+				if (pausedOverlay && layer == (player.climbed ? LAYER_VENT : player.layer)) {
 					// pause tint
 					globalVertexBuffer.setDefaultColor(0x7F7F7F);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
