@@ -2940,18 +2940,18 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 0; i < n; ++i) {
 				idx++;
 				int owner = containers[idx++];
-				if (owner < 1) continue;
-
-				int numItems = NPC.rng.nextInt(6);
-				for (int k = 0; k < numItems; ++k) {
-					int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
-					int item = items[1 + NPC.rng.nextInt(items[0])];
-					containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
+				if (owner > 0) {
+					int numItems = NPC.rng.nextInt(6);
+					for (int k = 0; k < numItems; ++k) {
+						int[] items = NPC.rng.nextInt(3) == 0 ? DESK2 : DESK1;
+						int item = items[1 + NPC.rng.nextInt(items[0])];
+						containers[idx + 5 + k] = item | Items.ITEM_DEFAULT_DURABILITY;
+					}
+					containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 2] = Items.TUBE_OF_TOOTHPASTE | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 3] = Items.ROLL_OF_TOILET_PAPER | Items.ITEM_DEFAULT_DURABILITY;
+					containers[idx + 4] = Items.SOAP | Items.ITEM_DEFAULT_DURABILITY;
 				}
-				containers[idx + 1] = Items.COMB | Items.ITEM_DEFAULT_DURABILITY;
-				containers[idx + 2] = Items.TUBE_OF_TOOTHPASTE | Items.ITEM_DEFAULT_DURABILITY;
-				containers[idx + 3] = Items.ROLL_OF_TOILET_PAPER | Items.ITEM_DEFAULT_DURABILITY;
-				containers[idx + 4] = Items.SOAP | Items.ITEM_DEFAULT_DURABILITY;
 
 				idx += containers[idx] + 1;
 			}
