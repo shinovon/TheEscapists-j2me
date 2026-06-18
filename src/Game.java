@@ -2847,6 +2847,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			n = containers[0];
 			int idx = 1;
 			for (int i = 0; i < n; ++i) {
+				idx++;
 				int owner = containers[idx++];
 				if (owner < 1) continue;
 
