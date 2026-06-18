@@ -2420,7 +2420,7 @@ class NPC implements Constants {
 						p += map.actionParam;
 						if (p >= 100) {
 							map.breakWall(x, y, LAYER_VENT);
-							addItem(Items.VENT_COVER | Items.ITEM_DEFAULT_DURABILITY, true);
+							addItem(Items.VENT_COVER | Items.ITEM_DEFAULT_DURABILITY, false);
 						} else {
 							map.setBreakProgress(x, y, LAYER_VENT, p);
 						}
@@ -2531,88 +2531,62 @@ class NPC implements Constants {
 
 				if (map.firePressed && animationTimer == 0) {
 					if (climbed) {
-						// TODO vents
-						hit: {
-							int slot = map.selectedInventory;
-							int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
-									inventory[slot] & Items.ITEM_ID_MASK : -1;
-							if (slot != -1) {
-								map.lastSelectedInventory = map.selectedInventory;
-								map.selectedInventory = -1;
-							}
+						// vents
+						int slot = map.selectedInventory;
+						int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+								inventory[slot] & Items.ITEM_ID_MASK : -1;
+						if (slot != -1) {
+							map.lastSelectedInventory = map.selectedInventory;
+							map.selectedInventory = -1;
+						}
 
-							for (int i = -1; i < 4; ++i) {
-								int x = (this.x + 7) / TILE_SIZE;
-								int y = (this.y + 7) / TILE_SIZE;
-								if (i != -1) {
-									x += Game.PATH_DIR_POSITIONS[i << 1];
-									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+						int idx = getNearbyVent();
+						if (idx != -1) {
+							int x = map.objects[LAYER_VENT][idx + 3];
+							int y = map.objects[LAYER_VENT][idx + 4];
+							int p = map.getBreakProgress(x, y, LAYER_VENT);
+
+							switch (item) {
+							case Items.SCREWDRIVER:
+							case Items.POWERED_SCREWDRIVER:
+							case Items.PLASTIC_KNIFE:
+							case Items.STURDY_CUTTERS:
+							case Items.FLIMSY_CUTTERS:
+							case Items.LIGHTWEIGHT_CUTTERS:
+							case Items.CUTTING_FLOSS:
+							case Items.FILE:
+								if (p == 100) break;
+								if (checkInventoryFull()) break;
+								if (checkFatigued()) break;
+								reduceDurability(slot);
+
+								moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+								if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+									map.action = ACT_UNSCREWING;
+									map.actionParam = item == Items.SCREWDRIVER ? 24 : 40;
+								} else {
+									map.action = ACT_CUTTING_VENT;
+									map.actionParam = item;
 								}
-								int idx = map.getObjectIdxAt(x, y, LAYER_VENT);
-								int obj = map.objects[LAYER_VENT][idx + 1];
-								if (obj != Objects.VENT) continue;
-
-								int p = map.getBreakProgress(x, y, LAYER_VENT);
-
-								switch (item) {
-								case Items.SCREWDRIVER:
-								case Items.POWERED_SCREWDRIVER:
-								case Items.PLASTIC_KNIFE:
-								case Items.STURDY_CUTTERS:
-								case Items.FLIMSY_CUTTERS:
-								case Items.LIGHTWEIGHT_CUTTERS:
-								case Items.CUTTING_FLOSS:
-								case Items.FILE:
-									if (p == 100) break hit;
-									if (checkInventoryFull()) break hit;
-									if (checkFatigued()) break hit;
-
-									moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-									if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
-										map.action = ACT_UNSCREWING;
-										map.actionParam = item == Items.SCREWDRIVER ? 24 : 40;
-									} else {
-										map.action = ACT_CUTTING_VENT;
-										map.actionParam = item;
-									}
-									map.actionTargetX = x;
-									map.actionTargetY = y;
-									map.progress = 0;
-									break hit;
-								case Items.VENT_COVER:
-								case Items.FAKE_VENT_COVER:
-									if (p == 101) break hit;
-									// TODO put
-									if (p == 100) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (item == Items.FAKE_VENT_COVER) {
-											map.setBreakProgress(x, y, LAYER_VENT, 101);
-											map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
-										} else {
-											map.setBreakProgress(x, y, LAYER_VENT, 5);
-											map.objects[LAYER_VENT][idx + 2] = (short) (80 | (1 << 8) | (1 << 10));
-										}
-										break hit;
-									}
-								default:
-									// TODO should be in left soft handler
-									if (item != -1) break hit;
-									if (p == 100) {
-										// enter
-										xFloat = this.x = map.objects[LAYER_VENT][idx + 3] * TILE_SIZE;
-										yFloat = this.y = (map.objects[LAYER_VENT][idx + 4]) * TILE_SIZE;
-										layer++;
-										break hit;
-									}
-									if (p == 101) {
-										// remove
-										if (checkInventoryFull()) break hit;
-										map.setBreakProgress(x, y, LAYER_VENT, 100);
+								map.actionTargetX = x;
+								map.actionTargetY = y;
+								map.progress = 0;
+								break;
+							case Items.VENT_COVER:
+							case Items.FAKE_VENT_COVER:
+								if (p == 101) break;
+								// put
+								if (p == 100) {
+									inventory[slot] = Items.ITEM_NULL;
+									if (item == Items.FAKE_VENT_COVER) {
+										map.setBreakProgress(x, y, LAYER_VENT, 101);
 										map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
-										break hit;
+									} else {
+										map.setBreakProgress(x, y, LAYER_VENT, 95);
+										map.objects[LAYER_VENT][idx + 2] = (short) (80 | (1 << 8) | (1 << 10));
 									}
-									break hit;
 								}
+								break;
 							}
 						}
 					} else {
@@ -2641,14 +2615,8 @@ class NPC implements Constants {
 							}
 
 							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
-								for (int i = -1; i < 4; ++i) {
-									int x = this.x / TILE_SIZE;
-									int y = (this.y + 5) / TILE_SIZE;
-									if (i != -1) {
-										x += Game.PATH_DIR_POSITIONS[i << 1];
-										y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-									}
-									int idx = map.getObjectIdxAt(x, y, layer);
+								int idx = getNearbyDirt();
+								if (idx != -1) {
 									int obj = map.objects[layer][idx + 1];
 									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
 											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
@@ -2690,10 +2658,16 @@ class NPC implements Constants {
 							y = (this.y + y) / TILE_SIZE;
 							if (item != -1) {
 								byte t = map.tiles[layer][y * map.width + x];
-								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT) {
-									if (layer == LAYER_VENT && map.objects[LAYER_VENT] != null
-											&& map.objects[LAYER_VENT][map.getObjectIdxAt(x, y, layer) + 1] == Objects.VENT_SLATS) {
-										t = -1;
+								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT || b == COLL_NOT_SOLID_INTERACT) {
+									int objIdx = -1;
+									if (layer == LAYER_VENT && map.objects[LAYER_VENT] != null) {
+										objIdx = map.getObjectIdxAt(x, y, layer);
+										short obj = map.objects[LAYER_VENT][objIdx + 1];
+										if (obj == Objects.VENT_SLATS) {
+											t = -1;
+										} else if (obj == Objects.VENT) {
+											t = -2;
+										}
 									}
 									int p = map.getBreakProgress(x, y, layer);
 									if (p != 100) {
@@ -2751,7 +2725,7 @@ class NPC implements Constants {
 												map.progress = 0;
 												break hit;
 											}
-										} else if (layer == LAYER_VENT && t == -1) {
+										} else if (layer == LAYER_VENT && t < 0) {
 											// vent slats
 											unscrew: {
 												switch (item) {
@@ -2765,7 +2739,7 @@ class NPC implements Constants {
 												}
 												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 												map.action = ACT_UNSCREWING;
-												map.actionParam = item == Items.SCREWDRIVER ? 12 : 20;
+												map.actionParam = (item == Items.SCREWDRIVER ? 12 : 20) * -t;
 												map.actionTargetX = x;
 												map.actionTargetY = y;
 												map.progress = 0;
@@ -2794,6 +2768,16 @@ class NPC implements Constants {
 												break hit;
 											}
 										}
+									} else if (t == -2 && (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER)) {
+										inventory[slot] = Items.ITEM_NULL;
+										if (item == Items.FAKE_VENT_COVER) {
+											map.setBreakProgress(x, y, LAYER_VENT, 101);
+											map.objects[LAYER_VENT][objIdx + 2] = (short) (82 | (1 << 8) | (1 << 10));
+										} else {
+											map.setBreakProgress(x, y, LAYER_VENT, 95);
+											map.objects[LAYER_VENT][objIdx + 2] = (short) (80 | (1 << 8) | (1 << 10));
+										}
+										break hit;
 									}
 									if (item == Items.COMB) {
 										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
@@ -2847,7 +2831,7 @@ class NPC implements Constants {
 											break hit;
 										}
 									}
-								} else if (layer == LAYER_GROUND && b == COLL_DIGGED_WALL) {
+								} else if (b == COLL_DIGGED_WALL) {
 									switch (item) {
 									case Items.POSTER:
 									case Items.FAKE_WALL_BLOCK:
@@ -2956,7 +2940,7 @@ class NPC implements Constants {
 					map.softPressed = false;
 					interact:
 					{
-						if (climbed || carry != null || map.carryingObject != -1) {
+						if (carry != null || map.carryingObject != -1) {
 							break interact;
 						}
 
@@ -2973,6 +2957,33 @@ class NPC implements Constants {
 						x = (this.x + 7) / TILE_SIZE;
 						y = (this.y + 7) / TILE_SIZE;
 						byte b = map.solid[layer][y * map.width + x];
+
+						if (climbed) {
+							// vents
+							if (item != -1) break interact;
+							int idx = getNearbyVent();
+							if (idx == -1) break interact;
+
+							x = map.objects[LAYER_VENT][idx + 3];
+							y = map.objects[LAYER_VENT][idx + 4];
+
+							int p = map.getBreakProgress(x, y, LAYER_VENT);
+							if (p == 100) {
+								xFloat = this.x = x * TILE_SIZE;
+								yFloat = this.y = y * TILE_SIZE;
+								layer++;
+								chaseTarget = null;
+								map.resetCamera = true;
+								break interact;
+							}
+							if (p == 101 && !checkInventoryFull()) {
+								map.setBreakProgress(x, y, LAYER_VENT, 100);
+								map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+								addItem(Items.FAKE_VENT_COVER, true);
+							}
+							break interact;
+						}
+
 						if (b == COLL_NOT_SOLID_INTERACT && item == -1) {
 							int idx = map.getObjectIdxAt(x, y, layer);
 							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
@@ -2980,12 +2991,16 @@ class NPC implements Constants {
 								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 								yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
 								layer++;
+								chaseTarget = null;
+								map.resetCamera = true;
 								break interact;
 							}
 							if (obj == Objects.LADDER_DOWN) {
 								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-								yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+								yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
 								layer--;
+								chaseTarget = null;
+								map.resetCamera = true;
 								break interact;
 							}
 							if (obj == Objects.VENT) {
@@ -2994,9 +3009,12 @@ class NPC implements Constants {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
 									layer--;
+									chaseTarget = null;
+									map.resetCamera = true;
 								} else if (p == 101 && !checkInventoryFull()) {
 									map.setBreakProgress(x, y, LAYER_VENT, 100);
-									map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
+									map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+									addItem(Items.FAKE_VENT_COVER, true);
 								}
 								break interact;
 							}
@@ -3382,6 +3400,7 @@ class NPC implements Constants {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
 									layer++;
+									chaseTarget = null;
 									map.resetCamera = true;
 									break interact;
 								}
@@ -3389,7 +3408,23 @@ class NPC implements Constants {
 									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
 									layer--;
+									chaseTarget = null;
 									map.resetCamera = true;
+									break interact;
+								}
+								if (obj == Objects.VENT) {
+									int p = map.getBreakProgress(x, y, layer);
+									if (p == 100) {
+										xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+										yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
+										layer--;
+										chaseTarget = null;
+										map.resetCamera = true;
+									} else if (p == 101 && !checkInventoryFull()) {
+										map.setBreakProgress(x, y, LAYER_VENT, 100);
+										map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+										addItem(Items.FAKE_VENT_COVER, true);
+									}
 									break interact;
 								}
 							}
@@ -3578,6 +3613,40 @@ class NPC implements Constants {
 		}
 
 		return bestFacing != null ? bestFacing : bestOther;
+	}
+
+	int getNearbyVent() {
+		if (map.objects[LAYER_VENT] == null) return -1;
+		for (int i = -1; i < 4; ++i) {
+			int x = (this.x + 7) / TILE_SIZE;
+			int y = (this.y + 7) / TILE_SIZE;
+			if (i != -1) {
+				x += Game.PATH_DIR_POSITIONS[i << 1];
+				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+			}
+			int idx = map.getObjectIdxAt(x, y, LAYER_VENT);
+			if (map.objects[LAYER_VENT][idx + 1] != Objects.VENT) continue;
+			return idx;
+		}
+		return -1;
+	}
+
+	int getNearbyDirt() {
+		if (layer != LAYER_GROUND || map.objects[LAYER_GROUND] == null) return -1;
+		for (int i = -1; i < 4; ++i) {
+			int x = (this.x + 7) / TILE_SIZE;
+			int y = (this.y + 7) / TILE_SIZE;
+			if (i != -1) {
+				x += Game.PATH_DIR_POSITIONS[i << 1];
+				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+			}
+			int idx = map.getObjectIdxAt(x, y, LAYER_GROUND);
+			int obj = map.objects[LAYER_VENT][idx + 1];
+			if (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT)
+				continue;
+			return idx;
+		}
+		return -1;
 	}
 
 	boolean checkFatigued() {

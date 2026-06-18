@@ -1630,9 +1630,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
 
 					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.POWERED_SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[3] = Items.STURDY_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[4] = Items.FAKE_VENT_COVER | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -3775,34 +3776,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					interact: {
 						if (player.climbed) {
-							// TODO vents
-							if (objects == null) break box;
-							for (int i = -1; i < 4; ++i) {
-								x = (player.x + 7) / TILE_SIZE;
-								y = (player.y + 7) / TILE_SIZE;
-								if (i != -1) {
-									x += Game.PATH_DIR_POSITIONS[i << 1];
-									y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-								}
-								int idx = getObjectIdxAt(x, y, LAYER_VENT);
-								int obj = objects[idx + 1];
-								if (obj != Objects.VENT) continue;
-
+							// vents
+							int idx = player.getNearbyVent();
+							if (idx != -1) {
+								x = this.objects[LAYER_VENT][idx + 3];
+								y = this.objects[LAYER_VENT][idx + 4];
 								int p = getBreakProgress(x, y, LAYER_VENT);
 
 								if (p == 100) {
 									if (item == -1) {
-										s = "Enter";
+										s = "Up";
 										break interact;
 									} else if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
-										// TODO put
-										s = "";
+										s = "Put";
 										break interact;
 									}
 									break box;
 								} else if (p == 101) {
-									// TODO remove
-									s = "";
+									s = "Remove cover";
 									break interact;
 								}
 
@@ -3822,8 +3813,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								case Items.FILE:
 									s = sb.append("Cut Vent (").append(100 - p).append("%)").toString();
 									break interact;
+								case -1:
+									s = sb.append("Vent (").append(100 - p).append("%)").toString();
+									break interact;
 								}
-								break;
 							}
 							break box;
 						} else {
@@ -3848,13 +3841,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									if (obj == Objects.VENT) {
 										int p = getBreakProgress(x, y, LAYER_VENT);
 										if (p == 101) {
-											// TODO remove
-											s = "";
-										} else /*if (p == 100)*/ {
-											// TODO down
-											s = "";
+											s = "Remove cover";
+											break interact;
+										} else if (p == 100) {
+											if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
+												s = "Put";
+												break interact;
+											}
+											s = "Down";
+											break interact;
 										}
-										break interact;
 									}
 								}
 								if (b == COLL_NONE && item == -1) {
@@ -4037,13 +4033,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										if (obj == Objects.VENT) {
 											int p = getBreakProgress(x, y, LAYER_VENT);
 											if (p == 101) {
-												// TODO remove
-												s = "";
-											} else /*if (p == 100)*/ {
-												// TODO down
-												s = "";
+												s = "Remove cover";
+												break interact;
+											} else if (p == 100) {
+//												if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
+//													s = "Put";
+//													break interact;
+//												}
+												s = "Down";
+												break interact;
 											}
-											break interact;
 										}
 									}
 									break box;
@@ -4068,18 +4067,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
 								if (objects == null) break box;
-								s = "Clean";
-								for (int i = -1; i < 4; ++i) {
-									x = player.x / TILE_SIZE;
-									y = (player.y + 5) / TILE_SIZE;
-									if (i != -1) {
-										x += Game.PATH_DIR_POSITIONS[i << 1];
-										y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-									}
-									int idx = getObjectIdxAt(x, y, layer);
+								int idx = player.getNearbyDirt();
+								if (idx != -1) {
 									int obj = objects[idx + 1];
 									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
 											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+										s = "Clean";
 										break interact;
 									}
 								}

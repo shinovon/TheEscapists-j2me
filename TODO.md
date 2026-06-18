@@ -48,15 +48,15 @@
 - [x] Bundle more maps in one package
 - [x] NPC random inventory
 - [x] NPC inventory looting
+- [x] Vents
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
 - [ ] Profile
-- [ ] Tasks, Journal
+- [ ] Favors, Journal
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
 - [ ] Recruiting
-- [ ] Vents (unscrewing, cutting slats) (WIP)
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
 - [ ] Help
