@@ -384,7 +384,7 @@ class NPC implements Constants {
 					break attack;
 
 				correctPath = false;
-				moveTowards(tx, ty, 0);
+				if (ai) moveTowards(tx, ty, 0);
 				if (attackTimer != 0)
 					break attack;
 
@@ -394,6 +394,7 @@ class NPC implements Constants {
 					map.progress = 0;
 					if (checkFatigued()) break attack;
 					map.fatigue += 2;
+					moveTowards(tx, ty, 0);
 				}
 				animation = ANIM_PUNCH;
 				animationTimer = TPS >> 2;
@@ -486,8 +487,8 @@ class NPC implements Constants {
 						map.startLockdown();
 					}
 				}
-				int x = this.x / TILE_SIZE;
-				int y = (this.y + 5) / TILE_SIZE;
+				int x = (this.x + 7) / TILE_SIZE;
+				int y = (this.y + 7) / TILE_SIZE;
 				if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
 					for (int n = 0; n < 4; ++n) {
 						int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
@@ -674,7 +675,8 @@ class NPC implements Constants {
 						aiWorkState = 0;
 						pathX = map.guardRollcallPositions[pos];
 						pathY = map.guardRollcallPositions[pos + 1];
-						pathEndDir = map.rollcallFace ? DIR_DOWN : DIR_UP;
+//						pathEndDir = map.rollcallFace ? DIR_DOWN : DIR_UP;
+						pathEndDir = -1;
 						correctPath = false;
 						break;
 					case SC_BREAKFAST:
@@ -1027,9 +1029,9 @@ class NPC implements Constants {
 				pathX = arr[idx];
 				pathY = arr[idx + 1];
 				nextRoamPos = false;
-				if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, inmate, path)
+				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, inmate, path)
 						// fallback
-						|| map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						|| map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
 				} else {
@@ -1090,6 +1092,11 @@ class NPC implements Constants {
 					face: {
 						int zone;
 						switch (map.schedule) {
+						case SC_MORNING_ROLLCALL:
+						case SC_AFTERNOON_ROLLCALL:
+						case SC_EVENING_ROLLCALL:
+							zone = ZONE_ROLLCALL;
+							break;
 						case SC_BREAKFAST:
 						case SC_LUNCH:
 						case SC_EVENING_MEAL:
@@ -1110,7 +1117,7 @@ class NPC implements Constants {
 				}
 				correctPath = false;
 			} else if (!correctPath && ((tick + id) & 3) == 0) {
-				if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
 				} else if (LOGGING) {
@@ -1489,17 +1496,17 @@ class NPC implements Constants {
 								}
 
 								if (LOGGING)
-									Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+									Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName() + " at " + pathX + " " + pathY);
 								correctPath = false;
 								break path;
 							}
 						}
-						if (map.pathfind((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+						if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 							correctPath = true;
 							pathStep = 0;
 						} else {
 							if (LOGGING)
-								Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName());
+								Profiler.log(debugName() + " cannot pathfind to target " + chaseTarget.debugName() + " at " + pathX + " " + pathY);
 							correctPath = false;
 						}
 					}
@@ -1511,7 +1518,7 @@ class NPC implements Constants {
 					chaseTarget = null;
 					correctPath = false;
 					aiWaitTimer = TPS;
-				} if (dist > (TILE_SIZE * TILE_SIZE) / 3) {
+				} else if (dist > (TILE_SIZE * TILE_SIZE) / 3) {
 					moveTowards(tx, ty, NPC_SPEED);
 				}
 			}
@@ -1809,7 +1816,7 @@ class NPC implements Constants {
 		if (n < 1) n = 1;
 
 		if (visible) {
-			map.addHitMarker(source.ai ? -n : n, x, y - 8);
+			map.addHitMarker(source.ai ? -n : n, x, y - 5);
 		}
 
 		health -= n;
@@ -2600,8 +2607,8 @@ class NPC implements Constants {
 					} else {
 						hit: {
 							if (carry != null) {
-								int x = this.x / TILE_SIZE;
-								int y = (this.y + 5) / TILE_SIZE;
+								int x = (this.x + 7) / TILE_SIZE;
+								int y = (this.y + 7) / TILE_SIZE;
 								if (map.solid[layer][x + y * map.width] != 0) {
 									Sound.playEffect(Sound.SFX_LOSE);
 								} else {

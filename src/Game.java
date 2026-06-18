@@ -2547,13 +2547,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			break;
 		}
 
-		for (int i = 0; i < DESK1[0]; ++i) {
-			System.out.println(getItemName(DESK1[1 + i]));
-		}
-		for (int i = 0; i < DESK2[0]; ++i) {
-			System.out.println(getItemName(DESK2[1 + i]));
-		}
-
 		initMap();
 		System.gc();
 		return true;
@@ -3653,13 +3646,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = (int) npc.x - viewX, y = (int) npc.y - viewY;
 
 			// pathfind debug
-//			if (npc.correctPath /*&& npc.guard && npc.typedId < 3*/) {
-//				g.setColor(0xFF0000);
-//				int n = npc.path[0];
-//				for (int t = 1; t < n; t += 2) {
-//					g.drawRect(npc.path[t] * TILE_SIZE - viewX, npc.path[t + 1] * TILE_SIZE - viewY, 15, 15);
-//				}
-//			}
+			if (npc.correctPath && npc.guard && npc.typedId < 3) {
+				g.setColor(0xFF0000);
+				int n = npc.path[0];
+				for (int t = 1; t < n; t += 2) {
+					g.drawRect(npc.path[t] * TILE_SIZE - viewX, npc.path[t + 1] * TILE_SIZE - viewY, 15, 15);
+				}
+			}
 
 			if (x < -TILE_SIZE * 2 || y < -TILE_SIZE * 2 || x >= viewWidth || y >= viewHeight) {
 				continue;
@@ -3833,14 +3826,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
 					continue;
 				}
-				int sy = 9;
+				int sy = 9, msy = 23;
 				if (v < 0) {
 					v = -v;
 					sy = 16;
+					msy = 25;
 				}
-				drawNumber(g, v, markersImg, 0, sy, 5, 7,
-						hitMarkers[(i << 2) | 2] - viewX,
-						hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY);
+				int x = hitMarkers[(i << 2) | 2] - viewX;
+				int y = hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY;
+				g.drawRegion(markersImg, 45, msy, 4, 2, 0, x, y + 3, 0);
+				drawNumber(g, v, markersImg, 0, sy, 5, 7, x + 4, y);
 			}
 		}
 

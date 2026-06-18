@@ -722,9 +722,11 @@ public class ResourceBuilder implements Constants {
 
 		font = ImageIO.read(getImagePath("587.png").toFile());
 		g.drawImage(font.getSubimage(80, 1, 50, 7), 0, 9, null);
+		g.drawImage(font.getSubimage(65, 4, 4,2), 45, 23, null);
 
 		font = ImageIO.read(getImagePath("94.png").toFile());
 		g.drawImage(font.getSubimage(80, 1, 50, 7), 0, 16, null);
+		g.drawImage(font.getSubimage(65, 4, 4,2), 45, 25, null);
 
 		writePng(img, resDir.resolve("markers.png"));
 	}
