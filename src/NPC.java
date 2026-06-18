@@ -1503,7 +1503,15 @@ class NPC implements Constants {
 							correctPath = false;
 						}
 					}
-				} else if (dist > (TILE_SIZE * TILE_SIZE) / 3) {
+				} else if (!chaseTarget.ai && chaseTarget.layer != LAYER_GROUND) {
+					if (guard) {
+						map.note = NOTE_SOLITARY;
+					}
+					aiState = AI_RESET;
+					chaseTarget = null;
+					correctPath = false;
+					aiWaitTimer = TPS;
+				} if (dist > (TILE_SIZE * TILE_SIZE) / 3) {
 					moveTowards(tx, ty, NPC_SPEED);
 				}
 			}
