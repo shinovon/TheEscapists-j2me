@@ -3302,8 +3302,7 @@ class NPC implements Constants {
 										inventory[slot] = Items.ITEM_NULL;
 										if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
 												&& map.schedule == SC_WORK_PERIOD) {
-											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-												// TODO
+											if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
 												Sound.playEffect(Sound.SFX_HP);
 												jobQuota = MAX_JOB_QUOTA;
 												map.money += 70;

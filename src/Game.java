@@ -3646,13 +3646,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = (int) npc.x - viewX, y = (int) npc.y - viewY;
 
 			// pathfind debug
-			if (npc.correctPath && npc.guard && npc.typedId < 3) {
-				g.setColor(0xFF0000);
-				int n = npc.path[0];
-				for (int t = 1; t < n; t += 2) {
-					g.drawRect(npc.path[t] * TILE_SIZE - viewX, npc.path[t + 1] * TILE_SIZE - viewY, 15, 15);
-				}
-			}
+//			if (npc.correctPath && npc.guard && npc.typedId < 3) {
+//				g.setColor(0xFF0000);
+//				int n = npc.path[0];
+//				for (int t = 1; t < n; t += 2) {
+//					g.drawRect(npc.path[t] * TILE_SIZE - viewX, npc.path[t + 1] * TILE_SIZE - viewY, 15, 15);
+//				}
+//			}
 
 			if (x < -TILE_SIZE * 2 || y < -TILE_SIZE * 2 || x >= viewWidth || y >= viewHeight) {
 				continue;
@@ -3780,7 +3780,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
-		// hit markers
+		// markers
 		{
 			Image markersImg = markersTexture;
 			for (int i = 0; i < HIT_MARKERS_COUNT; ++i) {
@@ -3826,6 +3826,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							hitMarkers[(i << 2) | 3] + ((hitMarkers[(i << 2) | 1] - HIT_MARKER_TIME) >> 1) - viewY, 0);
 					continue;
 				}
+				// hits
 				int sy = 9, msy = 23;
 				if (v < 0) {
 					v = -v;
