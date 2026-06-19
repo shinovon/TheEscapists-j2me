@@ -79,6 +79,9 @@ public interface Constants {
 	static final boolean PREFETCH_MUSIC = false;
 	// Preload all sound effects on start, works only on S60
 	static final boolean PREFETCH_SFX = false;
+
+	// do not use ifndef!
+	// apparently it counts "false" value as undefined too, so you'll have to ignore ant warnings here!
 //#else
 //#if FPS_LIMIT == ""
 //#	static final long FPS_LIMIT = TPS;
