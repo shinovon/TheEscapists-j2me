@@ -80,67 +80,67 @@ public interface Constants {
 	// Preload all sound effects on start, works only on S60
 	static final boolean PREFETCH_SFX = false;
 //#else
-//#ifndef FPS_LIMIT
+//#if FPS_LIMIT == ""
 //#	static final long FPS_LIMIT = TPS;
 //#else
 //#expand static final long FPS_LIMIT = %FPS_LIMIT%;
 //#endif
 
-//#ifndef BUFFER_SCREEN
+//#if BUFFER_SCREEN == ""
 //#	static final boolean BUFFER_SCREEN = false;
 //#else
 //#expand static final boolean BUFFER_SCREEN = %BUFFER_SCREEN%;
 //#endif
 
-//#ifndef DRAW_SHADOWS
+//#if DRAW_SHADOWS == ""
 //#	static final boolean DRAW_SHADOWS = true;
 //#else
 //#expand static final boolean DRAW_SHADOWS = %DRAW_SHADOWS%;
 //#endif
 
-//#ifndef DRAW_LIGHTS
+//#if DRAW_LIGHTS == ""
 //#	static final boolean DRAW_LIGHTS = true;
 //#else
 //#expand static final boolean DRAW_LIGHTS = %DRAW_LIGHTS%;
 //#endif
 
-//#ifndef NOKIAUI_SHADOWS
+//#if NOKIAUI_SHADOWS == ""
 //#	static final boolean NOKIAUI_SHADOWS = false;
 //#else
 //#expand static final boolean NOKIAUI_SHADOWS = %NOKIAUI_SHADOWS%;
 //#endif
 
-//#ifndef USE_M3G
+//#if USE_M3G == ""
 //#	static final boolean USE_M3G = true;
 //#else
 //#expand static final boolean USE_M3G = %USE_M3G%;
 //#endif
 
-//#ifndef USE_TILED_LAYER
+//#if USE_TILED_LAYER == ""
 //#	static final boolean USE_TILED_LAYER = true;
 //#else
 //#expand static final boolean USE_TILED_LAYER = %USE_TILED_LAYER%;
 //#endif
 
-//#ifndef MORE_INMATES
+//#if MORE_INMATES == ""
 //#	static final boolean MORE_INMATES = true;
 //#else
 //#expand static final boolean MORE_INMATES = %MORE_INMATES%;
 //#endif
 
-//#ifndef NO_SFX
+//#if NO_SFX == ""
 //#	static final boolean NO_SFX = false;
 //#else
 //#expand static final boolean NO_SFX = %NO_SFX%;
 //#endif
 
-//#ifndef PREFETCH_MUSIC
+//#if PREFETCH_MUSIC == ""
 //#	static final boolean PREFETCH_MUSIC = false;
 //#else
 //#expand static final boolean PREFETCH_MUSIC = %PREFETCH_MUSIC%;
 //#endif
 
-//#ifndef PREFETCH_SFX
+//#if PREFETCH_SFX == ""
 //#	static final boolean PREFETCH_SFX = false;
 //#else
 //#expand static final boolean PREFETCH_SFX = %PREFETCH_SFX%;
@@ -277,7 +277,7 @@ public interface Constants {
 // region Font
 
 	// must be power of two
-//#ifndef FONT_CACHE_SIZE
+//#if FONT_CACHE_SIZE == ""
 	static final int FONT_CACHE_SIZE = 128;
 //#else
 //#expand static final int FONT_CACHE_SIZE = %FONT_CACHE_SIZE%;
