@@ -2637,6 +2637,8 @@ class NPC implements Constants {
 									int obj = map.objects[layer][idx + 1];
 									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
 											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+										int x = map.objects[layer][idx + 3];
+										int y = map.objects[layer][idx + 4];
 										if (checkFatigued()) break hit;
 										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
 										map.action = ACT_CLEANING;

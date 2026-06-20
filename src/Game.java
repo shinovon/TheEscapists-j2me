@@ -382,6 +382,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			arrow: {
+				if (player.layer != LAYER_GROUND)
+					break arrow;
 				int zone;
 				switch (schedule) {
 				case SC_LIGHTSOUT:
