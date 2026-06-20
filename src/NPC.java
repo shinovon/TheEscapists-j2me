@@ -3641,6 +3641,7 @@ class NPC implements Constants {
 				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
 			}
 			int idx = map.getObjectIdxAt(x, y, LAYER_VENT);
+			if (idx == -1) continue;
 			if (map.objects[LAYER_VENT][idx + 1] != Objects.VENT) continue;
 			return idx;
 		}
@@ -3657,7 +3658,8 @@ class NPC implements Constants {
 				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
 			}
 			int idx = map.getObjectIdxAt(x, y, LAYER_GROUND);
-			int obj = map.objects[LAYER_VENT][idx + 1];
+			if (idx == -1) continue;
+			int obj = map.objects[LAYER_GROUND][idx + 1];
 			if (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT)
 				continue;
 			return idx;
