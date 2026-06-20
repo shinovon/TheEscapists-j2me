@@ -19,8 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -74,6 +73,7 @@ public class ResourceBuilder implements Constants {
 			light();
 			huds();
 			markers();
+			arrow();
 			title();
 			icon();
 			character("Inmate", "inmate.png", 4);
@@ -739,7 +739,95 @@ public class ResourceBuilder implements Constants {
 
 		writePng(img, resDir.resolve("markers.png"));
 	}
-	
+
+	static void arrow() throws IOException {
+		int w = 15;
+		int h = 15;
+		int angles = 5;
+		BufferedImage res = new BufferedImage(w * 4, h * angles, BufferedImage.TYPE_INT_ARGB);
+		Graphics resGraphics = res.getGraphics();
+
+		BufferedImage orig0 = ImageIO.read(getImagePath("Dest Arrow_0-0_0.png").toFile());
+		BufferedImage orig1 = ImageIO.read(getImagePath("Dest Arrow_0-0_1.png").toFile());
+		BufferedImage orig2 = ImageIO.read(getImagePath("Dest Arrow_0-0_2.png").toFile());
+		BufferedImage orig3 = ImageIO.read(getImagePath("Dest Arrow_0-0_3.png").toFile());
+
+		BufferedImage t;
+		BufferedImage rotated;
+		Graphics2D g;
+
+		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		g = (Graphics2D) t.getGraphics();
+		g.drawImage(orig0, -2, 3, null);
+		resGraphics.drawImage(t, 0, 0, null);
+
+		for (int i = 1; i < angles; i++) {
+			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			g = (Graphics2D) rotated.getGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
+			g.drawImage(t, 0, 0, null);
+			resGraphics.drawImage(rotated, 0, i * h, null);
+		}
+
+		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		g = (Graphics2D) t.getGraphics();
+		g.drawImage(orig1, -1, 3, null);
+
+		resGraphics.drawImage(t, w, 0, null);
+		for (int i = 1; i < angles; i++) {
+			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			g = (Graphics2D) rotated.getGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
+			g.drawImage(t, 0, 0, null);
+			resGraphics.drawImage(rotated, w, i * h, null);
+		}
+
+		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		g = (Graphics2D) t.getGraphics();
+		g.drawImage(orig2, 0, 3, null);
+
+		resGraphics.drawImage(t, 2 * w, 0, null);
+		for (int i = 1; i < angles; i++) {
+			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			g = (Graphics2D) rotated.getGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
+			g.drawImage(t, 0, 0, null);
+			resGraphics.drawImage(rotated, 2 * w, i * h, null);
+		}
+
+		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		g = (Graphics2D) t.getGraphics();
+		g.drawImage(orig3, -1, 3, null);
+		resGraphics.drawImage(t, 3 * w, 0, null);
+
+		for (int i = 1; i < angles; i++) {
+			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+			g = (Graphics2D) rotated.getGraphics();
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
+			g.drawImage(t, 0, 0, null);
+			resGraphics.drawImage(rotated, 3 * w, i * h, null);
+		}
+
+		w = res.getWidth();
+		h = res.getHeight();
+		for (int x = 0; x < w; ++x) {
+			for (int y = 0; y < h; ++y) {
+				int rgb = res.getRGB(x, y);
+				res.setRGB(x, y, ((rgb >> 24) & 0xFF) >= 0x80 ? 0xFF000000 | rgb : 0);
+			}
+		}
+
+		writePng(res, resDir.resolve("arrow.png"));
+	}
+
 	static void icon() throws IOException {
 		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
 		Graphics g = img.getGraphics();

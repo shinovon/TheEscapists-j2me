@@ -25,6 +25,7 @@ import com.nokia.mid.ui.DirectUtils;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
+import javax.microedition.lcdui.game.Sprite;
 import javax.microedition.lcdui.game.TiledLayer;
 import javax.microedition.m3g.*;
 import javax.microedition.rms.RecordStore;
@@ -379,6 +380,88 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				g.translate(-ox, -oy);
 				g.setClip(0, 0, w, h);
 			}
+
+			arrow: {
+				int zone;
+				switch (schedule) {
+				case SC_LIGHTSOUT:
+					zone = ZONE_PLAYER_CELL;
+					break;
+				case SC_MORNING_ROLLCALL:
+				case SC_AFTERNOON_ROLLCALL:
+				case SC_EVENING_ROLLCALL:
+					zone = ZONE_ROLLCALL;
+					break;
+				case SC_BREAKFAST:
+				case SC_LUNCH:
+				case SC_EVENING_MEAL:
+					zone = ZONE_CANTEEN;
+					break;
+				case SC_WORK_PERIOD:
+					if (player.job == JOB_UNEMPLOYED) break arrow;
+					switch (player.job) {
+					case JOB_LAUNDRY:
+						zone = ZONE_LAUNDRY;
+						break;
+					case JOB_KITCHEN:
+						zone = ZONE_KITCHEN;
+						break;
+					case JOB_WOODSHOP:
+						zone = ZONE_WOODSHOP;
+						break;
+					case JOB_METALSHOP:
+						zone = ZONE_METALSHOP;
+						break;
+					case JOB_TAILOR:
+						zone = ZONE_TAILORSHOP;
+						break;
+					case JOB_DELIVERIES:
+						zone = ZONE_DELIVERIES;
+						break;
+					default:
+						break arrow;
+					}
+					break;
+				case SC_EXERCISE_PERIOD:
+					zone = ZONE_GYM;
+					break;
+				case SC_SHOWER_BLOCK:
+					zone = ZONE_SHOWER;
+					break;
+				default:
+					break arrow;
+				}
+				zone = findZone(zone);
+				if (player.x >= zones[zone] && player.x <= zones[zone + 2]
+						&& player.y >= zones[zone + 1] && player.y <= zones[zone + 3]) {
+					break arrow;
+				}
+				int zx = (zones[zone] + zones[zone + 2]) / 2;
+				int zy = (zones[zone + 1] + zones[zone + 3]) / 2;
+
+				double r = atan2(zx - player.x, zy - player.y);
+				float angle = (float) ((r * 180) / Math.PI);
+				if (angle < 0) angle = 360 + angle;
+				int i = ((int) (angle * 20)) / 360;
+				int sprite = i % 5;
+				int rot = i / 5;
+				switch (rot) {
+				case 0:
+					rot = Sprite.TRANS_ROT90;
+					break;
+				case 1:
+					rot = Sprite.TRANS_NONE;
+					break;
+				case 2:
+					rot = Sprite.TRANS_ROT270;
+					break;
+				case 3:
+					rot = Sprite.TRANS_ROT180;
+					break;
+				}
+				g.drawRegion(arrowTexture, ((tickCounter >> 3) & 3) * 15, sprite * 15, 15, 15, rot,
+						(vw >> 1) - 8 + (int) (Math.sin(r) * 48), (vh >> 1) - 8 + (int) (Math.cos(r) * 48), 0);
+			}
 		}
 
 		if (ingameFadeIn > 0) {
@@ -464,6 +547,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				charBuffer[6] = '-';
 				charBuffer[7] = ' ';
 
+				// TODO job
 				sb.append(scheduleStrings[schedule])
 						.append(" (Day ")
 						.append(day + 1)
@@ -7537,6 +7621,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static Image2D underground3dTexture;
 	static Image hudSymbolsTexture;
 	static Image markersTexture;
+	static Image arrowTexture;
 
 	static int[] intBuffer = new int[256];
 
@@ -7578,6 +7663,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			loadSpritesheet(Textures.OUTFIT_GUARD, "/outfit1.png");
 			hudSymbolsTexture = loadTiles("/huds.png");
 			markersTexture = loadTiles("/markers.png");
+			arrowTexture = loadTiles("/arrow.png");
 		} catch (Exception e) {
 			if (LOGGING) {
 				Profiler.log("loadTextures failed");
@@ -8155,10 +8241,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (i != dir) g += 4;
 				if (i != startDir) g += 2;
 
-				// h cost is euclidean distance
+				// h cost is octile distance
 				dx = /*Math.abs*/(x - targetX);
 				dy = /*Math.abs*/(y - targetY);
-				// TODO use octile distance?
 				h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
 //				h = dx*dx + dy*dy;
 
@@ -8276,5 +8361,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		openNodeNext[n] = -1;
 	}
 
-// endregion Pathfinding
+	// endregion Pathfinding
+
+	// region Math
+
+	static final double PIO2 = 1.5707963267948966135E0;
+
+	public static double atan2(double a, double b) {
+		if (a + b == a) {
+			return a >= 0 ? PIO2 : -PIO2;
+		}
+		a = Math.atan(a / b);
+		if (b < 0) {
+			return a <= 0 ? a + Math.PI : (a - Math.PI);
+		}
+		return a;
+
+	}
+
+	// endregion Math
 }

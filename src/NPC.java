@@ -1179,7 +1179,7 @@ class NPC implements Constants {
 							direction = pathEndDir;
 						}
 					}
-				} else if (!correctPath && ((tick + id) & 3) == 0) {
+				} else if (!correctPath) {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
@@ -1200,7 +1200,7 @@ class NPC implements Constants {
 				if (targetReached) {
 					animation = ANIM_FOOD;
 					correctPath = false;
-				} else if (!correctPath && ((tick + id) & 3) == 0) {
+				} else if (!correctPath) {
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 						correctPath = true;
 						pathStep = 0;
@@ -1267,7 +1267,7 @@ class NPC implements Constants {
 						direction = pathEndDir;
 					}
 				}
-			} else if (!correctPath && !training && ((tick + id) & 3) == 0) {
+			} else if (!correctPath && !training) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;

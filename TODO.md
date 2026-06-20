@@ -49,6 +49,7 @@
 - [x] NPC random inventory
 - [x] NPC inventory looting
 - [x] Vents
+- [x] Destination arrow
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP, only janitor and gardener are finished)
@@ -64,7 +65,6 @@
 - [ ] Snipers
 - [ ] NPC opinions
 - [ ] Digging stability
-- [ ] Arrow pointing where to go
 
 # Low priority
 
