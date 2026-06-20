@@ -462,7 +462,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					rot = Sprite.TRANS_ROT180;
 					break;
 				}
-				g.drawRegion(arrowTexture, ((tickCounter >> 3) & 3) * 15, sprite * 15, 15, 15, rot,
+				g.drawRegion(itemsTexture, TILE_SIZE * 8 + sprite * 16, TILE_SIZE * 12 + ((tickCounter >> 3) & 3) * 16, 16, 16, rot,
 						(vw >> 1) - 8 + (int) (Math.sin(r) * 48), (vh >> 1) - 8 + (int) (Math.cos(r) * 48), 0);
 			}
 		}
@@ -3349,9 +3349,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		for (int i = 0; i < MAP_EFFECTS_COUNT; ++i) {
 			if (effects[(i << 2) | 1] != 0) {
 				int effect = effects[i << 2];
-				if (--effects[(i << 2) | 1] == 0 && ((effect >= 229 && effect < 229 + 4) || (effect >= 234 && effect < 234 + 4)
-						|| (effect >= 240 && effect < 240 + 7) || (effect >= 248 && effect < 248 + 4)
-						|| (effect >= 224 && effect < 224 + 2))) {
+				if (--effects[(i << 2) | 1] == 0 &&
+						((effect >= 195 && effect < 195 + 4) || (effect >= 240 && effect < 240 + 4)
+						|| (effect >= 208 && effect < 208 + 7) || (effect >= 224 && effect < 224 + 4)
+						|| (effect >= 192 && effect < 192 + 2))) {
 					effects[(i << 2) | 1] = 2;
 					effects[i << 2]++;
 				}
@@ -7625,7 +7626,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static Image2D underground3dTexture;
 	static Image hudSymbolsTexture;
 	static Image markersTexture;
-	static Image arrowTexture;
 
 	static int[] intBuffer = new int[256];
 
@@ -7667,7 +7667,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			loadSpritesheet(Textures.OUTFIT_GUARD, "/outfit1.png");
 			hudSymbolsTexture = loadTiles("/huds.png");
 			markersTexture = loadTiles("/markers.png");
-			arrowTexture = loadTiles("/arrow.png");
 		} catch (Exception e) {
 			if (LOGGING) {
 				Profiler.log("loadTextures failed");

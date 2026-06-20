@@ -404,7 +404,7 @@ class NPC implements Constants {
 				if (visible) {
 					Sound.playEffect(Sound.SFX_ENHIT);
 					int i = map.effects[1] == 0 ? 0 : 4;
-					map.effects[i] = 224;
+					map.effects[i] = 192;
 					map.effects[i + 1] = 1;
 					map.effects[i + 2] = chaseTarget.x;
 					map.effects[i + 3] = chaseTarget.y;
@@ -2477,13 +2477,13 @@ class NPC implements Constants {
 					Sound.playEffect(Constants.SFX_OPEN);
 					switch (map.action) {
 					case ACT_DIGGING:
-						map.effects[4] = 234;
+						map.effects[4] = 240;
 						map.effects[5] = 2;
 						map.effects[6] = map.actionTargetX * TILE_SIZE;
 						map.effects[7] = map.actionTargetY * TILE_SIZE;
 					case ACT_CHIPPING:
 					case ACT_CUTTING:
-						map.effects[0] = 240;
+						map.effects[0] = 208;
 						map.effects[1] = 2;
 						map.effects[2] = map.actionTargetX * TILE_SIZE;
 						map.effects[3] = map.actionTargetY * TILE_SIZE;

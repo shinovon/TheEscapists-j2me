@@ -68,12 +68,11 @@ public class ResourceBuilder implements Constants {
 		if (args.length >= 4 && "-force".equals(args[3])) force = true;
 		
 		try {
-			items();
+			items(); // + fx + arrow
 			objects();
 			light();
 			huds();
 			markers();
-			arrow();
 			title();
 			icon();
 			character("Inmate", "inmate.png", 4);
@@ -302,22 +301,17 @@ public class ResourceBuilder implements Constants {
 			g.drawImage(tile, (i % 16) * TILE_SIZE, (i / 16) * TILE_SIZE, null);
 		}
 
+		// effects
+
 		final String[] fx = {
 				"fx_4-0_0.png",
 				"fx_4-0_1.png",
 				"fx_4-0_2.png",
-				"fx_4-1_0.png",
-				"fx_4-2_0.png",
 				"fx_4-3_0.png",
 				"fx_4-3_1.png",
 				"fx_4-3_2.png",
 				"fx_4-3_3.png",
 				"fx_4-3_4.png",
-				"fx_5-0_0.png",
-				"fx_5-0_1.png",
-				"fx_5-0_2.png",
-				"fx_5-0_3.png",
-				"fx_5-0_4.png",
 				null,
 				"dust_4-0_0.png",
 				"dust_4-0_1.png",
@@ -327,24 +321,38 @@ public class ResourceBuilder implements Constants {
 				"dust_4-0_5.png",
 				"dust_4-0_6.png",
 				"dust_4-0_7.png",
+				null,
 				"dust_4-16_0.png",
 				"dust_4-16_1.png",
 				"dust_4-16_2.png",
 				"dust_4-16_3.png",
 				"dust_4-16_4.png",
+				null,
+				"fx_5-0_0.png",
+				"fx_5-0_1.png",
+				"fx_5-0_2.png",
+				"fx_5-0_3.png",
+				"fx_5-0_4.png",
 		};
 
+		int x = 0;
+		int y = TILE_SIZE * 12;
 		for (int i = 0; i < fx.length; ++i) {
 			if (fx[i] == null) {
+				x = 0;
+				y += TILE_SIZE;
 				continue;
 			}
 			Path path = getImagePath(fx[i]);
-			if (path == null) {
-				continue;
+			if (path != null) {
+				BufferedImage tile = ImageIO.read(path.toFile());
+				g.drawImage(tile, x, y, null);
 			}
-			BufferedImage tile = ImageIO.read(path.toFile());
-			g.drawImage(tile, (i % 16) * TILE_SIZE, (i / 16) * TILE_SIZE + 224, null);
+			x += TILE_SIZE;
 		}
+
+		// arrow
+		g.drawImage(arrow(), TILE_SIZE * 8, TILE_SIZE * 12, null);
 		
 		writePng(img, resDir.resolve("items.png"));
 	}
@@ -740,11 +748,11 @@ public class ResourceBuilder implements Constants {
 		writePng(img, resDir.resolve("markers.png"));
 	}
 
-	static void arrow() throws IOException {
-		int w = 15;
-		int h = 15;
+	static BufferedImage arrow() throws IOException {
+		int w = 16;
+		int h = 16;
 		int angles = 5;
-		BufferedImage res = new BufferedImage(w * 4, h * angles, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage res = new BufferedImage(w * angles, h * 4, BufferedImage.TYPE_INT_ARGB);
 		Graphics resGraphics = res.getGraphics();
 
 		BufferedImage orig0 = ImageIO.read(getImagePath("Dest Arrow_0-0_0.png").toFile());
@@ -768,14 +776,14 @@ public class ResourceBuilder implements Constants {
 					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
 			g.drawImage(t, 0, 0, null);
-			resGraphics.drawImage(rotated, 0, i * h, null);
+			resGraphics.drawImage(rotated, i * w, 0, null);
 		}
 
 		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		g = (Graphics2D) t.getGraphics();
 		g.drawImage(orig1, -1, 3, null);
 
-		resGraphics.drawImage(t, w, 0, null);
+		resGraphics.drawImage(t, 0, h, null);
 		for (int i = 1; i < angles; i++) {
 			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 			g = (Graphics2D) rotated.getGraphics();
@@ -783,14 +791,14 @@ public class ResourceBuilder implements Constants {
 					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
 			g.drawImage(t, 0, 0, null);
-			resGraphics.drawImage(rotated, w, i * h, null);
+			resGraphics.drawImage(rotated, i * w, h, null);
 		}
 
 		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		g = (Graphics2D) t.getGraphics();
 		g.drawImage(orig2, 0, 3, null);
 
-		resGraphics.drawImage(t, 2 * w, 0, null);
+		resGraphics.drawImage(t, 0, 2 * h, null);
 		for (int i = 1; i < angles; i++) {
 			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 			g = (Graphics2D) rotated.getGraphics();
@@ -798,13 +806,13 @@ public class ResourceBuilder implements Constants {
 					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
 			g.drawImage(t, 0, 0, null);
-			resGraphics.drawImage(rotated, 2 * w, i * h, null);
+			resGraphics.drawImage(rotated, i * w, 2 * h, null);
 		}
 
 		t = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		g = (Graphics2D) t.getGraphics();
 		g.drawImage(orig3, -1, 3, null);
-		resGraphics.drawImage(t, 3 * w, 0, null);
+		resGraphics.drawImage(t, 0, 3 * h, null);
 
 		for (int i = 1; i < angles; i++) {
 			rotated = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -813,7 +821,7 @@ public class ResourceBuilder implements Constants {
 					RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 			g.rotate(-Math.toRadians(i * (90d / angles)), w / 2d, h / 2d);
 			g.drawImage(t, 0, 0, null);
-			resGraphics.drawImage(rotated, 3 * w, i * h, null);
+			resGraphics.drawImage(rotated, i * w, 3 * h, null);
 		}
 
 		w = res.getWidth();
@@ -825,7 +833,7 @@ public class ResourceBuilder implements Constants {
 			}
 		}
 
-		writePng(res, resDir.resolve("arrow.png"));
+		return res;
 	}
 
 	static void icon() throws IOException {
