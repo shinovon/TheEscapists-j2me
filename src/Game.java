@@ -1677,7 +1677,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 						if (i == 0) {
 							altControls = !altControls;
-							break set;
+//							break set;
 						}
 //						i--;
 					}
@@ -2497,7 +2497,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					containers[idx++] = saveData.readInt();
 					int count = containers[idx++];
 					for (int j = 0; j < count; ++j) {
-						containers[idx++] = saveData.readInt();
+						int k = saveData.readInt();
+						// apparently items in toilets should not be saved
+						containers[idx++] = count == 3 ? Items.ITEM_NULL : k;
 					}
 					// container position
 					groundObjects[objIdx + 3] = saveData.readByte();
@@ -3548,6 +3550,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					} else {
 						dg = DirectUtils.getDirectGraphics(g);
 					}
+					//noinspection ConstantValue
 					if (dg != null) {
 						dg.setARGBColor(SHADOW_COLOR);
 					}
@@ -3747,6 +3750,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		for (int i = 0; i < renderChars.length; ++i) {
 			NPC npc = renderChars[i];
 			if (npc == null || npc.layer != layer || npc.carried || npc.inCabinet) continue;
+			//noinspection UnusedAssignment // wrong warning
 			npc.visible = false;
 			int x = (int) npc.x - viewX, y = (int) npc.y - viewY;
 
@@ -5006,33 +5010,30 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	// from inventory to container
-	boolean putItem(int idx, int slot) {
-		if (slot == -1) return false;
+	void putItem(int idx, int slot) {
+		if (slot == -1) return;
 		int[] containers = this.containers;
 		int slots = containers[idx + 2];
 		int item = player.inventory[slot];
-		if (item == Items.ITEM_NULL) return false;
+		if (item == Items.ITEM_NULL) return;
 
 		for (int i = 0; i < slots; ++i) {
 			if (containers[idx + 3 + i] == Items.ITEM_NULL) {
 				containers[idx + 3 + i] = item;
 				player.inventory[slot] = Items.ITEM_NULL;
-				return true;
+				return;
 			}
 		}
 		Sound.playEffect(Sound.SFX_LOSE);
-		return false;
 	}
 
 	// from container to inventory
-	boolean takeItem(int idx, int slot) {
-		if (slot == -1) return false;
+	void takeItem(int idx, int slot) {
+		if (slot == -1) return;
 		int item = containers[idx + 3 + slot];
 		if (player.addItem(item, true)) {
 			containers[idx + 3 + slot] = Items.ITEM_NULL;
-			return true;
 		}
-		return false;
 	}
 
 	void removeIllegalItems(int idx) {
@@ -5421,12 +5422,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //			Items.WHIP
 	};
 
-	static int getItemDecay(int id) {
-		switch (id & Items.ITEM_ID_MASK) {
-		// TODO
-		}
-		return 0;
-	}
+//	static int getItemDecay(int id) {
+//		switch (id & Items.ITEM_ID_MASK) {
+//		// TODO
+//		}
+//		return 0;
+//	}
 
 	static String getItemName(int id) {
 		switch (id & Items.ITEM_ID_MASK) {

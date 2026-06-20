@@ -1579,13 +1579,6 @@ class NPC implements Constants {
 		}
 	}
 
-	void updateSprite() {
-		body.setImage(Game.sprites[bodyId], 16, 16);
-		if (outfit != null) {
-			outfit.setImage(Game.sprites[outfitId], 16, 16);
-		}
-	}
-
 	// check if player is free to go on position offset
 	boolean checkCollision(int x, int y) {
 		x = ((int) this.x + x) / TILE_SIZE;
@@ -2098,24 +2091,28 @@ class NPC implements Constants {
 			statIntellect = 100;
 
 		if (map.heat < 99 && getCollision(8, 8, true) == COLL_DETECTOR) {
-			boolean hasContraband = false, hasPouch = false;
+			boolean hasContraband = false;
+			int pouch = -1;
 			for (int i = 0; i < 6; ++i) {
 				int item = inventory[i] & Items.ITEM_ID_MASK;
 				if (inventory[i] != Items.ITEM_NULL && Game.isIllegal(item)) {
 					if (item == Items.CONTRABAND_POUCH || item == Items.DURABLE_CONTRABAND_POUCH) {
-						hasPouch = true;
+						pouch = i;
 						hasContraband = false;
 						break;
 					}
 					hasContraband = true;
 				}
 			}
-			if (hasContraband && !hasPouch) {
+			if (hasContraband) {
 				// TODO animate detector object
 				map.heat = 100;
 				Sound.playEffect(Sound.SFX_HP);
 			}
 			// TODO reduce pouch durability
+//			if (pouch != -1) {
+//
+//			}
 		}
 
 		if (layer == LAYER_GROUND) {
