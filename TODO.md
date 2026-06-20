@@ -65,6 +65,7 @@
 - [ ] Snipers
 - [ ] NPC opinions
 - [ ] Digging stability
+- [ ] Employment board
 
 # Low priority
 
