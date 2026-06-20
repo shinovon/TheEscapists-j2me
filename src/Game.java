@@ -8150,17 +8150,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				// try to avoid objects
 				if ((s & COLL_BIT_AVOID_AI) != 0) g += 15;
 				// avoid diagonal move when unnecessary
-				if (i >= 4) g += 5;
+				if (i >= 4) g += 4;
 				// prefer keeping current facing
-				if (i != dir) g += 10;
-				if (i != startDir) g += 5;
+				if (i != dir) g += 4;
+				if (i != startDir) g += 2;
 
 				// h cost is euclidean distance
 				dx = /*Math.abs*/(x - targetX);
 				dy = /*Math.abs*/(y - targetY);
 				// TODO use octile distance?
-				//h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
-				h = dx*dx + dy*dy;
+				h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
+//				h = dx*dx + dy*dy;
 
 				// check if node is not already open
 				if (openNodePrev[n] == -1 && openNodeNext[n] == -1 && sortedNode != n) {
