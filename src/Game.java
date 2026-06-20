@@ -444,7 +444,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				double r = atan2(zx - player.x - 7, zy - player.y - 7);
 				float angle = (float) ((r * 180) / Math.PI);
 				if (angle < 0) angle = 360 + angle;
-				int i = ((int) (angle * 20)) / 360;
+				int i = ((int) (angle * 20 + 10)) / 360;
+				if (i > 19) i = 19;
 				int sprite = i % 5;
 				int rot = i / 5;
 				switch (rot) {
