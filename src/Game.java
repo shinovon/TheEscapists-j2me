@@ -1730,8 +1730,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (key == 'P' || key == 'p') {
 			return -7;
 		}
-		if (key >= 'A' && key <= 'Z') {
-			return key - 'A' + 'a';
+		if (key >= 'a' && key <= 'z') {
+			return key - 'a' + 'A';
 		}
 		return key;
 	}
