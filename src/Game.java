@@ -8368,14 +8368,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Math
 
-	static final float PI = (float) Math.PI;
+	static final float PIO2 = (float) (Math.PI / 2f);
 
-	public static float atan2(float x, float y) {
+	public static float atan2(float y, float x) {
 		float ax, ay, a, s, r;
 
 		if (x == 0) {
-			if (y > 0) return  PI / 2.0f;
-			if (y < 0) return -PI / 2.0f;
+			if (y > 0) return  PIO2;
+			if (y < 0) return -PIO2;
 			return 0;
 		}
 
