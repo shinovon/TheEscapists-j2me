@@ -28,6 +28,7 @@ zip -u TE_S40.jar META-INF/*
 cd S60 || exit 1
 cp TE.jar ../TE_S60.jar
 cp TE.jar ../TE_S60_scaled.jar
+cp TE.jar ../TE_E6_E7.jar
 cd ..
 mkdir META-INF
 unzip -p TE_S60.jar META-INF/MANIFEST.MF > META-INF/MANIFEST.MF && \
@@ -41,6 +42,13 @@ dos2unix META-INF/MANIFEST.MF && \
 sed -i "s/TE-Build: development/TE-Build: S60 ($REVISION)\nNokia-MIDlet-Original-Display-Size: 320, 240/g" META-INF/MANIFEST.MF && \
 unix2dos META-INF/MANIFEST.MF && \
 zip -u TE_S60_scaled.jar META-INF/*
+
+unzip -p TE_E6_E7.jar META-INF/MANIFEST.MF > META-INF/MANIFEST.MF && \
+dos2unix META-INF/MANIFEST.MF && \
+sed -i "s/TE-Build: development/TE-Build: S60 ($REVISION)\nNokia-MIDlet-Original-Display-Size: 320, 240/g" META-INF/MANIFEST.MF && \
+sed -i "s/Nokia-MIDlet-On-Screen-Keypad: gameactions/Nokia-MIDlet-On-Screen-Keypad: no/g" META-INF/MANIFEST.MF && \
+unix2dos META-INF/MANIFEST.MF && \
+zip -u TE_E6_E7.jar META-INF/*
 
 
 

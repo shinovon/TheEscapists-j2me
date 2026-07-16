@@ -172,6 +172,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static boolean enableShadows = DRAW_SHADOWS;
 	static boolean altControls;
 
+	// platform
+	static boolean nokiaE6;
+
 	int selectedMenu;
 	boolean hasSave;
 
@@ -1844,7 +1847,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		try {
 			supportsAlpha = TE.midlet.display.numAlphaLevels() > 2;
 			// TODO detect pspkvm
-			altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type"));
+			String p = System.getProperty("microedition.platform");
+			if (p == null) p = "null";
+			nokiaE6 = p.startsWith("NokiaE6") || p.startsWith("NokiaE7");
+			altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type")) && !nokiaE6;
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
 				Sound.volumeSfx = 0;
 			}
@@ -4548,7 +4554,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean update3DSize;
 
 	private void setup3D(Graphics g, int viewWidth, int viewHeight) {
-		if (!use3D) return;
+		if (!use3D && !nokiaE6) return;
 
 		try {
 			if (graphics3D == null) {
