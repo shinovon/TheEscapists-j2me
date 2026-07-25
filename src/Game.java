@@ -1846,11 +1846,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	public void run() {
 		try {
 			supportsAlpha = TE.midlet.display.numAlphaLevels() > 2;
-			// TODO detect pspkvm
-			String p = System.getProperty("microedition.platform");
-			if (p == null) p = "null";
-			nokiaE6 = p.startsWith("NokiaE6") || p.startsWith("NokiaE7");
-			altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type")) && !nokiaE6;
+			try {
+				Class.forName("com.pspkvm.system.Power");
+				altControls = true;
+			} catch (Throwable e) {
+				String p = System.getProperty("microedition.platform");
+				if (p == null) p = "null";
+				nokiaE6 = p.startsWith("NokiaE6") || p.startsWith("NokiaE7");
+				altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type")) && !nokiaE6;
+			}
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
 				Sound.volumeSfx = 0;
 			}
