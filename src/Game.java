@@ -3223,6 +3223,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						if (chars[i] == null) continue;
 						chars[i].updateItems();
 					}
+					// reduce player stats
+					if (NPC.rng.nextInt(10) == 0) {
+						player.statStrength--;
+						player.statSpeed--;
+						player.statIntellect--;
+					}
 				}
 				playerSeenByGuards = false;
 				routine: {
