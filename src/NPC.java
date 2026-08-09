@@ -135,6 +135,8 @@ class NPC implements Constants {
 	int aiWorkState; // or rollcall text for guards
 	int animationFrame;
 	int desk;
+	boolean selling;
+	int[] sell;
 
 	int fighting;
 
@@ -197,6 +199,10 @@ class NPC implements Constants {
 		if (outfitId != -1) {
 			(this.outfit = new Sprite(Game.sprites[outfitId], 16, 16))
 			.setRefPixelPosition(8, 8);
+		}
+
+		if (inmate && ai) {
+			sell = new int[8];
 		}
 	}
 	
@@ -1402,7 +1408,7 @@ class NPC implements Constants {
 
 						int x, y;
 						if (obj == Objects.DESK) {
-							obj = map.containers[map.pickRandomNPC(false).desk];
+							obj = map.containers[map.pickRandomNPC(false, false).desk];
 							if (obj == -1) break work;
 
 							x = map.objects[LAYER_GROUND][obj + 3];
@@ -1877,11 +1883,13 @@ class NPC implements Constants {
 			inventory[i] = Items.ITEM_NULL;
 		}
 		if (inmate) {
-			int numItems = rng.nextInt(4);
-			for (int i = 0; i < numItems; ++i) {
-				int[] items = Game.NPC_CARRY;
-				int item = items[1 + NPC.rng.nextInt(items[0])];
-				inventory[i] = item | Items.ITEM_DEFAULT_DURABILITY;
+			{
+				int numItems = rng.nextInt(4);
+				for (int i = 0; i < numItems; ++i) {
+					int[] items = Game.NPC_CARRY;
+					int item = items[1 + NPC.rng.nextInt(items[0])];
+					inventory[i] = item | Items.ITEM_DEFAULT_DURABILITY;
+				}
 			}
 			if (rng.nextInt(4) == 0) {
 				int[] items = Game.CARRY_WEAPONS;
@@ -1889,6 +1897,14 @@ class NPC implements Constants {
 				weapon = item | Items.ITEM_DEFAULT_DURABILITY;
 			} else if (rng.nextInt(3) == 0) {
 				weapon = Items.ITEM_NULL;
+			}
+			{
+				int n = Game.BUY.length >> 1;
+				for (int i = 0; i < 4; ++i) {
+					int j = rng.nextInt(n);
+					sell[i << 1] = Game.BUY[j << 1];
+					sell[(i << 1) | 1] = Game.BUY[(j << 1) | 1];
+				}
 			}
 			return;
 		}

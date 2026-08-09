@@ -3114,6 +3114,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				npc.xFloat = npc.x = npc.bedX * TILE_SIZE;
 				npc.yFloat = npc.y = npc.bedY * TILE_SIZE + 2;
 				npc.aiState = NPC.AI_RESET;
+				npc.selling = false;
 			} else if (npc.bodyId != Textures.SNIPER) {
 				npc.correctPath = false;
 				npc.xFloat = npc.x = npcSpawnX * TILE_SIZE;
@@ -3121,6 +3122,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				npc.aiState = NPC.AI_RESET;
 			}
 		}
+
+		pickRandomNPC(false, true).selling = true;
+		pickRandomNPC(false, true).selling = true;
 
 		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
@@ -3228,6 +3232,15 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						player.statStrength--;
 						player.statSpeed--;
 						player.statIntellect--;
+					}
+					// choose new sellers
+					if (NPC.rng.nextInt(3) == 0) {
+						for (int i = 1; i < n; ++i) {
+							if (chars[i] == null) continue;
+							chars[i].selling = false;
+						}
+						pickRandomNPC(false, true).selling = true;
+						pickRandomNPC(false, true).selling = true;
 					}
 				}
 				playerSeenByGuards = false;
@@ -3915,8 +3928,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 
 		// markers
+		Image markersImg = markersTexture;
 		{
-			Image markersImg = markersTexture;
 			for (int i = 0; i < HIT_MARKERS_COUNT; ++i) {
 				if (hitMarkers[(i << 2) | 1] == 0) {
 					continue;
@@ -4485,6 +4498,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (npc == null || npc.layer != layer || !npc.visible) continue;
 
 			int x = (int) npc.x - viewX, y = (int) npc.y - viewY;
+			if (npc.selling && (((ticks + npc.id * 3) >> 5) & 1) == 0) {
+				g.drawRegion(markersImg, 0, 0, 7, 8, 0, x + 4, y - 8, 0);
+			}
 			if (npc.dialog != null) {
 				String[] r = npc.dialogRender;
 				if (r == null) {
@@ -6160,13 +6176,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region NPC
 
-	NPC pickRandomNPC(boolean guard) {
+	NPC pickRandomNPC(boolean guard, boolean notPlayer) {
 		int n = npcNum;
 		NPC res;
 
 		do {
 			res = chars[NPC.rng.nextInt(n)];
-		} while (res == null || !(guard ? res.guard : res.inmate));
+		} while (res == null || !(guard ? res.guard : res.inmate) || (notPlayer && !res.ai));
 
 		return res;
 	}
@@ -6876,8 +6892,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			break;
 		case TEXT_BANTER: {
-			String guard = "Officer ".concat(pickRandomNPC(true).name);
-			String inmate = pickRandomNPC(false).name;
+			String guard = "Officer ".concat(pickRandomNPC(true, false).name);
+			String inmate = pickRandomNPC(false, false).name;
 			StringBuffer sb = Game.stringBuffer;
 			sb.setLength(0);
 			switch (n) {
