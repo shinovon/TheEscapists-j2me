@@ -606,11 +606,18 @@ class NPC implements Constants {
 			}
 		}
 		if (map.prevSchedule != map.schedule
-				&& aiState != AI_ATTACK
-				&& (inmate || (guard && (aiState != AI_ROAM || typedId < 3
-				|| (map.schedule == SC_LIGHTSOUT && bedX != 0 && bedY != 0)))
-				|| bodyId == Textures.EMPLOYMENT_OFFICER || bodyId == Textures.DOCTOR)) {
-			aiState = AI_RESET;
+				&& aiState != AI_ATTACK) {
+			if ((inmate || (guard && (aiState != AI_ROAM || typedId < 3
+					|| (map.schedule == SC_LIGHTSOUT && bedX != 0 && bedY != 0)))
+					|| bodyId == Textures.EMPLOYMENT_OFFICER || bodyId == Textures.DOCTOR)) {
+				aiState = AI_RESET;
+			} else if (guard && (map.prevSchedule == SC_MORNING_ROLLCALL
+					|| map.prevSchedule == SC_AFTERNOON_ROLLCALL
+					|| map.prevSchedule == SC_EVENING_ROLLCALL)
+					&& ((typedId == 3 && map.shakedown1 != null) || (typedId == 4 && map.shakedown2 != null))) {
+				aiState = AI_SHAKEDOWN;
+				correctPath = false;
+			}
 		}
 		if (aiState == AI_RESET) {
 			if (gymObjectIdx != -1 && gymObject == Objects.TRAINING_WEIGHT) {
@@ -1063,8 +1070,19 @@ class NPC implements Constants {
 							nextDialogTimer = TPS >> 1;
 						} else {
 							if (aiWorkState == Game.TEXT_ROLLCALL_NAMES) {
-								// shakedown names TODO
-								dialog = "";
+								// shakedown names
+								NPC npc1 = map.pickRandomNPC(false, false);
+								NPC npc2;
+								do {
+									npc2 = map.pickRandomNPC(false, false);
+								} while (npc1 == npc2);
+
+								StringBuffer sb = Game.stringBuffer;
+								sb.setLength(0);
+								dialog = sb.append(npc1.name).append(" and ").append(npc2.name).toString();
+
+								map.shakedown1 = npc1;
+								map.shakedown2 = npc2;
 							} else {
 								int count;
 								if (aiWorkState == Game.TEXT_ROLLCALL_COMMENCE) {
@@ -1456,6 +1474,52 @@ class NPC implements Constants {
 					break;
 				}
 				}
+			}
+		} else if (aiState == AI_SHAKEDOWN) {
+			if (!correctPath) {
+				desk: {
+					NPC npc;
+					if (typedId == 4) {
+						npc = map.shakedown2;
+						map.shakedown2 = null;
+					} else {
+						npc = map.shakedown1;
+						map.shakedown1 = null;
+					}
+					if (npc == null) break desk;
+					int obj = map.containers[aiWorkState = npc.desk];
+					if (obj == -1) break desk;
+
+					int x = map.objects[LAYER_GROUND][obj + 3];
+					int y = map.objects[LAYER_GROUND][obj + 4];
+
+					for (int n = 0; n < 4; ++n) {
+						int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
+						int oy = Game.PATH_DIR_POSITIONS[((3 - n) << 1) + 1];
+						if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
+							x += ox;
+							y += oy;
+							break;
+						}
+					}
+
+					if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX = x, pathY = y, false, path)) {
+						correctPath = true;
+						pathStep = 0;
+					} else if (LOGGING) {
+						Profiler.log(debugName() + " cannot pathfind to desk " + npc);
+					}
+				}
+			} else if (targetReached) {
+				if (map.removeIllegalItems(aiWorkState) && aiWorkState == map.getContainerByOwner(0)) {
+					// TODO
+					map.note = NOTE_SOLITARY;
+				}
+
+				aiWaitTimer = TPS * 2;
+				this.targetReached = false;
+				correctPath = false;
+				aiState = AI_RESET;
 			}
 		}
 
@@ -2926,7 +2990,7 @@ class NPC implements Constants {
 								break hit;
 							}
 							if (b == COLL_DESK) {
-								// TODO carry desk
+								// carry desk
 								int objIdx = map.getObjectIdxAt(x, y, layer);
 								map.carryingObject = objIdx;
 								map.objects[layer][objIdx + 2] |= 1 << 12;

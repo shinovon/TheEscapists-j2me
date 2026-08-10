@@ -887,6 +887,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				if (craftingMessage != null) {
 					// TODO
+					fontColor = FONT_COLOR_RED;
 					drawCenteredText(g, craftingMessage, w, h * 4 / 5, FONT_REGULAR);
 				}
 			} else if (profileOpen != null) {
@@ -1015,6 +1016,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginFrameSection(Profiler.FRAME_FLUSH);
 		flushGraphics();
+	}
+
+	void drawProfile(Graphics g, NPC npc) {
+		// TODO
 	}
 
 	static void drawItemSlot(Graphics g, int x, int y, int item, boolean selected) {
@@ -2199,6 +2204,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean newGame;
 	boolean save;
 
+	NPC shakedown1;
+	NPC shakedown2;
+
 	boolean loadMap() throws Exception {
 		player = new NPC(this);
 		player.name = "Player";
@@ -3302,6 +3310,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						music = Sound.MUSIC_ROLLCALL;
 						cellsClosed = false;
 						playerWasOnRollcall = false;
+						shakedown1 = null;
+						shakedown2 = null;
 						updateDoors();
 						break;
 					case SC_BREAKFAST:
@@ -3318,6 +3328,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					case SC_EVENING_ROLLCALL:
 						music = Sound.MUSIC_ROLLCALL;
 						playerWasOnRollcall = false;
+						shakedown1 = null;
+						shakedown2 = null;
 						break;
 					case SC_FREE_PERIOD:
 					case SC_EVENING_FREETIME:
@@ -3931,6 +3943,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				release3D();
 			}
 		}
+
+		if (pausedOverlay) return;
 
 		// markers
 		Image markersImg = markersTexture;
@@ -5074,13 +5088,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 	}
 
-	void removeIllegalItems(int idx) {
+	boolean removeIllegalItems(int idx) {
+		boolean res = false;
 		int slots = containers[idx + 2];
 		for (int i = 0; i < slots; ++i) {
 			if (isIllegal(containers[idx + 3 + i] & Items.ITEM_ID_MASK)) {
 				containers[idx + 3 + i] = Items.ITEM_NULL;
+				res = true;
 			}
 		}
+		return res;
 	}
 
 	// endregion Container
