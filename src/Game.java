@@ -163,6 +163,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean saveProblem;
 	boolean craftingOpen;
 	int[] craftSlots = new int[3];
+	NPC profileOpen;
 
 	boolean debugFreecam;
 
@@ -770,7 +771,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				String t = "PRESS FIRE TO CONTINUE";
 				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, ny + nh - 16, FONT_REGULAR);
 			} else if (inventoryOpen != null) {
-				// looting npc TODO
+				// looting npc
 				pausedOverlay = true;
 
 				int nw = 128;
@@ -898,6 +899,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				fontColor = FONT_COLOR_GREY_7F;
 				s = "CRAFT";
 				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 59, FONT_REGULAR);
+			} else if (profileOpen != null) {
+				pausedOverlay = true;
+
+				// TODO
 			} else {
 				pausedOverlay = false;
 			}
@@ -1308,6 +1313,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						case FIRE:
 							if (selectedSlot == -2 && toilet) {
 								// flush TODO
+								containers[containerOpen + 3] = Items.ITEM_NULL;
+								containers[containerOpen + 4] = Items.ITEM_NULL;
+								containers[containerOpen + 5] = Items.ITEM_NULL;
 								break;
 							}
 							if (selectedSlot == -1) {
@@ -1441,6 +1449,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 							break;
 						}
+					}
+				} else if (profileOpen != null) {
+					// TODO
+					if (key == -7) {
+						profileOpen = null;
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {

@@ -3511,6 +3511,8 @@ class NPC implements Constants {
 								Sound.playEffect(Sound.SFX_OPEN);
 							} else {
 								// TODO open profile
+								map.profileOpen = npc;
+								Sound.playEffect(Sound.SFX_OPEN);
 							}
 						}
 					}
