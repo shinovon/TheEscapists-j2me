@@ -7451,16 +7451,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_ROLLCALL_SHAKEDOWNS = 1;
 	static final int TEXT_ROLLCALL_NAMES = 2;
 	static final int TEXT_ROLLCALL_BANTER = 3;
-	static final int TEXT_ROLLCALL_COMMENCE_COUNT = 19;
+	static final int TEXT_ROLLCALL_COMMENCE_COUNT = 14;
+	static final int TEXT_ROLLCALL_COMMENCE_MINSEC_COUNT = 19;
 	static final int TEXT_ROLLCALL_SHAKEDOWNS_COUNT = 5;
 	static final int TEXT_ROLLCALL_BANTER_COUNT = 71;
+	static final int TEXT_ROLLCALL_BANTER_MINSEC_COUNT = 41;
 
 	static String getRollcallText(int stage, int n, boolean minsec) {
 		n += 1;
 		if (minsec) {
 			switch (stage) {
 			case TEXT_ROLLCALL_COMMENCE:
-				if (n > 14) n -= 14;
 				switch (n) {
 				case 1:
 					return "Please line up";
@@ -7509,7 +7510,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			case TEXT_ROLLCALL_NAMES:
 				break;
 			case TEXT_ROLLCALL_BANTER:
-				if (n > 41) n -= 41;
 				switch (n) {
 				case 1:
 					return "We're upgrading our cable TV package for all inmates";

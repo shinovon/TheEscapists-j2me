@@ -1086,11 +1086,11 @@ class NPC implements Constants {
 							} else {
 								int count;
 								if (aiWorkState == Game.TEXT_ROLLCALL_COMMENCE) {
-									count = Game.TEXT_ROLLCALL_COMMENCE_COUNT;
+									count = map.map == MAP_PERKS ? Game.TEXT_ROLLCALL_COMMENCE_MINSEC_COUNT : Game.TEXT_ROLLCALL_COMMENCE_COUNT;
 								} else if (aiWorkState == Game.TEXT_ROLLCALL_SHAKEDOWNS) {
 									count = Game.TEXT_ROLLCALL_SHAKEDOWNS_COUNT;
 								} else if (aiWorkState == Game.TEXT_ROLLCALL_BANTER) {
-									count = Game.TEXT_ROLLCALL_BANTER_COUNT;
+									count = map.map == MAP_PERKS ? Game.TEXT_ROLLCALL_BANTER_MINSEC_COUNT : Game.TEXT_ROLLCALL_BANTER_COUNT;
 								} else {
 									// should not be reachable
 									return;
