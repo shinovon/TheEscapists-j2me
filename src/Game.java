@@ -8132,7 +8132,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int tw = textWidth(s, font);
 			if (tw >= maxWidth) {
 				int i1 = 0;
-				for (int i2 = 0; i2 < s.length(); i2++) {
+				int l = s.length();
+				for (int i2 = 0; i2 < l; i2++) {
 					if (textWidth(s.substring(i1, i2+1), font) >= maxWidth) {
 						space: {
 							for (int j = i2; j > i1; j--) {
