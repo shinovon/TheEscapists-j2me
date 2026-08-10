@@ -2916,16 +2916,19 @@ class NPC implements Constants {
 												if (layer == LAYER_UNDERGROUND) s: {
 													for (int ox = -2; ox <= 2; ++ox) {
 														for (int oy = -2; oy <= 2; ++oy) {
-															if (x + ox < 0 || y + oy < 0 || x + ox > map.width || y + oy > map.height)
+															if (x + ox < 0 || y + oy < 0
+																	|| x + ox > map.width || y + oy > map.height
+																	|| ox == -2 && oy == -2 || ox == -2 && oy == 2
+																	|| ox == 2 && oy == 2 || ox == 2 && oy == -2)
 																continue;
-															if (map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) == 100
+															if ((map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) != 0 && Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x]))
 																	|| map.getBreakProgress(x + ox, y + oy, LAYER_UNDERGROUND) == 101) {
 																break s;
 															}
 														}
 													}
 
-													dialog = "asd";
+													dialog = "You need to brace the tunnel with supports!";
 													dialogTimer = TPS * 2;
 													break hit;
 												}
