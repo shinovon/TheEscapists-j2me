@@ -1095,7 +1095,7 @@ class NPC implements Constants {
 									// should not be reachable
 									return;
 								}
-								dialog = Game.getRollcallText(aiWorkState, rng.nextInt(count));
+								dialog = Game.getRollcallText(aiWorkState, rng.nextInt(count), map.map == MAP_PERKS);
 							}
 							nextDialogTimer = 2 * TPS;
 							dialogTimer = 2 * TPS;

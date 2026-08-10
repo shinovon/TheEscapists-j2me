@@ -7455,9 +7455,148 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_ROLLCALL_SHAKEDOWNS_COUNT = 5;
 	static final int TEXT_ROLLCALL_BANTER_COUNT = 71;
 
-	static String getRollcallText(int stage, int n) {
+	static String getRollcallText(int stage, int n, boolean minsec) {
 		n += 1;
-		// TODO minsec
+		if (minsec) {
+			switch (stage) {
+			case TEXT_ROLLCALL_COMMENCE:
+				if (n > 14) n -= 14;
+				switch (n) {
+				case 1:
+					return "Please line up";
+				case 2:
+					return "At ease folks";
+				case 3:
+					return "Howdy!";
+				case 4:
+					return "Sorry I'm late";
+				case 5:
+					return "Settle please";
+				case 6:
+					return "Quiet please";
+				case 7:
+					return "Now now chaps...";
+				case 8:
+					return "Right then";
+				case 9:
+					return "Alrighty then...";
+				case 10:
+					return "Count time";
+				case 11:
+					return "May I have your attention";
+				case 12:
+					return "Your attention please chaps";
+				case 13:
+					return "Lend me your ears";
+				case 14:
+					return "A fine body of men!";
+				}
+				break;
+			case TEXT_ROLLCALL_SHAKEDOWNS:
+				switch (n) {
+				case 1:
+					return "Those due a cell shakedown are as follows...";
+				case 2:
+					return "The lucky winners of todays shakedowns are...";
+				case 3:
+					return "The following are due a cell toss...";
+				case 4:
+					return "The lovelies about to get their cells searched are..";
+				case 5:
+					return "The following darlings have won a cell search...";
+				}
+				break;
+			case TEXT_ROLLCALL_NAMES:
+				break;
+			case TEXT_ROLLCALL_BANTER:
+				if (n > 41) n -= 41;
+				switch (n) {
+				case 1:
+					return "We're upgrading our cable TV package for all inmates";
+				case 2:
+					return "Todays meals will be relished with cavier";
+				case 3:
+					return "We aim to please";
+				case 4:
+					return "Our plans for a hot tub are looking good";
+				case 5:
+					return "The prisoner is always right";
+				case 6:
+					return "I'd like to commend you all";
+				case 7:
+					return "You've all made good progress";
+				case 8:
+					return "You're all due a pat on the back";
+				case 9:
+					return "Each pillow has been personally fluffed by us";
+				case 10:
+					return "Sadly we had to cancel next weeks excursion";
+				case 11:
+					return "The singer we booked for tonight had to cancel";
+				case 12:
+					return "We're at your service";
+				case 13:
+					return "We suspect an escapist among us";
+				case 14:
+					return "Any questions?";
+				case 15:
+					return "Why anyone would want to escape this place is beyond me!";
+				case 16:
+					return "Sadly our karaoke machine is knackered!";
+				case 17:
+					return "Some exciting news for you all";
+				case 18:
+					return "Some interesting developments";
+				case 19:
+					return "The warden may be visiting today";
+				case 20:
+					return "Someone dumped in the pond";
+				case 21:
+					return "Someone stole the wardens toupee";
+				case 22:
+					return "Someone broke into the storage shed";
+				case 23:
+					return "Someone devoured all the custard creams";
+				case 24:
+					return "Someone flooded the toilets";
+				case 25:
+					return "Someone flushed the wardens hat down the toilet";
+				case 26:
+					return "What's a rock hammer anyway?";
+				case 27:
+					return "We punish with love";
+				case 28:
+					return "Naughty boys will be sent to solitary";
+				case 29:
+					return "That reminds me...";
+				case 30:
+					return "Please behave today";
+				case 31:
+					return "Don't be afraid to ask for hugs";
+				case 32:
+					return "Your needs are of our utmost concern";
+				case 33:
+					return "Apparently someone escaped but soon returned";
+				case 34:
+					return "Most escapists return here by choice";
+				case 35:
+					return "In here, life is easy";
+				case 36:
+					return "You've never had it so good";
+				case 37:
+					return "I look around with pride";
+				case 38:
+					return "We've only gone and been given another award";
+				case 39:
+					return "And now for an important announcement...";
+				case 40:
+					return "Onto a more pressing issue...";
+				case 41:
+					return "Please keep off the grass";
+				}
+			}
+			return "Error!";
+		}
 		switch (stage) {
 		case TEXT_ROLLCALL_COMMENCE:
 			switch (n) {
