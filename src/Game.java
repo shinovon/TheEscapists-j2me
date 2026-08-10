@@ -7457,6 +7457,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	static String getRollcallText(int stage, int n) {
 		n += 1;
+		// TODO minsec
 		switch (stage) {
 		case TEXT_ROLLCALL_COMMENCE:
 			switch (n) {
@@ -8191,6 +8192,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	short[] openNodeNext;
 	int sortedNode;
 
+	short[] visitedNodes;
+	byte[] nodeDir, nodeX, nodeY;
+
 	void allocatePathfind() {
 		int size = width * height;
 
@@ -8200,6 +8204,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		openNodePrev = new short[size];
 		openNodeNext = new short[size];
+
+		visitedNodes = new short[size];
+		nodeDir = new byte[size];
+		nodeX = new byte[size];
+		nodeY = new byte[size];
+
+		for (int i = 0; i < size; ++i) {
+			nodeParent[i] = -1;
+			openNodePrev[i] = -1;
+			openNodeNext[i] = -1;
+		}
 	}
 
 	boolean pathfind(int startX, int startY, int startDir, int targetX, int targetY, boolean noStaffDoors, short[] res) {
@@ -8213,25 +8228,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		short[] openNodeNext = this.openNodeNext;
 		byte[] solid = this.solid[LAYER_GROUND]; // npc can only move on ground layer
 
-		int size = width * height;
+		short[] visitedNodes = this.visitedNodes;
+		byte[] nodeDir = this.nodeDir;
+		byte[] nodeX = this.nodeX;
+		byte[] nodeY = this.nodeY;
 
-		// initialize nodes
-		for (int i = 0; i < size; ++i) {
-			nodeParent[i] = -1;
-			nodeG[i] = 0;
-			nodeH[i] = 0;
-
-			openNodePrev[i] = -1;
-			openNodeNext[i] = -1;
-		}
-
+		int visited = 0;
 		sortedNode = -1;
 
 		int cur = startX + startY * width;
+		visitedNodes[visited++] = (short) cur;
 
-		int nx, ny;
+		int ny = cur / width;
+		int nx = cur - ny * width;
 		int g, h, dx, dy;
-		int parent;
 		int dir = startDir;
 
 		while (cur != -1) {
@@ -8243,9 +8253,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			nodeG[cur] = -1;
 			nodeH[cur] = -1;
 
-			ny = cur / width;
-			nx = cur - ny * width;
-
 			// finish
 			if (nx == targetX && ny == targetY)
 				break;
@@ -8253,7 +8260,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			for (int i = 0; i < 8; ++i) { // for each direction
 				// new position
 				int x = nx + PATH_DIR_POSITIONS[i << 1];
-				int y = ny + PATH_DIR_POSITIONS[(i << 1) + 1];
+				int y = ny + PATH_DIR_POSITIONS[(i << 1) | 1];
 
 				// oob check
 				if (x < 0 || x >= width || y < 0 || y >= height)
@@ -8303,8 +8310,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (i != startDir) g += 2;
 
 				// h cost is octile distance
-				dx = /*Math.abs*/(x - targetX);
-				dy = /*Math.abs*/(y - targetY);
+				dx = (x - targetX);
+				if (dx < 0) dx = -dx;
+				dy = (y - targetY);
+				if (dy < 0) dy = -dy;
 				h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
 //				h = dx*dx + dy*dy;
 
@@ -8314,6 +8323,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					nodeG[n] = (short) g;
 					nodeH[n] = (short) h;
 					openAdd(n);
+
+					visitedNodes[visited++] = (short) n;
+					nodeDir[n] = (byte) i;
+					nodeX[n] = (byte) x;
+					nodeY[n] = (byte) y;
 				} else if (nodeG[n] > g) { // or shorter
 					nodeParent[n] = (short) cur;
 					nodeG[n] = (short) g;
@@ -8325,49 +8339,52 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 
 			cur = sortedNode;
+			dir = nodeDir[cur];
+			nx = nodeX[cur];
+			ny = nodeY[cur];
+		}
 
-			// update direction
-			if (cur != -1) {
-				parent = nodeParent[cur];
-
-				nx = cur % width;
-				ny = cur / width;
-
-				int px = parent % width, py = parent / width;
-
-				for (int i = 0; i < 8; ++i) {
-					if (nx - px == PATH_DIR_POSITIONS[i << 1] && ny - py == PATH_DIR_POSITIONS[(i << 1) + 1]) {
-						dir = i;
-						break;
-					}
-				}
+		boolean ret = true;
+		ret: {
+			if (cur == -1) {
+				// no path
+				if (LOGGING) Profiler.log("NO PATH!");
+				ret = false;
+				break ret;
 			}
+
+			if (res == null) {
+				// just check if path exists
+				break ret;
+			}
+
+			// traceback
+			int i = 1;
+			while (cur != -1) {
+				// oob check
+				if (i >= res.length - 1) return false;
+
+				int y = cur / width;
+				res[i++] = (short) (cur - y * width);
+				res[i++] = (short) y;
+				cur = nodeParent[cur];
+			}
+			// set result length
+			res[0] = (short) i;
 		}
 
-		if (cur == -1) {
-			// no path
-			if (LOGGING) Profiler.log("NO PATH!");
-			return false;
+		// cleanup
+		for (int i = 0; i < visited; ++i) {
+			int n = visitedNodes[i] & 0xFFFF;
+			nodeParent[n] = -1;
+			nodeG[n] = 0;
+			nodeH[n] = 0;
+
+			openNodePrev[n] = -1;
+			openNodeNext[n] = -1;
 		}
 
-		if (res == null)
-			return true; // just check if path exists
-
-		// traceback
-		int i = 1;
-		while (cur != -1) {
-			// oob check
-			if (i >= res.length - 1) return false;
-
-			int y = cur / width;
-			res[i++] = (short) (cur - y * width);
-			res[i++] = (short) y;
-			cur = nodeParent[cur];
-		}
-		// set result length
-		res[0] = (short) i;
-
-		return true;
+		return ret;
 	}
 
 	// sorted linked list functions
