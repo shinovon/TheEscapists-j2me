@@ -2911,7 +2911,24 @@ class NPC implements Constants {
 											case Items.PLASTIC_SPOON:
 												if (checkFatigued()) break hit;
 												if (checkInventoryFull()) break hit;
-												// TODO check stability
+
+												// stability check
+												if (layer == LAYER_UNDERGROUND) s: {
+													for (int ox = -2; ox <= 2; ++ox) {
+														for (int oy = -2; oy <= 2; ++oy) {
+															if (x + ox < 0 || y + oy < 0 || x + ox > map.width || y + oy > map.height)
+																continue;
+															if (map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) == 100
+																	|| map.getBreakProgress(x + ox, y + oy, LAYER_UNDERGROUND) == 101) {
+																break s;
+															}
+														}
+													}
+
+													dialog = "asd";
+													dialogTimer = TPS * 2;
+													break hit;
+												}
 
 												reduceDurability(slot);
 												break;
@@ -2926,6 +2943,9 @@ class NPC implements Constants {
 											map.progress = 0;
 											break hit;
 										}
+									} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100) {
+										map.setBreakProgress(x, y, layer, 101);
+										break hit;
 									}
 								} else if (b == COLL_DIGGED_WALL) {
 									switch (item) {
