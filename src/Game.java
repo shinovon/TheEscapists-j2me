@@ -1746,11 +1746,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[2] = Items.POWERED_SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[1] = Items.TIMBER_BRACE | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[3] = Items.STURDY_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
-					player.inventory[4] = Items.FAKE_VENT_COVER | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[2] = Items.POWERED_SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
+//
+//					player.inventory[3] = Items.STURDY_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[4] = Items.FAKE_VENT_COVER | Items.ITEM_DEFAULT_DURABILITY;
 					
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
@@ -3488,7 +3490,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (layer == LAYER_VENT) {
 			sprite = 0;
 		} else if (layer == LAYER_UNDERGROUND) {
-			// can be rock or timber
+			// can be rock or timber brace
 			sprite = p >= 120 ? 65 : p == 101 ? 87 : p == 100 ? 64 : 0;
 		} else if (p == 101) {
 			// poster
@@ -5092,7 +5094,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		boolean res = false;
 		int slots = containers[idx + 2];
 		for (int i = 0; i < slots; ++i) {
-			if (isIllegal(containers[idx + 3 + i] & Items.ITEM_ID_MASK)) {
+			if (containers[idx + 3 + i] != Items.ITEM_NULL && isIllegal(containers[idx + 3 + i] & Items.ITEM_ID_MASK)) {
 				containers[idx + 3 + i] = Items.ITEM_NULL;
 				res = true;
 			}
