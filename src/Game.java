@@ -163,6 +163,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean saveProblem;
 	boolean craftingOpen;
 	int[] craftSlots = new int[3];
+	String craftingMessage;
 	NPC profileOpen;
 
 	boolean debugFreecam;
@@ -214,8 +215,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			g.setColor(0x231F20);
 			g.fillRect(0, 0, viewWidth, viewHeight);
 			if (noTextures) {
-				String s = "Missing textures";
-				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
+				drawCenteredText(g, "Missing textures", w, h >> 1, FONT_REGULAR);
 				return;
 			}
 			g.drawImage(bgImg, (viewWidth - bgImg.getWidth()) >> 1, (viewHeight - bgImg.getHeight()) >> 1, 0);
@@ -234,27 +234,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			String s;
 			int f, i = 0;
 
-			s = "New game";
 			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 80, f);
+			drawCenteredText(g, "New game", w, h - 80, f);
 			i++;
 
-			s = "Continue";
 			fontColor = hasSave ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 60, f);
+			drawCenteredText(g, "Continue", w, h - 60, f);
 			i++;
 
-			s = "Settings";
 			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 40, f);
+			drawCenteredText(g, "Settings", w, h - 40, f);
 			i++;
 
-			s = "Exit";
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawText(g, s, (w - textWidth(s, f)) >> 1, h - 20, f);
+			drawCenteredText(g, "Exit", w, h - 20, f);
 
 			fontColor = FONT_COLOR_GREY_7F;
 			if (version != null) {
@@ -283,22 +279,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				s = "Loading";
 				break;
 			}
-			drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
+			drawCenteredText(g, s, w, h >> 1, FONT_REGULAR);
 		} else if (state == STATE_PAUSED) {
 			// paused
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "GAME PAUSED";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 40, FONT_BOLD);
+			drawCenteredText(g, s, w, 40, FONT_BOLD);
 			fontColor = FONT_COLOR_GREY_B4;
 
 			s = "Press fire to resume";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
+			drawCenteredText(g, s, w, h - 40, FONT_BOLD);
 		} else if (state == STATE_SETTINGS) {
 			// settings
 			int i = 0;
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "Settings";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 20, FONT_BOLD);
+			drawCenteredText(g, s, w, 20, FONT_BOLD);
 
 			if (!NO_SFX) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
@@ -338,22 +334,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else if (state == STATE_ESCAPED) {
 			// escaped
 			fontColor = FONT_COLOR_ORANGE;
-			String s = "ESCAPED";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 40, FONT_BOLD);
+			drawCenteredText(g, "ESCAPED",  w, 40, FONT_BOLD);
 			fontColor = FONT_COLOR_GREY_B4;
 
-			s = "Press any key to exit";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, h - 40, FONT_BOLD);
+			drawCenteredText(g, "Press any key to exit", w, h - 40, FONT_BOLD);
 		} else if (state == STATE_MAP_SELECT) {
 			// choose map
 			fontColor = FONT_COLOR_ORANGE;
-			String s = "SELECT A PRISON";
-			drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, 20, FONT_BOLD);
+			drawCenteredText(g, "SELECT A PRISON", w, 20, FONT_BOLD);
 
 			int n = maps.length >> 1;
 			for (int i = 0; i < n; ++i) {
 				fontColor = selectedMap == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, s = maps[i << 1], (w - textWidth(s, FONT_REGULAR)) >> 1, 60 + i * 12, FONT_REGULAR);
+				drawCenteredText(g, maps[i << 1], w, 60 + i * 12, FONT_REGULAR);
 			}
 		} else if (mapLoaded && note != NOTE_SOLITARY) {
 			// game
@@ -692,8 +685,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// TODO
 				fontColor = FONT_COLOR_WHITE;
-				String t = "Could not save progress!";
-				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, h >> 1, FONT_REGULAR);
+				drawCenteredText(g, "Could not save progress!", w, h >> 1, FONT_REGULAR);
 			} else if (note != -1) {
 				pausedOverlay = true;
 
@@ -768,8 +760,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 
 				fontColor = FONT_COLOR_GREY_B4;
-				String t = "PRESS FIRE TO CONTINUE";
-				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, ny + nh - 16, FONT_REGULAR);
+				drawCenteredText(g, "PRESS FIRE TO CONTINUE", w, ny + nh - 16, FONT_REGULAR);
 			} else if (inventoryOpen != null) {
 				// looting npc
 				pausedOverlay = true;
@@ -791,8 +782,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				sb.setLength(0);
 
 				fontColor = npc.guard ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_YELLOW;
-				String s = sb.append(npc.name).append("'s pockets").toString();
-				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 6, FONT_REGULAR);
+				drawText(g, sb.append(npc.name).append("'s pockets").toString(), w, ny + 6, FONT_REGULAR);
 
 				int y = ny + 29;
 				for (int i = 0; i < 3; ++i) {
@@ -826,8 +816,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(nx, ny, nw - 1, nh - 1);
 
 					fontColor = FONT_COLOR_ORANGE;
-					String s = "TOILET";
-					drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, ny + 9, FONT_BOLD);
+					drawCenteredText(g, "TOILET", w, ny + 9, FONT_BOLD);
 
 					int y = ny + 26;
 					for (int i = 0; i < 3; ++i) {
@@ -840,8 +829,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.setColor(selectedSlot == -2 ? 0x5787E7 : 0x1F1F1F);
 					g.drawRect(nx + 11, ny + 55, 71, 16);
 					fontColor = FONT_COLOR_GREY_7F;
-					s = "FLUSH";
-					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 59, FONT_REGULAR);
+					drawCenteredText(g, "FLUSH", w, ny + 59, FONT_REGULAR);
 				} else {
 					int nw = 120;
 					int nh = 110;
@@ -855,8 +843,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					fontColor = FONT_COLOR_GREY_7F;
 					// TODO name
-					String s = "Desk";
-					drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 5, FONT_REGULAR);
+					drawCenteredText(g, "Desk", w, ny + 5, FONT_REGULAR);
 
 					int y = ny + 18;
 					for (int row = 0; row < 4; ++row) {
@@ -883,8 +870,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				g.drawRect(nx, ny, nw - 1, nh - 1);
 
 				fontColor = FONT_COLOR_ORANGE;
-				String s = "CRAFTING";
-				drawText(g, s, (w - textWidth(s, FONT_BOLD)) >> 1, ny + 9, FONT_BOLD);
+				drawCenteredText(g, "CRAFTING", w, ny + 9, FONT_BOLD);
 
 				int y = ny + 26;
 				for (int i = 0; i < 3; ++i) {
@@ -897,8 +883,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				g.setColor(selectedSlot == -2 ? 0x5787E7 : 0x1F1F1F);
 				g.drawRect(nx + 11, ny + 55, 71, 16);
 				fontColor = FONT_COLOR_GREY_7F;
-				s = "CRAFT";
-				drawText(g, s, (w - textWidth(s, FONT_REGULAR)) >> 1, ny + 59, FONT_REGULAR);
+				drawCenteredText(g, "CRAFT", w, ny + 59, FONT_REGULAR);
+
+				if (craftingMessage != null) {
+					// TODO
+					drawCenteredText(g, craftingMessage, w, h * 4 / 5, FONT_REGULAR);
+				}
 			} else if (profileOpen != null) {
 				pausedOverlay = true;
 
@@ -1408,20 +1398,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						case FIRE:
 							if (selectedSlot == -2) {
 								int r = craft();
+								// TODO
 								if (r == -1) {
 									Sound.playEffect(Constants.SFX_LOSE);
-									// TODO nothing happens message
+									craftingMessage = "Nothing happens";
 								} else if (r < 0) {
 									Sound.playEffect(Constants.SFX_LOSE);
-									// TODO not enough intellect message
+									craftingMessage = "Not enough intellect";
 								} else if (!player.addItem(r | Items.ITEM_DEFAULT_DURABILITY, false)) {
 									Sound.playEffect(Constants.SFX_LOSE);
-									// TODO inventory full message
+									craftingMessage = "Inventory full";
 								} else {
 									Sound.playEffect(Constants.SFX_ACCOLADE);
 									craftSlots[0] = Items.ITEM_NULL;
 									craftSlots[1] = Items.ITEM_NULL;
 									craftSlots[2] = Items.ITEM_NULL;
+									craftingMessage = null;
 								}
 								break;
 							}
@@ -8053,6 +8045,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		}
 		// return new x position
 		return x;
+	}
+
+	static int drawCenteredText(Graphics g, String text, int w, int y, int font) {
+		return drawText(g, text, (w - textWidth(text, font)) >> 1, y, font);
 	}
 
 	static void drawNumber(Graphics g, int v, Image img, int sx, int sy, int cw, int ch, int dx, int dy) {
