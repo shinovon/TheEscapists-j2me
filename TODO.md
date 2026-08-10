@@ -50,9 +50,10 @@
 - [x] NPC inventory looting
 - [x] Vents
 - [x] Destination arrow
+- [x] Shakedowns
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
-- [ ] Player jobs (WIP, only janitor and gardener are finished)
+- [ ] Player jobs (WIP)
 - [ ] Profile
 - [ ] Favors, Journal
 - [ ] Characters setup screen
@@ -61,7 +62,6 @@
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
 - [ ] Shops
 - [ ] Help
-- [ ] Shakedowns
 - [ ] Snipers
 - [ ] NPC opinions
 - [ ] Digging stability
