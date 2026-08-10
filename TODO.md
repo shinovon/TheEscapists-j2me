@@ -64,8 +64,9 @@
 - [ ] Help
 - [ ] Snipers
 - [ ] NPC opinions
-- [ ] Digging stability
+- [ ] Digging stability (timber braces)
 - [ ] Employment board
+- [ ] Stepladder
 
 # Low priority
 

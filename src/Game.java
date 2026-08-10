@@ -7451,8 +7451,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_ROLLCALL_SHAKEDOWNS = 1;
 	static final int TEXT_ROLLCALL_NAMES = 2;
 	static final int TEXT_ROLLCALL_BANTER = 3;
-	static final int TEXT_ROLLCALL_COMMENCE_COUNT = 14;
-	static final int TEXT_ROLLCALL_COMMENCE_MINSEC_COUNT = 19;
+	static final int TEXT_ROLLCALL_COMMENCE_COUNT = 19;
+	static final int TEXT_ROLLCALL_COMMENCE_MINSEC_COUNT = 14;
 	static final int TEXT_ROLLCALL_SHAKEDOWNS_COUNT = 5;
 	static final int TEXT_ROLLCALL_BANTER_COUNT = 71;
 	static final int TEXT_ROLLCALL_BANTER_MINSEC_COUNT = 41;
