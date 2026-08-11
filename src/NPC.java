@@ -1527,7 +1527,6 @@ class NPC implements Constants {
 				}
 			} else if (targetReached) {
 				if (map.removeIllegalItems(aiWorkState) && aiWorkState == map.getContainerByOwner(0)) {
-					// TODO
 					map.note = NOTE_SOLITARY;
 				}
 

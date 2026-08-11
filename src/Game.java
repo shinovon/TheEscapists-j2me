@@ -6451,15 +6451,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// not used yet
 	void warnGuards(int x, int y) {
-		NPC npc;
-		do {
-			npc = pickRandomNPC(true, false);
-		} while (npc.aiState != NPC.AI_ROAM);
+		NPC guard = null;
+		int n = npcNum;
+		for (int i = 1; i < n; ++i) {
+			NPC npc = chars[i];
+			if (!npc.guard || npc.aiState != NPC.AI_ROAM)
+				continue;
+			guard = npc;
+		}
 
-		npc.aiState = NPC.AI_CHECK;
-		npc.pathX = x;
-		npc.pathY = y;
-		npc.correctPath = false;
+		if (guard == null) return;
+
+		guard.aiState = NPC.AI_CHECK;
+		guard.pathX = x;
+		guard.pathY = y;
+		guard.correctPath = false;
 	}
 
 	NPC pickRandomNPC(boolean guard, boolean notPlayer) {
