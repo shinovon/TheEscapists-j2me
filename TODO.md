@@ -54,13 +54,13 @@
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
-- [ ] Profile
+- [ ] Profile (WIP)
 - [ ] Favors, Journal
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
 - [ ] Recruiting
 - [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
-- [ ] Shops
+- [ ] Shops (WIP)
 - [ ] Help
 - [ ] Snipers
 - [ ] NPC opinions

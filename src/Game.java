@@ -914,7 +914,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				if (profileTab == 0) {
 					fontColor = npc.guard ? FONT_COLOR_BLUE : npc.ai ? FONT_COLOR_YELLOW : FONT_COLOR_ORANGE;
-					drawCenteredText(g, npc.name, w, ny + 7, FONT_REGULAR);
+					drawCenteredText(g, /* npc.guard ? "Officer".concat(npc.name) : */npc.name, w, ny + 7, FONT_REGULAR);
 					if (npc.inmate) {
 						fontColor = FONT_COLOR_GREY_69;
 						drawCenteredText(g, jobStrings[npc.job], w, ny + 15, FONT_REGULAR);
@@ -3732,7 +3732,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else if (!isDiggable(t) || t < 0) {
 			sprite = 0;
 		} else if (p == 0) {
-			sprite = isFloor(t) ? 73 : 72;
+//			sprite = isFloor(t) ? 73 : 72;
+			sprite = 73;
 		} else if (p < 25) {
 			sprite = 71;
 		} else if (p < 50) {

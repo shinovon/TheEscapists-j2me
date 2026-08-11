@@ -446,6 +446,7 @@ public class ResourceBuilder implements Constants {
 				"Sheets + Posters_1-0_0.png", 4, 5,
 				"Sheets + Posters_0-0_0.png", 5, 5,
 				"Active 9_0-0_0.png", 6, 5,
+				"soil_0-0_0.png", 7, 5, // hack
 				"Brace_0-0_0.png", 7, 5,
 				"Toilet 2_1-0_2.png", 8, 5,
 				"Toilet 2_1-16_2.png", 9, 5,

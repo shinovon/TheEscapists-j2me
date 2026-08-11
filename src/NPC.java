@@ -2782,8 +2782,7 @@ class NPC implements Constants {
 												case Items.LIGHTWEIGHT_SHOVEL:
 												case Items.FLIMSY_SHOVEL:
 												case Items.PLASTIC_FORK:
-													if (checkFatigued()) break hit;
-													if (checkInventoryFull()) break hit;
+													if (checkFatigued() || checkInventoryFull()) break hit;
 													reduceDurability(slot);
 													break;
 												default:
@@ -2896,7 +2895,7 @@ class NPC implements Constants {
 											|| (Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
 											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
 											|| (layer == LAYER_GROUND && Game.isDiggable(t)
-											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1 && map.getBreakProgress(x, y, layer) < 100))
+											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1))
 									) {
 										dig: {
 											switch (item) {
@@ -2909,8 +2908,9 @@ class NPC implements Constants {
 											case Items.LIGHTWEIGHT_PICKAXE:
 											case Items.FLIMSY_PICKAXE:
 											case Items.PLASTIC_SPOON:
-												if (checkFatigued()) break hit;
-												if (checkInventoryFull()) break hit;
+												if (map.getBreakProgress(x, y, layer) >= 100
+														|| checkFatigued() || checkInventoryFull())
+													break hit;
 
 												// stability check
 												if (layer == LAYER_UNDERGROUND) s: {
@@ -2935,6 +2935,14 @@ class NPC implements Constants {
 
 												reduceDurability(slot);
 												break;
+											case Items.DIRT:
+											case Items.SAND:
+												// fill hole
+												if (map.getBreakProgress(x, y, layer) == 0 || layer != LAYER_GROUND)
+													break hit;
+												map.setBreakProgress(x, y, layer, 0);
+												inventory[slot] = Items.ITEM_NULL;
+												break dig;
 											default:
 												break dig;
 											}
@@ -3605,6 +3613,9 @@ class NPC implements Constants {
 								map.selectedSlot = 0;
 //								map.outOfRange = map.player.canSee(this);
 								Sound.playEffect(Sound.SFX_OPEN);
+								// TODO talk
+								// cooldown
+//								npc.statRespect++;
 							}
 						}
 					}
