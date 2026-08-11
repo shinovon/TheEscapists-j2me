@@ -544,11 +544,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				charBuffer[6] = '-';
 				charBuffer[7] = ' ';
 
-				// TODO job
-				sb.append(scheduleStrings[schedule])
-						.append(" (Day ")
-						.append(day + 1)
-						.append(')');
+				if (schedule == SC_WORK_PERIOD && player.job != 0) {
+					sb.append(jobStrings[player.job]);
+				} else {
+					sb.append(scheduleStrings[schedule]);
+				}
+				sb.append(" (Day ")
+				.append(day + 1)
+				.append(')');
 
 				n = sb.length();
 				sb.getChars(0, n, charBuffer, 8);
@@ -883,7 +886,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				drawCenteredText(g, "CRAFT", w, ny + 59, FONT_REGULAR);
 
 				if (craftingMessage != null) {
-					// TODO
+					// TODO timer
 					fontColor = FONT_COLOR_BLACK;
 					int tw = textWidth(craftingMessage, FONT_REGULAR);
 					int tx = (w - tw) >> 1, ty = h * 4 / 5;
@@ -1155,7 +1158,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						noteText = null;
 					}
 				} else if (inventoryOpen != null) {
-					// TODO
 					if (key == -7) {
 						inventoryOpen = null;
 						selectedSlot = 0;
@@ -1464,7 +1466,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						case FIRE:
 							if (selectedSlot == -2) {
 								int r = craft();
-								// TODO
 								if (r == -1) {
 									Sound.playEffect(Constants.SFX_LOSE);
 									craftingMessage = "Nothing happens";
@@ -4163,9 +4164,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// vent tint
 					globalVertexBuffer.setDefaultColor(0x7F7F7F);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
-				} else if (layer == LAYER_UNDERGROUND) {
-					// TODO
-				} else if ((time < 7 * 60 + 128 || time > 21 * 60)
+				} else if (layer != LAYER_UNDERGROUND
+						&& (time < 7 * 60 + 128 || time > 21 * 60)
 						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
 					globalVertexBuffer.setDefaultColor(globalLightColor);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
