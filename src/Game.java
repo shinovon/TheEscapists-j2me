@@ -887,8 +887,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				if (craftingMessage != null) {
 					// TODO
-					fontColor = FONT_COLOR_RED;
-					drawCenteredText(g, craftingMessage, w, h * 4 / 5, FONT_REGULAR);
+					fontColor = FONT_COLOR_BLACK;
+					int tw = textWidth(craftingMessage, FONT_REGULAR);
+					int tx = (w - tw) >> 1, ty = h * 4 / 5;
+					g.setColor(0xFFC000);
+					g.fillRect(tx - 3, ty - 3, tw + 6, 15);
+					g.setColor(0);
+					g.drawRect(tx - 3, ty - 3, tw + 6, 15);
+					drawText(g, craftingMessage, tx, ty, FONT_REGULAR);
 				}
 			} else if (profileOpen != null) {
 				pausedOverlay = true;
@@ -1327,6 +1333,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (key == -7) {
 						// exit
 						craftingOpen = false;
+						craftingMessage = null;
 						selectedSlot = 0;
 						selectedInventory = lastSelectedInventory;
 						for (int i = 0; i < slots; i++) {
@@ -1409,7 +1416,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									craftingMessage = "Nothing happens";
 								} else if (r < 0) {
 									Sound.playEffect(Constants.SFX_LOSE);
-									craftingMessage = "Not enough intellect";
+									StringBuffer sb = stringBuffer;
+									sb.setLength(0);
+									craftingMessage = sb.append("You need ").append(-player.statIntellect - r).append(" more INT to craft that").toString();
 								} else if (!player.addItem(r | Items.ITEM_DEFAULT_DURABILITY, false)) {
 									Sound.playEffect(Constants.SFX_LOSE);
 									craftingMessage = "Inventory full";
