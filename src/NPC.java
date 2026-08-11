@@ -350,7 +350,7 @@ class NPC implements Constants {
 				}
 
 				// don't render outfit when in shower room
-				inShower = isInZone(ZONE_SHOWER);
+				inShower = isInZone(ZONE_SHOWER) && (!ai || map.schedule == SC_SHOWER_BLOCK);
 
 				if (layer == LAYER_ROOF &&
 						s1 == COLL_NONE && s2 == COLL_NONE && s3 == COLL_NONE && s4 == COLL_NONE) {

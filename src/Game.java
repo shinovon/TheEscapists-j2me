@@ -5915,6 +5915,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			return "Paper Clip";
 		case Items.RAZOR_BLADE:
 			return "Razor Blade";
+		case Items.PILLOW:
+			return "Pillow";
 		case Items.TOOTHBRUSH:
 			return "Toothbrush";
 		case Items.TOOTHBRUSH_SHIV:
