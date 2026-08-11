@@ -354,12 +354,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// game
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
 			int vw = w, vh = h;
-			int ox = 0, oy = 0;
 			if (player.layer == LAYER_UNDERGROUND) {
 				vw = 64;
 				vh = 64;
-				ox = (w - vw) / 2;
-				oy = (h - vh) / 2;
+				int ox = (w - vw) / 2;
+				int oy = (h - vh) / 2;
 				x += ox;
 				y += oy;
 				g.setClip(ox, oy, vw, vh);
@@ -374,10 +373,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			paintMap(g, x, y, vw, vh, layer);
 			if (player.climbed) {
 				paintMap(g, x, y, vw, vh, LAYER_VENT);
-			}
-			if (player.layer == LAYER_UNDERGROUND) {
-				g.translate(-ox, -oy);
-				g.setClip(0, 0, w, h);
 			}
 
 			arrow: {
@@ -4185,6 +4180,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		if (layer == LAYER_UNDERGROUND) {
+			viewX -= g.getTranslateX();
+			viewY -= g.getTranslateY();
+			viewWidth = this.viewWidth;
+			viewHeight = this.viewHeight;
+			g.translate(-g.getTranslateX(), -g.getTranslateY());
+			g.setClip(0, 0, viewWidth, viewHeight);
+		}
 		if (pausedOverlay) return;
 
 		// markers
