@@ -165,6 +165,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int[] craftSlots = new int[3];
 	String craftingMessage;
 	NPC profileOpen;
+	int profileTab;
 
 	boolean debugFreecam;
 
@@ -898,8 +899,55 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			} else if (profileOpen != null) {
 				pausedOverlay = true;
+				NPC npc = profileOpen;
 
-				// TODO
+				int nw = 120;
+				int nh = 124;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x333333);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				if (profileTab == 0) {
+					fontColor = npc.guard ? FONT_COLOR_BLUE : npc.ai ? FONT_COLOR_YELLOW : FONT_COLOR_ORANGE;
+					drawCenteredText(g, npc.name, w, ny + 7, FONT_REGULAR);
+					if (npc.inmate) {
+						fontColor = FONT_COLOR_GREY_69;
+						drawCenteredText(g, jobStrings[npc.job], w, ny + 15, FONT_REGULAR);
+					}
+
+					fontColor = FONT_COLOR_GREY_7F;
+					drawText(g, "Strength", nx + 22 - 15, ny + 31, FONT_REGULAR);
+					drawText(g, "Speed", nx + 34 - 15, ny + 42, FONT_REGULAR);
+					drawText(g, "Intellect", nx + 26 - 15, ny + 53, FONT_REGULAR);
+					if (npc.ai) drawText(g, "Opinion", nx + 28 - 15, ny + 64, FONT_REGULAR);
+
+					g.setColor(0x979797);
+					g.drawRect(nx + 64 - 15, ny + 33, 61, 6);
+					g.drawRect(nx + 64 - 15, ny + 44, 61, 6);
+					g.drawRect(nx + 64 - 15, ny + 55, 61, 6);
+					if (npc.ai) g.drawRect(nx + 64 - 15, ny + 66, 61, 6);
+
+					g.setColor(0x4377E6);
+					g.fillRect(nx + 65 - 15, ny + 34, (npc.statStrength * 60) / 100, 5);
+					g.fillRect(nx + 65 - 15, ny + 45, (npc.statSpeed * 60) / 100, 5);
+					g.fillRect(nx + 65 - 15, ny + 56, (npc.statIntellect * 60) / 100, 5);
+					if (npc.ai) g.fillRect(nx + 65 - 15, ny + 67, (npc.statRespect * 60) / 100, 5);
+
+					drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 85, npc.outfitItem, false);
+					drawItemSlot(g, nx + (nw >> 1) + 15, ny + 85, npc.weapon, false);
+
+					fontColor = FONT_COLOR_GREY_69;
+					drawText(g, "outfit", nx + (nw >> 1) - 20 - 15 - 2, ny + 85 + 21, FONT_REGULAR);
+					drawText(g, "weapon", nx + (nw >> 1) + 15 - 5, ny + 85 + 21, FONT_REGULAR);
+				}
+
+				if (npc.inmate && npc.ai) {
+
+				}
 			} else {
 				pausedOverlay = false;
 			}
@@ -1022,10 +1070,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		Profiler.beginFrameSection(Profiler.FRAME_FLUSH);
 		flushGraphics();
-	}
-
-	void drawProfile(Graphics g, NPC npc) {
-		// TODO
 	}
 
 	static void drawItemSlot(Graphics g, int x, int y, int item, boolean selected) {
@@ -1460,6 +1504,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// TODO
 					if (key == -7) {
 						profileOpen = null;
+						profileTab = 0;
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -1521,6 +1566,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								break;
 							case GAME_C:
 								// TODO profile
+								profileOpen = player;
+								profileTab = 0;
 								break;
 							case GAME_D:
 								// crafting
@@ -1533,6 +1580,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} catch (Exception ignored) {}
 					} else if (key == '7' || key == 'Z') {
 						// TODO profile
+						profileOpen = player;
+						profileTab = 0;
 					} else if (key == '8' || key == 'X') {
 						// TODO journal
 					} else if (key == '9' || key == 'C') {
