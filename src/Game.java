@@ -940,7 +940,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.fillRect(nx + 65 - 15, ny + 34, (npc.statStrength * 60) / 100, 5);
 					g.fillRect(nx + 65 - 15, ny + 45, (npc.statSpeed * 60) / 100, 5);
 					g.fillRect(nx + 65 - 15, ny + 56, (npc.statIntellect * 60) / 100, 5);
-					if (npc.ai) g.fillRect(nx + 65 - 15, ny + 67, (npc.statRespect * 60) / 100, 5);
+					if (npc.ai) g.fillRect(nx + 65 - 15, ny + 67, (npc.statOpinion * 60) / 100, 5);
 
 					drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 85, npc.outfitItem, selectedSlot == 0);
 					drawItemSlot(g, nx + (nw >> 1) + 15, ny + 85, npc.weapon, selectedSlot == 1);
@@ -3032,7 +3032,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// fill collision lookup
 			for (int i = 0; i < width * height; ++i) {
 				byte t = tiles[i];
-				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : isSolidTile(t);
+				solid[i] = l == LAYER_UNDERGROUND ? (t == 100 ? COLL_NONE : COLL_SOLID) : getTileCollision(t);
 			}
 
 			{
@@ -3064,7 +3064,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else if (l == LAYER_UNDERGROUND) {
 							tiles[pos] = 100;
 							solid[pos] = p >= 120 ? COLL_SOLID : COLL_NONE;
-						} else if (isSolidTile(m) != COLL_NONE) {
+						} else if (getTileCollision(m) != COLL_NONE) {
 							tiles[pos] = (byte) -m;
 							solid[pos] = p > 100 ? COLL_POSTER : COLL_DIGGED_WALL;
 							if (USE_TILED_LAYER) {
@@ -3081,7 +3081,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				for (int i = 0; i < n; ++i) {
 					int idx = i << 2;
 					byte s;
-					if ((s = isSolidObject(objects[idx + 1])) == COLL_NONE) {
+					if ((s = getObjectCollision(objects[idx + 1])) == COLL_NONE) {
 						continue;
 					}
 
@@ -3133,7 +3133,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				npc.statStrength = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
 				npc.statSpeed = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
 				npc.statIntellect = Math.max(5, Math.min(90, b + NPC.rng.nextInt(30)));
-				npc.statRespect = Math.max(5, Math.min(90, 60 - b + NPC.rng.nextInt(30)));
+				npc.statOpinion = Math.max(5, Math.min(90, 60 - b + NPC.rng.nextInt(30)));
 				npc.health = npc.statStrength >> 1;
 
 				npc.updateItems();
@@ -5367,10 +5367,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	static boolean isDiggable(byte tile) {
-		return isSolidTile(tile) == COLL_NONE;
+		return getTileCollision(tile) == COLL_NONE;
 	}
 
-	static byte isSolidTile(byte tile) {
+	static byte getTileCollision(byte tile) {
 		switch (tile) {
 		case 4:
 		case 6:
@@ -5452,7 +5452,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// objects
 
-	static byte isSolidObject(int i) {
+	static byte getObjectCollision(int i) {
 		// TODO
 		switch (i) {
 		case Objects.TOILET:

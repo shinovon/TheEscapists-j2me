@@ -113,7 +113,7 @@ class NPC implements Constants {
 	String name;
 	
 	// stats
-	int statStrength = 30, statSpeed = 30, statIntellect = 30, statRespect = 30;
+	int statStrength = 30, statSpeed = 30, statIntellect = 30, statOpinion = 30;
 
 	int health = 15;
 	
@@ -2025,7 +2025,7 @@ class NPC implements Constants {
 		data.writeByte(statStrength);
 		data.writeByte(statSpeed);
 		data.writeByte(statIntellect);
-		data.writeByte(statRespect);
+		data.writeByte(statOpinion);
 
 		data.writeShort(bedX);
 		data.writeShort(bedY);
@@ -2049,7 +2049,7 @@ class NPC implements Constants {
 		statStrength = data.readByte();
 		statSpeed = data.readByte();
 		statIntellect = data.readByte();
-		statRespect = data.readByte();
+		statOpinion = data.readByte();
 
 		bedX = data.readShort();
 		bedY = data.readShort();
