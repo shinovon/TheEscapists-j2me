@@ -1637,7 +1637,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										case Items.PADDED_INMATE_OUTFIT:
 										case Items.PLATED_INMATE_OUTFIT:
 										case Items.GUARD_OUTFIT:
-											inventoryOpen.outfitId = (item & Items.ITEM_ID_MASK) == Items.GUARD_OUTFIT ? Textures.OUTFIT_GUARD : Textures.OUTFIT_INMATE;
+											player.outfitId = (item & Items.ITEM_ID_MASK) == Items.GUARD_OUTFIT ? Textures.OUTFIT_GUARD : Textures.OUTFIT_INMATE;
 											player.outfitItem = item;
 											player.inventory[selectedInventory] = Items.ITEM_NULL;
 											break;
@@ -1654,7 +1654,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									if (player.outfitItem != Items.ITEM_NULL) {
 										player.addItem(player.outfitItem, true);
 										player.outfitItem = Items.ITEM_NULL;
-										inventoryOpen.outfitId = -1;
+										player.outfitId = -1;
 									}
 								} else if (selectedSlot == 1) {
 									if (player.weapon != Items.ITEM_NULL) {
