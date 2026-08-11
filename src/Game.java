@@ -6449,6 +6449,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region NPC
 
+	// not used yet
+	void warnGuards(int x, int y) {
+		NPC npc;
+		do {
+			npc = pickRandomNPC(true, false);
+		} while (npc.aiState != NPC.AI_ROAM);
+
+		npc.aiState = NPC.AI_CHECK;
+		npc.pathX = x;
+		npc.pathY = y;
+		npc.correctPath = false;
+	}
+
 	NPC pickRandomNPC(boolean guard, boolean notPlayer) {
 		int n = npcNum;
 		NPC res;

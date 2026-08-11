@@ -1536,6 +1536,23 @@ class NPC implements Constants {
 				correctPath = false;
 				aiState = AI_RESET;
 			}
+		} else if (aiState == AI_CHECK) {
+			if (!correctPath) {
+				if (map.pathfind(this.x / TILE_SIZE, (this.y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+					correctPath = true;
+					pathStep = 0;
+				} else {
+					aiState = AI_RESET;
+					if (LOGGING) {
+						Profiler.log(debugName() + " cannot pathfind to check " + pathX + " " + pathY);
+					}
+				}
+			} else if (targetReached) {
+				aiWaitTimer = TPS * 2;
+				this.targetReached = false;
+				correctPath = false;
+				aiState = AI_RESET;
+			}
 		}
 
 		if (chaseTarget != null) {
