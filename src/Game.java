@@ -944,8 +944,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.fillRect(nx + 65 - 15, ny + 56, (npc.statIntellect * 60) / 100, 5);
 					if (npc.ai) g.fillRect(nx + 65 - 15, ny + 67, (npc.statRespect * 60) / 100, 5);
 
-					drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 85, npc.outfitItem, false);
-					drawItemSlot(g, nx + (nw >> 1) + 15, ny + 85, npc.weapon, false);
+					drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 85, npc.outfitItem, selectedSlot == 0);
+					drawItemSlot(g, nx + (nw >> 1) + 15, ny + 85, npc.weapon, selectedSlot == 1);
 
 					fontColor = FONT_COLOR_GREY_69;
 					drawText(g, "outfit", nx + (nw >> 1) - 20 - 15 - 2, ny + 85 + 21, FONT_REGULAR);
@@ -1637,6 +1637,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										case Items.PADDED_INMATE_OUTFIT:
 										case Items.PLATED_INMATE_OUTFIT:
 										case Items.GUARD_OUTFIT:
+											inventoryOpen.outfitId = (item & Items.ITEM_ID_MASK) == Items.GUARD_OUTFIT ? Textures.OUTFIT_GUARD : Textures.OUTFIT_INMATE;
 											player.outfitItem = item;
 											player.inventory[selectedInventory] = Items.ITEM_NULL;
 											break;
@@ -1652,10 +1653,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								if (selectedSlot == 0) {
 									if (player.outfitItem != Items.ITEM_NULL) {
 										player.addItem(player.outfitItem, true);
+										player.outfitItem = Items.ITEM_NULL;
+										inventoryOpen.outfitId = -1;
 									}
 								} else if (selectedSlot == 1) {
 									if (player.weapon != Items.ITEM_NULL) {
 										player.addItem(player.weapon, true);
+										player.weapon = Items.ITEM_NULL;
 									}
 								}
 							}
@@ -1739,7 +1743,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								profileOpen = player;
 								profileTab = 0;
 								lastSelectedInventory = selectedInventory;
-								selectedInventory = 0;
+								selectedInventory = -1;
 								selectedSlot = 0;
 								break;
 							case GAME_D:
@@ -1756,7 +1760,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						profileOpen = player;
 						profileTab = 0;
 						lastSelectedInventory = selectedInventory;
-						selectedInventory = 0;
+						selectedInventory = -1;
 						selectedSlot = 0;
 					} else if (key == '8' || key == 'X') {
 						// TODO journal

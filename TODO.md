@@ -51,10 +51,11 @@
 - [x] Vents
 - [x] Destination arrow
 - [x] Shakedowns
+- [x] Digging stability (timber braces)
+- [x] Profile (WIP)
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
-- [ ] Profile (WIP)
 - [ ] Favors, Journal
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
@@ -64,10 +65,10 @@
 - [ ] Help
 - [ ] Snipers
 - [ ] NPC opinions
-- [ ] Digging stability (timber braces)
 - [ ] Employment board
 - [ ] Stepladder
 - [ ] Crafting notes
+- [ ] Contraband pouch
 
 # Low priority
 
