@@ -137,6 +137,7 @@ class NPC implements Constants {
 	int desk;
 	boolean selling;
 	int[] sell;
+	boolean talked;
 
 	int fighting;
 
@@ -562,6 +563,10 @@ class NPC implements Constants {
 		}
 		if (animationTimer != 0) {
 			return;
+		}
+
+		if (statOpinion < 0) {
+			statOpinion = 0;
 		}
 
 		if (inmate) {
@@ -1079,6 +1084,9 @@ class NPC implements Constants {
 							if (aiWorkState == Game.TEXT_ROLLCALL_NAMES) {
 								// shakedown names
 								NPC npc1 = map.pickRandomNPC(false, false);
+								if (npc1 != map.player && statOpinion < 40 && rng.nextInt(3) == 0) {
+									npc1 = map.player;
+								}
 								NPC npc2;
 								do {
 									npc2 = map.pickRandomNPC(false, false);
@@ -1893,6 +1901,10 @@ class NPC implements Constants {
 		if (health < 0) {
 			health = 0;
 			attackTimer = 0;
+			if (source == map.player) {
+				// TODO
+				statOpinion -= 10;
+			}
 			return;
 		}
 		if (!ai) {
@@ -1904,6 +1916,11 @@ class NPC implements Constants {
 		}
 		if (source == null || aiState == AI_ATTACK)
 			return;
+
+		if (source == map.player) {
+			// TODO
+			statOpinion -= 10;
+		}
 
 		if (inmate) {
 			dialog = Game.getAttackedText(rng.nextInt(Game.TEXT_ATTACKED_COUNT));
@@ -3338,6 +3355,7 @@ class NPC implements Constants {
 													// TODO
 													npc.aiState = AI_RESET;
 													npc.aiWaitTimer = TPS;
+													npc.statOpinion--;
 													break;
 												}
 											}
@@ -3521,8 +3539,10 @@ class NPC implements Constants {
 											NPC npc = map.chars[i];
 											if (npc != null && npc.training
 													&& npc.x == animateToX && npc.y == animateToY) {
+												// TODO
 												npc.aiState = AI_RESET;
 												npc.aiWaitTimer = TPS;
+												npc.statOpinion--;
 												break;
 											}
 										}
@@ -3632,9 +3652,12 @@ class NPC implements Constants {
 								map.selectedSlot = -1;
 //								map.outOfRange = map.player.canSee(this);
 								Sound.playEffect(Sound.SFX_OPEN);
+
 								// TODO talk
-								// cooldown
-//								npc.statRespect++;
+								if (!talked) {
+									npc.statOpinion++;
+									talked = true;
+								} else talked = false;
 							}
 						}
 					}

@@ -3474,10 +3474,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int n = chars.length;
 					for (int i = 1; i < n; ++i) {
 						if (chars[i] == null) continue;
-						chars[i].updateItems();
+						NPC npc = chars[i];
+						npc.updateItems();
+						if (npc.statOpinion < 50) {
+							if (NPC.rng.nextInt(2) == 0) npc.statOpinion++;
+						} else if (NPC.rng.nextInt(3) == 0) {
+							npc.statOpinion--;
+						}
 					}
 					// reduce player stats
-					if (NPC.rng.nextInt(5) == 0) {
+					if (NPC.rng.nextInt(3) == 0) {
 						player.statStrength--;
 						player.statSpeed--;
 						player.statIntellect--;
