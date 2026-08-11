@@ -1974,7 +1974,15 @@ class NPC implements Constants {
 				for (int i = 0; i < 4; ++i) {
 					int j = rng.nextInt(n);
 					sell[i << 1] = Game.BUY[j << 1];
-					sell[(i << 1) | 1] = Game.BUY[(j << 1) | 1];
+					// TODO check
+					int cost = Game.BUY[(j << 1) | 1];
+					if (statOpinion > 50) {
+						cost -= (cost * (50 - statOpinion)) / 200;
+					} else if (statOpinion < 50) {
+						cost += (cost * ((50 - statOpinion))) / 100;
+					}
+					if (cost < 1) cost = 1;
+					sell[(i << 1) | 1] = cost;
 				}
 			}
 			return;

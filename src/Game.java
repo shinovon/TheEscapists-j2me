@@ -3477,7 +3477,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						chars[i].updateItems();
 					}
 					// reduce player stats
-					if (NPC.rng.nextInt(10) == 0) {
+					if (NPC.rng.nextInt(5) == 0) {
 						player.statStrength--;
 						player.statSpeed--;
 						player.statIntellect--;
@@ -5664,7 +5664,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			0,
 	};
 
-	// 50: 0
 	static final int[] BUY = {
 			Items.GUARD_OUTFIT, 50,
 			Items.LIGHTER, 25,
