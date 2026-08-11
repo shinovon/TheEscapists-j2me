@@ -51,8 +51,8 @@
 - [x] Vents
 - [x] Destination arrow
 - [x] Shakedowns
-- [x] Digging stability (timber braces)
-- [x] Profile (WIP)
+- [x] Timber braces
+- [x] Profile
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
