@@ -1743,8 +1743,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								profileOpen = player;
 								profileTab = 0;
 								lastSelectedInventory = selectedInventory;
-								selectedInventory = -1;
-								selectedSlot = 0;
+								selectedInventory = 0;
+								selectedSlot = -1;
 								break;
 							case GAME_D:
 								// crafting
@@ -1760,8 +1760,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						profileOpen = player;
 						profileTab = 0;
 						lastSelectedInventory = selectedInventory;
-						selectedInventory = -1;
-						selectedSlot = 0;
+						selectedInventory = 0;
+						selectedSlot = -1;
 					} else if (key == '8' || key == 'X') {
 						// TODO journal
 					} else if (key == '9' || key == 'C') {
