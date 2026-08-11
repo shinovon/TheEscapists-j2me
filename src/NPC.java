@@ -2961,7 +2961,7 @@ class NPC implements Constants {
 											map.progress = 0;
 											break hit;
 										}
-									} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100) {
+									} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100 && item == Items.TIMBER_BRACE) {
 										map.setBreakProgress(x, y, layer, 101);
 										break hit;
 									}
