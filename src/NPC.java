@@ -2969,7 +2969,7 @@ class NPC implements Constants {
 																	|| ox == -2 && oy == -2 || ox == -2 && oy == 2
 																	|| ox == 2 && oy == 2 || ox == 2 && oy == -2)
 																continue;
-															if ((map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) != 0 && Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x]))
+															if ((map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) != 0 && Game.isDiggable(map.tiles[LAYER_GROUND][(y + oy) * map.width + x + ox]))
 																	|| map.getBreakProgress(x + ox, y + oy, LAYER_UNDERGROUND) == 101) {
 																break s;
 															}

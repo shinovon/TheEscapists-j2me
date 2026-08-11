@@ -64,7 +64,7 @@
 - [ ] Shops (WIP)
 - [ ] Help
 - [ ] Snipers
-- [ ] NPC opinions
+- [ ] NPC opinions (WIP)
 - [ ] Employment board
 - [ ] Stepladder
 - [ ] Crafting notes
