@@ -41,7 +41,7 @@
 - [x] Chipping walls
 - [x] Posters/Fake walls
 - [x] Random NPC names
-- [x] Crafting (WIP)
+- [x] Crafting
 - [x] Toilets (WIP)
 - [x] Visual effects
 - [x] Hit markers
@@ -67,6 +67,7 @@
 - [ ] Digging stability (timber braces)
 - [ ] Employment board
 - [ ] Stepladder
+- [ ] Crafting notes
 
 # Low priority
 
