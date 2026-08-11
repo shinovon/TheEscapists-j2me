@@ -166,6 +166,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	String craftingMessage;
 	NPC profileOpen;
 	int profileTab;
+	boolean outOfRange; // always false
 
 	boolean debugFreecam;
 
@@ -931,6 +932,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(nx + 64 - 15, ny + 55, 61, 6);
 					if (npc.ai) g.drawRect(nx + 64 - 15, ny + 66, 61, 6);
 
+					g.setColor(0x1F1F1F);
+					g.fillRect(nx + 65 - 15, ny + 34, 60, 5);
+					g.fillRect(nx + 65 - 15, ny + 45, 60, 5);
+					g.fillRect(nx + 65 - 15, ny + 56, 60, 5);
+					if (npc.ai) g.fillRect(nx + 65 - 15, ny + 67, 60, 5);
+
 					g.setColor(0x4377E6);
 					g.fillRect(nx + 65 - 15, ny + 34, (npc.statStrength * 60) / 100, 5);
 					g.fillRect(nx + 65 - 15, ny + 45, (npc.statSpeed * 60) / 100, 5);
@@ -943,6 +950,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					fontColor = FONT_COLOR_GREY_69;
 					drawText(g, "outfit", nx + (nw >> 1) - 20 - 15 - 2, ny + 85 + 21, FONT_REGULAR);
 					drawText(g, "weapon", nx + (nw >> 1) + 15 - 5, ny + 85 + 21, FONT_REGULAR);
+				} else if (profileTab == 1) {
+
+				} else if (profileTab == 2) {
+					if (!npc.selling) {
+
+					} else {
+
+					}
 				}
 
 				if (npc.inmate && npc.ai) {
@@ -1505,6 +1520,161 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (key == -7) {
 						profileOpen = null;
 						profileTab = 0;
+						selectedSlot = 0;
+						selectedInventory = lastSelectedInventory;
+					} else if (key == -6) {
+						// switch between inventory and container
+						if (selectedSlot == -1) {
+							selectedSlot = 0;
+							selectedInventory = -1;
+						} else {
+							selectedSlot = -1;
+							selectedInventory = 0;
+						}
+					} else if (!altControls && key >= '1' && key <= '6') {
+						// select inventory
+						int slot = key - '1';
+						if (player.inventory[slot] != Items.ITEM_NULL) {
+							selectedSlot = -1;
+							selectedInventory = slot;
+						} else {
+							selectedInventory = -1;
+						}
+					} else {
+						switch (gameAction) {
+						case UP:
+							if (selectedSlot == -1) {
+								//noinspection UnusedAssignment
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (profileTab == 2) {
+								if (selectedSlot == 0 || selectedSlot == 1 || !profileOpen.selling) {
+//									profileTab = 1; // TODO
+									profileTab = 0;
+									selectedSlot = 0;
+								} else {
+									selectedSlot -= 2;
+								}
+							} else if (profileTab == 1) {
+								profileTab = 0;
+							}
+							break;
+						case DOWN:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (profileOpen.inmate && profileOpen.ai) {
+								if (profileTab == 0) {
+//									profileTab = 1; // TODO
+									profileTab = 2;
+									selectedSlot = 0;
+								} else if (profileTab == 1) {
+									profileTab = 2;
+									selectedSlot = 0;
+								} else if (profileTab == 2 && (selectedSlot == 0 || selectedSlot == 1) && profileOpen.selling) {
+									selectedSlot += 2;
+								}
+							}
+							break;
+						case LEFT:
+							if (selectedSlot == -1) {
+								//noinspection UnusedAssignment
+								if (selectedInventory-- == 0) {
+									selectedInventory = 5;
+								}
+								break;
+							}
+							if (selectedSlot == -2) break;
+							if (profileTab == 0) {
+								selectedSlot = selectedSlot == 0 ? 1 : 0;
+							} else if (profileTab == 2) {
+								if (selectedSlot == 1) {
+									selectedSlot = 0;
+								} else if (selectedSlot == 3) {
+									selectedSlot = 2;
+								}
+							}
+							break;
+						case RIGHT:
+							if (selectedSlot == -1) {
+								if (++selectedInventory == 6) {
+									selectedInventory = 0;
+								}
+								break;
+							}
+							if (profileTab == 0) {
+								selectedSlot = selectedSlot == 0 ? 1 : 0;
+							} else if (profileTab == 2) {
+								if (selectedSlot == 0) {
+									selectedSlot = 1;
+								} else if (selectedSlot == 2) {
+									selectedSlot = 3;
+								}
+							}
+							break;
+						case FIRE:
+							if (selectedSlot == -1) {
+								int item;
+								if (selectedInventory == -1 || (item = player.inventory[selectedInventory]) == Items.ITEM_NULL)
+									break;
+								if (!profileOpen.ai && profileTab == 0) {
+									// equip
+									if (getItemAttack(item) != 0 && player.weapon == Items.ITEM_NULL) {
+										player.weapon = item;
+										player.inventory[selectedInventory] = Items.ITEM_NULL;
+										break;
+									}
+									if (player.outfitItem == Items.ITEM_NULL) {
+										switch (item & Items.ITEM_ID_MASK) {
+										case Items.INMATE_OUTFIT:
+										case Items.CUSHIONED_INMATE_OUTFIT:
+										case Items.PADDED_INMATE_OUTFIT:
+										case Items.PLATED_INMATE_OUTFIT:
+										case Items.GUARD_OUTFIT:
+											player.outfitItem = item;
+											player.inventory[selectedInventory] = Items.ITEM_NULL;
+											break;
+										}
+										break;
+									}
+								} else if (profileTab == 1 && !outOfRange) {
+									// TODO gift
+								}
+								break;
+							}
+							if (profileTab == 0 && !profileOpen.ai) {
+								if (selectedSlot == 0) {
+									if (player.outfitItem != Items.ITEM_NULL) {
+										player.addItem(player.outfitItem, true);
+									}
+								} else if (selectedSlot == 1) {
+									if (player.weapon != Items.ITEM_NULL) {
+										player.addItem(player.weapon, true);
+									}
+								}
+							}
+							if (outOfRange) break;
+							if (profileTab == 1) {
+								if (selectedSlot == -2) {
+									// TODO gift
+								}
+								break;
+							}
+							if (profileTab == 2 && profileOpen.selling) {
+								// TODO buy
+								int item = profileOpen.sell[selectedSlot << 1];
+								if (item == Items.ITEM_NULL) break;
+
+
+								break;
+							}
+						}
 					}
 				} else if (!pausedOverlay) {
 					if (key == -6) {
@@ -1565,9 +1735,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 								break;
 							case GAME_C:
-								// TODO profile
+								// profile
 								profileOpen = player;
 								profileTab = 0;
+								lastSelectedInventory = selectedInventory;
+								selectedInventory = 0;
+								selectedSlot = 0;
 								break;
 							case GAME_D:
 								// crafting
@@ -1579,9 +1752,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							}
 						} catch (Exception ignored) {}
 					} else if (key == '7' || key == 'Z') {
-						// TODO profile
+						// profile
 						profileOpen = player;
 						profileTab = 0;
+						lastSelectedInventory = selectedInventory;
+						selectedInventory = 0;
+						selectedSlot = 0;
 					} else if (key == '8' || key == 'X') {
 						// TODO journal
 					} else if (key == '9' || key == 'C') {

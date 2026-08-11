@@ -3597,8 +3597,13 @@ class NPC implements Constants {
 								map.inventoryOpen = npc;
 								Sound.playEffect(Sound.SFX_OPEN);
 							} else {
-								// TODO open profile
+								// open profile
 								map.profileOpen = npc;
+								map.profileTab = 0;
+								map.lastSelectedInventory = map.selectedInventory;
+								map.selectedInventory = 0;
+								map.selectedSlot = 0;
+//								map.outOfRange = map.player.canSee(this);
 								Sound.playEffect(Sound.SFX_OPEN);
 							}
 						}
