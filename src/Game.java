@@ -898,7 +898,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(tx - 3, ty - 3, tw + 6, 15);
 					drawText(g, craftingMessage, tx, ty, FONT_REGULAR);
 				}
-			} else if (profileOpen != null) {
+			} else if (profileOpen != null) { // TODO
 				pausedOverlay = true;
 				NPC npc = profileOpen;
 
@@ -4112,7 +4112,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		// effects
 
-		for (int i = 0; i < 2; ++i) {
+		for (int i = 0; i < MAP_EFFECTS_COUNT; ++i) {
 			int effect = effects[i << 2];
 			if (effect != 0 && effects[(i << 2) | 1] != 0) {
 				g.drawRegion(itemsTexture, ((effect & 0xFF) % TILE_SIZE) * TILE_SIZE, (effect / TILE_SIZE) * TILE_SIZE,
@@ -5232,7 +5232,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Effects
 
-	static final int MAP_EFFECTS_COUNT = 2;
+	static final int MAP_EFFECTS_COUNT = 3;
 	static final int HIT_MARKERS_COUNT = 10;
 	static final int HIT_MARKER_TIME = TPS + 5;
 	int[] effects = new int[4 * MAP_EFFECTS_COUNT]; // {[effect, timer, x, y], ...}

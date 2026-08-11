@@ -414,6 +414,13 @@ class NPC implements Constants {
 					map.effects[i + 1] = 1;
 					map.effects[i + 2] = chaseTarget.x;
 					map.effects[i + 3] = chaseTarget.y;
+
+					if (map.effects[9] == 0) {
+						map.effects[8] = 224;
+						map.effects[9] = 2;
+						map.effects[10] = chaseTarget.x;
+						map.effects[11] = chaseTarget.y;
+					}
 				}
 
 				int damage = statStrength / 14;
@@ -3579,6 +3586,10 @@ class NPC implements Constants {
 									}
 									map.tiles[layer][pos] = (byte) -t;
 								}
+								map.effects[0] = 208;
+								map.effects[1] = 2;
+								map.effects[2] = x * TILE_SIZE;
+								map.effects[3] = y * TILE_SIZE;
 								map.solid[layer][pos] = COLL_DIGGED_WALL;
 								map.setBreakProgress(x, y, layer, 100);
 								break interact;
