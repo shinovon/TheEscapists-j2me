@@ -20,14 +20,14 @@ Pause menu
 
 ### Numpad:
 1-6 correspond to inventory slots\
-7 - Profile (TODO)\
+7 - Profile\
 8 - Journal (TODO)\
 9 - Crafting\
 0 - Load game (TODO)
 
 ### QWERTY:
 WASD - Movement\
-Z - Profile (TODO)\
+Z - Profile\
 X - Journal (TODO)\
 C - Crafting\
 V - Load game (TODO)

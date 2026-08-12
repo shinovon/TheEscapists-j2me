@@ -2,7 +2,6 @@
 /.mtj.tmp/
 /deployed/**
 !/deployed/release.sh
-!/deployed/README.md
 /bin/
 /.idea/**
 !/.idea/artifacts
