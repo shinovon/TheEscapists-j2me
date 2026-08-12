@@ -77,7 +77,8 @@ Main testing and target devices:
 - Nokia E72 (320x240, S60v3.2, 600 MHz)
 
 Secondary (Works but low performance):
-- Nokia E7 (640x360, S60v5.3, 600 MHz)
+- Nokia E6 (640x480, S60v5.2, 680 MHz)
+- Nokia E7 (640x360, S60v5.3, 680 MHz)
 - Nokia E90 (240x320, S60v3.1, 332 MHz)
 - Sony Ericsson W810 (176x220, A100, 110 MHz)
 - Nokia N72 (176x208, S60v2.8, 220 MHz)
