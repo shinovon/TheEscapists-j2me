@@ -2671,1012 +2671,13 @@ class NPC implements Constants {
 				xFloat = x;
 				yFloat = y;
 
-				if (map.firePressed && animationTimer == 0) {
-					if (climbed) {
-						// vents
-						int slot = map.selectedInventory;
-						int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
-								inventory[slot] & Items.ITEM_ID_MASK : -1;
-						if (slot != -1) {
-							map.lastSelectedInventory = map.selectedInventory;
-							map.selectedInventory = -1;
-						}
-
-						int idx = getNearbyVent();
-						if (idx != -1) {
-							int x = map.objects[LAYER_VENT][idx + 3];
-							int y = map.objects[LAYER_VENT][idx + 4];
-							int p = map.getBreakProgress(x, y, LAYER_VENT);
-
-							switch (item) {
-							case Items.SCREWDRIVER:
-							case Items.POWERED_SCREWDRIVER:
-							case Items.PLASTIC_KNIFE:
-							case Items.STURDY_CUTTERS:
-							case Items.FLIMSY_CUTTERS:
-							case Items.LIGHTWEIGHT_CUTTERS:
-							case Items.CUTTING_FLOSS:
-							case Items.FILE:
-								if (p == 100) break;
-								if (checkInventoryFull()) break;
-								if (checkFatigued()) break;
-								reduceDurability(slot);
-
-								moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-								if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
-									map.action = ACT_UNSCREWING;
-									map.actionParam = item == Items.SCREWDRIVER ? 24 : 40;
-								} else {
-									map.action = ACT_CUTTING_VENT;
-									map.actionParam = item;
-								}
-								map.actionTargetX = x;
-								map.actionTargetY = y;
-								map.progress = 0;
-								break;
-							case Items.VENT_COVER:
-							case Items.FAKE_VENT_COVER:
-								if (p == 101) break;
-								// put
-								if (p == 100) {
-									inventory[slot] = Items.ITEM_NULL;
-									if (item == Items.FAKE_VENT_COVER) {
-										map.setBreakProgress(x, y, LAYER_VENT, 101);
-										map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
-									} else {
-										map.setBreakProgress(x, y, LAYER_VENT, 95);
-										map.objects[LAYER_VENT][idx + 2] = (short) (80 | (1 << 8) | (1 << 10));
-									}
-								}
-								break;
-							}
-						}
-					} else {
-						hit: {
-							if (carry != null) {
-								int x = (this.x + 7) / TILE_SIZE;
-								int y = (this.y + 7) / TILE_SIZE;
-								if (map.solid[layer][x + y * map.width] != 0) {
-									Sound.playEffect(Sound.SFX_LOSE);
-								} else {
-									Sound.playEffect(Sound.SFX_THROW);
-									carry.xFloat = carry.x = x * TILE_SIZE;
-									carry.yFloat = carry.y = y * TILE_SIZE;
-									carry.carried = false;
-									carry = null;
-								}
-								break hit;
-							}
-
-							int slot = map.selectedInventory;
-							int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
-									inventory[slot] & Items.ITEM_ID_MASK : -1;
-							if (slot != -1) {
-								map.lastSelectedInventory = map.selectedInventory;
-								map.selectedInventory = -1;
-							}
-
-							if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
-								int idx = getNearbyDirt();
-								if (idx != -1) {
-									int obj = map.objects[layer][idx + 1];
-									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
-											|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
-										int x = map.objects[layer][idx + 3];
-										int y = map.objects[layer][idx + 4];
-										if (checkFatigued()) break hit;
-										moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-										map.action = ACT_CLEANING;
-										map.actionTargetX = x;
-										map.actionTargetY = y;
-										map.progress = 0;
-										break hit;
-									}
-								}
-								break hit;
-							}
-							int x, y;
-							switch (direction) {
-							case DIR_RIGHT:
-								x = 17;
-								y = 8;
-								break;
-							case DIR_UP:
-								x = 8;
-								y = 3;
-								break;
-							case DIR_LEFT:
-								x = -2;
-								y = 8;
-								break;
-							case DIR_DOWN:
-								x = 8;
-								y = 17;
-								break;
-							default:
-								break hit;
-							}
-
-							byte b = getCollision(x, y, true);
-							x = (this.x + x) / TILE_SIZE;
-							y = (this.y + y) / TILE_SIZE;
-							if (item != -1) {
-								byte t = map.tiles[layer][y * map.width + x];
-								if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT || b == COLL_NOT_SOLID_INTERACT) {
-									int objIdx = -1;
-									if (layer == LAYER_VENT && map.objects[LAYER_VENT] != null) {
-										objIdx = map.getObjectIdxAt(x, y, layer);
-										short obj = map.objects[LAYER_VENT][objIdx + 1];
-										if (obj == Objects.VENT_SLATS) {
-											t = -1;
-										} else if (obj == Objects.VENT) {
-											t = -2;
-										}
-									}
-									int p = map.getBreakProgress(x, y, layer);
-									if (p != 100) {
-										if (t == 21 || t == 25 || (t == 100 && layer == LAYER_UNDERGROUND && p >= 120)) {
-											// walls
-											chip: {
-												switch (item) {
-												case Items.STURDY_PICKAXE:
-												case Items.MULTITOOL:
-												case Items.LIGHTWEIGHT_PICKAXE:
-												case Items.FLIMSY_PICKAXE:
-												case Items.POWERED_SCREWDRIVER:
-												case Items.STURDY_SHOVEL:
-												case Items.SCREWDRIVER:
-												case Items.CROWBAR:
-												case Items.LIGHTWEIGHT_SHOVEL:
-												case Items.FLIMSY_SHOVEL:
-												case Items.PLASTIC_FORK:
-													if (checkFatigued() || checkInventoryFull()) break hit;
-													reduceDurability(slot);
-													break;
-												default:
-													break chip;
-												}
-												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-												map.action = ACT_CHIPPING;
-												map.actionParam = item;
-												map.actionTargetX = x;
-												map.actionTargetY = y;
-												map.progress = 0;
-												break hit;
-											}
-										} else if (t == 23 || t == 77 || t == 81) {
-											// fences
-											cut: {
-												switch (item) {
-												case Items.PLASTIC_KNIFE:
-												case Items.STURDY_CUTTERS:
-												case Items.FLIMSY_CUTTERS:
-												case Items.LIGHTWEIGHT_CUTTERS:
-												case Items.CUTTING_FLOSS:
-												case Items.FILE:
-													if (checkFatigued()) break hit;
-													reduceDurability(slot);
-													break;
-												default:
-													break cut;
-												}
-												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-												map.action = ACT_CUTTING;
-												map.actionParam = item;
-												map.actionTargetX = x;
-												map.actionTargetY = y;
-												map.progress = 0;
-												break hit;
-											}
-										} else if (layer == LAYER_VENT && t < 0) {
-											// vent slats
-											unscrew: {
-												switch (item) {
-												case Items.SCREWDRIVER:
-												case Items.POWERED_SCREWDRIVER:
-													if (checkFatigued()) break hit;
-													reduceDurability(slot);
-													break;
-												default:
-													break unscrew;
-												}
-												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-												map.action = ACT_UNSCREWING;
-												map.actionParam = (item == Items.SCREWDRIVER ? 12 : 20) * -t;
-												map.actionTargetX = x;
-												map.actionTargetY = y;
-												map.progress = 0;
-												break hit;
-											}
-											cut: {
-												switch (item) {
-												case Items.PLASTIC_KNIFE:
-												case Items.STURDY_CUTTERS:
-												case Items.FLIMSY_CUTTERS:
-												case Items.LIGHTWEIGHT_CUTTERS:
-												case Items.CUTTING_FLOSS:
-												case Items.FILE:
-													if (checkFatigued()) break hit;
-													reduceDurability(slot);
-													break;
-												default:
-													break cut;
-												}
-												moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-												map.action = ACT_CUTTING_VENT;
-												map.actionParam = item;
-												map.actionTargetX = x;
-												map.actionTargetY = y;
-												map.progress = 0;
-												break hit;
-											}
-										}
-									} else if (t == -2 && (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER)) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (item == Items.FAKE_VENT_COVER) {
-											map.setBreakProgress(x, y, LAYER_VENT, 101);
-											map.objects[LAYER_VENT][objIdx + 2] = (short) (82 | (1 << 8) | (1 << 10));
-										} else {
-											map.setBreakProgress(x, y, LAYER_VENT, 95);
-											map.objects[LAYER_VENT][objIdx + 2] = (short) (80 | (1 << 8) | (1 << 10));
-										}
-										break hit;
-									}
-									if (item == Items.COMB) {
-										inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
-										break hit;
-									}
-									if (item == Items.TOOTHBRUSH) {
-										inventory[slot] = Items.TOOTHBRUSH_SHIV | Items.ITEM_DEFAULT_DURABILITY;
-										break hit;
-									}
-									if (item == Items.TUBE_OF_TOOTHPASTE
-											|| item == Items.SHAVING_CREAM
-											|| item == Items.ROLL_OF_DUCT_TAPE) {
-										// TODO check for camera
-										break hit;
-									}
-								}
-
-								if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
-									if (((layer == LAYER_UNDERGROUND && (t == 0
-											|| (Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
-											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
-											|| (layer == LAYER_GROUND && Game.isDiggable(t)
-											&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1))
-									) {
-										dig: {
-											switch (item) {
-											case Items.STURDY_SHOVEL:
-											case Items.MULTITOOL:
-											case Items.STURDY_PICKAXE:
-											case Items.LIGHTWEIGHT_SHOVEL:
-											case Items.TROWEL:
-											case Items.FLIMSY_SHOVEL:
-											case Items.LIGHTWEIGHT_PICKAXE:
-											case Items.FLIMSY_PICKAXE:
-											case Items.PLASTIC_SPOON:
-												if (map.getBreakProgress(x, y, layer) >= 100
-														|| checkFatigued() || checkInventoryFull())
-													break hit;
-
-												// stability check
-												if (layer == LAYER_UNDERGROUND) s: {
-													for (int ox = -2; ox <= 2; ++ox) {
-														for (int oy = -2; oy <= 2; ++oy) {
-															if (x + ox < 0 || y + oy < 0
-																	|| x + ox > map.width || y + oy > map.height
-																	|| ox == -2 && oy == -2 || ox == -2 && oy == 2
-																	|| ox == 2 && oy == 2 || ox == 2 && oy == -2)
-																continue;
-															if ((map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) != 0 && Game.isDiggable(map.tiles[LAYER_GROUND][(y + oy) * map.width + x + ox]))
-																	|| map.getBreakProgress(x + ox, y + oy, LAYER_UNDERGROUND) == 101) {
-																break s;
-															}
-														}
-													}
-
-													dialog = "You need to brace the tunnel with supports!";
-													dialogTimer = TPS * 2;
-													break hit;
-												}
-
-												reduceDurability(slot);
-												break;
-											case Items.DIRT:
-											case Items.SAND:
-												// fill hole
-												if (map.getBreakProgress(x, y, layer) == 0 || layer != LAYER_GROUND)
-													break hit;
-												map.setBreakProgress(x, y, layer, 0);
-												inventory[slot] = Items.ITEM_NULL;
-												break dig;
-											default:
-												break dig;
-											}
-											moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
-											map.action = ACT_DIGGING;
-											map.actionParam = item;
-											map.actionTargetX = x;
-											map.actionTargetY = y;
-											map.progress = 0;
-											break hit;
-										}
-									} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100 && item == Items.TIMBER_BRACE) {
-										map.setBreakProgress(x, y, layer, 101);
-										break hit;
-									}
-								} else if (b == COLL_DIGGED_WALL) {
-									switch (item) {
-									case Items.POSTER:
-									case Items.FAKE_WALL_BLOCK:
-									case Items.FAKE_FENCE:
-									case Items.WALL_BLOCK:
-										int pos = x + y * map.width;
-										// TODO check collision
-										if (item == Items.WALL_BLOCK) {
-											// put wall back
-											if (t != -21 && t != -25) break hit;
-											map.setBreakProgress(x, y, layer, 90);
-											map.tiles[layer][pos] = (byte) -t;
-											map.solid[layer][pos] = COLL_SOLID;
-											if (USE_TILED_LAYER) {
-												map.tiledLayer[layer].setCell(x, y, -t);
-											}
-										} else {
-											// put poster
-											if (item == Items.POSTER || item == Items.FAKE_WALL_BLOCK) {
-												if (t != -21 && t != -25) break hit;
-											} else /*if (item == Items.FAKE_FENCE)*/ {
-												if (t != -77 && t != -81) break hit;
-											}
-											map.setBreakProgress(x, y, layer, item == Items.POSTER ? 101 : 102);
-											map.solid[layer][pos] = COLL_POSTER;
-											if (item != Items.POSTER) {
-												map.tiles[layer][pos] = (byte) -t;
-												if (USE_TILED_LAYER) {
-													map.tiledLayer[layer].setCell(x, y, -t);
-												}
-											}
-										}
-										inventory[slot] = Items.ITEM_NULL;
-										break hit;
-									}
-								}
-
-								if (Game.getItemAttack(item) != 0 && weapon == Items.ITEM_NULL) {
-									// equip
-									weapon = inventory[slot];
-									inventory[slot] = Items.ITEM_NULL;
-									break hit;
-								}
-								int s;
-								if ((s = Game.getItemHeal(item)) != 0) {
-									// heal
-									inventory[slot] = Items.ITEM_NULL;
-									if ((health += s) > maxHealth) health = maxHealth;
-									map.addHitMarker(-106, this.x + 5, this.y - 5);
-									break hit;
-								}
-								if ((s = Game.getItemEnergy(item)) != 0) {
-									// restore fatigue
-									inventory[slot] = Items.ITEM_NULL;
-									if ((map.fatigue -= s) < 0) map.fatigue = 0;
-									map.addHitMarker(-107, this.x + 6, this.y - 6);
-									break hit;
-								}
-
-								break hit;
-							}
-							if (b == COLL_DESK) {
-								// carry desk
-								int objIdx = map.getObjectIdxAt(x, y, layer);
-								map.carryingObject = objIdx;
-								map.objects[layer][objIdx + 2] |= 1 << 12;
-								map.objects[layer][objIdx + 3] = -1;
-								map.objects[layer][objIdx + 4] = -1;
-								map.solid[layer][y * map.width + x] = COLL_NONE;
-								break hit;
-							}
-							if (map.carryingObject != -1) {
-								int objIdx = map.carryingObject;
-								if (b != COLL_NONE) {
-									Sound.playEffect(Constants.SFX_LOSE);
-									break hit;
-								}
-								map.carryingObject = -1;
-								map.objects[layer][objIdx + 2] &= ~(1 << 12);
-								map.objects[layer][objIdx + 3] = (short) x;
-								map.objects[layer][objIdx + 4] = (short) y;
-								map.solid[layer][y * map.width + x] = COLL_DESK;
-								break hit;
-							}
-							if (map.interactNPC != null) {
-								NPC npc = map.interactNPC;
-
-								int dx = npc.x - this.x;
-								int dy = npc.y - this.y;
-								int d = dx * dx + dy * dy;
-								if (npc.health == 0) {
-									if (d < TILE_SIZE * TILE_SIZE) {
-										Sound.playEffect(Sound.SFX_PICKUP);
-										carry = npc;
-										npc.carried = true;
-									}
-								} else if (npc.inmate || npc.guard) {
-									chaseTarget = npc;
-								}
-							}
-						}
-					}
+				if (map.firePressed) {
+					playerMsk();
 					map.updateInteractFocus = true;
 				}
 				if (map.softPressed) {
 					map.softPressed = false;
-					interact:
-					{
-						if (carry != null || map.carryingObject != -1) {
-							break interact;
-						}
-
-						int slot = map.selectedInventory;
-						int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
-								inventory[slot] & Items.ITEM_ID_MASK : -1;
-						if (slot != -1) {
-							map.lastSelectedInventory = map.selectedInventory;
-							map.selectedInventory = -1;
-						}
-
-						int x, y;
-
-						x = (this.x + 7) / TILE_SIZE;
-						y = (this.y + 7) / TILE_SIZE;
-						byte b = map.solid[layer][y * map.width + x];
-
-						if (climbed) {
-							// vents
-							if (item != -1) break interact;
-							int idx = getNearbyVent();
-							if (idx == -1) break interact;
-
-							x = map.objects[LAYER_VENT][idx + 3];
-							y = map.objects[LAYER_VENT][idx + 4];
-
-							int p = map.getBreakProgress(x, y, LAYER_VENT);
-							if (p == 100) {
-								xFloat = this.x = x * TILE_SIZE;
-								yFloat = this.y = y * TILE_SIZE;
-								layer++;
-								chaseTarget = null;
-								map.resetCamera = true;
-								break interact;
-							}
-							if (p == 101 && !checkInventoryFull()) {
-								map.setBreakProgress(x, y, LAYER_VENT, 100);
-								map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
-								addItem(Items.FAKE_VENT_COVER, true);
-							}
-							break interact;
-						}
-
-						if (b == COLL_NOT_SOLID_INTERACT && item == -1) {
-							int idx = map.getObjectIdxAt(x, y, layer);
-							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
-							if (obj == Objects.LADDER_UP) {
-								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-								yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
-								layer++;
-								chaseTarget = null;
-								map.resetCamera = true;
-								break interact;
-							}
-							if (obj == Objects.LADDER_DOWN) {
-								xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-								yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
-								layer--;
-								chaseTarget = null;
-								map.resetCamera = true;
-								break interact;
-							}
-							if (obj == Objects.VENT) {
-								int p = map.getBreakProgress(x, y, layer);
-								if (p == 100) {
-									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
-									layer--;
-									chaseTarget = null;
-									map.resetCamera = true;
-								} else if (p == 101 && !checkInventoryFull()) {
-									map.setBreakProgress(x, y, LAYER_VENT, 100);
-									map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
-									addItem(Items.FAKE_VENT_COVER, true);
-								}
-								break interact;
-							}
-						}
-						if (b == COLL_NONE && item == -1) {
-							int peekItem = map.peekItem(x, y, layer);
-							if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
-								if (addItem(peekItem, true)) {
-									map.deleteItem(x, y, layer);
-								} else {
-									dialog = "Inventory full";
-									dialogTimer = TPS * 2;
-								}
-								break interact;
-							}
-							if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
-								layer = LAYER_UNDERGROUND;
-								xFloat = this.x = x * TILE_SIZE;
-								yFloat = this.y = y * TILE_SIZE;
-								map.resetCamera = true;
-								break interact;
-							}
-							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
-									&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-								layer = LAYER_GROUND;
-								xFloat = this.x = x * TILE_SIZE;
-								yFloat = this.y = y * TILE_SIZE;
-								map.resetCamera = true;
-								break interact;
-							}
-						}
-
-						switch (direction) {
-						case DIR_RIGHT:
-							x = 17;
-							y = 8;
-							break;
-						case DIR_UP:
-							x = 8;
-							y = 3;
-							break;
-						case DIR_LEFT:
-							x = -2;
-							y = 8;
-							break;
-						case DIR_DOWN:
-							x = 8;
-							y = 17;
-							break;
-						default:
-							break interact;
-						}
-
-						b = getCollision(x, y, true);
-						x = (x + this.x) / TILE_SIZE;
-						y = (y + this.y) / TILE_SIZE;
-
-						if (b == COLL_NONE && item == -1) {
-							// pickup item
-							int peekItem = map.peekItem(x, y, layer);
-							if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
-								if (addItem(peekItem, true)) {
-									map.deleteItem(x, y, layer);
-								} else {
-									dialog = "Inventory full";
-									dialogTimer = TPS * 2;
-								}
-								break interact;
-							}
-							if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
-								layer = LAYER_UNDERGROUND;
-								xFloat = this.x = x * TILE_SIZE;
-								yFloat = this.y = y * TILE_SIZE;
-								map.resetCamera = true;
-								break interact;
-							}
-							if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
-								layer = LAYER_GROUND;
-								xFloat = this.x = x * TILE_SIZE;
-								yFloat = this.y = y * TILE_SIZE;
-								map.resetCamera = true;
-								break interact;
-							}
-						}
-
-						if (b != COLL_NONE) {
-							int idx = map.getObjectIdxAt(x, y, layer);
-							int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
-
-							if (b == COLL_DESK) {
-								if (obj == Objects.PLAYER_DESK) {
-									map.openContainer(idx);
-									break interact;
-								}
-								Sound.playEffect(Sound.SFX_OPEN);
-								map.action = ACT_SEARCHING;
-								map.actionTargetX = x;
-								map.actionTargetY = y;
-								map.progress = 0;
-								break interact;
-							}
-							if (b == COLL_TABLE) {
-								if (obj == Objects.SERVING_TABLE
-										&& animation != ANIM_FOOD
-										// if there is food left
-										&& (map.objects[layer][idx + 2] & 0xFF) != 2) {
-									// pick food
-									animation = ANIM_FOOD;
-									Sound.playEffect(Sound.SFX_PICKUP);
-									break interact;
-								}
-								if (obj == Objects.CUTLERY_TABLE) {
-									map.openContainer(idx);
-									break interact;
-								}
-								if (obj == Objects.TRAINING_INTERNET) {
-									// learn
-									if (checkFatigued()) break interact;
-									Sound.playEffect(Sound.SFX_OPEN);
-									map.action = ACT_READING;
-									map.progress = 0;
-									map.fatigue += 5;
-									break interact;
-								}
-							}
-							if (b == COLL_SOLID_INTERACT) {
-								switch (obj) {
-								case Objects.TRAINING_BOOKSHELF:
-									// learn
-									if (checkFatigued()) break interact;
-									Sound.playEffect(Sound.SFX_OPEN);
-									map.action = ACT_READING;
-									map.progress = 0;
-									map.fatigue += 5;
-									break interact;
-								case Objects.CABINET:
-									// hide
-									animateToX = x * TILE_SIZE;
-									animateToY = y * TILE_SIZE;
-									animatingInCabinet = true;
-									Sound.playEffect(Sound.SFX_DOOR);
-									break interact;
-								case Objects.PLAYER_BED:
-									xFloat = this.x = bedX * TILE_SIZE;
-									yFloat = this.y = bedY * TILE_SIZE + 2;
-									animation = ANIM_LYING;
-									if (map.schedule == SC_LIGHTSOUT && (map.time < 5 * 60 || map.time >= 20 * 60)) {
-										map.saveDialog = true;
-										Sound.playEffect(SFX_OPEN);
-									}
-									break interact;
-								case Objects.MEDICAL_BED:
-									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
-									animation = ANIM_LYING;
-									break interact;
-								case Objects.SUN_LOUNGER:
-									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
-									animation = ANIM_LYING;
-									break interact;
-								case Objects.CHAIR:
-									// sit
-									animateToX = x * TILE_SIZE;
-									animateToY = y * TILE_SIZE;
-									direction = pathEndDir = map.solid[0][x + (y + 1) * map.width] == COLL_TABLE ? DIR_DOWN : DIR_UP;
-									int seat = map.getSeatIndex(map.canteenSeatsPositions, x, y);
-									if (seat != -1) {
-										int tx = x * TILE_SIZE;
-										int ty = y * TILE_SIZE;
-										if (map.canteenSeatsPositions[seat + 1] != -1) {
-											// push npc from their seat
-											Sound.playEffect(Sound.SFX_ENHIT);
-											int n = map.npcNum;
-											for (int i = 1; i < n; ++i) {
-												NPC npc = map.chars[i];
-												if (npc != null && npc.sitting
-														&& npc.x == tx && npc.y == ty) {
-													// TODO
-													npc.aiState = AI_RESET;
-													npc.aiWaitTimer = TPS;
-													npc.statOpinion--;
-													break;
-												}
-											}
-										}
-										map.canteenSeatsPositions[seat + 1] = (short) id;
-									}
-									sitting = true;
-									break interact;
-									
-								case Objects.JOB_CLEANING_SUPPLIES:
-								case Objects.JOB_GARDENING_TOOLS:
-								case Objects.TOILET:
-									map.openContainer(idx);
-									break interact;
-
-								case Objects.JOB_DIRTY_LAUNDRY:
-									// take laundry
-									addItem((rng.nextInt(2) == 0 ? Items.DIRTY_GUARD_OUTFIT : Items.DIRTY_INMATE_OUTFIT)
-											| Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								case Objects.JOB_RAW_METAL:
-									// take metal
-									addItem(Items.SHEET_OF_METAL | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								case Objects.JOB_RAW_WOOD:
-									// take wood
-									addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								case Objects.FREEZER:
-									addItem((map.map == MAP_SANPANCHO ? Items.UNCOOKED_BURRITO : Items.UNCOOKED_FOOD) | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								case Objects.JOB_FABRIC_CHEST:
-									addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
-									break interact;
-								case Objects.JOB_DELIVERIES_TRUCK:
-									if (job == JOB_DELIVERIES) {
-										addItem(rng.nextInt(2) == 0 ?
-												(Items.PACKAGE_A | Items.ITEM_DEFAULT_DURABILITY) :
-												(Items.PACKAGE_B | Items.ITEM_DEFAULT_DURABILITY), true);
-									}
-									break interact;
-
-								case Objects.JOB_METAL_TOOLS:
-									if (item == Items.SHEET_OF_METAL) {
-										Sound.playEffect(Sound.SFX_RUMBLE);
-										inventory[slot] = Items.LICENSE_PLATE;
-										break interact;
-									}
-									break;
-								case Objects.WASHING_MACHINE:
-									if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
-										// TODO
-										Sound.playEffect(Sound.SFX_BUY);
-										inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
-												Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
-										break interact;
-									}
-									break;
-								case Objects.OVEN:
-									if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
-										// TODO
-										Sound.playEffect(Sound.SFX_BUY);
-										inventory[slot] = item == Items.UNCOOKED_FOOD ?
-												Items.COOKED_FOOD : Items.BURRITO;
-										break interact;
-									}
-									break;
-
-								case Objects.JOB_CLEAN_LAUNDRY:
-									// put clean laundry
-									if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
-												&& map.schedule == SC_WORK_PERIOD) {
-											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-												// TODO
-												Sound.playEffect(Sound.SFX_HP);
-												jobQuota = MAX_JOB_QUOTA;
-												map.money += 40;
-											} else {
-												Sound.playEffect(Sound.SFX_BUY);
-											}
-										}
-										break interact;
-									}
-									break;
-								case Objects.JOB_PREPARED_METAL:
-									if (item == Items.LICENSE_PLATE) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
-												&& map.schedule == SC_WORK_PERIOD) {
-											if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
-												Sound.playEffect(Sound.SFX_HP);
-												jobQuota = MAX_JOB_QUOTA;
-												map.money += 70;
-											} else {
-												Sound.playEffect(Sound.SFX_BUY);
-											}
-										}
-										break interact;
-									}
-									break;
-								case Objects.JOB_PREPARED_WOOD:
-									if (item == Items.UNVARNISHED_CHAIR) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
-												&& map.schedule == SC_WORK_PERIOD) {
-											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-												// TODO
-												Sound.playEffect(Sound.SFX_HP);
-												jobQuota = MAX_JOB_QUOTA;
-												map.money += 45;
-											} else {
-												Sound.playEffect(Sound.SFX_BUY);
-											}
-										}
-										break interact;
-									}
-									break;
-								case Objects.JOB_DELIVERIES_RED_BOX:
-								case Objects.JOB_DELIVERIES_BLUE_BOX:
-									if ((item == Items.PACKAGE_A && obj == Objects.JOB_DELIVERIES_BLUE_BOX)
-											|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
-										inventory[slot] = Items.ITEM_NULL;
-										if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
-												&& map.schedule == SC_WORK_PERIOD) {
-											if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-												// TODO
-												Sound.playEffect(Sound.SFX_HP);
-												jobQuota = MAX_JOB_QUOTA;
-												map.money += 55;
-											} else {
-												Sound.playEffect(Sound.SFX_BUY);
-											}
-										}
-										break interact;
-									}
-									break;
-
-								case Objects.STASH:
-									// open stash
-									//noinspection StatementWithEmptyBody
-									while (!Game.isIllegal(item = rng.nextInt(192)));
-									item |= Items.ITEM_DEFAULT_DURABILITY;
-									if (addItem(item, true)) {
-										// TODO animate
-										map.objects[layer][idx + 1] = -Objects.STASH;
-										map.objects[layer][idx + 2] |= 1 << 12;
-										map.solid[layer][y * map.width + x] = COLL_NONE;
-									} else {
-										dialog = "Inventory full";
-										dialogTimer = TPS * 2;
-									}
-									break interact;
-								}
-							}
-							if (b == COLL_GYM) {
-								if (checkFatigued()) break interact;
-								// sit
-								animateToX = x * TILE_SIZE;
-								animateToY = y * TILE_SIZE;
-								gymObjectIdx = idx;
-								gymObject = obj;
-								if (obj == Objects.TRAINING_TREADMILL) {
-									animateToX -= 4;
-									animateToY -= 4;
-									direction = pathEndDir = DIR_RIGHT;
-								} else {
-									direction = pathEndDir = DIR_DOWN;
-									if (obj == Objects.TRAINING_WEIGHT) {
-										map.objects[LAYER_GROUND][idx + 2] = (short) (13 | (map.objects[LAYER_GROUND][idx + 2] & 0xFF00));
-									}
-								}
-								int seat = map.getSeatIndex(map.gymPositions, x, y);
-								if (seat != -1) {
-									if (map.gymPositions[seat + 1] != -1) {
-										// push npc from their seat
-										Sound.playEffect(Sound.SFX_ENHIT);
-										int n = map.npcNum;
-										for (int i = 1; i < n; ++i) {
-											NPC npc = map.chars[i];
-											if (npc != null && npc.training
-													&& npc.x == animateToX && npc.y == animateToY) {
-												// TODO
-												npc.aiState = AI_RESET;
-												npc.aiWaitTimer = TPS;
-												npc.statOpinion--;
-												break;
-											}
-										}
-									}
-									map.gymPositions[seat + 1] = (short) id;
-								}
-								map.trainingRepeats = 0;
-								map.trainingTimer = 0;
-								map.trainingLastKey = 0;
-								map.trainingBlocked = false;
-								training = true;
-								break interact;
-							}
-							if (b == COLL_NOT_SOLID_INTERACT) {
-								if (obj == Objects.LADDER_UP) {
-									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-									yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
-									layer++;
-									chaseTarget = null;
-									map.resetCamera = true;
-									break interact;
-								}
-								if (obj == Objects.LADDER_DOWN) {
-									xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-									yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
-									layer--;
-									chaseTarget = null;
-									map.resetCamera = true;
-									break interact;
-								}
-								if (obj == Objects.VENT) {
-									int p = map.getBreakProgress(x, y, layer);
-									if (p == 100) {
-										xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-										yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
-										layer--;
-										chaseTarget = null;
-										map.resetCamera = true;
-									} else if (p == 101 && !checkInventoryFull()) {
-										map.setBreakProgress(x, y, LAYER_VENT, 100);
-										map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
-										addItem(Items.FAKE_VENT_COVER, true);
-									}
-									break interact;
-								}
-							}
-							if (b == COLL_POSTER && map.selectedInventory == -1) {
-								// take poster
-								int p = map.getBreakProgress(x, y, layer);
-								int pos = y * map.width + x;
-								if (p == 101) {
-									if (!addItem(Items.POSTER | Items.ITEM_DEFAULT_DURABILITY, true)) {
-										dialog = "Inventory full";
-										dialogTimer = TPS * 2;
-										break interact;
-									}
-								} else {
-									byte t = map.tiles[layer][pos];
-									if (t == 21 || t == 25) {
-										if (!addItem(Items.FAKE_WALL_BLOCK | Items.ITEM_DEFAULT_DURABILITY, true)) {
-											dialog = "Inventory full";
-											dialogTimer = TPS * 2;
-											break interact;
-										}
-									} else if (!addItem(Items.FAKE_FENCE | Items.ITEM_DEFAULT_DURABILITY, true)) {
-										dialog = "Inventory full";
-										dialogTimer = TPS * 2;
-										break interact;
-									}
-									map.tiles[layer][pos] = (byte) -t;
-								}
-								map.effects[0] = 208;
-								map.effects[1] = 2;
-								map.effects[2] = x * TILE_SIZE;
-								map.effects[3] = y * TILE_SIZE;
-								map.solid[layer][pos] = COLL_DIGGED_WALL;
-								map.setBreakProgress(x, y, layer, 100);
-								break interact;
-							}
-						}
-
-						// drop selected item
-						if (item != -1) {
-							int r = map.dropItem(x, y, inventory[slot], layer);
-							if (r == 0) {
-								Sound.playEffect(Sound.SFX_THROW);
-								inventory[slot] = Items.ITEM_NULL;
-							} else {
-								Sound.playEffect(Sound.SFX_LOSE);
-							}
-							break interact;
-						}
-
-						if (map.interactNPC != null) {
-							NPC npc = map.interactNPC;
-
-							if (npc.health <= 0) {
-								// loot
-								map.inventoryOpen = npc;
-								Sound.playEffect(Sound.SFX_OPEN);
-							} else {
-								// open profile
-								map.profileOpen = npc;
-								map.profileTab = 0;
-								map.lastSelectedInventory = map.selectedInventory;
-								map.selectedInventory = 0;
-								map.selectedSlot = -1;
-//								map.outOfRange = map.player.canSee(this);
-								Sound.playEffect(Sound.SFX_OPEN);
-
-								// TODO talk
-								if (!talked) {
-									npc.statOpinion++;
-									talked = true;
-								} else talked = false;
-							}
-						}
-					}
+					playerLsk();
 					map.updateInteractFocus = true;
 				}
 			} else if (animation == ANIM_LYING) {
@@ -3727,6 +2728,1013 @@ class NPC implements Constants {
 		}
 		if (map.softPressed) {
 			map.softPressed = false;
+		}
+	}
+
+	private void playerMsk() {
+		if (climbed) {
+			// vents
+			int slot = map.selectedInventory;
+			int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+					inventory[slot] & Items.ITEM_ID_MASK : -1;
+			if (slot != -1) {
+				map.lastSelectedInventory = map.selectedInventory;
+				map.selectedInventory = -1;
+			}
+
+			int idx = getNearbyVent();
+			if (idx != -1) {
+				int x = map.objects[LAYER_VENT][idx + 3];
+				int y = map.objects[LAYER_VENT][idx + 4];
+				int p = map.getBreakProgress(x, y, LAYER_VENT);
+
+				switch (item) {
+				case Items.SCREWDRIVER:
+				case Items.POWERED_SCREWDRIVER:
+				case Items.PLASTIC_KNIFE:
+				case Items.STURDY_CUTTERS:
+				case Items.FLIMSY_CUTTERS:
+				case Items.LIGHTWEIGHT_CUTTERS:
+				case Items.CUTTING_FLOSS:
+				case Items.FILE:
+					if (p == 100) break;
+					if (checkInventoryFull()) break;
+					if (checkFatigued()) break;
+					reduceDurability(slot);
+
+					moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+					if (item == Items.SCREWDRIVER || item == Items.POWERED_SCREWDRIVER) {
+						map.action = ACT_UNSCREWING;
+						map.actionParam = item == Items.SCREWDRIVER ? 24 : 40;
+					} else {
+						map.action = ACT_CUTTING_VENT;
+						map.actionParam = item;
+					}
+					map.actionTargetX = x;
+					map.actionTargetY = y;
+					map.progress = 0;
+					break;
+				case Items.VENT_COVER:
+				case Items.FAKE_VENT_COVER:
+					if (p == 101) break;
+					// put
+					if (p == 100) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (item == Items.FAKE_VENT_COVER) {
+							map.setBreakProgress(x, y, LAYER_VENT, 101);
+							map.objects[LAYER_VENT][idx + 2] = (short) (82 | (1 << 8) | (1 << 10));
+						} else {
+							map.setBreakProgress(x, y, LAYER_VENT, 95);
+							map.objects[LAYER_VENT][idx + 2] = (short) (80 | (1 << 8) | (1 << 10));
+						}
+					}
+					break;
+				}
+			}
+			return;
+		}
+
+		if (carry != null) {
+			int x = (this.x + 7) / TILE_SIZE;
+			int y = (this.y + 7) / TILE_SIZE;
+			if (map.solid[layer][x + y * map.width] != 0) {
+				Sound.playEffect(Sound.SFX_LOSE);
+			} else {
+				Sound.playEffect(Sound.SFX_THROW);
+				carry.xFloat = carry.x = x * TILE_SIZE;
+				carry.yFloat = carry.y = y * TILE_SIZE;
+				carry.carried = false;
+				carry = null;
+			}
+			return;
+		}
+
+		int slot = map.selectedInventory;
+		int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+				inventory[slot] & Items.ITEM_ID_MASK : -1;
+		if (slot != -1) {
+			map.lastSelectedInventory = map.selectedInventory;
+			map.selectedInventory = -1;
+		}
+
+		if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
+			int idx = getNearbyDirt();
+			if (idx != -1) {
+				int obj = map.objects[layer][idx + 1];
+				if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
+						|| (obj == Objects.FLOOR_DIRT && item != Items.HOE)) {
+					int x = map.objects[layer][idx + 3];
+					int y = map.objects[layer][idx + 4];
+					if (checkFatigued()) return;
+					moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+					map.action = ACT_CLEANING;
+					map.actionTargetX = x;
+					map.actionTargetY = y;
+					map.progress = 0;
+					return;
+				}
+			}
+			return;
+		}
+		int x, y;
+		switch (direction) {
+		case DIR_RIGHT:
+			x = 17;
+			y = 8;
+			break;
+		case DIR_UP:
+			x = 8;
+			y = 3;
+			break;
+		case DIR_LEFT:
+			x = -2;
+			y = 8;
+			break;
+		case DIR_DOWN:
+			x = 8;
+			y = 17;
+			break;
+		default:
+			return;
+		}
+
+		byte b = getCollision(x, y, true);
+		x = (this.x + x) / TILE_SIZE;
+		y = (this.y + y) / TILE_SIZE;
+		if (item != -1) {
+			byte t = map.tiles[layer][y * map.width + x];
+			if (b == COLL_SOLID || b == COLL_SOLID_TRANSPARENT || b == COLL_NOT_SOLID_INTERACT) {
+				int objIdx = -1;
+				if (layer == LAYER_VENT && map.objects[LAYER_VENT] != null) {
+					objIdx = map.getObjectIdxAt(x, y, layer);
+					short obj = map.objects[LAYER_VENT][objIdx + 1];
+					if (obj == Objects.VENT_SLATS) {
+						t = -1;
+					} else if (obj == Objects.VENT) {
+						t = -2;
+					}
+				}
+				int p = map.getBreakProgress(x, y, layer);
+				if (p != 100) {
+					if (t == 21 || t == 25 || (t == 100 && layer == LAYER_UNDERGROUND && p >= 120)) {
+						// walls
+						chip: {
+							switch (item) {
+							case Items.STURDY_PICKAXE:
+							case Items.MULTITOOL:
+							case Items.LIGHTWEIGHT_PICKAXE:
+							case Items.FLIMSY_PICKAXE:
+							case Items.POWERED_SCREWDRIVER:
+							case Items.STURDY_SHOVEL:
+							case Items.SCREWDRIVER:
+							case Items.CROWBAR:
+							case Items.LIGHTWEIGHT_SHOVEL:
+							case Items.FLIMSY_SHOVEL:
+							case Items.PLASTIC_FORK:
+								if (checkFatigued() || checkInventoryFull()) return;
+								reduceDurability(slot);
+								break;
+							default:
+								break chip;
+							}
+							moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+							map.action = ACT_CHIPPING;
+							map.actionParam = item;
+							map.actionTargetX = x;
+							map.actionTargetY = y;
+							map.progress = 0;
+							return;
+						}
+					} else if (t == 23 || t == 77 || t == 81) {
+						// fences
+						cut: {
+							switch (item) {
+							case Items.PLASTIC_KNIFE:
+							case Items.STURDY_CUTTERS:
+							case Items.FLIMSY_CUTTERS:
+							case Items.LIGHTWEIGHT_CUTTERS:
+							case Items.CUTTING_FLOSS:
+							case Items.FILE:
+								if (checkFatigued()) return;
+								reduceDurability(slot);
+								break;
+							default:
+								break cut;
+							}
+							moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+							map.action = ACT_CUTTING;
+							map.actionParam = item;
+							map.actionTargetX = x;
+							map.actionTargetY = y;
+							map.progress = 0;
+							return;
+						}
+					} else if (layer == LAYER_VENT && t < 0) {
+						// vent slats
+						unscrew: {
+							switch (item) {
+							case Items.SCREWDRIVER:
+							case Items.POWERED_SCREWDRIVER:
+								if (checkFatigued()) return;
+								reduceDurability(slot);
+								break;
+							default:
+								break unscrew;
+							}
+							moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+							map.action = ACT_UNSCREWING;
+							map.actionParam = (item == Items.SCREWDRIVER ? 12 : 20) * -t;
+							map.actionTargetX = x;
+							map.actionTargetY = y;
+							map.progress = 0;
+							return;
+						}
+						cut: {
+							switch (item) {
+							case Items.PLASTIC_KNIFE:
+							case Items.STURDY_CUTTERS:
+							case Items.FLIMSY_CUTTERS:
+							case Items.LIGHTWEIGHT_CUTTERS:
+							case Items.CUTTING_FLOSS:
+							case Items.FILE:
+								if (checkFatigued()) return;
+								reduceDurability(slot);
+								break;
+							default:
+								break cut;
+							}
+							moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+							map.action = ACT_CUTTING_VENT;
+							map.actionParam = item;
+							map.actionTargetX = x;
+							map.actionTargetY = y;
+							map.progress = 0;
+							return;
+						}
+					}
+				} else if (t == -2 && (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER)) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (item == Items.FAKE_VENT_COVER) {
+						map.setBreakProgress(x, y, LAYER_VENT, 101);
+						map.objects[LAYER_VENT][objIdx + 2] = (short) (82 | (1 << 8) | (1 << 10));
+					} else {
+						map.setBreakProgress(x, y, LAYER_VENT, 95);
+						map.objects[LAYER_VENT][objIdx + 2] = (short) (80 | (1 << 8) | (1 << 10));
+					}
+					return;
+				}
+				if (item == Items.COMB) {
+					inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
+					return;
+				}
+				if (item == Items.TOOTHBRUSH) {
+					inventory[slot] = Items.TOOTHBRUSH_SHIV | Items.ITEM_DEFAULT_DURABILITY;
+					return;
+				}
+				if (item == Items.TUBE_OF_TOOTHPASTE
+						|| item == Items.SHAVING_CREAM
+						|| item == Items.ROLL_OF_DUCT_TAPE) {
+					// TODO check for camera
+					return;
+				}
+			}
+
+			if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
+				if (((layer == LAYER_UNDERGROUND && (t == 0
+						|| (Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
+						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
+						|| (layer == LAYER_GROUND && Game.isDiggable(t)
+						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1))
+				) {
+					dig: {
+						switch (item) {
+						case Items.STURDY_SHOVEL:
+						case Items.MULTITOOL:
+						case Items.STURDY_PICKAXE:
+						case Items.LIGHTWEIGHT_SHOVEL:
+						case Items.TROWEL:
+						case Items.FLIMSY_SHOVEL:
+						case Items.LIGHTWEIGHT_PICKAXE:
+						case Items.FLIMSY_PICKAXE:
+						case Items.PLASTIC_SPOON:
+							if (map.getBreakProgress(x, y, layer) >= 100
+									|| checkFatigued() || checkInventoryFull())
+								return;
+
+							// stability check
+							if (layer == LAYER_UNDERGROUND && checkStability()) {
+								dialog = "You need to brace the tunnel with supports!";
+								dialogTimer = TPS * 2;
+								return;
+							}
+
+							reduceDurability(slot);
+							break;
+						case Items.DIRT:
+						case Items.SAND:
+							// fill hole
+							if (map.getBreakProgress(x, y, layer) == 0 || layer != LAYER_GROUND)
+								return;
+							map.setBreakProgress(x, y, layer, 0);
+							inventory[slot] = Items.ITEM_NULL;
+							break dig;
+						default:
+							break dig;
+						}
+						moveTowards(x * TILE_SIZE, y * TILE_SIZE, 0);
+						map.action = ACT_DIGGING;
+						map.actionParam = item;
+						map.actionTargetX = x;
+						map.actionTargetY = y;
+						map.progress = 0;
+						return;
+					}
+				} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100 && item == Items.TIMBER_BRACE) {
+					map.setBreakProgress(x, y, layer, 101);
+					return;
+				}
+			} else if (b == COLL_DIGGED_WALL) {
+				switch (item) {
+				case Items.POSTER:
+				case Items.FAKE_WALL_BLOCK:
+				case Items.FAKE_FENCE:
+				case Items.WALL_BLOCK:
+					int pos = x + y * map.width;
+					// TODO check collision
+					if (item == Items.WALL_BLOCK) {
+						// put wall back
+						if (t != -21 && t != -25) return;
+						map.setBreakProgress(x, y, layer, 90);
+						map.tiles[layer][pos] = (byte) -t;
+						map.solid[layer][pos] = COLL_SOLID;
+						if (USE_TILED_LAYER) {
+							map.tiledLayer[layer].setCell(x, y, -t);
+						}
+					} else {
+						// put poster
+						if (item == Items.POSTER || item == Items.FAKE_WALL_BLOCK) {
+							if (t != -21 && t != -25) return;
+						} else /*if (item == Items.FAKE_FENCE)*/ {
+							if (t != -77 && t != -81) return;
+						}
+						map.setBreakProgress(x, y, layer, item == Items.POSTER ? 101 : 102);
+						map.solid[layer][pos] = COLL_POSTER;
+						if (item != Items.POSTER) {
+							map.tiles[layer][pos] = (byte) -t;
+							if (USE_TILED_LAYER) {
+								map.tiledLayer[layer].setCell(x, y, -t);
+							}
+						}
+					}
+					inventory[slot] = Items.ITEM_NULL;
+					return;
+				}
+			}
+
+			if (Game.getItemAttack(item) != 0 && weapon == Items.ITEM_NULL) {
+				// equip
+				weapon = inventory[slot];
+				inventory[slot] = Items.ITEM_NULL;
+				return;
+			}
+			int s;
+			if ((s = Game.getItemHeal(item)) != 0) {
+				// heal
+				inventory[slot] = Items.ITEM_NULL;
+				int maxHealth = statStrength >> 1;
+				if ((health += s) > maxHealth) health = maxHealth;
+				map.addHitMarker(-106, this.x + 5, this.y - 5);
+				return;
+			}
+			if ((s = Game.getItemEnergy(item)) != 0) {
+				// restore fatigue
+				inventory[slot] = Items.ITEM_NULL;
+				if ((map.fatigue -= s) < 0) map.fatigue = 0;
+				map.addHitMarker(-107, this.x + 6, this.y - 6);
+				return;
+			}
+
+			return;
+		}
+		if (b == COLL_DESK) {
+			// carry desk
+			int objIdx = map.getObjectIdxAt(x, y, layer);
+			map.carryingObject = objIdx;
+			map.objects[layer][objIdx + 2] |= 1 << 12;
+			map.objects[layer][objIdx + 3] = -1;
+			map.objects[layer][objIdx + 4] = -1;
+			map.solid[layer][y * map.width + x] = COLL_NONE;
+			return;
+		}
+		if (map.carryingObject != -1) {
+			int objIdx = map.carryingObject;
+			if (b != COLL_NONE) {
+				Sound.playEffect(Constants.SFX_LOSE);
+				return;
+			}
+			map.carryingObject = -1;
+			map.objects[layer][objIdx + 2] &= ~(1 << 12);
+			map.objects[layer][objIdx + 3] = (short) x;
+			map.objects[layer][objIdx + 4] = (short) y;
+			map.solid[layer][y * map.width + x] = COLL_DESK;
+			return;
+		}
+		if (map.interactNPC != null) {
+			NPC npc = map.interactNPC;
+
+			int dx = npc.x - this.x;
+			int dy = npc.y - this.y;
+			int d = dx * dx + dy * dy;
+			if (npc.health == 0) {
+				if (d < TILE_SIZE * TILE_SIZE) {
+					Sound.playEffect(Sound.SFX_PICKUP);
+					carry = npc;
+					npc.carried = true;
+				}
+			} else if (npc.inmate || npc.guard) {
+				chaseTarget = npc;
+			}
+		}
+	}
+
+	private boolean checkStability() {
+		for (int ox = -2; ox <= 2; ++ox) {
+			for (int oy = -2; oy <= 2; ++oy) {
+				if (x + ox < 0 || y + oy < 0
+						|| x + ox > map.width || y + oy > map.height
+						|| ox == -2 && oy == -2 || ox == -2 && oy == 2
+						|| ox == 2 && oy == 2 || ox == 2 && oy == -2)
+					continue;
+				if ((map.getBreakProgress(x + ox, y + oy, LAYER_GROUND) != 0 && Game.isDiggable(map.tiles[LAYER_GROUND][(y + oy) * map.width + x + ox]))
+						|| map.getBreakProgress(x + ox, y + oy, LAYER_UNDERGROUND) == 101) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	private void playerLsk() {
+		if (carry != null || map.carryingObject != -1) {
+			return;
+		}
+
+		int slot = map.selectedInventory;
+		int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
+				inventory[slot] & Items.ITEM_ID_MASK : -1;
+		if (slot != -1) {
+			map.lastSelectedInventory = map.selectedInventory;
+			map.selectedInventory = -1;
+		}
+
+		int x, y;
+
+		x = (this.x + 7) / TILE_SIZE;
+		y = (this.y + 7) / TILE_SIZE;
+		byte b = map.solid[layer][y * map.width + x];
+
+		if (climbed) {
+			// vents
+			if (item != -1) return;
+			int idx = getNearbyVent();
+			if (idx == -1) return;
+
+			x = map.objects[LAYER_VENT][idx + 3];
+			y = map.objects[LAYER_VENT][idx + 4];
+
+			int p = map.getBreakProgress(x, y, LAYER_VENT);
+			if (p == 100) {
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				layer++;
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (p == 101 && !checkInventoryFull()) {
+				map.setBreakProgress(x, y, LAYER_VENT, 100);
+				map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+				addItem(Items.FAKE_VENT_COVER, true);
+			}
+			return;
+		}
+
+		if (b == COLL_NOT_SOLID_INTERACT && item == -1) {
+			int idx = map.getObjectIdxAt(x, y, layer);
+			int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
+			if (obj == Objects.LADDER_UP) {
+				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
+				layer++;
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (obj == Objects.LADDER_DOWN) {
+				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+				yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
+				layer--;
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (obj == Objects.VENT) {
+				int p = map.getBreakProgress(x, y, layer);
+				if (p == 100) {
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+					layer--;
+					chaseTarget = null;
+					map.resetCamera = true;
+				} else if (p == 101 && !checkInventoryFull()) {
+					map.setBreakProgress(x, y, LAYER_VENT, 100);
+					map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+					addItem(Items.FAKE_VENT_COVER, true);
+				}
+				return;
+			}
+		}
+		if (b == COLL_NONE && item == -1) {
+			int peekItem = map.peekItem(x, y, layer);
+			if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
+				if (addItem(peekItem, true)) {
+					map.deleteItem(x, y, layer);
+				} else {
+					dialog = "Inventory full";
+					dialogTimer = TPS * 2;
+				}
+				return;
+			}
+			if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+				layer = LAYER_UNDERGROUND;
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				map.resetCamera = true;
+				return;
+			}
+			if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
+					&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+				layer = LAYER_GROUND;
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				map.resetCamera = true;
+				return;
+			}
+		}
+
+		switch (direction) {
+		case DIR_RIGHT:
+			x = 17;
+			y = 8;
+			break;
+		case DIR_UP:
+			x = 8;
+			y = 3;
+			break;
+		case DIR_LEFT:
+			x = -2;
+			y = 8;
+			break;
+		case DIR_DOWN:
+			x = 8;
+			y = 17;
+			break;
+		default:
+			return;
+		}
+
+		b = getCollision(x, y, true);
+		x = (x + this.x) / TILE_SIZE;
+		y = (y + this.y) / TILE_SIZE;
+
+		if (b == COLL_NONE && item == -1) {
+			// pickup item
+			int peekItem = map.peekItem(x, y, layer);
+			if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
+				if (addItem(peekItem, true)) {
+					map.deleteItem(x, y, layer);
+				} else {
+					dialog = "Inventory full";
+					dialogTimer = TPS * 2;
+				}
+				return;
+			}
+			if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+				layer = LAYER_UNDERGROUND;
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				map.resetCamera = true;
+				return;
+			}
+			if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
+				layer = LAYER_GROUND;
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				map.resetCamera = true;
+				return;
+			}
+		}
+
+		if (b != COLL_NONE) {
+			int idx = map.getObjectIdxAt(x, y, layer);
+			int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
+
+			if (b == COLL_DESK) {
+				if (obj == Objects.PLAYER_DESK) {
+					map.openContainer(idx);
+					return;
+				}
+				Sound.playEffect(Sound.SFX_OPEN);
+				map.action = ACT_SEARCHING;
+				map.actionTargetX = x;
+				map.actionTargetY = y;
+				map.progress = 0;
+				return;
+			}
+			if (b == COLL_TABLE) {
+				if (obj == Objects.SERVING_TABLE
+						&& animation != ANIM_FOOD
+						// if there is food left
+						&& (map.objects[layer][idx + 2] & 0xFF) != 2) {
+					// pick food
+					animation = ANIM_FOOD;
+					Sound.playEffect(Sound.SFX_PICKUP);
+					return;
+				}
+				if (obj == Objects.CUTLERY_TABLE) {
+					map.openContainer(idx);
+					return;
+				}
+				if (obj == Objects.TRAINING_INTERNET) {
+					// learn
+					if (checkFatigued()) return;
+					Sound.playEffect(Sound.SFX_OPEN);
+					map.action = ACT_READING;
+					map.progress = 0;
+					map.fatigue += 5;
+					return;
+				}
+			}
+			if (b == COLL_SOLID_INTERACT) {
+				switch (obj) {
+				case Objects.TRAINING_BOOKSHELF:
+					// learn
+					if (checkFatigued()) return;
+					Sound.playEffect(Sound.SFX_OPEN);
+					map.action = ACT_READING;
+					map.progress = 0;
+					map.fatigue += 5;
+					return;
+				case Objects.CABINET:
+					// hide
+					animateToX = x * TILE_SIZE;
+					animateToY = y * TILE_SIZE;
+					animatingInCabinet = true;
+					Sound.playEffect(Sound.SFX_DOOR);
+					return;
+				case Objects.PLAYER_BED:
+					xFloat = this.x = bedX * TILE_SIZE;
+					yFloat = this.y = bedY * TILE_SIZE + 2;
+					animation = ANIM_LYING;
+					if (map.schedule == SC_LIGHTSOUT && (map.time < 5 * 60 || map.time >= 20 * 60)) {
+						map.saveDialog = true;
+						Sound.playEffect(SFX_OPEN);
+					}
+					return;
+				case Objects.MEDICAL_BED:
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
+					animation = ANIM_LYING;
+					return;
+				case Objects.SUN_LOUNGER:
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
+					animation = ANIM_LYING;
+					return;
+				case Objects.CHAIR:
+					// sit
+					animateToX = x * TILE_SIZE;
+					animateToY = y * TILE_SIZE;
+					direction = pathEndDir = map.solid[0][x + (y + 1) * map.width] == COLL_TABLE ? DIR_DOWN : DIR_UP;
+					int seat = map.getSeatIndex(map.canteenSeatsPositions, x, y);
+					if (seat != -1) {
+						int tx = x * TILE_SIZE;
+						int ty = y * TILE_SIZE;
+						if (map.canteenSeatsPositions[seat + 1] != -1) {
+							// push npc from their seat
+							Sound.playEffect(Sound.SFX_ENHIT);
+							int n = map.npcNum;
+							for (int i = 1; i < n; ++i) {
+								NPC npc = map.chars[i];
+								if (npc != null && npc.sitting
+										&& npc.x == tx && npc.y == ty) {
+									// TODO
+									npc.aiState = AI_RESET;
+									npc.aiWaitTimer = TPS;
+									npc.statOpinion--;
+									break;
+								}
+							}
+						}
+						map.canteenSeatsPositions[seat + 1] = (short) id;
+					}
+					sitting = true;
+					return;
+
+				case Objects.JOB_CLEANING_SUPPLIES:
+				case Objects.JOB_GARDENING_TOOLS:
+				case Objects.TOILET:
+					map.openContainer(idx);
+					return;
+
+				case Objects.JOB_DIRTY_LAUNDRY:
+					// take laundry
+					addItem((rng.nextInt(2) == 0 ? Items.DIRTY_GUARD_OUTFIT : Items.DIRTY_INMATE_OUTFIT)
+							| Items.ITEM_DEFAULT_DURABILITY, true);
+					return;
+				case Objects.JOB_RAW_METAL:
+					// take metal
+					addItem(Items.SHEET_OF_METAL | Items.ITEM_DEFAULT_DURABILITY, true);
+					return;
+				case Objects.JOB_RAW_WOOD:
+					// take wood
+					addItem(Items.TIMBER | Items.ITEM_DEFAULT_DURABILITY, true);
+					return;
+				case Objects.FREEZER:
+					addItem((map.map == MAP_SANPANCHO ? Items.UNCOOKED_BURRITO : Items.UNCOOKED_FOOD) | Items.ITEM_DEFAULT_DURABILITY, true);
+					return;
+				case Objects.JOB_FABRIC_CHEST:
+					addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
+					return;
+				case Objects.JOB_DELIVERIES_TRUCK:
+					if (job == JOB_DELIVERIES) {
+						addItem(rng.nextInt(2) == 0 ?
+								(Items.PACKAGE_A | Items.ITEM_DEFAULT_DURABILITY) :
+								(Items.PACKAGE_B | Items.ITEM_DEFAULT_DURABILITY), true);
+					}
+					return;
+
+				case Objects.JOB_METAL_TOOLS:
+					if (item == Items.SHEET_OF_METAL) {
+						Sound.playEffect(Sound.SFX_RUMBLE);
+						inventory[slot] = Items.LICENSE_PLATE;
+						return;
+					}
+					break;
+				case Objects.WASHING_MACHINE:
+					if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
+						// TODO
+						Sound.playEffect(Sound.SFX_BUY);
+						inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
+								Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
+						return;
+					}
+					break;
+				case Objects.OVEN:
+					if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
+						// TODO
+						Sound.playEffect(Sound.SFX_BUY);
+						inventory[slot] = item == Items.UNCOOKED_FOOD ?
+								Items.COOKED_FOOD : Items.BURRITO;
+						return;
+					}
+					break;
+
+				case Objects.JOB_CLEAN_LAUNDRY:
+					// put clean laundry
+					if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
+								&& map.schedule == SC_WORK_PERIOD) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+								// TODO
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += 40;
+							} else {
+								Sound.playEffect(Sound.SFX_BUY);
+							}
+						}
+						return;
+					}
+					break;
+				case Objects.JOB_PREPARED_METAL:
+					if (item == Items.LICENSE_PLATE) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
+								&& map.schedule == SC_WORK_PERIOD) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += 70;
+							} else {
+								Sound.playEffect(Sound.SFX_BUY);
+							}
+						}
+						return;
+					}
+					break;
+				case Objects.JOB_PREPARED_WOOD:
+					if (item == Items.UNVARNISHED_CHAIR) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
+								&& map.schedule == SC_WORK_PERIOD) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+								// TODO
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += 45;
+							} else {
+								Sound.playEffect(Sound.SFX_BUY);
+							}
+						}
+						return;
+					}
+					break;
+				case Objects.JOB_DELIVERIES_RED_BOX:
+				case Objects.JOB_DELIVERIES_BLUE_BOX:
+					if ((item == Items.PACKAGE_A && obj == Objects.JOB_DELIVERIES_BLUE_BOX)
+							|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
+								&& map.schedule == SC_WORK_PERIOD) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+								// TODO
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += 55;
+							} else {
+								Sound.playEffect(Sound.SFX_BUY);
+							}
+						}
+						return;
+					}
+					break;
+
+				case Objects.STASH:
+					// open stash
+					//noinspection StatementWithEmptyBody
+					while (!Game.isIllegal(item = rng.nextInt(192)));
+					item |= Items.ITEM_DEFAULT_DURABILITY;
+					if (addItem(item, true)) {
+						// TODO animate
+						map.objects[layer][idx + 1] = -Objects.STASH;
+						map.objects[layer][idx + 2] |= 1 << 12;
+						map.solid[layer][y * map.width + x] = COLL_NONE;
+					} else {
+						dialog = "Inventory full";
+						dialogTimer = TPS * 2;
+					}
+					return;
+				}
+			}
+			if (b == COLL_GYM) {
+				if (checkFatigued()) return;
+				// sit
+				animateToX = x * TILE_SIZE;
+				animateToY = y * TILE_SIZE;
+				gymObjectIdx = idx;
+				gymObject = obj;
+				if (obj == Objects.TRAINING_TREADMILL) {
+					animateToX -= 4;
+					animateToY -= 4;
+					direction = pathEndDir = DIR_RIGHT;
+				} else {
+					direction = pathEndDir = DIR_DOWN;
+					if (obj == Objects.TRAINING_WEIGHT) {
+						map.objects[LAYER_GROUND][idx + 2] = (short) (13 | (map.objects[LAYER_GROUND][idx + 2] & 0xFF00));
+					}
+				}
+				int seat = map.getSeatIndex(map.gymPositions, x, y);
+				if (seat != -1) {
+					if (map.gymPositions[seat + 1] != -1) {
+						// push npc from their seat
+						Sound.playEffect(Sound.SFX_ENHIT);
+						int n = map.npcNum;
+						for (int i = 1; i < n; ++i) {
+							NPC npc = map.chars[i];
+							if (npc != null && npc.training
+									&& npc.x == animateToX && npc.y == animateToY) {
+								// TODO
+								npc.aiState = AI_RESET;
+								npc.aiWaitTimer = TPS;
+								npc.statOpinion--;
+								break;
+							}
+						}
+					}
+					map.gymPositions[seat + 1] = (short) id;
+				}
+				map.trainingRepeats = 0;
+				map.trainingTimer = 0;
+				map.trainingLastKey = 0;
+				map.trainingBlocked = false;
+				training = true;
+				return;
+			}
+			if (b == COLL_NOT_SOLID_INTERACT) {
+				if (obj == Objects.LADDER_UP) {
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
+					layer++;
+					chaseTarget = null;
+					map.resetCamera = true;
+					return;
+				}
+				if (obj == Objects.LADDER_DOWN) {
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+					layer--;
+					chaseTarget = null;
+					map.resetCamera = true;
+					return;
+				}
+				if (obj == Objects.VENT) {
+					int p = map.getBreakProgress(x, y, layer);
+					if (p == 100) {
+						xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+						yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
+						layer--;
+						chaseTarget = null;
+						map.resetCamera = true;
+					} else if (p == 101 && !checkInventoryFull()) {
+						map.setBreakProgress(x, y, LAYER_VENT, 100);
+						map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+						addItem(Items.FAKE_VENT_COVER, true);
+					}
+					return;
+				}
+			}
+			if (b == COLL_POSTER && map.selectedInventory == -1) {
+				// take poster
+				int p = map.getBreakProgress(x, y, layer);
+				int pos = y * map.width + x;
+				if (p == 101) {
+					if (!addItem(Items.POSTER | Items.ITEM_DEFAULT_DURABILITY, true)) {
+						dialog = "Inventory full";
+						dialogTimer = TPS * 2;
+						return;
+					}
+				} else {
+					byte t = map.tiles[layer][pos];
+					if (t == 21 || t == 25) {
+						if (!addItem(Items.FAKE_WALL_BLOCK | Items.ITEM_DEFAULT_DURABILITY, true)) {
+							dialog = "Inventory full";
+							dialogTimer = TPS * 2;
+							return;
+						}
+					} else if (!addItem(Items.FAKE_FENCE | Items.ITEM_DEFAULT_DURABILITY, true)) {
+						dialog = "Inventory full";
+						dialogTimer = TPS * 2;
+						return;
+					}
+					map.tiles[layer][pos] = (byte) -t;
+				}
+				map.effects[0] = 208;
+				map.effects[1] = 2;
+				map.effects[2] = x * TILE_SIZE;
+				map.effects[3] = y * TILE_SIZE;
+				map.solid[layer][pos] = COLL_DIGGED_WALL;
+				map.setBreakProgress(x, y, layer, 100);
+				return;
+			}
+		}
+
+		// drop selected item
+		if (item != -1) {
+			int r = map.dropItem(x, y, inventory[slot], layer);
+			if (r == 0) {
+				Sound.playEffect(Sound.SFX_THROW);
+				inventory[slot] = Items.ITEM_NULL;
+			} else {
+				Sound.playEffect(Sound.SFX_LOSE);
+			}
+			return;
+		}
+
+		if (map.interactNPC != null) {
+			NPC npc = map.interactNPC;
+
+			if (npc.health <= 0) {
+				// loot
+				map.inventoryOpen = npc;
+				Sound.playEffect(Sound.SFX_OPEN);
+			} else {
+				// open profile
+				map.profileOpen = npc;
+				map.profileTab = 0;
+				map.lastSelectedInventory = map.selectedInventory;
+				map.selectedInventory = 0;
+				map.selectedSlot = -1;
+//								map.outOfRange = map.player.canSee(this);
+				Sound.playEffect(Sound.SFX_OPEN);
+
+				// TODO talk
+				if (!talked) {
+					npc.statOpinion++;
+					talked = true;
+				} else talked = false;
+			}
 		}
 	}
 
