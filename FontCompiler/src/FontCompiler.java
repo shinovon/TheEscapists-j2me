@@ -19,7 +19,6 @@ public class FontCompiler {
 		int ver = 1;
 		convert(new File("./font.png"), chars, new File("../res/fontr"), 7, 10, cols, rows, ver, "TE-R");
 		convert(new File("./fontbold.png"), chars, new File("../res/fontb"), 8, 10, cols, rows, ver, "TE-B");
-
 	}
 
 	private static void convert(File bitmap, File chars, File out, int cw, int ch, int cols, int rows, int ver, String name) {
@@ -111,13 +110,10 @@ public class FontCompiler {
 	}
 
 	private static void writeName(DataOutputStream d, String s) throws IOException {
-		if(s.length() > 8) s = s.substring(0, 8);
-		char[] c = new char[8];
-		for(int i = 0; i < s.length(); i++) c[i] = s.charAt(i);
-		for(int i = 0; i < 8; i++) {
-			int j = c[i];
-			if(j < 0 || j > 255) j = 0;
-			d.writeByte(j);
+		for (int i = 0; i < 8; i++) {
+			char c = i < s.length() ? s.charAt(i) : 0;
+			if (c > 255) c = 0;
+			d.writeByte(c);
 		}
 	}
 
