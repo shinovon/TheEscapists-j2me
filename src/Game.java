@@ -896,7 +896,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.drawRect(tx - 3, ty - 3, tw + 6, 15);
 					drawText(g, craftingMessage, tx, ty, FONT_REGULAR);
 				}
-			} else if (profileOpen != null) { // TODO
+			} else if (profileOpen != null) {
 				pausedOverlay = true;
 				NPC npc = profileOpen;
 
@@ -949,17 +949,44 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					drawText(g, "outfit", nx + (nw >> 1) - 20 - 15 - 2, ny + 85 + 21, FONT_REGULAR);
 					drawText(g, "weapon", nx + (nw >> 1) + 15 - 5, ny + 85 + 21, FONT_REGULAR);
 				} else if (profileTab == 1) {
-
+					// TODO gift
 				} else if (profileTab == 2) {
+					// TODO buy
 					if (!npc.selling) {
-
+						fontColor = FONT_COLOR_RED;
+						drawCenteredText(g, "Nothing to sell", w, (h >> 1) - 5, FONT_REGULAR);
 					} else {
+						fontColor = FONT_COLOR_WHITE;
 
+						charBuffer[0] = '$';
+						drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 30, npc.sell[0], selectedSlot == 0);
+						if (npc.sell[0] != Items.ITEM_NULL) {
+							intToCharBuffer(npc.sell[1], 1);
+							drawText(g, charBuffer, nx + (nw >> 1) - 20 - 15, ny + 54, FONT_REGULAR);
+						}
+
+						drawItemSlot(g, nx + (nw >> 1) + 15, ny + 30, npc.sell[2], selectedSlot == 1);
+						if (npc.sell[2] != Items.ITEM_NULL) {
+							intToCharBuffer(npc.sell[3], 1);
+							drawText(g, charBuffer, nx + (nw >> 1) + 15, ny + 54, FONT_REGULAR);
+						}
+
+						drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 70, npc.sell[4], selectedSlot == 2);
+						if (npc.sell[4] != Items.ITEM_NULL) {
+							intToCharBuffer(npc.sell[5], 1);
+							drawText(g, charBuffer, nx + (nw >> 1) - 20 - 15, ny + 94, FONT_REGULAR);
+						}
+
+						drawItemSlot(g, nx + (nw >> 1) + 15, ny + 70, npc.sell[6], selectedSlot == 3);
+						if (npc.sell[6] != Items.ITEM_NULL) {
+							intToCharBuffer(npc.sell[7], 1);
+							drawText(g, charBuffer, nx + (nw >> 1) + 15, ny + 94, FONT_REGULAR);
+						}
 					}
 				}
 
 				if (npc.inmate && npc.ai) {
-
+					// TODO tabs
 				}
 			} else {
 				pausedOverlay = false;
@@ -1671,7 +1698,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								int item = profileOpen.sell[selectedSlot << 1];
 								if (item == Items.ITEM_NULL) break;
 
-
+								int cost = profileOpen.sell[(selectedSlot << 1) | 1];
+								if (money < cost) {
+									Sound.playEffect(Sound.SFX_LOSE);
+									break;
+								}
+								if (player.addItem(item, true)) {
+									money -= cost;
+									profileOpen.sell[selectedSlot << 1] = Items.ITEM_NULL;
+									Sound.playEffect(Sound.SFX_BUY);
+								}
 								break;
 							}
 						}
@@ -3816,8 +3852,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			// background
 			if (layer == LAYER_GROUND || layer == LAYER_UNDERGROUND) {
+				int y0 = viewHeight / (TILE_SIZE * 3) + 1;
 				for (int x = viewWidth / (TILE_SIZE * 3) + 1; x >= 0; --x) {
-					for (int y = viewHeight / (TILE_SIZE * 3) + 1; y >= 0; --y) {
+					for (int y = y0; y >= 0; --y) {
 						g.drawRegion(groundTexture, layer == LAYER_UNDERGROUND ? (TILE_SIZE * 3) : 0, 0,
 								TILE_SIZE * 3, TILE_SIZE * 3, 0, -xr + x * TILE_SIZE * 3, -yr + y * 48, 0);
 					}
@@ -8615,6 +8652,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		openNodePrev = new short[size];
 		openNodeNext = new short[size];
 
+		// TODO make old method accessible with preprocessor constant
 		visitedNodes = new short[size];
 		nodeDir = new byte[size];
 		nodeX = new byte[size];

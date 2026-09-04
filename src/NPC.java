@@ -148,6 +148,7 @@ class NPC implements Constants {
 	int pathStep;
 	int pathEndDir = -1;
 	boolean targetReached;
+	float aiSpeed;
 	
 	String dialog;
 	int dialogTimer, nextDialogTimer;
@@ -205,6 +206,7 @@ class NPC implements Constants {
 		if (inmate && ai) {
 			sell = new int[8];
 		}
+		aiSpeed = other ? OTHER_NPC_SPEED : NPC_SPEED;
 	}
 	
 	void paint(Graphics g, int x, int y) {
@@ -989,11 +991,9 @@ class NPC implements Constants {
 			boolean found = false;
 			for (int i = 1; i < n; ++i) {
 				NPC other = chars[i];
-				if (other == null || other == this || other.guard || other.health <= 0) {
+				if (other == null || other == this || other.guard || other.health <= 0 || !canSee(other)) {
 					continue;
 				}
-
-				if (!canSee(other)) continue;
 
 				if (guard) {
 					// attack if inmate is fighting
@@ -1638,7 +1638,11 @@ class NPC implements Constants {
 				int px = path[n];
 				int py = path[n + 1];
 
-				moveTowards(px * TILE_SIZE, py * TILE_SIZE, (other ? OTHER_NPC_SPEED : NPC_SPEED) * (0.8f + (rng.nextFloat() * 0.4f)));
+				if (((tick + id) & 7) == 0) {
+					aiSpeed = (other ? OTHER_NPC_SPEED : NPC_SPEED) * (0.8f + rng.nextFloat() * 0.4f);
+				}
+
+				moveTowards(px * TILE_SIZE, py * TILE_SIZE, aiSpeed);
 
 				if (x / TILE_SIZE == px && ((y + 5) / TILE_SIZE) == py && n != 1) {
 					++pathStep;
@@ -2006,7 +2010,7 @@ class NPC implements Constants {
 				int n = Game.BUY.length >> 1;
 				for (int i = 0; i < 4; ++i) {
 					int j = rng.nextInt(n);
-					sell[i << 1] = Game.BUY[j << 1];
+					sell[i << 1] = Game.BUY[j << 1] | Items.ITEM_DEFAULT_DURABILITY;
 					// TODO check
 					int cost = Game.BUY[(j << 1) | 1];
 					if (statOpinion > 50) {
