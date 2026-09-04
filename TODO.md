@@ -60,7 +60,7 @@
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
 - [ ] Recruiting
-- [ ] Guards reacting to escape attempts (illegal items on floor, digged floors and walls)
+- [ ] Guards reacting to holes in walls and floors
 - [ ] Shops (WIP)
 - [ ] Help
 - [ ] Snipers
@@ -69,6 +69,10 @@
 - [ ] Stepladder
 - [ ] Crafting notes
 - [ ] Contraband pouch
+- [ ] Molten chocolate
+- [ ] Tying npcs
+- [ ] Guards picking up items
+- [ ] Jungle check point
 
 # Low priority
 
