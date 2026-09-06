@@ -816,6 +816,7 @@ class NPC implements Constants {
 						aiState = AI_WORK;
 						aiWorkState = 0;
 						correctPath = false;
+						nextRoamPos = true;
 						jobQuota = 0;
 						break;
 					}
