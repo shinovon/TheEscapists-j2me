@@ -31,7 +31,6 @@ import javax.microedition.m3g.*;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import java.io.*;
-import java.util.Vector;
 
 /** @noinspection DataFlowIssue*/ // gives wrong warnings
 public class Game extends GameCanvas implements Runnable, Constants {
@@ -751,10 +750,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						t = "Error!";
 						break;
 					}
-					a = noteText = getStringArray(t, nw - tx * 2, FONT_REGULAR);
+					a = noteText = getStringArray(noteText = new String[30], t, nw - tx * 2, FONT_REGULAR);
 				}
 				int n = a.length;
 				for (int i = 0; i < n; ++i) {
+					if (a[i] == null) break;
 					drawText(g, a[i], nx + tx, ny + ty, FONT_REGULAR);
 					ty += fontCharHeight[FONT_REGULAR];
 				}
@@ -4809,10 +4809,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			if (npc.dialog != null) {
 				String[] r = npc.dialogRender;
-				if (r == null) {
-					npc.dialogRender = r = getStringArray(npc.dialog, 160, FONT_REGULAR);
+				if (npc.dialogNeedLayout) {
+					npc.dialogNeedLayout = false;
+					r = npc.dialogRender = getStringArray(r, npc.dialog, 160, FONT_REGULAR);
 					npc.dialogW = splitResultWidth;
-					npc.dialogH = r.length * fh + 5;
+					npc.dialogH = splitResultCount * fh + 5;
 				}
 				int w = npc.dialogW;
 				int h = npc.dialogH;
@@ -4825,6 +4826,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int lines = r.length;
 				for (int j = 0; j < lines; ++j) {
 					String s = r[j];
+					if (s == null) break;
 					int lw = textWidth(s, FONT_REGULAR);
 					drawText(g, s, x + 8 - (lw >> 1), y - h + ty, FONT_REGULAR);
 					ty += fh;
@@ -8245,9 +8247,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// preallocated temp buffers
 	static char[] charBuffer = new char[100];
 	static StringBuffer stringBuffer = new StringBuffer();
-	static Vector tempVector = new Vector(5);
 
-	private static int splitResultWidth; // output of getStringArray
+	private static int splitResultWidth, splitResultCount; // output of getStringArray
 
 	static void loadFonts() {
 		fontCharWidth = new int[FONTS_COUNT];
@@ -8348,6 +8349,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		while (i < l) {
 			int c = text.charAt(i++);
+			if (c == ' ') {
+				x += halfCharWidth;
+				continue;
+			}
+			if (c < ' ' || c > '~') continue;
+			c -= '!';
+			x += fontWidths[c] + 1;
+		}
+		return x;
+	}
+
+	static int substringWidth(String text, int start, int end, int font) {
+		int x = 0;
+		int halfCharWidth = fontCharWidth[font] / 2;
+		int[] fontWidths = Game.fontWidths[font];
+
+		while (start < end) {
+			int c = text.charAt(start++);
 			if (c == ' ') {
 				x += halfCharWidth;
 				continue;
@@ -8552,35 +8571,38 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		charBuffer[i + 1] = (char) ('0' + (n % 10));
 	}
 
-	static String[] getStringArray(String text, int maxWidth, int font) {
+	static String[] getStringArray(String[] out, String text, int maxWidth, int font) {
+		out[0] = null;
+		out[out.length - 1] = null;
+		int count = 0;
 		if (text == null || text.length() == 0 || text.equals(" ")) {
 			splitResultWidth = 0;
-			return new String[0];
+			splitResultCount = 0;
+			return out;
 		}
-		Vector v = tempVector;
-		v.setSize(0);
 		if (text.indexOf('\n') != -1) {
 			int j = 0;
 			int l = text.length();
 			for (int i = 0; i < l; i++) {
 				if (text.charAt(i) == '\n') {
-					v.addElement(text.substring(j, i));
+					out = insert(out, count++, text.substring(j, i));
 					j = i + 1;
 				}
 			}
-			v.addElement(text.substring(j));
+			out = insert(out, count++, text.substring(j));
 		} else {
-			v.addElement(text);
+			out = insert(out, count++, text);
 		}
 		int resWidth = 0;
-		for (int i = 0; i < v.size(); i++) {
-			String s = (String) v.elementAt(i);
+		for (int i = 0; i < count; i++) {
+			String s = (String) out[i];
+			if (s == null) break;
 			int tw = textWidth(s, font);
 			if (tw >= maxWidth) {
 				int i1 = 0;
 				int l = s.length();
 				for (int i2 = 0; i2 < l; i2++) {
-					if (textWidth(s.substring(i1, i2+1), font) >= maxWidth) {
+					if (substringWidth(s, i1, i2+1, font) >= maxWidth) {
 						space: {
 							for (int j = i2; j > i1; j--) {
 								char c = s.charAt(j);
@@ -8588,8 +8610,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									String t = s.substring(i1, j + 1);
 									tw = textWidth(t, font);
 									if (tw > resWidth) resWidth = tw;
-									v.setElementAt(t, i);
-									v.insertElementAt(s.substring(j + 1), i + 1);
+									out[i] = t;
+									out = insert(out, i + 1, s.substring(j + 1));
+									count++;
 									i += 1;
 									i2 = i1 = j + 1;
 									break space;
@@ -8599,8 +8622,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							String t = s.substring(i1, i2);
 							tw = textWidth(t, font);
 							if (tw > resWidth) resWidth = tw;
-							v.setElementAt(t, i);
-							v.insertElementAt(s.substring(i2), i + 1);
+							out[i] = t;
+							out = insert(out, i + 1, s.substring(i2));
+							count++;
 							i2 = i1 = i2 + 1;
 							i += 1;
 						}
@@ -8611,8 +8635,23 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 		splitResultWidth = resWidth;
-		String[] arr = new String[v.size()];
-		v.copyInto(arr);
+		splitResultCount = count;
+		if (count != out.length) out[count] = null;
+		return out;
+	}
+
+	private static String[] insert(String[] arr, int idx, String v) {
+		if (arr[idx] != null) {
+			if (arr[arr.length - 1] != null) {
+				// full
+				String[] newArr = new String[arr.length << 1];
+				System.arraycopy(arr, 0, newArr, 0, arr.length);
+				arr = newArr;
+			}
+			int size = arr.length - idx - 1;
+			if (size > 0) System.arraycopy(arr, idx, arr, idx + 1, size);
+		}
+		arr[idx] = v;
 		return arr;
 	}
 

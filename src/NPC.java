@@ -152,7 +152,8 @@ class NPC implements Constants {
 	
 	String dialog;
 	int dialogTimer, nextDialogTimer;
-	String[] dialogRender;
+	String[] dialogRender = new String[3];
+	boolean dialogNeedLayout = true;
 	int dialogW, dialogH;
 
 	boolean guard, inmate, other;
@@ -297,7 +298,7 @@ class NPC implements Constants {
 		}
 		if (dialogTimer != 0 && --dialogTimer == 0) {
 			dialog = null;
-			dialogRender = null;
+			dialogNeedLayout = true;
 		}
 		if (attackTimer != 0) {
 			attackTimer--;
