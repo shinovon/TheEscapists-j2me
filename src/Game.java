@@ -951,36 +951,38 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				} else if (profileTab == 1) {
 					// TODO gift
 				} else if (profileTab == 2) {
-					// TODO buy
 					if (!npc.selling) {
 						fontColor = FONT_COLOR_RED;
 						drawCenteredText(g, "Nothing to sell", w, (h >> 1) - 5, FONT_REGULAR);
 					} else {
-						fontColor = FONT_COLOR_WHITE;
-
+						int l;
 						charBuffer[0] = '$';
 						drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 30, npc.sell[0], selectedSlot == 0);
 						if (npc.sell[0] != Items.ITEM_NULL) {
-							intToCharBuffer(npc.sell[1], 1);
-							drawText(g, charBuffer, nx + (nw >> 1) - 20 - 15, ny + 54, FONT_REGULAR);
+							l = intToCharBuffer(npc.sell[1], 1);
+							fontColor = FONT_COLOR_GREY_7F;
+							drawText(g, charBuffer, nx + (nw >> 1) - 25 - (charsWidth(charBuffer, l, FONT_REGULAR) >> 1), ny + 52, FONT_REGULAR);
 						}
 
 						drawItemSlot(g, nx + (nw >> 1) + 15, ny + 30, npc.sell[2], selectedSlot == 1);
 						if (npc.sell[2] != Items.ITEM_NULL) {
-							intToCharBuffer(npc.sell[3], 1);
-							drawText(g, charBuffer, nx + (nw >> 1) + 15, ny + 54, FONT_REGULAR);
+							l = intToCharBuffer(npc.sell[3], 1);
+							fontColor = FONT_COLOR_GREY_7F;
+							drawText(g, charBuffer, nx + (nw >> 1) + 25 - (charsWidth(charBuffer, l, FONT_REGULAR) >> 1), ny + 52, FONT_REGULAR);
 						}
 
 						drawItemSlot(g, nx + (nw >> 1) - 20 - 15, ny + 70, npc.sell[4], selectedSlot == 2);
 						if (npc.sell[4] != Items.ITEM_NULL) {
-							intToCharBuffer(npc.sell[5], 1);
-							drawText(g, charBuffer, nx + (nw >> 1) - 20 - 15, ny + 94, FONT_REGULAR);
+							l = intToCharBuffer(npc.sell[5], 1);
+							fontColor = FONT_COLOR_GREY_7F;
+							drawText(g, charBuffer, nx + (nw >> 1) - 25 - (charsWidth(charBuffer, l, FONT_REGULAR) >> 1), ny + 92, FONT_REGULAR);
 						}
 
 						drawItemSlot(g, nx + (nw >> 1) + 15, ny + 70, npc.sell[6], selectedSlot == 3);
 						if (npc.sell[6] != Items.ITEM_NULL) {
-							intToCharBuffer(npc.sell[7], 1);
-							drawText(g, charBuffer, nx + (nw >> 1) + 15, ny + 94, FONT_REGULAR);
+							l = intToCharBuffer(npc.sell[7], 1);
+							fontColor = FONT_COLOR_GREY_7F;
+							drawText(g, charBuffer, nx + (nw >> 1) + 25 - (charsWidth(charBuffer, l, FONT_REGULAR) >> 1), ny + 92, FONT_REGULAR);
 						}
 					}
 				}
@@ -8349,6 +8351,24 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		while (i < l) {
 			int c = text.charAt(i++);
+			if (c == ' ') {
+				x += halfCharWidth;
+				continue;
+			}
+			if (c < ' ' || c > '~') continue;
+			c -= '!';
+			x += fontWidths[c] + 1;
+		}
+		return x;
+	}
+
+	static int charsWidth(char[] text, int len, int font) {
+		int i = 0, x = 0;
+		int halfCharWidth = fontCharWidth[font] / 2;
+		int[] fontWidths = Game.fontWidths[font];
+
+		while (i < len) {
+			int c = text[i++];
 			if (c == ' ') {
 				x += halfCharWidth;
 				continue;

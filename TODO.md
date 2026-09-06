@@ -53,6 +53,7 @@
 - [x] Shakedowns
 - [x] Timber braces
 - [x] Profile
+- [x] Shops
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
@@ -61,7 +62,6 @@
 - [ ] Mines (san pancho)
 - [ ] Recruiting
 - [ ] Guards reacting to holes in walls and floors
-- [ ] Shops (WIP)
 - [ ] Help
 - [ ] Snipers
 - [ ] NPC opinions (WIP)
