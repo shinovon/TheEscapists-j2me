@@ -2170,15 +2170,17 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int i;
 				boolean b;
 
-				Sound.volumeMusic = d.readInt();
-				i = d.readInt();
-				if (!NO_SFX) Sound.volumeSfx = i;
-				b = d.readBoolean();
-				if (USE_M3G) use3D = b;
-				b = d.readBoolean();
-				if (DRAW_SHADOWS) enableShadows = b;
-				b = d.readBoolean();
-				altControls = b;
+				if (d.readInt() == CONFIG_VERSION) {
+					Sound.volumeMusic = d.readInt();
+					i = d.readInt();
+					if (!NO_SFX) Sound.volumeSfx = i;
+					b = d.readBoolean();
+					if (USE_M3G) use3D = b;
+					b = d.readBoolean();
+					if (DRAW_SHADOWS) enableShadows = b;
+					b = d.readBoolean();
+					altControls = b;
+				}
 			} catch (Exception ignored) {}
 
 			Sound.load();
@@ -2416,6 +2418,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream d = new DataOutputStream(baos);
+			d.writeInt(CONFIG_VERSION);
 			d.writeInt(Sound.volumeMusic);
 			d.writeInt(NO_SFX ? 0 : Sound.volumeSfx);
 			d.writeBoolean(USE_M3G && use3D);
