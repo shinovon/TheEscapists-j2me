@@ -91,6 +91,8 @@
 - [ ] Spotlights
 - [ ] Electric fences and generator
 - [ ] Gifting items
+- [ ] Items decay
+- [ ] Owned items (needed for favors and mail)
 
 # Low priority
 
