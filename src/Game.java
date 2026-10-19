@@ -3551,6 +3551,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (npc == null) continue;
 
 			if (npc.guard) {
+				if (npc.aiState == NPC.AI_SHAKEDOWN) continue;
+
 				// TODO check
 				if (npc.typedId >= 3 && j < guardBeds[0]) {
 					npc.xFloat = npc.x = (npc.bedX = guardBeds[(j << 1) + 1]) * TILE_SIZE;
