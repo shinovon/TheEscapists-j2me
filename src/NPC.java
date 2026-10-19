@@ -1215,7 +1215,7 @@ class NPC implements Constants {
 					}
 				}
 				correctPath = false;
-			} else if (!correctPath && ((tick + id) & 3) == 0) {
+			} else if (!correctPath && ((tick + id) & 7) == 0) {
 				if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
 					correctPath = true;
 					pathStep = 0;
@@ -1245,7 +1245,7 @@ class NPC implements Constants {
 			}
 		} else if (aiState == AI_MEAL) {
 			// meal: go to serving table, take food, go to free seat
-			if (((tick + id) & 3) == 0) {
+			if (((tick + id) & 7) == 0) {
 				if (animation == ANIM_FOOD) {
 					if (!correctPath && !sitting) {
 						// find free seat
@@ -1312,7 +1312,7 @@ class NPC implements Constants {
 			}
 		} else if (aiState == AI_GYM) {
 			// gym: go to free object and start training animation
-			if (((tick + id) & 3) == 0) {
+			if (((tick + id) & 7) == 0) {
 				if (!correctPath && !training) {
 					// find free seat
 					while (true) {
@@ -1381,7 +1381,7 @@ class NPC implements Constants {
 		} else if (aiState == AI_WORK) {
 			work:
 			{
-				if (((tick + id) & 3) != 0) break work;
+				if (((tick + id) & 7) != 0) break work;
 
 				switch (job) {
 				case JOB_JANITOR:
