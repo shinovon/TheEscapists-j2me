@@ -90,7 +90,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int canvasWidth, canvasHeight;
 
 	int fps, tps;
-	int lag;
+	int npcLag;
 	long globalCounter;
 
 	boolean paused;
@@ -538,12 +538,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				drawNumber(g, fps, fontImg, 0, 9, 5, 7, 0, 55);
 				// tps
 				drawNumber(g, tps, fontImg, 0, 9, 5, 7, 5*3, 55);
-				if (lag != 0) {
-					drawNumber(g, lag, fontImg, 0, 16, 5, 7, 5*6, 55);
-				}
 				// used heap
 				Runtime r = Runtime.getRuntime();
 				drawNumber(g, (int) (r.totalMemory() - r.freeMemory()) / 1024, fontImg, 0, 9, 5, 7, 0, 55+8);
+
+				if (npcLag > 20) {
+					drawNumber(g, npcLag, fontImg, 0, 16, 5, 7, 0, 55+8*2);
+				}
 
 				// bottom
 
@@ -551,23 +552,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					g.setColor(0x333333);
 					g.fillRect(0, h - 17, w, 17);
 
-	//				int bw = w - 22;
-	//				int bw = w;
-	//				g.setColor(0);
-	//				g.fillRect(0, h - 17, bw, 17);
-	//				g.setColor(0x333333);
-	//				g.fillRect(2, h - 15, bw - 4, 13);
-	//				g.setColor(0x535353);
-	//				g.drawLine(1, h - 15, 1, h - 3);
-	//				g.drawLine(2, h - 16, bw - 3, h - 16);
-	//				g.setColor(0x1F1F1F);
-	//				g.drawLine(bw - 2, h - 15, bw - 2, h - 3);
-	//				g.drawLine(2, h - 2, bw - 3, h - 2);
+//					int bw = w - 22;
+//					int bw = w;
+//					g.setColor(0);
+//					g.fillRect(0, h - 17, bw, 17);
+//					g.setColor(0x333333);
+//					g.fillRect(2, h - 15, bw - 4, 13);
+//					g.setColor(0x535353);
+//					g.drawLine(1, h - 15, 1, h - 3);
+//					g.drawLine(2, h - 16, bw - 3, h - 16);
+//					g.setColor(0x1F1F1F);
+//					g.drawLine(bw - 2, h - 15, bw - 2, h - 3);
+//					g.drawLine(2, h - 2, bw - 3, h - 2);
 				}
-
-
-	//			g.setColor(0);
-	//			g.drawLine(w - 23, 0, w - 23, h);
 
 				// schedule
 				StringBuffer sb = Game.stringBuffer;
@@ -661,9 +658,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (t > 0) g.fillRect(12, h - 28, t, 5);
 				}
 				// side
-
-//				g.setColor(0x0F0F0F);
-//				g.fillRect(w - 22, 0, 22, h);
 
 				// inventory items
 				Image itemsImg = itemsTexture;
@@ -2500,7 +2494,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 				if (now >= lastLagCounterTime + 5000L) {
 					lastLagCounterTime += 5000L;
-					lag = 0;
+					npcLag = 0;
 				}
 
 				Profiler.endFrame();
@@ -3869,23 +3863,25 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (heatTimer != 0) --heatTimer;
 		if (scheduleHeatCooldown != 0) --scheduleHeatCooldown;
 
-		// tick characters
-
 		int tick = tickCounter;
-		player.tickPlayer(tick);
 
-		long l = System.currentTimeMillis();
+		// tick characters
+		{
+			long l = System.currentTimeMillis();
 
-		NPC[] chars = this.chars;
-		int n = chars.length;
-		for (int i = 0; i < n; ++i) {
-			if (chars[i] == null) continue;
-			if (i != 0) chars[i].tickAI(tick);
-			chars[i].tick();
+			player.tickPlayer(tick);
+
+			NPC[] chars = this.chars;
+			int n = chars.length;
+			for (int i = 0; i < n; ++i) {
+				if (chars[i] == null) continue;
+				if (i != 0) chars[i].tickAI(tick);
+				chars[i].tick();
+			}
+
+			l = (System.currentTimeMillis() - l);
+			if (l > npcLag) npcLag = (int) l;
 		}
-
-		l = (System.currentTimeMillis() - l);
-		if (l > lag) lag = (int) l;
 
 		// sort characters for rendering, so that southern will be rendered on top
 
