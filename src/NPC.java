@@ -3037,11 +3037,17 @@ class NPC implements Constants {
 				int dy = npc.y - this.y;
 				int d = dx * dx + dy * dy;
 				if (d < TILE_SIZE * TILE_SIZE) {
-					Sound.playEffect(Constants.SFX_ENHIT);
+					int i = map.effects[1] == 0 ? 0 : 4;
+					map.effects[i] = 195;
+					map.effects[i + 1] = 1;
+					map.effects[i + 2] = x;
+					map.effects[i + 3] = y;
+
 					npc.health = 0;
 					npc.statOpinion = 0;
 					fighting = 4;
 					inventory[slot] = Items.ITEM_NULL;
+					Sound.playEffect(Constants.SFX_ENHIT);
 					return;
 				}
 			}
