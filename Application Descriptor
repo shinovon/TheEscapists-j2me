@@ -1,6 +1,6 @@
 TE-Build: development
 MIDlet-Vendor: shinovon
-MIDlet-Version: 0.9.5
+MIDlet-Version: 0.9.6
 Manifest-Version: 1.0
 MIDlet-Icon: /icon.png
 MicroEdition-Configuration: CLDC-1.1
