@@ -364,7 +364,7 @@ class NPC implements Constants {
 				}
 
 				// don't render outfit when in shower room
-				inShower = isInZone(ZONE_SHOWER) && (!ai || map.schedule == SC_SHOWER_BLOCK);
+				inShower = isInZone(ZONE_SHOWER) && (!ai || map.routine == SC_SHOWER_BLOCK);
 
 				if (layer == LAYER_ROOF &&
 						s1 == COLL_NONE && s2 == COLL_NONE && s3 == COLL_NONE && s4 == COLL_NONE) {
@@ -375,14 +375,14 @@ class NPC implements Constants {
 		}
 		if (inmate) {
 			if (animation == ANIM_FOOD &&
-					((map.schedule != SC_EVENING_MEAL && map.schedule != SC_BREAKFAST)
+					((map.routine != SC_EVENING_MEAL && map.routine != SC_BREAKFAST)
 							|| !isInZone(ZONE_CANTEEN) || climbed)) {
 				// remove tray when left from canteen
 				animation = ANIM_REGULAR;
 			}
-			if (map.schedule == SC_WORK_PERIOD && map.prevSchedule != SC_WORK_PERIOD) {
+			if (map.routine == SC_WORK_PERIOD && map.prevRoutine != SC_WORK_PERIOD) {
 				jobQuota = 0;
-			} else if (ai && map.prevSchedule == SC_WORK_PERIOD && map.schedule != SC_WORK_PERIOD && jobQuota < NPC_JOB_QUOTA_THRESHOLD) {
+			} else if (ai && map.prevRoutine == SC_WORK_PERIOD && map.routine != SC_WORK_PERIOD && jobQuota < NPC_JOB_QUOTA_THRESHOLD) {
 				map.jobs[job] &= ~JOB_OCCUPIED_BIT;
 				job = 0;
 			}
@@ -624,12 +624,12 @@ class NPC implements Constants {
 					textType = Game.TEXT_GYM;
 					textCount = Game.TEXT_GYM_COUNT;
 				} else if (aiState == AI_WAYPOINT && targetReached) {
-					if (map.schedule == SC_SHOWER_BLOCK) {
+					if (map.routine == SC_SHOWER_BLOCK) {
 						p = 50;
 						delay = 7;
 						textType = Game.TEXT_SHOWER;
 						textCount = Game.TEXT_SHOWER_COUNT;
-					} else if (map.schedule == SC_LOCKDOWN) {
+					} else if (map.routine == SC_LOCKDOWN) {
 						// TODO
 						p = 50;
 						delay = 7;
@@ -652,15 +652,15 @@ class NPC implements Constants {
 				}
 			}
 		}
-		if (map.prevSchedule != map.schedule
+		if (map.prevRoutine != map.routine
 				&& aiState != AI_ATTACK) {
 			if ((inmate || (guard && (aiState != AI_ROAM || typedId < 3
-					|| (map.schedule == SC_LIGHTSOUT && bedX != 0 && bedY != 0)))
+					|| (map.routine == SC_LIGHTSOUT && bedX != 0 && bedY != 0)))
 					|| bodyId == Textures.EMPLOYMENT_OFFICER || bodyId == Textures.DOCTOR)) {
 				aiState = AI_RESET;
-			} else if (guard && (map.prevSchedule == SC_MORNING_ROLLCALL
-					|| map.prevSchedule == SC_AFTERNOON_ROLLCALL
-					|| map.prevSchedule == SC_EVENING_ROLLCALL)
+			} else if (guard && (map.prevRoutine == SC_MORNING_ROLLCALL
+					|| map.prevRoutine == SC_AFTERNOON_ROLLCALL
+					|| map.prevRoutine == SC_EVENING_ROLLCALL)
 					&& ((typedId == 3 && map.shakedown1 != null && map.shakedown1.desk != 0)
 					|| (typedId == 4 && map.shakedown2 != null && map.shakedown2.desk != 0))) {
 				aiState = AI_SHAKEDOWN;
@@ -719,7 +719,7 @@ class NPC implements Constants {
 				}
 			} else if (guard) {
 				// guards schedule
-				if (map.schedule == SC_LIGHTSOUT && bedX != 0 && bedY != 0) {
+				if (map.routine == SC_LIGHTSOUT && bedX != 0 && bedY != 0) {
 					aiState = AI_SLEEP;
 					pathX = bedX;
 					pathY = bedY;
@@ -727,7 +727,7 @@ class NPC implements Constants {
 				} else if (typedId < 3) {
 					// first three guards
 					int pos = (typedId << 1) + 1;
-					switch (map.schedule) {
+					switch (map.routine) {
 					case SC_MORNING_ROLLCALL:
 					case SC_AFTERNOON_ROLLCALL:
 					case SC_EVENING_ROLLCALL:
@@ -786,7 +786,7 @@ class NPC implements Constants {
 				}
 			} else if (inmate) {
 				// inmates schedule
-				switch (map.schedule) {
+				switch (map.routine) {
 				case SC_MORNING_ROLLCALL:
 				case SC_AFTERNOON_ROLLCALL:
 				case SC_EVENING_ROLLCALL: {
@@ -870,7 +870,7 @@ class NPC implements Constants {
 					animation = ANIM_REGULAR;
 				}
 			} else if (bodyId == Textures.EMPLOYMENT_OFFICER || bodyId == Textures.DOCTOR) {
-				if (map.schedule == SC_MORNING_ROLLCALL) {
+				if (map.routine == SC_MORNING_ROLLCALL) {
 					pathX = bedX;
 					pathY = bedY;
 					correctPath = false;
@@ -878,7 +878,7 @@ class NPC implements Constants {
 					yFloat = y = map.npcSpawnY * TILE_SIZE;
 					hidden = false;
 					aiState = AI_WAYPOINT;
-				} else if (map.schedule == SC_EVENING_ROLLCALL) {
+				} else if (map.routine == SC_EVENING_ROLLCALL) {
 					pathX = map.npcSpawnX;
 					pathY = map.npcSpawnY;
 					correctPath = false;
@@ -958,10 +958,10 @@ class NPC implements Constants {
 							StringBuffer sb = Game.stringBuffer;
 							sb.setLength(0);
 							heat(sb.append("Get some clothes on ").append(player.name).append('!').toString(), 10);
-						} else if (map.scheduleHeatCooldown == 0) {
+						} else if (map.routineHeatCooldown == 0) {
 							// hurry up the player to scheduled place
 							onPlace: {
-								switch (map.schedule) {
+								switch (map.routine) {
 								case SC_MORNING_ROLLCALL:
 								case SC_AFTERNOON_ROLLCALL:
 								case SC_EVENING_ROLLCALL:
@@ -1134,9 +1134,9 @@ class NPC implements Constants {
 		} else if (aiState == AI_WAYPOINT) {
 			// waypoint: go to point, stay there
 			if (targetReached) {
-				if (guard && typedId == 0 && (map.schedule == SC_MORNING_ROLLCALL
-						|| map.schedule == SC_AFTERNOON_ROLLCALL
-						|| map.schedule == SC_EVENING_ROLLCALL)) {
+				if (guard && typedId == 0 && (map.routine == SC_MORNING_ROLLCALL
+						|| map.routine == SC_AFTERNOON_ROLLCALL
+						|| map.routine == SC_EVENING_ROLLCALL)) {
 					if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0)) {
 						if (rng.nextInt(2) != 0) {
 							nextDialogTimer = TPS >> 1;
@@ -1190,7 +1190,7 @@ class NPC implements Constants {
 				} else if (correctPath && guard && typedId < 3) {
 					face: {
 						int zone;
-						switch (map.schedule) {
+						switch (map.routine) {
 						case SC_MORNING_ROLLCALL:
 						case SC_AFTERNOON_ROLLCALL:
 						case SC_EVENING_ROLLCALL:
@@ -2339,32 +2339,32 @@ class NPC implements Constants {
 
 		if (layer == LAYER_GROUND && (outfitItem & Items.ITEM_ID_MASK) != Items.GUARD_OUTFIT && (tick & 15) == 0) {
 			// attendance
-			int schedule = map.schedule;
+			int schedule = map.routine;
 			switch (schedule) {
 			case SC_MORNING_ROLLCALL:
 			case SC_AFTERNOON_ROLLCALL:
 			case SC_EVENING_ROLLCALL:
 				if (!map.playerWasOnRollcall && isInZone(ZONE_ROLLCALL)) {
-					if (map.scheduleHeatCooldown < 0) map.scheduleHeatCooldown = TPS;
+					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnRollcall = true;
 				}
 				break;
 			case SC_BREAKFAST:
 			case SC_EVENING_MEAL:
 				if (!map.playerWasOnMeal && isInZone(ZONE_CANTEEN)) {
-					if (map.scheduleHeatCooldown < 0) map.scheduleHeatCooldown = TPS;
+					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnMeal = true;
 				}
 				break;
 			case SC_EXERCISE_PERIOD:
 				if (!map.playerWasOnExcercise && isInZone(ZONE_GYM)) {
-					if (map.scheduleHeatCooldown < 0) map.scheduleHeatCooldown = TPS;
+					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnExcercise = true;
 				}
 				break;
 			case SC_SHOWER_BLOCK:
 				if (!map.playerWasOnShowers && isInZone(ZONE_SHOWER)) {
-					if (map.scheduleHeatCooldown < 0) map.scheduleHeatCooldown = TPS;
+					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnShowers = true;
 				}
 				break;
@@ -2543,7 +2543,7 @@ class NPC implements Constants {
 						int idx = map.getObjectIdxAt(x, y, layer);
 						map.updateDirt(idx == map.dirt[2] ? 0 : 1);
 						map.fatigue += 5;
-						if (map.schedule == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)
+						if (map.routine == SC_WORK_PERIOD && (job == JOB_GARDENING || job == JOB_JANITOR)
 							&& jobQuota < MAX_JOB_QUOTA) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 5)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
@@ -3015,7 +3015,7 @@ class NPC implements Constants {
 				xFloat = this.x = bedX * TILE_SIZE;
 				yFloat = this.y = bedY * TILE_SIZE + 2;
 				animation = ANIM_LYING;
-				if (map.schedule == SC_LIGHTSOUT && (map.time < 5 * 60 || map.time >= 20 * 60)) {
+				if (map.routine == SC_LIGHTSOUT && (map.time < 5 * 60 || map.time >= 20 * 60)) {
 					map.saveDialog = true;
 					Sound.playEffect(SFX_OPEN);
 				}
@@ -3720,7 +3720,7 @@ class NPC implements Constants {
 							|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
 						inventory[slot] = Items.ITEM_NULL;
 						if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
-								&& map.schedule == SC_WORK_PERIOD) {
+								&& map.routine == SC_WORK_PERIOD) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
 								jobQuota = MAX_JOB_QUOTA;
@@ -3781,7 +3781,7 @@ class NPC implements Constants {
 					if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
 						inventory[slot] = Items.ITEM_NULL;
 						if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
-								&& map.schedule == SC_WORK_PERIOD) {
+								&& map.routine == SC_WORK_PERIOD) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
 								jobQuota = MAX_JOB_QUOTA;
@@ -3797,7 +3797,7 @@ class NPC implements Constants {
 					if (item == Items.LICENSE_PLATE) {
 						inventory[slot] = Items.ITEM_NULL;
 						if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
-								&& map.schedule == SC_WORK_PERIOD) {
+								&& map.routine == SC_WORK_PERIOD) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
 								jobQuota = MAX_JOB_QUOTA;
@@ -3813,7 +3813,7 @@ class NPC implements Constants {
 					if (item == Items.UNVARNISHED_CHAIR) {
 						inventory[slot] = Items.ITEM_NULL;
 						if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
-								&& map.schedule == SC_WORK_PERIOD) {
+								&& map.routine == SC_WORK_PERIOD) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
 								jobQuota = MAX_JOB_QUOTA;
@@ -3830,7 +3830,7 @@ class NPC implements Constants {
 							|| item == Items.UNDERPANTS || item == Items.SHORTS) {
 						inventory[slot] = Items.ITEM_NULL;
 						if (jobQuota < MAX_JOB_QUOTA && job == JOB_TAILOR
-								&& map.schedule == SC_WORK_PERIOD) {
+								&& map.routine == SC_WORK_PERIOD) {
 							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
 								Sound.playEffect(Sound.SFX_HP);
 								jobQuota = MAX_JOB_QUOTA;
@@ -4003,8 +4003,8 @@ class NPC implements Constants {
 		map.heat = 0;
 		fighting = 0;
 		stealing = 0;
-		map.scheduleHeatCooldown = TPS * 10;
-		if (map.schedule == SC_LIGHTSOUT || map.lockdown) {
+		map.routineHeatCooldown = TPS * 10;
+		if (map.routine == SC_LIGHTSOUT || map.lockdown) {
 			// send to cell bed
 			xFloat = x = bedX * TILE_SIZE;
 			yFloat = y = bedY * TILE_SIZE + 2;
@@ -4140,12 +4140,15 @@ class NPC implements Constants {
 
 		switch (item) {
 		case Items.TUBE_OF_TOOTHPASTE:
+		case Items.SHEET_ROPE:
 			v -= 50;
 			break;
 		case Items.CONTRABAND_POUCH:
+		case Items.LENGTH_OF_ROPE:
 			v -= 25;
 			break;
 		case Items.SHAVING_CREAM:
+		case Items.GRAPPLING_HOOK:
 			v -= 20;
 			break;
 		case Items.PLASTIC_FORK:

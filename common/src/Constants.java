@@ -177,7 +177,7 @@ public interface Constants {
 			ZONE_SHU = 15,
 			ZONE_SAFE = 16;
 
-	// schedule enum
+	// routine enum
 	static final int SC_LIGHTSOUT = 1,
 			SC_MORNING_ROLLCALL = 2,
 			SC_LOCKDOWN = 3,

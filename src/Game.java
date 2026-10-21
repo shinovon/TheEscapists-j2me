@@ -37,7 +37,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Canvas
 
-	static final String[] scheduleStrings = {
+	static final String[] routineStrings = {
 			"",
 			"Lights out",
 			"Morning Rollcall",
@@ -149,7 +149,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int usedKeySlot = -1;
 	int usedContrabandPouch = -1;
 	int heatTimer;
-	int scheduleHeatCooldown;
+	int routineHeatCooldown;
 
 	boolean updateInteractFocus;
 	boolean hasInteractFocus;
@@ -386,7 +386,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (player.layer != LAYER_GROUND)
 					break arrow;
 				int zone;
-				switch (schedule) {
+				switch (routine) {
 				case SC_LIGHTSOUT:
 					zone = ZONE_PLAYER_CELL;
 					break;
@@ -577,10 +577,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				charBuffer[6] = '-';
 				charBuffer[7] = ' ';
 
-				if (schedule == SC_WORK_PERIOD && player.job != 0) {
+				if (routine == SC_WORK_PERIOD && player.job != 0) {
 					sb.append(jobStrings[player.job]);
 				} else {
-					sb.append(scheduleStrings[schedule]);
+					sb.append(routineStrings[routine]);
 				}
 				sb.append(" (Day ")
 				.append(day + 1)
@@ -634,7 +634,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							break progressbar;
 						}
 						t = (progress * 50) / (TPS * 2);
-					} else if (schedule == SC_WORK_PERIOD && player.job != JOB_UNEMPLOYED) {
+					} else if (routine == SC_WORK_PERIOD && player.job != JOB_UNEMPLOYED) {
 						a = "Job quota";
 						t = (player.jobQuota * 50) / MAX_JOB_QUOTA;
 					} else {
@@ -2382,7 +2382,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 									save();
 
-									schedule = SC_LIGHTSOUT;
+									routine = SC_LIGHTSOUT;
 									cellsClosed = true;
 									entranceOpen = false;
 
@@ -2548,10 +2548,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	byte[][] solid;
 	short[][] chipped; // {count, [progress, pos] ..} for each layer
 
-	byte[] mapSchedule;
+	byte[] routineSet;
 
 	int time = 7*60 + 50, day; // day count starts from 0
-	int schedule = SC_LIGHTSOUT, prevSchedule = SC_LIGHTSOUT;
+	int routine = SC_LIGHTSOUT, prevRoutine = SC_LIGHTSOUT;
 	int tickCounter;
 
 	boolean cellsClosed = true;
@@ -2646,7 +2646,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				chipped = new short[4][1 + (128 << 1)];
 				solid = new byte[4][width * height];
 
-				mapSchedule = new byte[24];
+				routineSet = new byte[24];
 
 				inmates = in.readByte() & 0xFF;
 				guards = in.readByte() & 0xFF;
@@ -2877,7 +2877,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				// schedule
 				{
 					for (int i = 0; i < 24; ++i) {
-						mapSchedule[i] = in.readByte();
+						routineSet[i] = in.readByte();
 					}
 				}
 
@@ -3578,7 +3578,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		pickRandomNPC(false, true).selling = true;
 		pickRandomNPC(false, true).selling = true;
 
-		time = mapSchedule[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
+		time = routineSet[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
 		fatigue = 20;
 	}
@@ -3605,7 +3605,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (USE_M3G) update3DLightingColor();
 			day += 3;
 			lockdown = false;
-			schedule = SC_LIGHTSOUT;
+			routine = SC_LIGHTSOUT;
 			cellsClosed = true;
 			entranceOpen = false;
 			resetCamera = true;
@@ -3665,13 +3665,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			initMap();
 		}
 
-		prevSchedule = schedule;
+		prevRoutine = routine;
 		if ((tickCounter++ % TIME_TICKS) == 0) {
 			if (++time == 24 * 60) {
 				time = 0;
 				++day;
 			}
-			if (!lockdown && (time % 60 == 0 || schedule == SC_LOCKDOWN)) {
+			if (!lockdown && (time % 60 == 0 || routine == SC_LOCKDOWN)) {
 				if (((time + 30) / 60) % 3 == 0) {
 					// update npc inventory every 3 hours
 					NPC[] chars = this.chars;
@@ -3704,11 +3704,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 				playerSeenByGuards = false;
 				routine: {
-					int schedule = mapSchedule[time / 60];
-					int prevSchedule = this.schedule;
-					if (prevSchedule == schedule) break routine;
+					int routine = routineSet[time / 60];
+					int prevRoutine = this.routine;
+					if (prevRoutine == routine) break routine;
 
-					switch (prevSchedule) {
+					switch (prevRoutine) {
 					case SC_MORNING_ROLLCALL:
 					case SC_AFTERNOON_ROLLCALL:
 					case SC_EVENING_ROLLCALL:
@@ -3750,7 +3750,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 
 					int music;
-					switch (schedule) {
+					switch (routine) {
 					case SC_MORNING_ROLLCALL:
 						inSolitary = false;
 						music = Sound.MUSIC_ROLLCALL;
@@ -3795,8 +3795,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					default:
 						break routine;
 					}
-					this.schedule = schedule;
-					scheduleHeatCooldown = TPS * 20;
+					this.routine = routine;
+					routineHeatCooldown = TPS * 20;
 					updateDoors();
 					Sound.stopEffect();
 					Sound.playEffect(Sound.SFX_BELL);
@@ -3832,7 +3832,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 		if (willLockdown) {
-			schedule = SC_LOCKDOWN;
+			routine = SC_LOCKDOWN;
 			willLockdown = false;
 			lockdown = true;
 		}
@@ -3861,7 +3861,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		if (animateHeat != 0) --animateHeat;
 		if (heatTimer != 0) --heatTimer;
-		if (scheduleHeatCooldown != 0) --scheduleHeatCooldown;
+		if (routineHeatCooldown != 0) --routineHeatCooldown;
 
 		int tick = tickCounter;
 
@@ -5397,11 +5397,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 			// update serving tables on meal time
 			if (obj == Objects.SERVING_TABLE) {
-				if (schedule != SC_BREAKFAST && schedule != SC_EVENING_MEAL) {
+				if (routine != SC_BREAKFAST && routine != SC_EVENING_MEAL) {
 					objects[idx + 2] = (short) (2 | (objects[idx + 2] & 0xFF00));
 					continue;
 				}
-				if (time % 60 == 0 || prevSchedule == SC_LOCKDOWN) {
+				if (time % 60 == 0 || prevRoutine == SC_LOCKDOWN) {
 					objects[idx + 2] = (short) (7 | (objects[idx + 2] & 0xFF00));
 				}
 //				continue;
@@ -6567,6 +6567,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.CUTTING_FLOSS:
 		case Items.CONTRABAND_POUCH:
 		case Items.DURABLE_CONTRABAND_POUCH:
+		case Items.GRAPPLING_HOOK:
+		case Items.SHEET_ROPE:
+		case Items.LENGTH_OF_ROPE:
 			return true;
 		default:
 			return false;
