@@ -2173,7 +2173,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					} else if (gameAction == FIRE) {
 						mapError = 0;
 						if (selectedMenu == 0) {
-							state = STATE_MAP_SELECT;
+							paused = false;
+							state = STATE_GAME;
 						} else if (selectedMenu == 1) {
 							state = STATE_SETTINGS;
 						} else if (selectedMenu == 2) {

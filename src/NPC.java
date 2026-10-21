@@ -2380,7 +2380,6 @@ class NPC implements Constants {
 				&& (map.time >= 6 * 60 && map.time < 23 * 60)
 				&& (layer == LAYER_ROOF || (layer == LAYER_GROUND && getCollision(x, y, true) == COLL_NONE
 				&& !Game.isFloor(map.tiles[LAYER_GROUND][(x / TILE_SIZE) + ((y + 5) / TILE_SIZE) * map.width])))) {
-			map.playerSeenByGuards = true;
 			if (map.heat >= 90 || ((layer == LAYER_ROOF || map.mapType == MAP_TYPE_INSIDE_ONLY
 					|| (map.mapType == MAP_TYPE_INSIDE && !isInZone(ZONE_SAFE) && (map.time < 10 * 60 || map.time > 22 * 60)))
 					&& outfitId != Textures.OUTFIT_GUARD)
@@ -3194,6 +3193,9 @@ class NPC implements Constants {
 						map.objects[LAYER_VENT][objIdx + 2] = (short) (80 | (1 << 8) | (1 << 10));
 					}
 					return;
+				}
+				if (layer == LAYER_ROOF) {
+					// roofs
 				}
 				if (item == Items.COMB) {
 					inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;
@@ -4039,6 +4041,7 @@ class NPC implements Constants {
 
 		// reset outfit and weapon, remove contraband items from inventory
 		outfitItem = Items.INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+		outfitId = Textures.OUTFIT_INMATE;
 		weapon = Items.ITEM_NULL;
 		for (int i = 0; i < 6; ++i) {
 			if (Game.isIllegal(inventory[i] & Items.ITEM_ID_MASK)) {
