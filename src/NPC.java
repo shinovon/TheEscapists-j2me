@@ -464,7 +464,7 @@ class NPC implements Constants {
 
 		if (animateToX != -1 && animateToY != -1) {
 			// smooth move to position
-			moveTowards(animateToX, animateToY, ANIMATE_SPEED);
+			moveTowards(animateToX, animateToY, layer == LAYER_ROOF ? ROOF_ANIMATE_SPEED : ANIMATE_SPEED);
 			if (animateToX == x && animateToY == y) {
 				// animation done
 				animateToX = -1;
@@ -3194,8 +3194,131 @@ class NPC implements Constants {
 					}
 					return;
 				}
-				if (layer == LAYER_ROOF) {
+				if (layer == LAYER_ROOF && (t == 26 || t == 30)
+						&& (item == Items.GRAPPLING_HOOK || item == Items.SHEET_ROPE || item == Items.LENGTH_OF_ROPE)) {
 					// roofs
+
+					boolean up = false;
+					int direction = this.direction;
+					if (t == 26) {
+						// horizontal
+						check: {
+							for (int x2 = x + 1; x2 < map.width; x2++) {
+								byte t2 = map.tiles[LAYER_ROOF][y * map.width + x2];
+								if (t2 == 26) continue;
+								if (t2 == 30) break check;
+								if (t2 == 46) {
+									up = direction == DIR_UP;
+									break check;
+								}
+								if (t2 == 38) {
+									up = direction == DIR_DOWN;
+									break check;
+								}
+							}
+							for (int x2 = x - 1; x2 > 0; x2--) {
+								byte t2 = map.tiles[LAYER_ROOF][y * map.width + x2];
+								if (t2 == 26) continue;
+								if (t2 == 30) break check;
+								if (t2 == 50) {
+									up = direction == DIR_UP;
+									break check;
+								}
+								if (t2 == 52) {
+									up = direction == DIR_DOWN;
+									break check;
+								}
+							}
+						}
+					} else /* (t == 30) */{
+						// vertical
+						check: {
+							for (int y2 = y - 1; y2 > 0; y2--) {
+								byte t2 = map.tiles[LAYER_ROOF][y2 * map.width + x];
+								if (t2 == 30) continue;
+								if (t2 == 26) break check;
+								if (t2 == 38) {
+									up = direction == DIR_LEFT;
+									break check;
+								}
+								if (t2 == 42) {
+									up = direction == DIR_RIGHT;
+									break check;
+								}
+							}
+							for (int y2 = y + 1; y2 < map.height; y2++) {
+								byte t2 = map.tiles[LAYER_ROOF][y2 * map.width + x];
+								if (t2 == 30) continue;
+								if (t2 == 26) break check;
+ 								if (t2 == 46) {
+									up = direction == DIR_LEFT;
+									break check;
+								}
+								if (t2 == 50) {
+									up = direction == DIR_RIGHT;
+									break check;
+								}
+							}
+						}
+					}
+
+					switch (direction) {
+					case DIR_RIGHT:
+						x++;
+						if (item == Items.GRAPPLING_HOOK) y--;
+						break;
+					case DIR_UP:
+						y--;
+						break;
+					case DIR_LEFT:
+						if (item == Items.GRAPPLING_HOOK) y--;
+						x--;
+						break;
+					case DIR_DOWN:
+						y++;
+						break;
+					default:
+						return;
+					}
+
+					t = map.tiles[LAYER_ROOF][y * map.width + x];
+					if (Game.getTileCollision(t) != COLL_NONE) {
+						Sound.playEffect(Constants.SFX_LOSE);
+						return;
+					}
+					if (t == 48) {
+						if (item == Items.GRAPPLING_HOOK) {
+							Sound.playEffect(Constants.SFX_LOSE);
+							return;
+						}
+						y++;
+						if (Game.getTileCollision(map.tiles[LAYER_GROUND][y * map.width + x]) != COLL_NONE) {
+							Sound.playEffect(Constants.SFX_LOSE);
+							return;
+						}
+					} else if (t == 0) {
+						if (item == Items.GRAPPLING_HOOK) {
+							Sound.playEffect(Constants.SFX_LOSE);
+							return;
+						}
+						if (direction == DIR_UP) y++;
+						if (Game.getTileCollision(map.tiles[LAYER_GROUND][y * map.width + x]) != COLL_NONE) {
+							Sound.playEffect(Constants.SFX_LOSE);
+							return;
+						}
+					} else if (up != (item == Items.GRAPPLING_HOOK)) {
+						Sound.playEffect(Constants.SFX_LOSE);
+						return;
+					}
+
+					if (direction != DIR_UP && direction != DIR_DOWN) {
+						animateToX = x * TILE_SIZE;
+					} else {
+						animateToX = this.x;
+					}
+					animateToY = y * TILE_SIZE;
+					reduceDurability(slot);
+					return;
 				}
 				if (item == Items.COMB) {
 					inventory[slot] = Items.COMB_SHIV | Items.ITEM_DEFAULT_DURABILITY;

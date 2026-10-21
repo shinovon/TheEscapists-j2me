@@ -2226,11 +2226,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[0] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[0] = Items.GRAPPLING_HOOK | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[1] = Items.TIMBER_BRACE | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[1] = Items.LENGTH_OF_ROPE | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[2] = Items.DURABLE_CONTRABAND_POUCH | Items.ITEM_DEFAULT_DURABILITY;
+					player.inventory[2] = Items.SHEET_ROPE | Items.ITEM_DEFAULT_DURABILITY;
+
+					player.layer = LAYER_ROOF;
+					player.outfitItem = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+					player.outfitId = Textures.OUTFIT_GUARD;
+
 
 //					player.inventory[2] = Items.ID_PAPERS;
 //					player.inventory[3] = Items.UNSIGNED_ID_PAPERS;

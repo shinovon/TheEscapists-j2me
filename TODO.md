@@ -59,6 +59,7 @@
 - [x] Snipers
 - [x] Bed dummy
 - [x] Molten chocolate
+- [x] Roof mechanics (grappling hook, rope)
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
@@ -84,7 +85,6 @@
 - [ ] Crafting notes
 - [ ] Tying npcs
 - [ ] Guards picking up items
-- [ ] Roof mechanics (grappling hook, rope)
 - [ ] Jeep
 - [ ] More gym objects
 - [ ] Guards check if player is in cell at lights out
