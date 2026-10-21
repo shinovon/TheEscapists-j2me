@@ -28,7 +28,10 @@ public interface Items {
 	static final int ITEM_MASK = 0xFFFF;
 	static final int ITEM_ID_MASK = (1 << ITEM_DURABILITY_SHIFT) - 1;
 	static final int ITEM_DURABILITY_MASK = ((1 << 7) - 1) << ITEM_DURABILITY_SHIFT;
-	static final int ITEM_DECAY_MASK = 0xFFF00000;
+	static final int ITEM_OWNER_SHIFT = 16;
+	static final int ITEM_OWNER_MASK = ((1 << 6) - 1) << ITEM_OWNER_SHIFT;
+	static final int ITEM_DECAY_SHIFT = 22;
+	static final int ITEM_DECAY_MASK = ((1 << 10) - 1) << ITEM_DECAY_SHIFT;
 	
 	static final int CELL_KEY = 0,
 			STAFF_KEY = 1,

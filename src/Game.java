@@ -677,7 +677,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 						if (item != Items.ITEM_NULL) {
 							String t = getItemName(item);
-							if (hasDurability(item)) {
+							int owner = (item & Items.ITEM_OWNER_MASK) >> Items.ITEM_OWNER_SHIFT;
+							if (owner != 0) {
+								sb.setLength(0);
+								t = sb.append(chars[owner]).append("'s ").append(t).toString();
+							} else if (hasDurability(item)) {
 								sb.setLength(0);
 								t = sb.append(t).append(" (")
 										.append((item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT)
