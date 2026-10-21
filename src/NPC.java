@@ -348,6 +348,7 @@ class NPC implements Constants {
 					if (!ai && map.usedKeySlot != -1) {
 						// reduce key durability
 						reduceDurability(map.usedKeySlot);
+						map.animateItem = map.usedKeySlot;
 						map.usedKeySlot = -1;
 					}
 				}
@@ -2328,12 +2329,14 @@ class NPC implements Constants {
 				} else {
 					// TODO animate detector object
 					map.heat = 100;
+					map.animateHeat = TPS >> 1;
 					Sound.playEffect(Sound.SFX_HP);
 				}
 			}
 		} else if (map.usedContrabandPouch != -1) {
 			// reduce pouch durability
 			reduceDurability(map.usedContrabandPouch);
+			map.animateItem = map.usedContrabandPouch;
 			map.usedContrabandPouch = -1;
 		}
 
@@ -2376,6 +2379,7 @@ class NPC implements Constants {
 				&& (map.time >= 6 * 60 && map.time < 23 * 60)
 				&& (layer == LAYER_ROOF || (layer == LAYER_GROUND && getCollision(x, y, true) == COLL_NONE
 				&& !Game.isFloor(map.tiles[LAYER_GROUND][(x / TILE_SIZE) + ((y + 5) / TILE_SIZE) * map.width])))) {
+			map.playerSeenByGuards = true;
 			if (map.heat >= 90 || ((layer == LAYER_ROOF || map.mapType == MAP_TYPE_INSIDE_ONLY
 					|| (map.mapType == MAP_TYPE_INSIDE && !isInZone(ZONE_SAFE) && (map.time < 10 * 60 || map.time > 22 * 60)))
 					&& outfitId != Textures.OUTFIT_GUARD)
@@ -2384,7 +2388,7 @@ class NPC implements Constants {
 					map.heat = 99;
 					map.animateHeat = TPS >> 1;
 				}
-				if ((tick & 63) == 0 && carry == null) {
+				if ((tick & 127) == 0 && carry == null) {
 					damage(null, 20);
 					Sound.playEffect(Constants.SFX_SHOOT);
 				}
@@ -3022,6 +3026,8 @@ class NPC implements Constants {
 				break;
 			case Objects.MEDICAL_BED:
 			case Objects.SUN_LOUNGER:
+				if (item != -1) return;
+
 				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
 				animation = ANIM_LYING;

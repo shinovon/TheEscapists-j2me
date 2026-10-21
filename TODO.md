@@ -84,7 +84,7 @@
 - [ ] Crafting notes
 - [ ] Tying npcs
 - [ ] Guards picking up items
-- [ ] Roof mechanics
+- [ ] Roof mechanics (grappling hook, rope)
 - [ ] Jeep
 - [ ] More gym objects
 - [ ] Guards check if player is in cell at lights out
