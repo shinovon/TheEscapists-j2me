@@ -166,6 +166,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	String[] noteText;
 	int selectedSlot; // negative is player's inventory
 	boolean saveDialog;
+	boolean loadDialog;
+	boolean quitDialog;
 	boolean saveProblem;
 	boolean craftingOpen;
 	int[] craftSlots = new int[3];
@@ -295,11 +297,73 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// paused
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "GAME PAUSED";
+			int f, i = 0;
 			drawCenteredText(g, s, w, 40, FONT_BOLD);
-			fontColor = FONT_COLOR_GREY_B4;
 
-			s = "Press fire to resume";
-			drawCenteredText(g, s, w, h - 40, FONT_BOLD);
+
+			fontColor = FONT_COLOR_WHITE;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawCenteredText(g, "Continue", w, h - 80, f);
+			i++;
+
+			fontColor = FONT_COLOR_WHITE;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawCenteredText(g, "Settings", w, h - 60, f);
+			i++;
+
+			fontColor = newGame ? FONT_COLOR_GREY_B4 : FONT_COLOR_WHITE;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawCenteredText(g, "Load", w, h - 40, f);
+			i++;
+
+			fontColor = FONT_COLOR_WHITE;
+			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
+			drawCenteredText(g, "Quit", w, h - 20, f);
+			i++;
+
+			if (loadDialog) {
+				int nw = 165;
+				int nh = 80;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x333333);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				// TODO
+				fontColor = FONT_COLOR_ORANGE;
+				String t = "LOAD GAME";
+				drawText(g, t, (w - textWidth(t, FONT_BOLD)) >> 1, (h >> 1) - 30, FONT_BOLD);
+
+				fontColor = FONT_COLOR_WHITE;
+				t = "Load game from last wake up?";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) - 10, FONT_REGULAR);
+				t = "Left soft: Ok, Right soft: Cancel";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 20, FONT_REGULAR);
+			} else if (quitDialog) {
+				int nw = 165;
+				int nh = 80;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x333333);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				// TODO
+				fontColor = FONT_COLOR_ORANGE;
+				String t = "QUIT GAME?";
+				drawText(g, t, (w - textWidth(t, FONT_BOLD)) >> 1, (h >> 1) - 30, FONT_BOLD);
+
+				fontColor = FONT_COLOR_WHITE;
+				t = "All unsaved progress will be lost";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) - 10, FONT_REGULAR);
+				t = "Left soft: Ok, Right soft: Cancel";
+				drawText(g, t, (w - textWidth(t, FONT_REGULAR)) >> 1, (h >> 1) + 20, FONT_REGULAR);
+			}
 		} else if (state == STATE_SETTINGS) {
 			// settings
 			int i = 0;
@@ -1825,6 +1889,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					} else if (key == -7) {
 						paused = true;
 						state = STATE_PAUSED;
+						selectedMenu = 0;
 //						action = NPC.ACT_NONE;
 //						progress = 0;
 					} else if (altControls) {
@@ -1909,8 +1974,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						lastSelectedInventory = selectedInventory;
 						selectedInventory = 0;
 						selectedSlot = -1;
-					} else if (key == '0' || key == 'V') {
-						// TODO load
 					} else if (player.training && (key == '1' || key == '3'
 							|| key == 'Q' || key == 'E')) {
 						if (fatigue >= 100) {
@@ -2076,11 +2139,52 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					state = mapLoaded ? STATE_PAUSED : STATE_MENU;
 				}
 			} else if (state == STATE_PAUSED) {
-				if (gameAction == FIRE) {
-					paused = false;
-					state = STATE_GAME;
-				} else if (key == -6) {
-					state = STATE_SETTINGS;
+				if (loadDialog) {
+					loadDialog = false;
+					if (key == -6) {
+						// TODO
+						newGame = false;
+						state = STATE_LOADING;
+					}
+				} else if (quitDialog) {
+					quitDialog = false;
+					if (key == -6) {
+						// TODO
+						unloadMapTextures();
+						mapLoaded = false;
+
+						Sound.playEffect(Sound.SFX_RUMBLE);
+						Sound.playMusic(Sound.MUSIC_THEME);
+						bgImg = Image.createImage("/title.png");
+						fadeIn = viewWidth >> 1;
+						state = STATE_MENU;
+					}
+				} else {
+					if (gameAction == UP) {
+						if (selectedMenu-- == 0)
+							selectedMenu = 3;
+						else if (selectedMenu == 2 && newGame)
+							selectedMenu = 1;
+					} else if (gameAction == DOWN) {
+						if (++selectedMenu == 4)
+							selectedMenu = 0;
+						else if (selectedMenu == 2 && newGame)
+							selectedMenu = 3;
+					} else if (gameAction == FIRE) {
+						mapError = 0;
+						if (selectedMenu == 0) {
+							state = STATE_MAP_SELECT;
+						} else if (selectedMenu == 1) {
+							state = STATE_SETTINGS;
+						} else if (selectedMenu == 2) {
+							loadDialog = true;
+						} else if (selectedMenu == 3) {
+							quitDialog = true;
+						}
+					} else if (key == -7) {
+						paused = false;
+						state = STATE_GAME;
+					}
 				}
 			} else if (state == STATE_MAP_SELECT) {
 				int n = maps.length >> 1;
@@ -2327,7 +2431,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						Sound.stopMusic();
 						wasPaused = true;
 					}
-					if (state == STATE_GAME) state = STATE_PAUSED;
+					if (state == STATE_GAME) {
+						state = STATE_PAUSED;
+						selectedMenu = 0;
+					}
 					paused = true;
 					Thread.sleep(200);
 					continue;
@@ -2396,10 +2503,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									if (USE_M3G) update3DLightingColor();
 
 									save();
-
-									routine = SC_LIGHTSOUT;
-									cellsClosed = true;
-									entranceOpen = false;
 
 									heat = 0;
 									initMap();
@@ -2606,6 +2709,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	NPC shakedown2;
 
 	boolean loadMap() throws Exception {
+		time = 7*60 + 50;
+		day = 0;
+		routine = SC_LIGHTSOUT;
+		prevRoutine = SC_LIGHTSOUT;
+		cellsClosed = true;
+		entranceOpen = false;
+		tickCounter = 0;
+		lockdown = false;
+		willLockdown = false;
+		lockdownTimer = 0;
+		hasSnipers = false;
+		checkpointOpen = false;
+		bedDummyPlaced = false;
+		guardsDown = 0;
+
 		player = new NPC(this);
 		player.name = "Player";
 		player.ai = false;
@@ -3200,6 +3318,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			RecordStore r = RecordStore.openRecordStore(GAME_RECORD_NAME, true);
 			r.addRecord(b, 0, b.length);
 			r.closeRecordStore();
+			hasSave = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			saveProblem = true;
@@ -3620,11 +3739,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (USE_M3G) update3DLightingColor();
 			day += 3;
 			lockdown = false;
+			willLockdown = false;
 			routine = SC_LIGHTSOUT;
 			cellsClosed = true;
 			entranceOpen = false;
 			resetCamera = true;
 			guardsDown = 0;
+			checkpointOpen = false;
+			bedDummyPlaced = false;
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
 			// TODO reset containers

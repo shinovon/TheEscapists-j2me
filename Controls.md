@@ -22,15 +22,13 @@ Pause menu
 1-6 correspond to inventory slots\
 7 - Profile\
 8 - Journal (TODO)\
-9 - Crafting\
-0 - Load game (TODO)
+9 - Crafting
 
 ### QWERTY:
 WASD - Movement\
 Z - Profile\
 X - Journal (TODO)\
-C - Crafting\
-V - Load game (TODO)
+C - Crafting
 
 
 

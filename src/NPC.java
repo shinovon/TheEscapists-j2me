@@ -1518,6 +1518,7 @@ class NPC implements Constants {
 						y = map.objects[LAYER_GROUND][obj + 4];
 
 						solid: {
+							// FIXME still aioob
 							if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
 								for (int n = 0; n < 4; ++n) {
 									int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
@@ -2840,8 +2841,11 @@ class NPC implements Constants {
 			if (wasTryingToMove) map.updateInteractFocus = true;
 		}
 
+		int item;
 		if (climbed || (map.selectedInventory != -1
-				&& (inventory[map.selectedInventory] & Items.ITEM_ID_MASK) != Items.CUP_OF_MOLTEN_CHOCOLATE)) {
+				&& (item = (inventory[map.selectedInventory] & Items.ITEM_ID_MASK)) != Items.CUP_OF_MOLTEN_CHOCOLATE
+				&& item != Items.LENGTH_OF_ROPE
+				&& item != Items.ROLL_OF_DUCT_TAPE)) {
 			map.interactNPC = null;
 		} else if ((tick & 3) == 0 || wasTryingToMove) {
 			map.interactNPC = getInteractNPC();
@@ -3036,24 +3040,36 @@ class NPC implements Constants {
 		}
 
 		if (item != -1) {
-			if (item == Items.CUP_OF_MOLTEN_CHOCOLATE
-					&& map.interactNPC != null && (map.interactNPC.inmate || map.interactNPC.guard)) {
+			if (map.interactNPC != null) {
 				NPC npc = map.interactNPC;
-				int dx = npc.x - this.x;
-				int dy = npc.y - this.y;
-				int d = dx * dx + dy * dy;
-				if (d < TILE_SIZE * TILE_SIZE) {
-					int i = map.effects[1] == 0 ? 0 : 4;
-					map.effects[i] = 195;
-					map.effects[i + 1] = 1;
-					map.effects[i + 2] = x;
-					map.effects[i + 3] = y;
+				if (!npc.guard && !npc.inmate) return;
 
-					npc.health = 0;
-					npc.statOpinion = 0;
-					fighting = 4;
-					inventory[slot] = Items.ITEM_NULL;
-					Sound.playEffect(Constants.SFX_ENHIT);
+				if (item == Items.CUP_OF_MOLTEN_CHOCOLATE) {
+					if (npc.health <= 0) return;
+
+					int dx = npc.x - this.x;
+					int dy = npc.y - this.y;
+					int d = dx * dx + dy * dy;
+					if (d < TILE_SIZE * TILE_SIZE) {
+						int i = map.effects[1] == 0 ? 0 : 4;
+						map.effects[i] = 195;
+						map.effects[i + 1] = 1;
+						map.effects[i + 2] = x;
+						map.effects[i + 3] = y;
+
+						npc.health = 0;
+						npc.statOpinion = 0;
+						fighting = 4;
+						inventory[slot] = Items.ITEM_NULL;
+						Sound.playEffect(Constants.SFX_ENHIT);
+					}
+					return;
+				}
+
+				if (layer == LAYER_GROUND && (item == Items.ROLL_OF_DUCT_TAPE || item == Items.LENGTH_OF_ROPE)) {
+					if (npc.health > 0) return;
+
+					// TODO
 					return;
 				}
 			}
