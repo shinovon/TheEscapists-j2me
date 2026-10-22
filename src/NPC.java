@@ -3595,6 +3595,9 @@ class NPC implements Constants {
 				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
 				layer++;
+				if (map.getObjectIdxAt(x, y, layer) == -1) {
+					layer++;
+				}
 				chaseTarget = null;
 				map.resetCamera = true;
 				return;
@@ -3603,6 +3606,9 @@ class NPC implements Constants {
 				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
 				yFloat = this.y = map.objects[layer][idx + 4] * TILE_SIZE;
 				layer--;
+				if (map.getObjectIdxAt(x, y, layer) == -1) {
+					layer--;
+				}
 				chaseTarget = null;
 				map.resetCamera = true;
 				return;
