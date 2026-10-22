@@ -935,11 +935,13 @@ class NPC implements Constants {
 						map.note = NOTE_SOLITARY;
 						map.solitaryReason = REASON_TUNNEL;
 					} else if (heatTimer == 0 && player.health > 0) {
-						if (player.outfitId == Textures.OUTFIT_GUARD && map.heatTimer == 0) {
+						if (player.outfitId == Textures.OUTFIT_GUARD) {
 							// increase heat a little, if seeing player in disguise
-							map.heat += 3;
-							map.heatTimer = TPS;
-							map.animateHeat = TPS >> 1;
+							if (map.heatTimer == 0) {
+								map.heat += 3;
+								map.heatTimer = TPS;
+								map.animateHeat = TPS >> 1;
+							}
 						} else if (player.climbed) {
 							// guard warns player if they're standing on desk or table
 							heat("Get off that table!", 10);
