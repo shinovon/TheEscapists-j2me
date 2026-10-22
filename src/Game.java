@@ -2077,10 +2077,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					} else if (selectedMenu == 2) {
 						state = STATE_SETTINGS;
 					} else if (selectedMenu == 3) {
-						TE.midlet.notifyDestroyed();
+						Sound.stopMusic();
+						fadeOut = viewWidth >> 1;
+						exiting = true;
 					}
 				} else if (key == -7) {
-					TE.midlet.notifyDestroyed();
+					Sound.stopMusic();
+					fadeOut = viewWidth >> 1;
+					exiting = true;
 				}
 			} else if (state == STATE_SETTINGS) {
 				int numSettings = 0;
@@ -2531,7 +2535,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 									if (time >= 8 * 60) day++;
 									time = 7*60 + 50;
-									if (USE_M3G) update3DLightingColor();
 
 									save();
 
@@ -3746,6 +3749,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		time = routineSet[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
 		fatigue = 20;
+
+		if (USE_M3G) update3DLightingColor();
 	}
 
 	void startLockdown() {
@@ -3767,7 +3772,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			action = NPC.ACT_NONE;
 			progress = 0;
 			time = 7*60 + 50;
-			if (USE_M3G) update3DLightingColor();
 			day += 3;
 			lockdown = false;
 			willLockdown = false;
