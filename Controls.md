@@ -26,6 +26,7 @@ Pause menu
 
 ### QWERTY:
 WASD - Movement\
+Q/E scroll through inventory slots\
 Z - Profile\
 X - Journal (TODO)\
 C - Crafting

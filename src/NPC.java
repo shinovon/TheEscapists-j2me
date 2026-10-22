@@ -906,7 +906,7 @@ class NPC implements Constants {
 
 			if (player.layer == LAYER_GROUND && player.health > 0 && canSee(player)) {
 				if (guard) {
-					if (map.time < 8 * 60 && !map.lockdown && (map.heat >= 90 || player.outfitId != Textures.OUTFIT_GUARD)
+					if (map.time < 8 * 60 && !map.lockdown && player.outfitId != Textures.OUTFIT_GUARD
 							&& !player.isInZone(ZONE_PLAYER_CELL) && !map.sendToSolitary && !map.inSolitary) {
 						// send player to solitary if they're not in cell during lights out
 						map.note = NOTE_SOLITARY;

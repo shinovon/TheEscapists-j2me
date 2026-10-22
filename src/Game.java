@@ -300,25 +300,26 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int f, i = 0;
 			drawCenteredText(g, s, w, 40, FONT_BOLD);
 
+			int hh = h >> 1;
 
 			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Continue", w, h - 80, f);
+			drawCenteredText(g, "Continue", w, hh - 30, f);
 			i++;
 
 			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Settings", w, h - 60, f);
+			drawCenteredText(g, "Settings", w, hh - 10, f);
 			i++;
 
 			fontColor = newGame ? FONT_COLOR_GREY_B4 : FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Load", w, h - 40, f);
+			drawCenteredText(g, "Load", w, hh + 10, f);
 			i++;
 
 			fontColor = FONT_COLOR_WHITE;
 			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Quit", w, h - 20, f);
+			drawCenteredText(g, "Quit", w, hh + 30, f);
 			i++;
 
 			if (loadDialog) {
@@ -2015,6 +2016,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 //							keyStates |= FIRE_PRESSED;
 //							break;
 //						}
+					} else if(key == 'Q') {
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+						} else if (selectedInventory-- == 0) {
+							selectedInventory = 5;
+						}
+						updateInteractFocus = true;
+					} else if (key == 'E') {
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+						} else if (++selectedInventory == 6) {
+							selectedInventory = 0;
+						}
+						updateInteractFocus = true;
 					} else {
 //						// dpad
 						switch (key) {
@@ -2202,7 +2217,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					state = STATE_MENU;
 				}
 			} else if (state == STATE_ESCAPED) {
-				TE.midlet.notifyDestroyed();
+				// TODO
+				unloadMapTextures();
+				mapLoaded = false;
+
+				Sound.playEffect(Sound.SFX_RUMBLE);
+				Sound.playMusic(Sound.MUSIC_THEME);
+				bgImg = Image.createImage("/title.png");
+				fadeIn = viewWidth >> 1;
+				state = STATE_MENU;
+				selectedMenu = 0;
 			}
 			if (!altControls) {
 				if (key == '#' && mapLoaded) {
