@@ -2245,37 +2245,45 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// cheat
 					fatigue = 0;
 					money += 50;
-					player.health = 50;
+//					player.health = 50;
 					heat = 0;
 
-					player.statSpeed = 100;
-					player.statStrength = 100;
-					player.statIntellect = 100;
+//					player.statSpeed = 100;
+//					player.statStrength = 100;
+					player.statIntellect = 90;
 
-					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
-					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
+//					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+//					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[0] = Items.GRAPPLING_HOOK | Items.ITEM_DEFAULT_DURABILITY;
+					int desk = player.desk;
+					containers[3 + desk + 4] = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 5] = Items.PLASTIC_CELL_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 6] = Items.PLASTIC_STAFF_KEY | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 7] = Items.DURABLE_CONTRABAND_POUCH | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 8] = Items.JAR_OF_INK | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 9] = Items.EXOTIC_FEATHER | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 10] = Items.MULTITOOL | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 11] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
+					containers[3 + desk + 12] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[1] = Items.LENGTH_OF_ROPE | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.inventory[2] = Items.SHEET_ROPE | Items.ITEM_DEFAULT_DURABILITY;
-
-					player.layer = LAYER_ROOF;
-					player.outfitItem = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
-					player.outfitId = Textures.OUTFIT_GUARD;
+//					player.inventory[0] = Items.GRAPPLING_HOOK | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[1] = Items.LENGTH_OF_ROPE | Items.ITEM_DEFAULT_DURABILITY;
+//					player.inventory[2] = Items.SHEET_ROPE | Items.ITEM_DEFAULT_DURABILITY;
+//					player.layer = LAYER_ROOF;
+//					player.outfitItem = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
+//					player.outfitId = Textures.OUTFIT_GUARD;
 
 
 //					player.inventory[2] = Items.ID_PAPERS;
 //					player.inventory[3] = Items.UNSIGNED_ID_PAPERS;
-//					entranceOpen = true;
 
 //					player.inventory[1] = Items.POSTER | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.POWERED_SCREWDRIVER | Items.ITEM_DEFAULT_DURABILITY;
 //
 //					player.inventory[3] = Items.STURDY_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[4] = Items.FAKE_VENT_COVER | Items.ITEM_DEFAULT_DURABILITY;
-					
+
 //					player.inventory[1] = Items.LIGHTWEIGHT_PICKAXE | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[2] = Items.LIGHTWEIGHT_SHOVEL | Items.ITEM_DEFAULT_DURABILITY;
 //					player.inventory[3] = Items.LIGHTWEIGHT_CUTTERS | Items.ITEM_DEFAULT_DURABILITY;
@@ -4965,122 +4973,122 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								// TODO optimize
 								int p = getBreakProgress(x, y, layer);
 								if (p != 100 || layer == LAYER_UNDERGROUND) {
-								StringBuffer sb = stringBuffer;
-								sb.setLength(0);
+									StringBuffer sb = stringBuffer;
+									sb.setLength(0);
 
-								switch (item) {
-								// both chipping and digging
-								case Items.STURDY_SHOVEL:
-								case Items.MULTITOOL:
-								case Items.STURDY_PICKAXE:
-								case Items.LIGHTWEIGHT_SHOVEL:
-								case Items.FLIMSY_SHOVEL:
-								case Items.LIGHTWEIGHT_PICKAXE:
-								case Items.FLIMSY_PICKAXE:
-									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = sb.append("Dig (").append(p).append("%)").toString();
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND) {
-										if (t == 0) {
+									switch (item) {
+									// both chipping and digging
+									case Items.STURDY_SHOVEL:
+									case Items.MULTITOOL:
+									case Items.STURDY_PICKAXE:
+									case Items.LIGHTWEIGHT_SHOVEL:
+									case Items.FLIMSY_SHOVEL:
+									case Items.LIGHTWEIGHT_PICKAXE:
+									case Items.FLIMSY_PICKAXE:
+										if (b == COLL_SOLID && (t == 21 || t == 25)) {
+											s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
 											s = sb.append("Dig (").append(p).append("%)").toString();
 											break interact;
 										}
-										if (b == COLL_SOLID && t == 100) {
+										if (layer == LAYER_UNDERGROUND) {
+											if (t == 0) {
+												s = sb.append("Dig (").append(p).append("%)").toString();
+												break interact;
+											}
+											if (b == COLL_SOLID && t == 100) {
+												s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
+												break interact;
+											}
+											if (b == COLL_NONE && t == 100
+													&& isDiggable(tiles[LAYER_GROUND][y * width + x])
+													&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+												p = getBreakProgress(x, y, LAYER_GROUND);
+												if (p == 100) break box;
+												s = sb.append("Dig Up (").append(p).append("%)").toString();
+												break interact;
+											}
+										}
+										break box;
+									// chipping and unscrewing
+									case Items.POWERED_SCREWDRIVER:
+									case Items.SCREWDRIVER:
+										if (layer == LAYER_VENT && t == -1) {
+											s = sb.append("Slats (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										if (b == COLL_SOLID && (t == 21 || t == 25)) {
+											s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
 											s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 											break interact;
 										}
-										if (b == COLL_NONE && t == 100
-												&& isDiggable(tiles[LAYER_GROUND][y * width + x])
-												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-											p = getBreakProgress(x, y, LAYER_GROUND);
-											if (p == 100) break box;
-											s = sb.append("Dig Up (").append(p).append("%)").toString();
+										break box;
+									// chipping
+									case Items.CROWBAR:
+									case Items.PLASTIC_FORK:
+										if (b == COLL_SOLID && (t == 21 || t == 25)) {
+											s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
 											break interact;
 										}
-									}
-									break box;
-								// chipping and unscrewing
-								case Items.POWERED_SCREWDRIVER:
-								case Items.SCREWDRIVER:
-									if (layer == LAYER_VENT && t == -1) {
-										s = sb.append("Slats (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
-										s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
-										break interact;
-									}
-									break box;
-								// chipping
-								case Items.CROWBAR:
-								case Items.PLASTIC_FORK:
-									if (b == COLL_SOLID && (t == 21 || t == 25)) {
-										s = sb.append("Chip Wall (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
-										s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
-										break interact;
-									}
-									break box;
-								// cutting
-								case Items.PLASTIC_KNIFE:
-								case Items.STURDY_CUTTERS:
-								case Items.FLIMSY_CUTTERS:
-								case Items.LIGHTWEIGHT_CUTTERS:
-								case Items.CUTTING_FLOSS:
-								case Items.FILE:
-									if (layer == LAYER_VENT && t == -1) {
-										s = sb.append("Cut Slats (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (t == 23) {
-										s = sb.append("Cut Bars (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									if (t == 77 || t == 81) {
-										s = sb.append("Cut Fence (").append(100 - p).append("%)").toString();
-										break interact;
-									}
-									break box;
-								// digging
-								case Items.TROWEL:
-								case Items.PLASTIC_SPOON:
-									if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
-										s = sb.append("Dig (").append(p).append("%)").toString();
-										break interact;
-									}
-									if (layer == LAYER_UNDERGROUND) {
-										if (t == 0) {
+										if (layer == LAYER_UNDERGROUND && b == COLL_SOLID && t == 100) {
+											s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
+											break interact;
+										}
+										break box;
+									// cutting
+									case Items.PLASTIC_KNIFE:
+									case Items.STURDY_CUTTERS:
+									case Items.FLIMSY_CUTTERS:
+									case Items.LIGHTWEIGHT_CUTTERS:
+									case Items.CUTTING_FLOSS:
+									case Items.FILE:
+										if (layer == LAYER_VENT && t == -1) {
+											s = sb.append("Cut Slats (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										if (t == 23) {
+											s = sb.append("Cut Bars (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										if (t == 77 || t == 81) {
+											s = sb.append("Cut Fence (").append(100 - p).append("%)").toString();
+											break interact;
+										}
+										break box;
+									// digging
+									case Items.TROWEL:
+									case Items.PLASTIC_SPOON:
+										if (layer == LAYER_GROUND && b == COLL_NONE && isDiggable(t)) {
 											s = sb.append("Dig (").append(p).append("%)").toString();
 											break interact;
 										}
-										if (b == COLL_SOLID && t == 100) {
-											s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
-											break interact;
+										if (layer == LAYER_UNDERGROUND) {
+											if (t == 0) {
+												s = sb.append("Dig (").append(p).append("%)").toString();
+												break interact;
+											}
+											if (b == COLL_SOLID && t == 100) {
+												s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
+												break interact;
+											}
+											if (b == COLL_NONE && t == 100
+													&& isDiggable(tiles[LAYER_GROUND][y * width + x])
+													&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+												p = getBreakProgress(x, y, LAYER_GROUND);
+												if (p == 100) break box;
+												s = sb.append("Dig Up (").append(p).append("%)").toString();
+												break interact;
+											}
 										}
-										if (b == COLL_NONE && t == 100
-												&& isDiggable(tiles[LAYER_GROUND][y * width + x])
-												&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-											p = getBreakProgress(x, y, LAYER_GROUND);
-											if (p == 100) break box;
-											s = sb.append("Dig Up (").append(p).append("%)").toString();
-											break interact;
-										}
+										break box;
 									}
-									break box;
 								}
 							}
-						}
 
 							if (carryingObject == -1 && player.carry == null) {
 								x = (player.x + 7) / TILE_SIZE;
