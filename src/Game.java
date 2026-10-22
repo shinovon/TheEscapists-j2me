@@ -4742,58 +4742,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							break box;
 						} else {
 							byte b;
-							if (carryingObject == -1 && player.carry == null) {
-								x = (player.x + 7) / TILE_SIZE;
-								y = (player.y + 7) / TILE_SIZE;
-								if (x < 0 || y < 0 || x >= width || y >= height) break box;
-								b = solid[layer][y * width + x];
-								if (b == COLL_NOT_SOLID_INTERACT) {
-									if (objects == null) break box;
-									int idx = getObjectIdxAt(x, y, layer);
-									int obj = idx == -1 ? -1 : objects[idx + 1];
-									if (obj == Objects.LADDER_UP && item == -1) {
-										s = "Ladder Up";
-										break interact;
-									}
-									if (obj == Objects.LADDER_DOWN && item == -1) {
-										s = "Ladder Down";
-										break interact;
-									}
-									if (obj == Objects.VENT) {
-										int p = getBreakProgress(x, y, LAYER_VENT);
-										if (p == 101) {
-											s = "Remove cover";
-											break interact;
-										} else if (p == 100) {
-											if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
-												s = "Put";
-												break interact;
-											}
-											s = "Down";
-											break interact;
-										}
-									}
-								}
-								if (b == COLL_NONE && item == -1) {
-									int droppedItem = peekItem(x, y, layer);
-									if (droppedItem != Items.ITEM_NULL) {
-										s = getItemName(droppedItem);
-										break interact;
-									}
-									if (layer == LAYER_GROUND) {
-										if (getBreakProgress(x, y, layer) == 100) {
-											s = "Enter";
-											break interact;
-										}
-									} else if (layer == LAYER_UNDERGROUND) {
-										if (getBreakProgress(x, y, LAYER_GROUND) == 100 && getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-											s = "Exit";
-											break interact;
-										}
-									}
-								}
-							}
-
 							switch (player.direction) {
 							case NPC.DIR_RIGHT:
 								x = 17;
@@ -4966,7 +4914,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											}
 										}
 									}
-									break box;
 								} else {
 									item = peekItem(x, y, layer);
 									if (item != Items.ITEM_NULL) {
@@ -4984,7 +4931,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											break interact;
 										}
 									}
-									break box;
 								}
 							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
 								if (objects == null) break box;
@@ -5014,8 +4960,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 								// TODO optimize
 								int p = getBreakProgress(x, y, layer);
-								if (p == 100 && layer != LAYER_UNDERGROUND) break box;
-
+								if (p != 100 || layer == LAYER_UNDERGROUND) {
 								StringBuffer sb = stringBuffer;
 								sb.setLength(0);
 
@@ -5129,10 +5074,62 @@ public class Game extends GameCanvas implements Runnable, Constants {
 										}
 									}
 									break box;
-								default:
-									break box;
 								}
 							}
+						}
+
+							if (carryingObject == -1 && player.carry == null) {
+								x = (player.x + 7) / TILE_SIZE;
+								y = (player.y + 7) / TILE_SIZE;
+								if (x < 0 || y < 0 || x >= width || y >= height) break box;
+								b = solid[layer][y * width + x];
+								if (b == COLL_NOT_SOLID_INTERACT) {
+									if (objects == null) break box;
+									int idx = getObjectIdxAt(x, y, layer);
+									int obj = idx == -1 ? -1 : objects[idx + 1];
+//									if (obj == Objects.LADDER_UP && item == -1) {
+//										s = "Ladder Up";
+//										break interact;
+//									}
+									if (obj == Objects.LADDER_DOWN && item == -1) {
+										s = "Ladder Down";
+										break interact;
+									}
+									if (obj == Objects.VENT) {
+										int p = getBreakProgress(x, y, LAYER_VENT);
+										if (p == 101) {
+											s = "Remove cover";
+											break interact;
+										} else if (p == 100) {
+											if (item == Items.VENT_COVER || item == Items.FAKE_VENT_COVER) {
+												s = "Put";
+												break interact;
+											}
+											s = "Down";
+											break interact;
+										}
+									}
+								}
+								if (b == COLL_NONE && item == -1) {
+									int droppedItem = peekItem(x, y, layer);
+									if (droppedItem != Items.ITEM_NULL) {
+										s = getItemName(droppedItem);
+										break interact;
+									}
+									if (layer == LAYER_GROUND) {
+										if (getBreakProgress(x, y, layer) == 100) {
+											s = "Enter";
+											break interact;
+										}
+									} else if (layer == LAYER_UNDERGROUND) {
+										if (getBreakProgress(x, y, LAYER_GROUND) == 100 && getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+											s = "Exit";
+											break interact;
+										}
+									}
+								}
+							}
+							break box;
 						}
 					}
 					if (x != -1) {

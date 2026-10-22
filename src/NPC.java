@@ -3557,108 +3557,7 @@ class NPC implements Constants {
 		}
 
 		int x, y;
-
-		x = (this.x + 7) / TILE_SIZE;
-		y = (this.y + 7) / TILE_SIZE;
-		byte b = map.solid[layer][y * map.width + x];
-
-		if (climbed) {
-			// vents
-			if (item != -1) return;
-			int idx = getNearbyVent();
-			if (idx == -1) return;
-
-			x = map.objects[LAYER_VENT][idx + 3];
-			y = map.objects[LAYER_VENT][idx + 4];
-
-			int p = map.getBreakProgress(x, y, LAYER_VENT);
-			if (p == 100) {
-				xFloat = this.x = x * TILE_SIZE;
-				yFloat = this.y = y * TILE_SIZE;
-				layer++;
-				chaseTarget = null;
-				map.resetCamera = true;
-				return;
-			}
-			if (p == 101 && !checkInventoryFull()) {
-				map.setBreakProgress(x, y, LAYER_VENT, 100);
-				map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
-				addItem(Items.FAKE_VENT_COVER, true);
-			}
-			return;
-		}
-
-		if (b == COLL_NOT_SOLID_INTERACT && item == -1) {
-			int idx = map.getObjectIdxAt(x, y, layer);
-			int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
-			if (obj == Objects.LADDER_UP) {
-				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
-				layer++;
-				if (map.getObjectIdxAt(x, y, layer) == -1) {
-					layer++;
-				}
-				chaseTarget = null;
-				map.resetCamera = true;
-				return;
-			}
-			if (obj == Objects.LADDER_DOWN) {
-				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-				yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
-				layer--;
-				if (map.getObjectIdxAt(x, y, layer) == -1) {
-					layer--;
-				}
-				chaseTarget = null;
-				map.resetCamera = true;
-				return;
-			}
-			if (obj == Objects.VENT) {
-				int p = map.getBreakProgress(x, y, layer);
-				if (p == 100) {
-					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
-					yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
-					layer--;
-					chaseTarget = null;
-					map.resetCamera = true;
-				} else if (p == 101 && !checkInventoryFull()) {
-					map.setBreakProgress(x, y, LAYER_VENT, 100);
-					map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
-					addItem(Items.FAKE_VENT_COVER, true);
-				}
-				return;
-			}
-		}
-
-		if (item == -1) {
-			int peekItem = map.peekItem(x, y, layer);
-			if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
-				if (addItem(peekItem, true)) {
-					map.deleteItem(x, y, layer);
-				} else {
-					dialog = "Inventory full";
-					dialogTimer = TPS * 2;
-				}
-				return;
-			}
-			if (b == COLL_NONE) {
-				if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
-					layer = LAYER_UNDERGROUND;
-					xFloat = this.x = x * TILE_SIZE;
-					yFloat = this.y = y * TILE_SIZE;
-					map.resetCamera = true;
-					return;
-				}
-				if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
-						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
-					layer = LAYER_GROUND;
-					xFloat = this.x = x * TILE_SIZE;
-					yFloat = this.y = y * TILE_SIZE;
-					map.resetCamera = true;
-					return;
-				}
-			}
-		}
+		byte b;
 
 		switch (direction) {
 		case DIR_RIGHT:
@@ -3686,7 +3585,7 @@ class NPC implements Constants {
 		y = (y + this.y) / TILE_SIZE;
 
 		if (item == -1) {
-			// pickup item
+			// pick up item
 			int peekItem = map.peekItem(x, y, layer);
 			if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
 				if (addItem(peekItem, true)) {
@@ -3699,6 +3598,7 @@ class NPC implements Constants {
 			}
 			if (b == COLL_NONE) {
 				if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+					// enter tunnel
 					layer = LAYER_UNDERGROUND;
 					xFloat = this.x = x * TILE_SIZE;
 					yFloat = this.y = y * TILE_SIZE;
@@ -3706,6 +3606,7 @@ class NPC implements Constants {
 					return;
 				}
 				if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100) {
+					// exit tunnel
 					layer = LAYER_GROUND;
 					xFloat = this.x = x * TILE_SIZE;
 					yFloat = this.y = y * TILE_SIZE;
@@ -4127,6 +4028,111 @@ class NPC implements Constants {
 				inventory[slot] = Items.ITEM_NULL;
 			}
 			return;
+		}
+
+		x = (this.x + 7) / TILE_SIZE;
+		y = (this.y + 7) / TILE_SIZE;
+		b = map.solid[layer][y * map.width + x];
+
+		if (climbed) {
+			// vents
+			if (item != -1) return;
+			int idx = getNearbyVent();
+			if (idx == -1) return;
+
+			x = map.objects[LAYER_VENT][idx + 3];
+			y = map.objects[LAYER_VENT][idx + 4];
+
+			int p = map.getBreakProgress(x, y, LAYER_VENT);
+			if (p == 100) {
+				xFloat = this.x = x * TILE_SIZE;
+				yFloat = this.y = y * TILE_SIZE;
+				layer++;
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (p == 101 && !checkInventoryFull()) {
+				map.setBreakProgress(x, y, LAYER_VENT, 100);
+				map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+				addItem(Items.FAKE_VENT_COVER, true);
+			}
+			return;
+		}
+
+		if (b == COLL_NOT_SOLID_INTERACT) {
+			int idx = map.getObjectIdxAt(x, y, layer);
+			int obj = idx == -1 ? -1 : map.objects[layer][idx + 1];
+			if (obj == Objects.LADDER_UP) {
+				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE;
+				layer++;
+				if (map.getObjectIdxAt(x, y, layer) == -1) {
+					layer++;
+				}
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (obj == Objects.LADDER_DOWN) {
+				xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+				yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+				layer--;
+				if (map.getObjectIdxAt(x, y, layer) == -1) {
+					layer--;
+				}
+				chaseTarget = null;
+				map.resetCamera = true;
+				return;
+			}
+			if (obj == Objects.VENT) {
+				int p = map.getBreakProgress(x, y, layer);
+				if (p == 100) {
+					xFloat = this.x = map.objects[layer][idx + 3] * TILE_SIZE;
+					yFloat = this.y = (map.objects[layer][idx + 4] + 1) * TILE_SIZE;
+					layer--;
+					chaseTarget = null;
+					map.resetCamera = true;
+				} else if (p == 101 && !checkInventoryFull()) {
+					map.setBreakProgress(x, y, LAYER_VENT, 100);
+					map.objects[LAYER_VENT][idx + 2] = (short) (81 | (1 << 8) | (1 << 10));
+					addItem(Items.FAKE_VENT_COVER, true);
+				}
+				return;
+			}
+		}
+
+		{
+			int peekItem = map.peekItem(x, y, layer);
+			if (peekItem != -1 && peekItem != Items.ITEM_NULL) {
+				// pick up item
+				if (addItem(peekItem, true)) {
+					map.deleteItem(x, y, layer);
+				} else {
+					dialog = "Inventory full";
+					dialogTimer = TPS * 2;
+				}
+				return;
+			}
+			if (b == COLL_NONE) {
+				if (layer == LAYER_GROUND && map.getBreakProgress(x, y, layer) == 100) {
+					// enter tunnel
+					layer = LAYER_UNDERGROUND;
+					xFloat = this.x = x * TILE_SIZE;
+					yFloat = this.y = y * TILE_SIZE;
+					map.resetCamera = true;
+					return;
+				}
+				if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, LAYER_GROUND) == 100
+						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
+					// exit tunnel
+					layer = LAYER_GROUND;
+					xFloat = this.x = x * TILE_SIZE;
+					yFloat = this.y = y * TILE_SIZE;
+					map.resetCamera = true;
+					return;
+				}
+			}
 		}
 
 		if (map.interactNPC != null) {
