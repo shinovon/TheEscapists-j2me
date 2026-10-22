@@ -2158,6 +2158,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						bgImg = Image.createImage("/title.png");
 						fadeIn = viewWidth >> 1;
 						state = STATE_MENU;
+						selectedMenu = 0;
 					}
 				} else {
 					if (gameAction == UP) {
@@ -4569,8 +4570,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					globalVertexBuffer.setDefaultColor(0x7F7F7F);
 					graphics3D.render(globalVertexBuffer, globalStrip, globalAppearance, transform);
 				}
-				release3D();
 			}
+			release3D();
 		}
 
 		if (layer == LAYER_UNDERGROUND) {
