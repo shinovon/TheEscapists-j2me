@@ -4751,11 +4751,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									if (objects == null) break box;
 									int idx = getObjectIdxAt(x, y, layer);
 									int obj = idx == -1 ? -1 : objects[idx + 1];
-									if (obj == Objects.LADDER_UP) {
+									if (obj == Objects.LADDER_UP && item == -1) {
 										s = "Ladder Up";
 										break interact;
 									}
-									if (obj == Objects.LADDER_DOWN) {
+									if (obj == Objects.LADDER_DOWN && item == -1) {
 										s = "Ladder Down";
 										break interact;
 									}
