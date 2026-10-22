@@ -67,6 +67,8 @@ But I chose the simplest one to avoid writing tons of code: pressing one key to 
 
 No attack mode switching, attack target will be set as player hits someone and will be unset when target is defeated or too far away.
 
-Alternative controls mode is introduced for devices that do not have full alphanumeric keypad. Such as Symbian^3 with virtual keyboard, and PSPKVM.
+Alternative controls mode is introduced for devices that do not have full alphanumeric keypad.\
+Such as Symbian^3 with virtual keyboard, and PSPKVM.\
+It uses only arrows, game keys and soft keys.
 
 Some inspiration on controls were taken from console/mobile port.
