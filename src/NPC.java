@@ -3362,7 +3362,7 @@ class NPC implements Constants {
 								return;
 
 							// stability check
-							if (layer == LAYER_UNDERGROUND && checkStability()) {
+							if (layer == LAYER_UNDERGROUND && checkStability(x, y)) {
 								dialog = "You need to brace the tunnel with supports!";
 								dialogTimer = TPS * 2;
 								return;
@@ -3526,7 +3526,7 @@ class NPC implements Constants {
 		}
 	}
 
-	private boolean checkStability() {
+	private boolean checkStability(int x, int y) {
 		for (int ox = -2; ox <= 2; ++ox) {
 			for (int oy = -2; oy <= 2; ++oy) {
 				if (x + ox < 0 || y + oy < 0
