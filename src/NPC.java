@@ -912,7 +912,7 @@ class NPC implements Constants {
 						map.note = NOTE_SOLITARY;
 						map.solitaryReason = REASON_OUT_OF_CELL;
 					} else if (map.heat >= 90 || map.lockdown || (statOpinion < 85 && (player.fighting != 0 || player.stealing != 0))
-							|| map.action == ACT_CHIPPING || map.action == ACT_CUTTING
+							|| map.action == ACT_CHIPPING || map.action == ACT_CUTTING || map.action == ACT_DIGGING
 							|| map.action == ACT_CUTTING_VENT || map.action == ACT_UNSCREWING
 							|| (map.action == ACT_SEARCHING && player.job != JOB_MAILMAN && player.job != JOB_LIBRARY)) {
 						// guard attack player if they saw them stealing from others pocket
@@ -926,14 +926,11 @@ class NPC implements Constants {
 						StringBuffer sb = Game.stringBuffer;
 						sb.setLength(0);
 						heat(sb.append("Oi, ").append(player.name).append('!').toString(),
-								map.action == ACT_CHIPPING || map.action == ACT_CUTTING
+								map.action == ACT_CHIPPING || map.action == ACT_CUTTING || map.action == ACT_DIGGING
 								|| map.action == ACT_CUTTING_VENT || map.action == ACT_UNSCREWING ? 99 : 30);
 						if (map.lockdown && map.guardsDown < 3) {
 							map.lockdown = false;
 						}
-					} else if (map.action == ACT_DIGGING) {
-						map.note = NOTE_SOLITARY;
-						map.solitaryReason = REASON_TUNNEL;
 					} else if (heatTimer == 0 && player.health > 0) {
 						if (player.outfitId == Textures.OUTFIT_GUARD) {
 							// increase heat a little, if seeing player in disguise
