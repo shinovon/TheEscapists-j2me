@@ -911,7 +911,7 @@ class NPC implements Constants {
 						// send player to solitary if they're not in cell during lights out
 						map.note = NOTE_SOLITARY;
 						map.solitaryReason = REASON_OUT_OF_CELL;
-					} else if (map.heat >= 90 || map.lockdown || player.fighting != 0 || player.stealing != 0
+					} else if (map.heat >= 90 || map.lockdown || (statOpinion < 85 && (player.fighting != 0 || player.stealing != 0))
 							|| map.action == ACT_CHIPPING || map.action == ACT_CUTTING
 							|| map.action == ACT_CUTTING_VENT || map.action == ACT_UNSCREWING
 							|| (map.action == ACT_SEARCHING && player.job != JOB_MAILMAN && player.job != JOB_LIBRARY)) {
