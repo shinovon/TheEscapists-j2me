@@ -1974,11 +1974,12 @@ class NPC implements Constants {
 
 	// give player a warn
 	private void heat(String dialog, int amount) {
-		map.heat += amount;
-		if (map.heat > 99) map.heat = 99;
-
 		heatTimer = TPS * 3;
-		map.animateHeat = TPS >> 1;
+		if (amount > 0) {
+			map.heat += amount;
+			if (map.heat > 99) map.heat = 99;
+			map.animateHeat = TPS >> 1;
+		}
 		if (dialog != null) {
 			this.dialog = dialog;
 			dialogTimer = TPS * 2;
