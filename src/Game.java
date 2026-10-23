@@ -724,58 +724,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (t > 50) t = 50;
 					if (t > 0) g.fillRect(12, h - 28, t, 5);
 				}
-				// side
-
-				// inventory items
-				Image itemsImg = itemsTexture;
-				x = w - 21;
-				for (int i = 0; i < 6; ++i) {
-					int y = i * 22 + 1;
-					int item = player.inventory[i];
-					g.setColor(0x434343);
-					g.fillRect(x + 1, y + 1, 18, 18);
-					g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
-					g.drawRect(x, y, 19, 19);
-					if (selectedInventory == i) {
-						g.setColor(0x97479B);
-						g.drawRect(x, y, 19, 19);
-
-						if (item != Items.ITEM_NULL) {
-							String t = getItemName(item);
-							int owner = (item & Items.ITEM_OWNER_MASK) >> Items.ITEM_OWNER_SHIFT;
-							if (owner != 0) {
-								sb.setLength(0);
-								t = sb.append(chars[owner]).append("'s ").append(t).toString();
-							} else if (hasDurability(item)) {
-								sb.setLength(0);
-								t = sb.append(t).append(" (")
-										.append((item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT)
-										.append("%)").toString();
-							}
-							int tw = textWidth(t, FONT_REGULAR);
-							fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
-							g.setColor(0x212121);
-							g.fillRect(x - 9 - tw, y + 2, tw + 6, 15);
-							g.setColor(0);
-							g.drawRect(x - 9 - tw, y + 2, tw + 6, 15);
-							drawText(g, t, x - 6 - tw, y + 5, FONT_REGULAR);
-							fontColor = FONT_COLOR_WHITE;
-						}
-					}
-					if (item == Items.ITEM_NULL)
-						continue;
-					item &= Items.ITEM_ID_MASK;
-					if (animateItem == i) {
-						if (animateItemTimer >= 30) {
-							animateItem = -1;
-							animateItemTimer = 0;
-						} else {
-							animateItemTimer++;
-							if (((animateItemTimer >> 2) & 1) != 0) continue;
-						}
-					}
-					g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
-				}
 			}
 
 			// overlays
@@ -1154,6 +1102,60 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			} else {
 				pausedOverlay = false;
+			}
+		}
+
+		if (state == STATE_GAME && mapLoaded) {
+			StringBuffer sb = stringBuffer;
+			// inventory items
+			Image itemsImg = itemsTexture;
+			int x = w - 21;
+			for (int i = 0; i < 6; ++i) {
+				int y = i * 22 + 1;
+				int item = player.inventory[i];
+				g.setColor(0x434343);
+				g.fillRect(x + 1, y + 1, 18, 18);
+				g.setColor(selectedInventory == i ? 0x97479B : 0x1D1D1D);
+				g.drawRect(x, y, 19, 19);
+				if (selectedInventory == i) {
+					g.setColor(0x97479B);
+					g.drawRect(x, y, 19, 19);
+
+					if (item != Items.ITEM_NULL) {
+						String t = getItemName(item);
+						int owner = (item & Items.ITEM_OWNER_MASK) >> Items.ITEM_OWNER_SHIFT;
+						if (owner != 0) {
+							sb.setLength(0);
+							t = sb.append(chars[owner]).append("'s ").append(t).toString();
+						} else if (hasDurability(item)) {
+							sb.setLength(0);
+							t = sb.append(t).append(" (")
+									.append((item & Items.ITEM_DURABILITY_MASK) >> Items.ITEM_DURABILITY_SHIFT)
+									.append("%)").toString();
+						}
+						int tw = textWidth(t, FONT_REGULAR);
+						fontColor = isIllegal(item) ? FONT_COLOR_RED : FONT_COLOR_GREEN;
+						g.setColor(0x212121);
+						g.fillRect(x - 9 - tw, y + 2, tw + 6, 15);
+						g.setColor(0);
+						g.drawRect(x - 9 - tw, y + 2, tw + 6, 15);
+						drawText(g, t, x - 6 - tw, y + 5, FONT_REGULAR);
+						fontColor = FONT_COLOR_WHITE;
+					}
+				}
+				if (item == Items.ITEM_NULL)
+					continue;
+				item &= Items.ITEM_ID_MASK;
+				if (animateItem == i) {
+					if (animateItemTimer >= 30) {
+						animateItem = -1;
+						animateItemTimer = 0;
+					} else {
+						animateItemTimer++;
+						if (((animateItemTimer >> 2) & 1) != 0) continue;
+					}
+				}
+				g.drawRegion(itemsImg, (item % TILE_SIZE) * TILE_SIZE, (item / TILE_SIZE) * TILE_SIZE, TILE_SIZE, TILE_SIZE, 0, x + 2, y + 2, 0);
 			}
 		}
 
