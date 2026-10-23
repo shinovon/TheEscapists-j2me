@@ -73,25 +73,24 @@
   - [ ] Laundry
   - [ ] Mailman
   - [ ] Librarian
+- [ ] Guards vision
+  - [ ] Guards reacting to holes in walls, floors and vents
+  - [ ] Guards check if player is in cell at lights out
+  - [ ] Guards picking up items
 - [ ] Favors, Journal
 - [ ] Characters setup screen
 - [ ] Mines (san pancho)
-- [ ] Guards reacting to holes in walls, floors and vents
 - [ ] Help
 - [ ] NPC opinions (WIP)
 - [ ] Recruiting
 - [ ] Employment board
 - [ ] Stepladder
-- [ ] Crafting notes
 - [ ] Tying npcs
-- [ ] Guards picking up items
 - [ ] Jeep
 - [ ] More gym objects
-- [ ] Guards check if player is in cell at lights out
 - [ ] Spotlights
 - [ ] Electric fences and generator
 - [ ] Gifting items
-- [ ] Items decay
 - [ ] Owned items (needed for favors and mail)
 
 # Low priority
@@ -99,6 +98,9 @@
 - [ ] Localization
 - [ ] Achievements
 - [ ] Visitation
+- [ ] Warden npc
+- [ ] Crafting notes
+- [ ] Items decay
 
 # OST
 
