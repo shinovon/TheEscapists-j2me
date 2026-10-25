@@ -3916,8 +3916,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					items[(i << 1) + 1] = Items.ITEM_NULL;
 					items[(i << 1) + 2] = 0;
 				}
-				// TODO clean chipped state properly
-				chipped[layer][0] = 0;
+				
+				short[] chipped = this.chipped[layer];
+				int n = chipped.length;
+				for (int i = 0; i < n; ++i) {
+					chipped[i] = 0;
+				}
 			}
 
 			initMap();
