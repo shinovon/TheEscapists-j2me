@@ -145,7 +145,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int actionTargetX, actionTargetY;
 	int actionParam;
 	int carryingObject = -1;
-	float undergroundLight = 1.1f;
+	int undergroundLightSize = 1;
+	int prevUndergroundLightSize = 1;
 	int usedKeySlot = -1;
 	int usedContrabandPouch = -1;
 	int heatTimer;
@@ -430,8 +431,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
 			int vw = w, vh = h;
 			if (player.layer == LAYER_UNDERGROUND) {
-				vw = 64;
-				vh = 64;
+				if (USE_M3G && undergroundLightSize != prevUndergroundLightSize) {
+					prevUndergroundLightSize = undergroundLightSize;
+					resetCamera = true;
+				}
+				vw = 64 * undergroundLightSize;
+				vh = 64 * undergroundLightSize;
 				int ox = (w - vw) / 2;
 				int oy = (h - vh) / 2;
 				x += ox;
@@ -4664,9 +4669,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					} else if (layer == LAYER_UNDERGROUND) {
 						t.setIdentity();
 						t.postTranslate(0, 0, 5);
-						float f = undergroundLight + 0.04f * (float)Math.sin(ticks * 1.5f);
+						float f = undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f);
 						t.postScale(f, f, 1f);
 						graphics3D.render(lightVertexBuffer, lightStrip, undergroundAppearance, t);
+						t.setIdentity();
 					}
 				}
 
@@ -5433,7 +5439,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				CompositingMode cm = new CompositingMode();
 				cm.setBlending(CompositingMode.ALPHA_ADD);
-				cm.setAlphaThreshold(0.5f);
+				cm.setAlphaThreshold(0f);
 				cm.setDepthTestEnable(false);
 				cm.setDepthWriteEnable(false);
 				lightAppearance.setCompositingMode(cm);
@@ -5459,7 +5465,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				cm = new CompositingMode();
 				cm.setBlending(CompositingMode.MODULATE);
-				cm.setAlphaThreshold(0.5f);
+				cm.setAlphaThreshold(0f);
 				cm.setDepthTestEnable(false);
 				cm.setDepthWriteEnable(false);
 				undergroundAppearance.setCompositingMode(cm);

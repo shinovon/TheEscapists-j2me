@@ -2404,13 +2404,12 @@ class NPC implements Constants {
 		}
 
 		if (layer == LAYER_UNDERGROUND && (tick & 31) == 0) {
-			// TODO
 			if (hasItem(Items.FLASHLIGHT) != -1) {
-				map.undergroundLight = 3.1f;
+				map.undergroundLightSize = 3;
 			} else if (hasItem(Items.CANDLE) != -1) {
-				map.undergroundLight = 2.1f;
+				map.undergroundLightSize = 2;
 			} else {
-				map.undergroundLight = 1.1f;
+				map.undergroundLightSize = 1;
 			}
 		}
 
