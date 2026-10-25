@@ -2895,7 +2895,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					for (int i = 0; i < numObjects; ++i) {
 						short idx = in.readShort();
 						topObjects[(i << 1) + 1] = idx;
-						topObjects[(i << 1) + 2] = (short) (objects[0][idx + 1] == Objects.SECURITY_CAMERA ? TPS : 0);
+						topObjects[(i << 1) + 2] = (short) (objects[LAYER_GROUND][idx + 1] == Objects.SECURITY_CAMERA ? TPS : 0);
 					}
 				}
 
@@ -3071,9 +3071,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if ((jobs[JOB_JANITOR] & JOB_EXISTING_BIT) != 0
 						|| (gardening = (jobs[JOB_GARDENING] & JOB_EXISTING_BIT) != 0)) {
 					dirt = new short[6];
-					dirt[2] = (short) (objects[0][0] << 2);
+					dirt[2] = (short) (objects[LAYER_GROUND][0] << 2);
 					addObject(gardening ? Objects.OUTSIDE_DIRT : Objects.FLOOR_DIRT, gardening ? 43 : 47, 1, 1, 0, 0, LAYER_GROUND);
-					dirt[5] = (short) (objects[0][0] << 2);
+					dirt[5] = (short) (objects[LAYER_GROUND][0] << 2);
 					addObject(gardening ? Objects.OUTSIDE_DIRT : Objects.FLOOR_DIRT, gardening ? 43 : 47, 1, 1, 0, 0, LAYER_GROUND);
 				}
 
@@ -3805,8 +3805,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// reset player
 			NPC player = this.player;
 			int obj = findObject(Objects.SOLITARY_BED, LAYER_GROUND, 0);
-			player.xFloat = player.x = objects[0][obj + 3] * TILE_SIZE;
-			player.yFloat = player.y = (objects[0][obj + 4] - 1) * TILE_SIZE + 2;
+			player.xFloat = player.x = objects[LAYER_GROUND][obj + 3] * TILE_SIZE;
+			player.yFloat = player.y = (objects[LAYER_GROUND][obj + 4] - 1) * TILE_SIZE + 2;
 			ingameFadeIn = viewWidth >> 1;
 			player.animation = NPC.ANIM_LYING;
 			for (int i = 0; i < 6; ++i) {
@@ -5604,12 +5604,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = roamPositions[(pos << 1) + 1];
 			int y = roamPositions[(pos << 1) + 2];
 
-			if (isFloor(tiles[0][x + y * width]) == (objects[0][objIdx + 1] == Objects.OUTSIDE_DIRT)) {
+			if (isFloor(tiles[0][x + y * width]) == (objects[LAYER_GROUND][objIdx + 1] == Objects.OUTSIDE_DIRT)) {
 				continue;
 			}
 
-			objects[0][objIdx + 3] = dirt[n * 3] = (short) x;
-			objects[0][objIdx + 4] = dirt[n * 3 + 1] = (short) y;
+			objects[LAYER_GROUND][objIdx + 3] = dirt[n * 3] = (short) x;
+			objects[LAYER_GROUND][objIdx + 4] = dirt[n * 3 + 1] = (short) y;
 			break;
 		}
 	}
@@ -5768,7 +5768,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		boolean res = false;
 		int slots = containers[idx + 2];
 		for (int i = 0; i < slots; ++i) {
-			if (containers[idx + 3 + i] != Items.ITEM_NULL && isIllegal(containers[idx + 3 + i] & Items.ITEM_ID_MASK)) {
+			int item = containers[idx + 3 + i];
+			if (item != Items.ITEM_NULL && isIllegal(item & Items.ITEM_ID_MASK)) {
 				containers[idx + 3 + i] = Items.ITEM_NULL;
 				res = true;
 			}

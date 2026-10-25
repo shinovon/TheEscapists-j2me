@@ -534,11 +534,11 @@ class NPC implements Constants {
 				}
 				int x = (this.x + 7) / TILE_SIZE;
 				int y = (this.y + 7) / TILE_SIZE;
-				if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
+				if (map.solid[LAYER_GROUND][x + y * map.width] != COLL_NONE) {
 					for (int n = 0; n < 4; ++n) {
 						int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
 						int oy = Game.PATH_DIR_POSITIONS[((3 - n) << 1) + 1];
-						if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
+						if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == COLL_NONE) {
 							x += ox;
 							y += oy;
 							break;
@@ -700,7 +700,7 @@ class NPC implements Constants {
 				// outfit was stolen while unconscious, go change it
 				aiState = AI_WAYPOINT;
 				if (inmate) {
-					if (map.solid[0][bedX + 1 + bedY * map.width] != 0) {
+					if (map.solid[0][bedX + 1 + bedY * map.width] != COLL_NONE) {
 						pathX = bedX - 1;
 					} else {
 						pathX = bedX + 1;
@@ -841,7 +841,7 @@ class NPC implements Constants {
 				case SC_LOCKDOWN:
 					// lockdown: go to cell, stay there
 					aiState = AI_WAYPOINT;
-					if (map.solid[0][bedX + 1 + bedY * map.width] != 0) {
+					if (map.solid[0][bedX + 1 + bedY * map.width] != COLL_NONE) {
 						pathX = bedX - 1;
 					} else {
 						pathX = bedX + 1;
@@ -1441,11 +1441,11 @@ class NPC implements Constants {
 						int y = map.objects[LAYER_GROUND][obj + 4];
 
 						solid: {
-							if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
+							if (map.solid[LAYER_GROUND][x + y * map.width] != COLL_NONE) {
 								for (int n = 0; n < 8; ++n) {
 									int ox = Game.PATH_DIR_POSITIONS[(7 - n) << 1];
 									int oy = Game.PATH_DIR_POSITIONS[((7 - n) << 1) + 1];
-									if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
+									if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == COLL_NONE) {
 										x += ox;
 										y += oy;
 										break solid;
@@ -1507,7 +1507,10 @@ class NPC implements Constants {
 
 						int x, y;
 						if (obj == Objects.DESK) {
-							obj = map.containers[map.pickRandomNPC(false, false).desk];
+							int desk = map.pickRandomNPC(false, false).desk;
+							if (desk == 0) break work;
+
+							obj = map.containers[desk];
 						} else {
 							obj = map.findObject(obj, LAYER_GROUND, 0);
 						}
@@ -1517,12 +1520,11 @@ class NPC implements Constants {
 						y = map.objects[LAYER_GROUND][obj + 4];
 
 						solid: {
-							// FIXME still aioob
-							if (map.solid[LAYER_GROUND][x + y * map.width] != 0) {
+							if (map.solid[LAYER_GROUND][x + y * map.width] != COLL_NONE) {
 								for (int n = 0; n < 4; ++n) {
 									int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
 									int oy = Game.PATH_DIR_POSITIONS[((3 - n) << 1) + 1];
-									if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
+									if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == COLL_NONE) {
 										x += ox;
 										y += oy;
 										break solid;
@@ -1574,7 +1576,7 @@ class NPC implements Constants {
 					for (int n = 0; n < 4; ++n) {
 						int ox = Game.PATH_DIR_POSITIONS[(3 - n) << 1];
 						int oy = Game.PATH_DIR_POSITIONS[((3 - n) << 1) + 1];
-						if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == 0) {
+						if (map.solid[LAYER_GROUND][x + ox + (y + oy) * map.width] == COLL_NONE) {
 							x += ox;
 							y += oy;
 							break;
@@ -1593,7 +1595,7 @@ class NPC implements Constants {
 					aiState = AI_RESET;
 				}
 			} else if (targetReached) {
-				if (map.removeIllegalItems(aiWorkState) && aiWorkState == map.getContainerByOwner(0)) {
+				if (aiWorkState != 0 && map.removeIllegalItems(aiWorkState) && aiWorkState == map.getContainerByOwner(0)) {
 					map.note = NOTE_SOLITARY;
 					map.solitaryReason = REASON_CONTRABAND;
 				}
@@ -1644,7 +1646,7 @@ class NPC implements Constants {
 					ty += targetOffsetY;
 					pathX = (tx + 7) / TILE_SIZE;
 					pathY = (ty + 7) / TILE_SIZE;
-					if (map.solid[LAYER_GROUND][pathX + pathY * map.width] != 0) {
+					if (map.solid[LAYER_GROUND][pathX + pathY * map.width] != COLL_NONE) {
 						// if offset is solid, pick original position
 						tx = chaseTarget.x;
 						ty = chaseTarget.y;
@@ -1657,7 +1659,7 @@ class NPC implements Constants {
 								for (int n = 0; n < 4; ++n) {
 									int ox = Game.PATH_DIR_POSITIONS[n << 1];
 									int oy = Game.PATH_DIR_POSITIONS[(n << 1) + 1];
-									if (map.solid[LAYER_GROUND][pathX + ox + (pathY + oy) * map.width] == 0) {
+									if (map.solid[LAYER_GROUND][pathX + ox + (pathY + oy) * map.width] == COLL_NONE) {
 										pathX += ox;
 										pathY += oy;
 										break solid;
@@ -1887,7 +1889,7 @@ class NPC implements Constants {
 		}
 		byte b = map.solid[layer][x + y * map.width];
 		if (!act) {
-			if (b == COLL_NONE && layer == LAYER_ROOF && map.tiles[layer][x + y * map.width] != 0) {
+			if (b == COLL_NONE && layer == LAYER_ROOF && map.tiles[layer][x + y * map.width] != COLL_NONE) {
 				// check if not on floor
 				b = COLL_ROOF;
 			}
@@ -2939,7 +2941,7 @@ class NPC implements Constants {
 		if (carry != null) {
 			int x = (this.x + 7) / TILE_SIZE;
 			int y = (this.y + 7) / TILE_SIZE;
-			if (map.solid[layer][x + y * map.width] != 0) {
+			if (map.solid[layer][x + y * map.width] != COLL_NONE) {
 				Sound.playEffect(Sound.SFX_LOSE);
 			} else {
 				Sound.playEffect(Sound.SFX_THROW);
@@ -4176,8 +4178,8 @@ class NPC implements Constants {
 		} else {
 			// send to medical bed
 			int obj = map.findObject(Objects.MEDICAL_BED, LAYER_GROUND, 0);
-			xFloat = x = map.objects[0][obj + 3] * TILE_SIZE;
-			yFloat = y = (map.objects[0][obj + 4] - 1) * TILE_SIZE + 2;
+			xFloat = x = map.objects[LAYER_GROUND][obj + 3] * TILE_SIZE;
+			yFloat = y = (map.objects[LAYER_GROUND][obj + 4] - 1) * TILE_SIZE + 2;
 		}
 
 		// reset outfit and weapon, remove contraband items from inventory
