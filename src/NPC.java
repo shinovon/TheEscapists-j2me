@@ -3984,7 +3984,7 @@ class NPC implements Constants {
 					return;
 				}
 			}
-			if (b == COLL_POSTER && map.selectedInventory == -1) {
+			if (b == COLL_POSTER && item == -1) {
 				// take poster
 				int p = map.getBreakProgress(x, y, layer);
 				int pos = y * map.width + x;
@@ -4019,6 +4019,10 @@ class NPC implements Constants {
 			}
 		}
 
+		x = (this.x + 7) / TILE_SIZE;
+		y = (this.y + 7) / TILE_SIZE;
+		b = map.solid[layer][y * map.width + x];
+
 		// drop selected item
 		if (item != -1) {
 			if (map.peekItem(x, y, layer) != Items.ITEM_NULL || map.solid[layer][x + y * map.width] != COLL_NONE) {
@@ -4030,10 +4034,6 @@ class NPC implements Constants {
 			}
 			return;
 		}
-
-		x = (this.x + 7) / TILE_SIZE;
-		y = (this.y + 7) / TILE_SIZE;
-		b = map.solid[layer][y * map.width + x];
 
 		if (climbed) {
 			// vents
