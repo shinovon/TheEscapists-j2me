@@ -189,6 +189,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// platform
 	static boolean nokiaE6;
+	static boolean seP1;
 
 	int selectedMenu;
 	boolean hasSave;
@@ -2358,10 +2359,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	private static int mapKey(int key) {
-		if (key == 'O' || key == 'o' || key == 1049 || key == 1062) {
+		if (seP1 && (key == 'Q' || key == 'q' || key == 'W' || key == 'w' || key == 'Й' || key == 'й' || key == 'Ц' || key == 'ц')) {
 			return -6;
 		}
-		if (key == 'P' || key == 'p' || key == 1065 || key == 1047 || key == -8) {
+ 		if (key == 'O' || key == 'o' || key == 'Щ' || key == 'щ') {
+			return seP1 ? -7 : -6;
+		}
+		if (key == 'P' || key == 'p' || key == 'З' || key == 'з' || key == -8) {
 			return -7;
 		}
 		if (key >= 'a' && key <= 'z') {
@@ -2397,6 +2401,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				String p = System.getProperty("microedition.platform");
 				if (p == null) p = "null";
 				nokiaE6 = p.startsWith("NokiaE6-") || p.startsWith("NokiaE7-");
+				seP1 = p.startsWith("SonyEricssonP1") || p.startsWith("SonyEricssonM600");
 				altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type")) && !nokiaE6;
 			}
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
