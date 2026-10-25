@@ -983,7 +983,7 @@ class NPC implements Constants {
 									break;
 								case SC_WORK_PERIOD: {
 									onJob: {
-										if (player.jobQuota < MAX_JOB_QUOTA) break onJob;
+										if (player.jobQuota >= MAX_JOB_QUOTA) break onJob;
 
 										switch (player.job) {
 										case JOB_LAUNDRY:
