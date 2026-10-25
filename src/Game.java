@@ -1374,6 +1374,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else {
 							selectedInventory = -1;
 						}
+					} else if (key == 'Q' || gameAction == GAME_A) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+						} else if (selectedInventory-- == 0) {
+							selectedInventory = 5;
+						}
+					} else if (key == 'E' || gameAction == GAME_B) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+						} else if (++selectedInventory == 6) {
+							selectedInventory = 0;
+						}
 					} else {
 						// container navigation
 						switch (gameAction) {
@@ -1510,6 +1524,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						} else {
 							selectedInventory = -1;
 						}
+					} else if (key == 'Q' || gameAction == GAME_A) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+						} else if (selectedInventory-- == 0) {
+							selectedInventory = 5;
+						}
+					} else if (key == 'E' || gameAction == GAME_B) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+						} else if (++selectedInventory == 6) {
+							selectedInventory = 0;
+						}
 					} else {
 						// container navigation
 						switch (gameAction) {
@@ -1612,6 +1640,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							selectedInventory = slot;
 						} else {
 							selectedInventory = -1;
+						}
+					} else if (key == 'Q' || gameAction == GAME_A) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+						} else if (selectedInventory-- == 0) {
+							selectedInventory = 5;
+						}
+					} else if (key == 'E' || gameAction == GAME_B) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+						} else if (++selectedInventory == 6) {
+							selectedInventory = 0;
 						}
 					} else {
 						// container navigation
@@ -1739,6 +1781,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							selectedInventory = slot;
 						} else {
 							selectedInventory = -1;
+						}
+					} else if (key == 'Q' || gameAction == GAME_A) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 5;
+						} else if (selectedInventory-- == 0) {
+							selectedInventory = 5;
+						}
+					} else if (key == 'E' || gameAction == GAME_B) {
+						selectedSlot = -1;
+						if (selectedInventory == -1) {
+							selectedInventory = lastSelectedInventory != -1 ? lastSelectedInventory : 0;
+						} else if (++selectedInventory == 6) {
+							selectedInventory = 0;
 						}
 					} else {
 						switch (gameAction) {
