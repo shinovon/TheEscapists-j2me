@@ -841,6 +841,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						case REASON_TUNNEL:
 							s = "\n\nMy boys found evidence of tunnelling and we've linked it back to you.";
 							break;
+						case REASON_DIRT:
+							s = "\n\nMy boys found some tunnel dirt lying around, and traced it back to you.";
+							break;
+						case REASON_WALL_BLOCK:
+							s = "\n\nMy boys found a wall block lying around, and traced it back to you.";
+							break;
 						case REASON_CONTRABAND:
 							s = "\n\nOne of my boys found contraband stashed in your desk during a shakedown.";
 							break;
@@ -5577,18 +5583,20 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		return Items.ITEM_NULL;
 	}
 
-	void deleteItem(int x, int y, int layer) {
+	int deleteItem(int x, int y, int layer) {
 		int[] items = droppedItems[layer];
 		int n = items[0];
 		int pos = (x & 0xFF) | ((y & 0xFF) << 8);
 
 		for (int i = 0; i < n; ++i) {
 			if (items[(i << 1) + 2] == pos) {
+				int item = items[(i << 1) + 1];
 				items[(i << 1) + 1] = Items.ITEM_NULL;
 				items[(i << 1) + 2] = -1;
-				return;
+				return item;
 			}
 		}
+		return Items.ITEM_NULL;
 	}
 
 	// endregion Map items
