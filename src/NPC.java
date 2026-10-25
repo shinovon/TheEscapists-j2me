@@ -3345,7 +3345,14 @@ class NPC implements Constants {
 					inventory[slot] = Items.ITEM_NULL;
 					map.setBreakProgress(x, y, layer, 101);
 					return;
-				} else if (((layer == LAYER_UNDERGROUND && (t == 0
+				}
+				if (layer == LAYER_GROUND && Game.isDiggable(map.tiles[layer][y * map.width + x])
+						&& map.getBreakProgress(x, y, layer) != 0 && (item == Items.DIRT || item == Items.SAND)) {
+					map.setBreakProgress(x, y, layer, 0);
+					inventory[slot] = Items.ITEM_NULL;
+					return;
+				}
+				if (((layer == LAYER_UNDERGROUND && (t == 0
 						|| (t == 100 && Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
 						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
 						|| (layer == LAYER_GROUND && Game.isDiggable(t)
@@ -3376,14 +3383,6 @@ class NPC implements Constants {
 
 							reduceDurability(slot);
 							break;
-						case Items.DIRT:
-						case Items.SAND:
-							// fill hole
-							if (map.getBreakProgress(x, y, layer) == 0 || layer != LAYER_GROUND)
-								return;
-							map.setBreakProgress(x, y, layer, 0);
-							inventory[slot] = Items.ITEM_NULL;
-							break dig;
 						default:
 							break dig;
 						}

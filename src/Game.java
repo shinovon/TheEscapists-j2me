@@ -3835,6 +3835,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		time = routineSet[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
 		fatigue = 20;
+		cellsClosed = true;
 
 		if (USE_M3G) update3DLightingColor();
 	}
@@ -5048,6 +5049,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								break box;
 							} else if (item == Items.TIMBER_BRACE) {
 								if (layer == LAYER_UNDERGROUND && getBreakProgress(x, y, layer) == 100) {
+									border = true;
+									s = null;
+									break interact;
+								}
+								break box;
+							} else if (item == Items.DIRT || item == Items.SAND) {
+								if (layer == LAYER_GROUND && isDiggable(tiles[layer][y * width + x])
+										&& getBreakProgress(x, y, layer) != 0) {
 									border = true;
 									s = null;
 									break interact;
