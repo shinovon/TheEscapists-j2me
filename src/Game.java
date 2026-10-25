@@ -2358,10 +2358,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	private static int mapKey(int key) {
-		if (key == 'O' || key == 'o') {
+		if (key == 'O' || key == 'o' || key == 1049 || key == 1062) {
 			return -6;
 		}
-		if (key == 'P' || key == 'p') {
+		if (key == 'P' || key == 'p' || key == 1065 || key == 1047 || key == -8) {
 			return -7;
 		}
 		if (key >= 'a' && key <= 'z') {
