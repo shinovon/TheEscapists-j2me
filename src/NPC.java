@@ -3339,7 +3339,11 @@ class NPC implements Constants {
 			}
 
 			if (b == COLL_NONE || layer == LAYER_UNDERGROUND) {
-				if (((layer == LAYER_UNDERGROUND && (t == 0
+				if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100 && item == Items.TIMBER_BRACE) {
+					inventory[slot] = Items.ITEM_NULL;
+					map.setBreakProgress(x, y, layer, 101);
+					return;
+				} else if (((layer == LAYER_UNDERGROUND && (t == 0
 						|| (t == 100 && Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
 						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
 						|| (layer == LAYER_GROUND && Game.isDiggable(t)
@@ -3389,9 +3393,6 @@ class NPC implements Constants {
 						map.progress = 0;
 						return;
 					}
-				} else if (layer == LAYER_UNDERGROUND && map.getBreakProgress(x, y, layer) == 100 && item == Items.TIMBER_BRACE) {
-					map.setBreakProgress(x, y, layer, 101);
-					return;
 				}
 			} else if (b == COLL_DIGGED_WALL) {
 				switch (item) {

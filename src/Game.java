@@ -4971,6 +4971,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break interact;
 								}
 								break box;
+							} else if (item == Items.TIMBER_BRACE) {
+								if (layer == LAYER_UNDERGROUND && getBreakProgress(x, y, layer) == 100) {
+									border = true;
+									s = null;
+									break interact;
+								}
+								break box;
 							} else {
 								byte t = layer == LAYER_VENT && objects != null
 										&& (objects[getObjectIdxAt(x, y, layer) + 1] & 0xFF) == Objects.VENT_SLATS
