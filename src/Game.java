@@ -3537,6 +3537,21 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		}
 
+		{
+			// reset seats
+			short[] positions = canteenSeatsPositions;
+			int n = positions[0];
+			for (int i = 1; i < n; i += 2) {
+				canteenSeatsPositions[i + 1] = -1;
+			}
+
+			positions = gymPositions;
+			n = positions[0];
+			for (int i = 1; i < n; i += 2) {
+				canteenSeatsPositions[i + 1] = -1;
+			}
+		}
+
 		int n, j;
 
 		if (day == 0) {

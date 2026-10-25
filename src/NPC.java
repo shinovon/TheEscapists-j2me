@@ -1250,6 +1250,7 @@ class NPC implements Constants {
 					if (!correctPath && !sitting) {
 						// find free seat
 						while (true) {
+							// FIXME will stuck in in infinite loop if there are no free seats
 							int pos;
 							if ((pos = canteenSeatPos++) >= map.canteenSeatsPositions[0]) {
 								pos = canteenSeatPos = 0;
@@ -1316,6 +1317,7 @@ class NPC implements Constants {
 				if (!correctPath && !training) {
 					// find free seat
 					while (true) {
+						// FIXME will stuck in in infinite loop if there are no free seats
 						int pos;
 						if ((pos = gymPos++) >= map.gymPositions[0]) {
 							pos = gymPos = 0;
