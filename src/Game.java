@@ -2593,6 +2593,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						fadeOut = 0;
 						if (exiting) {
 							TE.midlet.notifyDestroyed();
+							return;
 						} else {
 							Sound.playMusic(MUSIC_ESCAPED);
 							state = STATE_ESCAPED;

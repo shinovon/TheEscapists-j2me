@@ -496,7 +496,7 @@ class NPC implements Constants {
 			}
 			if (bodyId == Textures.SNIPER) return;
 
-			if (x / TILE_SIZE == map.npcSpawnX && y / TILE_SIZE == map.npcSpawnY) {
+			if ((x + 7) / TILE_SIZE == map.npcSpawnX && (y + 5) / TILE_SIZE == map.npcSpawnY) {
 				hidden = true;
 			} else {
 				// TODO say
