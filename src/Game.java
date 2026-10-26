@@ -6732,6 +6732,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Items.CRAFTING_NOTE:
 		case Items.COMB_BLADE:
 		case Items.CONTRABAND_POUCH:
+		case Items.BED_DUMMY:
 		case Items.CUSHIONED_INMATE_OUTFIT:
 		case Items.PADDED_INMATE_OUTFIT:
 		case Items.PLATED_INMATE_OUTFIT:
