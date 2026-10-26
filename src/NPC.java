@@ -3357,13 +3357,17 @@ class NPC implements Constants {
 				}
 				if (layer == LAYER_GROUND && Game.isDiggable(map.tiles[layer][y * map.width + x])
 						&& map.getBreakProgress(x, y, layer) != 0 && (item == Items.DIRT || item == Items.SAND)) {
+					// fill hole
 					map.setBreakProgress(x, y, layer, 0);
 					inventory[slot] = Items.ITEM_NULL;
 					return;
 				}
 				if (((layer == LAYER_UNDERGROUND && (t == 0
-						|| (t == 100 && Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
+						// dig up
+						|| (t == 100
+						&& Game.isDiggable(map.tiles[LAYER_GROUND][y * map.width + x])
 						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1)))
+						// dig down
 						|| (layer == LAYER_GROUND && Game.isDiggable(t)
 						&& Game.isDiggable(map.tiles[LAYER_UNDERGROUND][y * map.width + x])
 						&& map.getObjectIdxAt(x, y, LAYER_GROUND) == -1))
@@ -3379,7 +3383,8 @@ class NPC implements Constants {
 						case Items.LIGHTWEIGHT_PICKAXE:
 						case Items.FLIMSY_PICKAXE:
 						case Items.PLASTIC_SPOON:
-							if (map.getBreakProgress(x, y, layer) >= 100
+							int p = map.getBreakProgress(x, y, layer);
+							if (p > 100 || (layer == LAYER_GROUND && p == 100)
 									|| checkFatigued() || checkInventoryFull())
 								return;
 

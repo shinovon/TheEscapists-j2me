@@ -5112,7 +5112,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 												s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 												break interact;
 											}
-											if (b == COLL_NONE && t == 100
+											if (b == COLL_NONE && p == 100
 													&& isDiggable(tiles[LAYER_GROUND][y * width + x])
 													&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 												p = getBreakProgress(x, y, LAYER_GROUND);
@@ -5186,7 +5186,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 												s = sb.append("Chip Stone (").append(p - 120).append("%)").toString();
 												break interact;
 											}
-											if (b == COLL_NONE && t == 100
+											if (b == COLL_NONE && p == 100
 													&& isDiggable(tiles[LAYER_GROUND][y * width + x])
 													&& getObjectIdxAt(x, y, LAYER_GROUND) == -1) {
 												p = getBreakProgress(x, y, LAYER_GROUND);
