@@ -3464,6 +3464,7 @@ class NPC implements Constants {
 
 				npc.dialogTimer = TPS * 3;
 				npc.aiWaitTimer = 10;
+				npc.dialogNeedLayout = true;
 				if (item == Items.ID_PAPERS) {
 					map.openCheckpoint();
 					npc.dialog = "Seeya tomorrow!";
