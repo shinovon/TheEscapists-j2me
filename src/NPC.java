@@ -1125,7 +1125,7 @@ class NPC implements Constants {
 					nextRoamPos = false;
 					if (map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, inmate, path)
 							// fallback
-							|| map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path)) {
+							|| (inmate && map.pathfind(x / TILE_SIZE, (y + 5) / TILE_SIZE, direction, pathX, pathY, false, path))) {
 						correctPath = true;
 						pathStep = 0;
 					} else {

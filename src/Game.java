@@ -9277,27 +9277,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					continue;
 
 				if (i >= 4) { // check collision for both ways in diagonal dir
-					if (i == 4) { // right up
-						if ((solid[nx + (ny - 1) * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-						if ((solid[nx + 1 + ny * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-					} else if (i == 5) { // right down
-						if ((solid[nx + (ny + 1) * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-						if ((solid[nx + 1 + ny * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-					} else if (i == 6) { // left up
-						if ((solid[nx + (ny - 1) * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-						if ((solid[nx - 1 + ny * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-					} else { // left down
-						if ((solid[nx + (ny + 1) * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-						if ((solid[nx - 1 + ny * width] & COLL_BIT_SOLID_AI) != 0)
-							continue;
-					}
+					if ((solid[nx + y * width] & COLL_BIT_SOLID_AI) != 0
+							|| (solid[x + ny * width] & COLL_BIT_SOLID_AI) != 0)
+						continue;
 				}
 
 				int n = x + y * width;
@@ -9319,16 +9301,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (i != dir) g += 4;
 				if (i != startDir) g += 2;
 
-				// h cost is octile distance
-				dx = (x - targetX);
-				if (dx < 0) dx = -dx;
-				dy = (y - targetY);
-				if (dy < 0) dy = -dy;
-				h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
-//				h = dx*dx + dy*dy;
-
 				// check if node is not already open
 				if (openNodePrev[n] == -1 && openNodeNext[n] == -1 && sortedNode != n) {
+					// h cost is octile distance
+					dx = (x - targetX);
+					if (dx < 0) dx = -dx;
+					dy = (y - targetY);
+					if (dy < 0) dy = -dy;
+					h = dx > dy ? (dx * 10 + dy * 5) : (dy * 10 + dx * 5);
+//					h = dx*dx + dy*dy;
+
 					nodeParent[n] = (short) cur;
 					nodeG[n] = (short) g;
 					nodeH[n] = (short) h;
