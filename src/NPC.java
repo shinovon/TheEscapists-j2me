@@ -4272,12 +4272,10 @@ class NPC implements Constants {
 		int n = objects[0] << 2;
 		for (int idx = 0; idx < n; idx += 4) {
 			int ox = objects[idx + 3], oy = objects[idx + 4];
-			short sprite = objects[idx + 2];
-			int w = (sprite & (3 << 8)) >> 8, h = (sprite & (3 << 10)) >> 10;
 			if ((x == ox && y == oy)
-					|| (x1 >= ox && x2 < ox + w && y1 > oy - h && y2 <= oy)) {
+					|| (ox >= x1 && ox <= x2 && oy >= y1 && oy <= y2)) {
 				int obj = objects[idx + 1];
-				if (dirt ? obj != Objects.VENT : (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT))
+				if (dirt ? (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT) : obj != Objects.VENT)
 					continue;
 				return idx;
 			}
