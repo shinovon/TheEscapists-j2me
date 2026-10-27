@@ -4806,7 +4806,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					interact: {
 						if (player.climbed) {
 							// vents
-							int idx = player.getNearbyVent();
+							int idx = player.getNearbyDirtOrVent(false);
 							if (idx != -1) {
 								x = this.objects[LAYER_VENT][idx + 3];
 								y = this.objects[LAYER_VENT][idx + 4];
@@ -5042,7 +5042,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								}
 							} else if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
 								if (objects == null) break box;
-								int idx = player.getNearbyDirt();
+								int idx = player.getNearbyDirtOrVent(true);
 								if (idx != -1) {
 									int obj = objects[idx + 1];
 									if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)

@@ -2897,7 +2897,7 @@ class NPC implements Constants {
 				map.selectedInventory = -1;
 			}
 
-			int idx = getNearbyVent();
+			int idx = getNearbyDirtOrVent(false);
 			if (idx != -1) {
 				int x = map.objects[LAYER_VENT][idx + 3];
 				int y = map.objects[LAYER_VENT][idx + 4];
@@ -2973,7 +2973,7 @@ class NPC implements Constants {
 		}
 
 		if (item == Items.HOE || item == Items.MOP || item == Items.BROOM) {
-			int idx = getNearbyDirt();
+			int idx = getNearbyDirtOrVent(true);
 			if (idx != -1) {
 				int obj = map.objects[layer][idx + 1];
 				if ((obj == Objects.OUTSIDE_DIRT && item == Items.HOE)
@@ -4053,8 +4053,7 @@ class NPC implements Constants {
 
 		if (climbed) {
 			// vents
-			if (item != -1) return;
-			int idx = getNearbyVent();
+			int idx = getNearbyDirtOrVent(false);
 			if (idx == -1) return;
 
 			x = map.objects[LAYER_VENT][idx + 3];
@@ -4262,38 +4261,26 @@ class NPC implements Constants {
 		return bestFacing != null ? bestFacing : bestOther;
 	}
 
-	int getNearbyVent() {
-		if (map.objects[LAYER_VENT] == null) return -1;
-		for (int i = -1; i < 4; ++i) {
-			int x = (this.x + 7) / TILE_SIZE;
-			int y = (this.y + 7) / TILE_SIZE;
-			if (i != -1) {
-				x += Game.PATH_DIR_POSITIONS[i << 1];
-				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
+	int getNearbyDirtOrVent(boolean dirt) {
+		if (dirt && layer != LAYER_GROUND) return -1;
+		short[] objects = map.objects[dirt ? LAYER_GROUND : LAYER_VENT];
+		if (objects == null) return -1;
+		int x = (this.x + 7) / TILE_SIZE;
+		int y = (this.y + 7) / TILE_SIZE;
+		int x1 = x - 1, y1 = y - 1;
+		int x2 = x + 1, y2 = y + 1;
+		int n = objects[0] << 2;
+		for (int idx = 0; idx < n; idx += 4) {
+			int ox = objects[idx + 3], oy = objects[idx + 4];
+			short sprite = objects[idx + 2];
+			int w = (sprite & (3 << 8)) >> 8, h = (sprite & (3 << 10)) >> 10;
+			if ((x == ox && y == oy)
+					|| (x1 >= ox && x2 < ox + w && y1 > oy - h && y2 <= oy)) {
+				int obj = objects[idx + 1];
+				if (dirt ? obj != Objects.VENT : (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT))
+					continue;
+				return idx;
 			}
-			int idx = map.getObjectIdxAt(x, y, LAYER_VENT);
-			if (idx == -1) continue;
-			if (map.objects[LAYER_VENT][idx + 1] != Objects.VENT) continue;
-			return idx;
-		}
-		return -1;
-	}
-
-	int getNearbyDirt() {
-		if (layer != LAYER_GROUND || map.objects[LAYER_GROUND] == null) return -1;
-		for (int i = -1; i < 4; ++i) {
-			int x = (this.x + 7) / TILE_SIZE;
-			int y = (this.y + 7) / TILE_SIZE;
-			if (i != -1) {
-				x += Game.PATH_DIR_POSITIONS[i << 1];
-				y += Game.PATH_DIR_POSITIONS[(i << 1) + 1];
-			}
-			int idx = map.getObjectIdxAt(x, y, LAYER_GROUND);
-			if (idx == -1) continue;
-			int obj = map.objects[LAYER_GROUND][idx + 1];
-			if (obj != Objects.OUTSIDE_DIRT && obj != Objects.FLOOR_DIRT)
-				continue;
-			return idx;
 		}
 		return -1;
 	}
