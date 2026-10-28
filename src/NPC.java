@@ -4172,10 +4172,12 @@ class NPC implements Constants {
 				map.inventoryOpen = npc;
 				map.lastSelectedInventory = map.selectedInventory;
 				Sound.playEffect(Sound.SFX_OPEN);
+//			} else if (npc.asking) {
+//				// TODO favor dialog
 			} else {
 				// open profile
 				map.profileOpen = npc;
-				map.profileTab = 0;
+				map.profileTab = npc.selling ? 2 : 0;
 				map.lastSelectedInventory = map.selectedInventory;
 				map.selectedInventory = 0;
 				map.selectedSlot = -1;
