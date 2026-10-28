@@ -904,7 +904,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				sb.setLength(0);
 
 				fontColor = npc.guard ? FONT_COLOR_LIGHTBLUE : FONT_COLOR_YELLOW;
-				drawText(g, sb.append(npc.name).append("'s pockets").toString(), w, ny + 6, FONT_REGULAR);
+				if (npc.guard) sb.append("Officer ");
+				drawCenteredText(g, sb.append(npc.name).append("'s pockets").toString(), w, ny + 6, FONT_REGULAR);
 
 				int y = ny + 29;
 				for (int i = 0; i < 3; ++i) {
