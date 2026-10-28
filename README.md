@@ -73,14 +73,17 @@ See [Builds.md](/Builds.md)
 ## Tested devices
 
 Main testing and target devices:
-- Nokia E52 (240x320, S60v3.2, 600 MHz)
-- Sony Ericsson K770 (240x320, A100, 220 MHz)
-- Nokia 6700c (240x320, S40v6, 600 MHz)
-- Nokia E72 (320x240, S60v3.2, 600 MHz)
+- Nokia E52 (240x320, S60v3.2, 600 MHz) - S60 build
+- Sony Ericsson K770 (240x320, A100, 220 MHz) - S40 build
+- Nokia 6700c (240x320, S40v6, 600 MHz) - S40 build
+- Nokia E72 (320x240, S60v3.2, 600 MHz) - S60 build
+- Nokia E6 (320x240 upscaled to 640x480, S60v5.2, 680 MHz) - E6/E7 build
+- Sony Ericsson C510 (240x320, A200) - S40 build
 
 Secondary (Works but low performance):
-- Nokia E6 (640x480, S60v5.2, 680 MHz)
-- Nokia E7 (640x360, S60v5.3, 680 MHz)
-- Nokia E90 (240x320, S60v3.1, 332 MHz)
-- Sony Ericsson W810 (176x220, A100, 110 MHz)
-- Nokia N72 (176x208, S60v2.8, 220 MHz)
+- Nokia E7 (640x360, S60v5.3, 680 MHz) - E6/E7 build
+- Nokia E90, N95 (240x320, S60v3.1, 332 MHz) - S60 build, SFX off
+- Sony Ericsson W810 (176x220, A100, 110 MHz) - S40 build, SFX off
+- Nokia N72 (176x208, S60v2.8, 220 MHz) - S40 build, SFX & music off
+- PS Vita Adrenaline (480x272, PSPKVM, 300 MHz) - Minimum build
+- Sony Ericsson P1i (240x320, UIQ 3.0, 208 MHz) - S40 build, SFX & music off
