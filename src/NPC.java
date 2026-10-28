@@ -293,6 +293,9 @@ class NPC implements Constants {
 	}
 	
 	boolean isInZone(int zone) {
+		if (!ai) {
+			return map.inZones[zone];
+		}
 		return map.isInZone((int) x + 7, (int) y + 7, zone);
 	}
 
@@ -365,7 +368,7 @@ class NPC implements Constants {
 				}
 
 				// don't render outfit when in shower room
-				inShower = isInZone(ZONE_SHOWER) && (!ai || map.routine == SC_SHOWER_BLOCK);
+				inShower = (!ai || map.routine == SC_SHOWER_BLOCK) && isInZone(ZONE_SHOWER);
 
 				if (layer == LAYER_ROOF &&
 						s1 == COLL_NONE && s2 == COLL_NONE && s3 == COLL_NONE && s4 == COLL_NONE) {
@@ -377,7 +380,7 @@ class NPC implements Constants {
 		if (inmate) {
 			if (animation == ANIM_FOOD &&
 					((map.routine != SC_EVENING_MEAL && map.routine != SC_BREAKFAST)
-							|| !isInZone(ZONE_CANTEEN) || climbed)) {
+							|| climbed || !isInZone(ZONE_CANTEEN))) {
 				// remove tray when left from canteen
 				animation = ANIM_REGULAR;
 			}
@@ -955,11 +958,11 @@ class NPC implements Constants {
 						} else if (player.carry != null) {
 							// guard warns player if they're carrying stunned npc
 							heat("Drop it!", 10);
-						} else if (player.isInZone(ZONE_INMATE_CELL) && !player.isInZone(ZONE_PLAYER_CELL)
-								&& !player.isInZone(ZONE_JANITOR) && !player.isInZone(ZONE_GARDENING)
-								&& !player.isInZone(ZONE_SHU)
-								&& player.job != JOB_MAILMAN && player.job != JOB_LIBRARY) {
-							// TODO this check still doesn't work well
+						} else if (player.job != JOB_MAILMAN && player.job != JOB_LIBRARY
+								&& !map.inZones[ZONE_PLAYER_CELL] && !map.inZones[ZONE_JANITOR]
+								&& !map.inZones[ZONE_GARDENING] && !map.inZones[ZONE_SHU]
+								&& (map.inZones[ZONE_CELLS1] || map.inZones[ZONE_CELLS2] || map.inZones[ZONE_CELLS3]
+								|| map.inZones[ZONE_CELLS4] || map.inZones[ZONE_CELLS5])) {
 							// guard warns player if they're in wrong cell
 							StringBuffer sb = Game.stringBuffer;
 							sb.setLength(0);
@@ -1220,7 +1223,7 @@ class NPC implements Constants {
 						default:
 							break face;
 						}
-						zone = map.findZone(zone);
+						zone = (zone - 1) << 2;
 						moveTowards((map.zones[zone] + map.zones[zone + 2]) / 2, (map.zones[zone + 1] + map.zones[zone + 3]) / 2, 0.1f);
 					}
 				}
@@ -2355,6 +2358,15 @@ class NPC implements Constants {
 			map.usedContrabandPouch = -1;
 		}
 
+		if ((tick & 3) == 0) {
+			boolean[] inZones = map.inZones;
+			int[] zones = map.zones;
+			for (int i = 1; i <= COUNT_ZONES; ++i) {
+				int idx = (i - 1) << 2;
+				inZones[i] = x >= zones[idx] && x <= zones[idx + 2] && y >= zones[idx + 1] && y <= zones[idx + 3];
+			}
+		}
+
 		if (layer == LAYER_GROUND && (outfitItem & Items.ITEM_ID_MASK) != Items.GUARD_OUTFIT && (tick & 15) == 0) {
 			// attendance
 			int schedule = map.routine;
@@ -2362,26 +2374,26 @@ class NPC implements Constants {
 			case SC_MORNING_ROLLCALL:
 			case SC_AFTERNOON_ROLLCALL:
 			case SC_EVENING_ROLLCALL:
-				if (!map.playerWasOnRollcall && isInZone(ZONE_ROLLCALL)) {
+				if (!map.playerWasOnRollcall && map.inZones[ZONE_ROLLCALL]) {
 					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnRollcall = true;
 				}
 				break;
 			case SC_BREAKFAST:
 			case SC_EVENING_MEAL:
-				if (!map.playerWasOnMeal && isInZone(ZONE_CANTEEN)) {
+				if (!map.playerWasOnMeal && map.inZones[ZONE_CANTEEN]) {
 					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnMeal = true;
 				}
 				break;
 			case SC_EXERCISE_PERIOD:
-				if (!map.playerWasOnExcercise && isInZone(ZONE_GYM)) {
+				if (!map.playerWasOnExcercise && map.inZones[ZONE_GYM]) {
 					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnExcercise = true;
 				}
 				break;
 			case SC_SHOWER_BLOCK:
-				if (!map.playerWasOnShowers && isInZone(ZONE_SHOWER)) {
+				if (!map.playerWasOnShowers && map.inZones[ZONE_SHOWER]) {
 					if (map.routineHeatCooldown < 0) map.routineHeatCooldown = TPS;
 					map.playerWasOnShowers = true;
 				}
@@ -2395,7 +2407,7 @@ class NPC implements Constants {
 				&& (layer == LAYER_ROOF || (layer == LAYER_GROUND && getCollision(x, y, true) == COLL_NONE
 				&& !Game.isFloor(map.tiles[LAYER_GROUND][(x / TILE_SIZE) + ((y + 5) / TILE_SIZE) * map.width])))) {
 			if (map.heat >= 90 || ((layer == LAYER_ROOF || map.mapType == MAP_TYPE_INSIDE_ONLY
-					|| (map.mapType == MAP_TYPE_INSIDE && !isInZone(ZONE_SAFE) && (map.time < 10 * 60 || map.time > 22 * 60)))
+					|| (map.mapType == MAP_TYPE_INSIDE && !map.inZones[ZONE_SAFE1] && !map.inZones[ZONE_SAFE2] && (map.time < 10 * 60 || map.time > 22 * 60)))
 					&& outfitId != Textures.OUTFIT_GUARD)
 					|| map.action == ACT_CHIPPING || map.action == ACT_DIGGING || map.action == ACT_CUTTING) {
 				if (map.heat < 99) {

@@ -151,6 +151,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int usedContrabandPouch = -1;
 	int heatTimer;
 	int routineHeatCooldown;
+	boolean[] inZones;
 
 	boolean updateInteractFocus;
 	boolean hasInteractFocus;
@@ -513,11 +514,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				default:
 					break arrow;
 				}
-				zone = findZone(zone);
-				if (zone == -1 || (player.x >= zones[zone] && player.x <= zones[zone + 2]
-						&& player.y >= zones[zone + 1] && player.y <= zones[zone + 3])) {
+				if (inZones[zone]) {
 					break arrow;
 				}
+				zone = (zone - 1) << 2;
 				int zx = (zones[zone] + zones[zone + 2]) / 2;
 				int zy = (zones[zone + 1] + zones[zone + 3]) / 2;
 
@@ -2845,6 +2845,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		player.name = "Player";
 		player.ai = false;
 		player.load(Textures.INMATE4, Textures.OUTFIT_INMATE);
+		inZones = new boolean[COUNT_ZONES + 1];
+		inZones[ZONE_PLAYER_CELL] = true;
 		npcNum = 1;
 
 		String tilesetFile;
@@ -2916,15 +2918,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				// zones
 				{
-					int numZones = in.readByte();
-					int[] zones = this.zones = new int[1 + (numZones * 5)];
-					zones[0] = numZones;
-					for (int i = 0; i < numZones; ++i) {
-						zones[i * 5 + 1] = in.readShort();
-						zones[i * 5 + 2] = in.readShort();
-						zones[i * 5 + 3] = in.readShort();
-						zones[i * 5 + 4] = in.readShort();
-						zones[i * 5 + 5] = in.readByte();
+					int[] zones = this.zones = new int[COUNT_ZONES << 2];
+					for (int i = 0; i < COUNT_ZONES; ++i) {
+						zones[i << 2] = in.readShort();
+						zones[(i << 2) + 1] = in.readShort();
+						zones[(i << 2) + 2] = in.readShort();
+						zones[(i << 2) + 3] = in.readShort();
 					}
 				}
 
@@ -5604,31 +5603,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 	// region Map zones
 
-	int[] zones; // int[5] {count, [x,y,x1,x2,type], ...}
+	int[] zones; // int[4] {[x,y,x1,x2], ... for ZONE_COUNT-1}
 
 	boolean isInZone(int x, int y, int zone) {
-		int[] zones = this.zones;
-		int n = zones[0];
-		for (int i = 0; i < n; ++i) {
-			int idx = i * 5 + 1;
-			if (zones[idx + 4] != zone) continue;
-			if (x >= zones[idx] && x <= zones[idx + 2] &&
-					y >= zones[idx + 1] && y <= zones[idx + 3]) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	int findZone(int zone) {
-		int[] zones = this.zones;
-		int n = zones[0];
-		for (int i = 0; i < n; ++i) {
-			int idx = i * 5 + 1;
-			if (zones[idx + 4] != zone) continue;
-			return idx;
-		}
-		return -1;
+		zone = (zone - 1) << 2;
+		return x >= zones[zone] && x <= zones[zone + 2] &&
+				y >= zones[zone + 1] && y <= zones[zone + 3];
 	}
 
 	// endregion Map zones

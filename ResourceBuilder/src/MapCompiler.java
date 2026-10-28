@@ -59,7 +59,7 @@ public class MapCompiler implements Constants {
 		String routineSet = "MedSec";
 		int mapType = MAP_TYPE_OUTSIDE;
 		
-		Vector<int[]> zones = new Vector<>();
+		int[][] zones = new int[COUNT_ZONES][];
 
 		//noinspection unchecked
 		Vector<int[]>[] objects = new Vector[4];
@@ -617,12 +617,16 @@ public class MapCompiler implements Constants {
 								type = ZONE_ROLLCALL;
 							} else if ("YourCell".equals(key)) {
 								type = ZONE_PLAYER_CELL;
-							} else if ("Cells1".equals(key)
-									|| "Cells2".equals(key)
-									|| "Cells3".equals(key)
-									|| "Cells4".equals(key)
-									|| "Cells5".equals(key)) {
-								type = ZONE_INMATE_CELL;
+							} else if ("Cells1".equals(key)) {
+								type = ZONE_CELLS1;
+							} else if ("Cells2".equals(key)) {
+								type = ZONE_CELLS2;
+							} else if ("Cells3".equals(key)) {
+								type = ZONE_CELLS3;
+							} else if ("Cells4".equals(key)) {
+								type = ZONE_CELLS4;
+							} else if ("Cells5".equals(key)) {
+								type = ZONE_CELLS5;
 							} else if ("Canteen".equals(key)) {
 								type = ZONE_CANTEEN;
 							} else if ("Gym".equals(key)) {
@@ -648,15 +652,15 @@ public class MapCompiler implements Constants {
 							} else if ("SHU".equals(key)) {
 								type = ZONE_SHU;
 							} else if ("Safe1".equals(key)) {
-								type = ZONE_SAFE;
+								type = ZONE_SAFE1;
 							} else if ("Safe2".equals(key)) {
-								type = ZONE_SAFE;
+								type = ZONE_SAFE2;
 							} else {
 								System.out.println("Unrecognized zone: " + key);
 								break zone;
 							}
 
-							zones.add(new int[] { zone[0], zone[1], zone[2], zone[3], type });
+							zones[type - 1] = new int[] { zone[0], zone[1], zone[2], zone[3] };
 						}
 					}
 					if (value && infoSection) {
@@ -853,8 +857,20 @@ public class MapCompiler implements Constants {
 		if (objects[0].isEmpty()) {
 			throw new Exception("no objects");
 		}
-		if (zones.isEmpty()) {
-			throw new Exception("no zones");
+		if (zones[ZONE_PLAYER_CELL - 1] == null) {
+			throw new Exception("no player cell zone");
+		}
+		if (zones[ZONE_ROLLCALL - 1] == null) {
+			throw new Exception("no rollcall zone");
+		}
+		if (zones[ZONE_CANTEEN - 1] == null) {
+			throw new Exception("no canteen zone");
+		}
+		if (zones[ZONE_SHOWER - 1] == null) {
+			throw new Exception("no shower zone");
+		}
+		if (zones[ZONE_GYM - 1] == null) {
+			throw new Exception("no gym zone");
 		}
 		if (jobs[0] == 0) {
 			throw new Exception("no jobs");
@@ -958,14 +974,19 @@ public class MapCompiler implements Constants {
 			}
 
 			// zones
-			System.out.println(zones.size() + " zones");
-			out.writeByte(zones.size());
-			for (int[] zone : zones) {
+			for (int i = 0; i < COUNT_ZONES; ++i) {
+				int[] zone = zones[i];
+				if (zone == null) {
+					out.writeShort(-1);
+					out.writeShort(-1);
+					out.writeShort(-1);
+					out.writeShort(-1);
+					continue;
+				}
 				out.writeShort(zone[0]);
 				out.writeShort(zone[1]);
 				out.writeShort(zone[2]);
 				out.writeShort(zone[3]);
-				out.writeByte(zone[4]);
 			}
 
 			// tiles
