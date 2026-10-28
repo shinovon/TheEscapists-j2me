@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ResourceBuilder">
+    <output-path>$PROJECT_DIR$/deployed/</output-path>
+    <root id="archive" name="ResourceBuilder.jar">
+      <element id="module-output" name="ResourceBuilder" />
+      <element id="module-output" name="common" />
+    </root>
+  </artifact>
+</component>
