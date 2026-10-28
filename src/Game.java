@@ -370,35 +370,42 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			}
 		} else if (state == STATE_SETTINGS) {
 			// settings
-			int i = 0;
+			int i = 0, x;
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "Settings";
 			drawCenteredText(g, s, w, 20, FONT_BOLD);
 
 			if (!NO_SFX) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "SFX volume: ".concat(Integer.toString(Sound.volumeSfx)), 40, 60, FONT_REGULAR);
+				x = drawText(g, "SFX volume: ", 40, 60, FONT_REGULAR);
+				intToCharBuffer(Sound.volumeSfx, 0);
+				drawText(g, charBuffer, x, 60, FONT_REGULAR);
 				i++;
 			}
 
 			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-			drawText(g, "Music volume: ".concat(Integer.toString(Sound.volumeMusic)), 40, 60 + i * 12, FONT_REGULAR);
+			x = drawText(g, "Music volume: ", 40, 60 + i * 12, FONT_REGULAR);
+			intToCharBuffer(Sound.volumeMusic, 0);
+			drawText(g, charBuffer, x, 60 + i * 12, FONT_REGULAR);
 			i++;
 
 			if (DRAW_SHADOWS && supportsAlpha) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "Shadows: ".concat(enableShadows ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+				x = drawText(g, "Shadows: ", 40, 60 + i * 12, FONT_REGULAR);
+				drawText(g, enableShadows ? "On" : "Off", x, 60 + i * 12, FONT_REGULAR);
 				i++;
 			}
 
 			if (USE_M3G) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-				drawText(g, "Light effects: ".concat(use3D ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+				x = drawText(g, "Light effects: ", 40, 60 + i * 12, FONT_REGULAR);
+				drawText(g, use3D ? "On" : "Off", x, 60 + i * 12, FONT_REGULAR);
 				i++;
 			}
 
 			fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-			drawText(g, "Alternative controls: ".concat(altControls ? "On" : "Off"), 40, 60 + i * 12, FONT_REGULAR);
+			x = drawText(g, "Alternative controls: ", 40, 60 + i * 12, FONT_REGULAR);
+			drawText(g, altControls ? "On" : "Off", x, 60 + i * 12, FONT_REGULAR);
 //			i++;
 
 			fontColor = FONT_COLOR_GREY_7F;
