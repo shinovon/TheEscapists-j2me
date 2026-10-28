@@ -93,6 +93,8 @@
 - [ ] Gifting items
 - [ ] Owned items (needed for favors and mail)
 - [ ] Object states and timers (needed for jobs, toilets, cameras)
+- [ ] Stun rods (irongate)
+- [ ] Ziplines
 
 # Low priority
 

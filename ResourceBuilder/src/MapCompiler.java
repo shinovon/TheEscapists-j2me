@@ -597,6 +597,10 @@ public class MapCompiler implements Constants {
 								// TODO
 								break object;
 							}
+							case Objects.MINE: {
+								// TODO
+								break object;
+							}
 							default:
 								// unrecognized object id
 								System.out.println("Unrecognized object: " + objectId + " at " + x + ' ' + y);
