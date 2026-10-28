@@ -4187,6 +4187,12 @@ class NPC implements Constants {
 		fighting = 0;
 		stealing = 0;
 		map.routineHeatCooldown = TPS * 10;
+		if (map.money > 0) {
+			int r = map.money / 10 - rng.nextInt(2);
+			if (r <= 0) r = 1;
+			map.money -= r;
+		}
+
 		if (map.routine == SC_LIGHTSOUT || map.lockdown) {
 			// send to cell bed
 			xFloat = x = bedX * TILE_SIZE;
