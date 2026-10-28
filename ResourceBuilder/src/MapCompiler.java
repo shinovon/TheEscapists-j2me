@@ -210,7 +210,7 @@ public class MapCompiler implements Constants {
 							case Objects.TRAINING_PRESSUPS:
 							case Objects.TRAINING_CHINUP:
 							case Objects.TRAINING_WEIGHT: {
-								checkLayer("training", objectId, x, y, layer, LAYER_GROUND);
+								checkLayer("training", Objects.TRAINING_WEIGHT, x, y, layer, LAYER_GROUND);
 								sprite = 12;
 
 								gymPositions.add(new int[] { objectId, x, y });
