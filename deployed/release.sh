@@ -14,7 +14,7 @@ dos2unix META-INF/MANIFEST.MF && \
 sed -i "s/TE-Build: development/TE-Build: Minimum ($REVISION)/g" META-INF/MANIFEST.MF && \
 unix2dos META-INF/MANIFEST.MF && \
 zip -u TE_Minimum.jar META-INF/*
-cp TE.jar "$TE_DEPLOY_DIR/TE_Minimum.jar"
+cp TE_Minimum.jar "$TE_DEPLOY_DIR/TE_Minimum.jar"
 
 # S40
 cd ../S40 || exit 1
@@ -55,6 +55,14 @@ unix2dos META-INF/MANIFEST.MF && \
 zip -u TE_E6_E7.jar META-INF/*
 cp TE_E6_E7.jar "$TE_DEPLOY_DIR/TE_E6_E7.jar"
 
+# clean orig res
+mkdir "$TE_DEPLOY_DIR/public"
+cp $TE_DEPLOY_DIR/*.jar "$TE_DEPLOY_DIR/public"
+cd ../../res
+for archive in $TE_DEPLOY_DIR/public/*.jar; do
+	zip -d "$archive" "*.wav" "*.png" "map_*"
+	zip -u "$archive" "*"
+done
 
-
-
+zip -d "$TE_DEPLOY_DIR/TE_Minimum.jar" "shadow.png"
+zip -d "$TE_DEPLOY_DIR/public/TE_Minimum.jar" "shadow.png"
