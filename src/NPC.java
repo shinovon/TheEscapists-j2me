@@ -4231,28 +4231,29 @@ class NPC implements Constants {
 
 			if (dist > NPC_INTERACT_DISTANCE) continue;
 
-			boolean facing = false;
-			switch (this.direction) {
-			case DIR_RIGHT:
-				if (dx > 0 && Math.abs(dx) >= Math.abs(dy)) facing = true;
-				break;
-			case DIR_LEFT:
-				if (dx < 0 && Math.abs(dx) >= Math.abs(dy)) facing = true;
-				break;
-			case DIR_UP:
-				if (dy < 0 && Math.abs(dy) >= Math.abs(dx)) facing = true;
-				break;
-			case DIR_DOWN:
-				if (dy > 0 && Math.abs(dy) >= Math.abs(dx)) facing = true;
-				break;
-			}
-
-			if (facing) {
+			facing: {
+				switch (this.direction) {
+				case DIR_RIGHT:
+					if (dx > 0 || Math.abs(dx) < Math.abs(dy)) break facing;
+					break;
+				case DIR_LEFT:
+					if (dx > 0 || Math.abs(dx) < Math.abs(dy)) break facing;
+					break;
+				case DIR_UP:
+					if (dy < 0 || Math.abs(dy) < Math.abs(dx)) break facing;
+					break;
+				case DIR_DOWN:
+					if (dy < 0 || Math.abs(dy) < Math.abs(dx)) break facing;
+					break;
+				}
 				if (dist < bestFacingDist) {
 					bestFacing = other;
 					bestFacingDist = dist;
 				}
-			} else if (dist < bestOtherDist) {
+				continue;
+			}
+
+			if (dist < bestOtherDist) {
 				bestOther = other;
 				bestOtherDist = dist;
 			}
@@ -4265,10 +4266,12 @@ class NPC implements Constants {
 		if (dirt && layer != LAYER_GROUND) return -1;
 		short[] objects = map.objects[dirt ? LAYER_GROUND : LAYER_VENT];
 		if (objects == null) return -1;
+
 		int x = (this.x + 7) / TILE_SIZE;
 		int y = (this.y + 7) / TILE_SIZE;
 		int x1 = x - 1, y1 = y - 1;
 		int x2 = x + 1, y2 = y + 1;
+
 		int n = objects[0] << 2;
 		for (int idx = 0; idx < n; idx += 4) {
 			int ox = objects[idx + 3], oy = objects[idx + 4];
