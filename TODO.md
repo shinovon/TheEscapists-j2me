@@ -92,6 +92,7 @@
 - [ ] Electric fences and generator
 - [ ] Gifting items
 - [ ] Owned items (needed for favors and mail)
+- [ ] Object states and timers (needed for jobs, toilets, cameras)
 
 # Low priority
 
