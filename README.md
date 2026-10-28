@@ -21,7 +21,7 @@ This repository does not contain any original game assets or decompiled code.
 
 ## Building
 
-You have to obtain legal copy of The Escapists [(Steam)](https://store.steampowered.com/app/298630/The_Escapists/), decompile it with CTFAK, then build and run ResourceBuilder with the following arguments:
+You have to obtain legal copy of The Escapists [(Steam)](https://store.steampowered.com/app/298630/The_Escapists/), decompile it with [Nebula](https://github.com/AITYunivers/NebulaFD), then build and run ResourceBuilder with the following arguments:
 ```
 <path to orig_res> <decompiled dir> <game dir>
 ```
@@ -32,7 +32,7 @@ Full example:
 ```bash
 cd ResourceBuilder
 javac -d bin src/*.java
-java -cp bin ResourceBuilder ../orig_res "~/CTFAK/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/"
+java -cp bin ResourceBuilder ../orig_res "~/Nebula/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/"
 ```
 
 To compile the game you may use IntelliJ IDEA integrated with KEmulator nnmod, or Eclipse IDE (not newer than 2021-06!) with MTJ plugin and preprocessing enabled.
