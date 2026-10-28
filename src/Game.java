@@ -175,7 +175,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int[] craftSlots = new int[3];
 	String craftingMessage;
 	NPC profileOpen;
-	int profileTab;
+	int profileTab; // 0 - stats, 1 - gift, 2 - shop
 	boolean outOfRange; // always false
 	int animateHeat;
 	int animateItem = -1;
@@ -2477,7 +2477,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (p == null) p = "null";
 				nokiaE6 = p.startsWith("NokiaE6-") || p.startsWith("NokiaE7-");
 				seP1 = p.startsWith("SonyEricssonP1") || p.startsWith("SonyEricssonM600");
-				altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type")) && !nokiaE6;
+				boolean j2meloader = false;
+				try {
+					j2meloader = Class.forName("javax.microedition.shell.MicroActivity") != null;
+				} catch (Exception ignored) {}
+				altControls = hasPointerEvents() && !"None".equals(System.getProperty("com.nokia.keyboard.type"))
+						&& !nokiaE6 && !j2meloader;
 			}
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
 				Sound.volumeSfx = 0;
