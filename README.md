@@ -32,7 +32,7 @@ Full example:
 ```bash
 cd ResourceBuilder
 javac -d bin src/*.java
-java -cp bin ResourceBuilder ../orig_res "~/Nebula/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/"
+java -cp bin ResourceBuilder ../orig_res "~/Nebula/Dumps/The Escapists" "~/.local/share/Steam/steamapps/common/The Escapists/"
 ```
 
 To compile the game you may use IntelliJ IDEA integrated with KEmulator nnmod, or Eclipse IDE (not newer than 2021-06!) with MTJ plugin and preprocessing enabled.
