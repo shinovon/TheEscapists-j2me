@@ -2854,7 +2854,8 @@ class NPC implements Constants {
 		}
 
 		int item;
-		if (climbed || (map.selectedInventory != -1
+		if (climbed || layer != LAYER_GROUND
+				|| (map.selectedInventory != -1
 				&& (item = (inventory[map.selectedInventory] & Items.ITEM_ID_MASK)) != Items.CUP_OF_MOLTEN_CHOCOLATE
 				&& item != Items.LENGTH_OF_ROPE
 				&& item != Items.ROLL_OF_DUCT_TAPE)) {
@@ -4220,7 +4221,7 @@ class NPC implements Constants {
 
 	NPC getInteractNPC() {
 		NPC[] chars = map.chars;
-		int n = chars.length;
+		int n = map.npcNum;
 		NPC bestFacing = null;
 		int bestFacingDist = Integer.MAX_VALUE;
 
@@ -4229,13 +4230,13 @@ class NPC implements Constants {
 
 		for (int i = 1; i < n; ++i) {
 			NPC other = chars[i];
-			if (other == null || other == this || !canSee(other)) continue;
+			if (other == null || other == this || other.layer != layer) continue;
 
 			int dx = other.x - x;
 			int dy = other.y - y;
 			int dist = dx * dx + dy * dy;
 
-			if (dist > NPC_INTERACT_DISTANCE) continue;
+			if (dist > NPC_INTERACT_DISTANCE || !canSee((other.x + 7) / TILE_SIZE, (other.y + 7) / TILE_SIZE)) continue;
 
 			facing: {
 				switch (this.direction) {
