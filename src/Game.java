@@ -2293,7 +2293,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					if (++selectedMap == n) selectedMap = 0;
 				} else if (gameAction == FIRE) {
 					newGame = true;
-					file = "/".concat(maps[(selectedMap << 1) | 1]);
+					file = "/map_".concat(maps[(selectedMap << 1) | 1]);
 					state = STATE_LOADING;
 				} else if (key == -7) {
 					state = STATE_MENU;
