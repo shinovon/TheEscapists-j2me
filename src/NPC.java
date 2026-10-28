@@ -899,16 +899,16 @@ class NPC implements Constants {
 
 		if (guard && animation == ANIM_REGULAR && aiState != AI_ATTACK && ((tick + id) & 7) == 0) {
 			int item = map.deleteItem((x + 7) / TILE_SIZE, (y + 7) / TILE_SIZE, layer);
-//			if (item != Items.ITEM_NULL) {
-//				item &= Items.ITEM_ID_MASK;
-//				if (item == Items.DIRT) {
-//					map.note = NOTE_SOLITARY;
-//					map.solitaryReason = REASON_DIRT;
-//				} else if (item == Items.WALL_BLOCK) {
-//					map.note = NOTE_SOLITARY;
-//					map.solitaryReason = REASON_WALL_BLOCK;
-//				}
-//			}
+			if (item != Items.ITEM_NULL) {
+				item &= Items.ITEM_ID_MASK;
+				if (item == Items.DIRT) {
+					map.note = NOTE_SOLITARY;
+					map.solitaryReason = REASON_DIRT;
+				} else if (item == Items.WALL_BLOCK) {
+					map.note = NOTE_SOLITARY;
+					map.solitaryReason = REASON_WALL_BLOCK;
+				}
+			}
 		}
 
 		NPC player = map.player;
