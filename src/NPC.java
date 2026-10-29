@@ -502,8 +502,19 @@ class NPC implements Constants {
 
 			if ((x + 7) / TILE_SIZE == map.npcSpawnX && (y + 5) / TILE_SIZE == map.npcSpawnY) {
 				hidden = true;
-			} else {
-				// TODO say
+			} else if (dialogTimer == 0 && (nextDialogTimer == 0 || --nextDialogTimer == 0)) {
+				if (rng.nextInt(20) != 0) {
+					nextDialogTimer = TPS >> 1;
+				} else {
+					if (bodyId == Textures.DOCTOR) {
+						dialog = Game.getSpeechText(Game.TEXT_MED_STAFF, rng.nextInt(Game.TEXT_MED_STAFF_COUNT));
+					} else {
+						dialog = Game.getSpeechText(Game.TEXT_JOB_STAFF, rng.nextInt(Game.TEXT_JOB_STAFF_COUNT));
+					}
+					dialogTimer = TPS * 2;
+					nextDialogTimer = 5 * TPS;
+					dialogNeedLayout = true;
+				}
 			}
 		}
 		if (bodyId == Textures.CHECKPOINT_GUARD) {
@@ -960,10 +971,11 @@ class NPC implements Constants {
 							}
 						} else if (player.climbed) {
 							// guard warns player if they're standing on desk or table
-							heat("Get off that table!", 10);
+							int r = rng.nextInt(3);
+							heat(r == 0 ? "Get off that table!" : r == 1 ? "Get down from there" : "Oi! Get down!", 10);
 						} else if (player.carry != null) {
 							// guard warns player if they're carrying stunned npc
-							heat("Drop it!", 10);
+							heat(rng.nextInt(2) == 0 ? "Drop it!" : "Put that down!", 10);
 						} else if (player.job != JOB_MAILMAN && player.job != JOB_LIBRARY
 								&& !map.inZones[ZONE_PLAYER_CELL] && !map.inZones[ZONE_JANITOR]
 								&& !map.inZones[ZONE_GARDENING] && !map.inZones[ZONE_SHU]

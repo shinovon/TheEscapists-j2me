@@ -7558,6 +7558,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_REP_2 = 6;
 	static final int TEXT_REP_3 = 7;
 	static final int TEXT_GUARD_TALK = 8;
+	static final int TEXT_MED_STAFF = 9;
+	static final int TEXT_JOB_STAFF = 10;
 
 	static final int TEXT_CANTEEN_COUNT = 66;
 	static final int TEXT_GYM_COUNT = 34;
@@ -7568,6 +7570,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static final int TEXT_REP_2_COUNT = 20;
 	static final int TEXT_REP_3_COUNT = 16;
 	static final int TEXT_GUARD_TALK_COUNT = 80;
+	static final int TEXT_MED_STAFF_COUNT = 24;
+	static final int TEXT_JOB_STAFF_COUNT = 31;
 
 	static String getSpeechText(int type, int n) {
 		n += 1;
@@ -8378,6 +8382,126 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				return "I'll break you";
 			case 80:
 				return "Do you think you'll find a cure?";
+			}
+			break;
+		}
+		case TEXT_MED_STAFF: {
+			switch (n) {
+			case 1:
+				return "Time is a healer";
+			case 2:
+				return "Are you in need of medical assistance?";
+			case 3:
+				return "Most wounds sustained in this prison are to the groinal area. FACT!";
+			case 4:
+				return "Adrenaline\nSaline solution\nall the same thing really isn't it?";
+			case 5:
+				return "Hmm, seem to have mixed up the blood test results again";
+			case 6:
+				return "Now, where did I leave that sample..";
+			case 7:
+				return "Good job we have plenty of penicilin in stock!";
+			case 8:
+				return "Nurse!";
+			case 9:
+				return "Sadly he didn't make it...";
+			case 10:
+				return "Your life is in our hands";
+			case 11:
+				return "Dont panic, I'm a doctor!";
+			case 12:
+				return "We're patient with patients";
+			case 13:
+				return "A spoonful of sugar makes the medicine go down";
+			case 14:
+				return "Our patient survival rate is over 30%!";
+			case 15:
+				return "Sadly our last patient flatlined, he never complained though";
+			case 16:
+				return "Those ragamuffins tried raiding this here medical container";
+			case 17:
+				return "No choice but to operate...";
+			case 18:
+				return "Of course we don't want to see our patients die, that's why we have curtains!";
+			case 19:
+				return "TLC will sort that out...";
+			case 20:
+				return "You call that a scar?";
+			case 21:
+				return "It's just a flesh wound";
+			case 22:
+				return "You'll survive";
+			case 23:
+				return "Was that orange juice in that glass or...";
+			case 24:
+				return "Doctor patient confidentiality? Never heard of it!";
+			}
+			break;
+		}
+		case TEXT_JOB_STAFF: {
+			switch (n) {
+			case 1:
+				return "Do a job you can be proud of!";
+			case 2:
+				return "Competitive wages right here!";
+			case 3:
+				return "Always room for more workers";
+			case 4:
+				return "Don't be shy, step right up";
+			case 5:
+				return "Serve your sentence with pride, get employed";
+			case 6:
+				return "Prison industries always needs fresh workers";
+			case 7:
+				return "Think of how employment will look on your parole sheet!";
+			case 8:
+				return "A hard days work makes men of us all";
+			case 9:
+				return "Nothing better than an honest days work";
+			case 10:
+				return "Nothing beats an honest wage";
+			case 11:
+				return "You will find our jobs thoroughly engaging!";
+			case 12:
+				return "Motivation? Not important";
+			case 13:
+				return "Forge a career you can be proud of";
+			case 14:
+				return "Make your fellow prisoners green with envy- apply for a job today!";
+			case 15:
+				return "Background checks? Not needed";
+			case 16:
+				return "Amazing wage packets starting at $1 per day!";
+			case 17:
+				return "Be the talk of your prison- apply for a job today!";
+			case 18:
+				return "Plan for the future with our prison industries pension scheme!";
+			case 19:
+				return "Unmotivated? Useless? We need YOU!";
+			case 20:
+				return "Employment cleanses the soul";
+			case 21:
+				return "No one likes a dead beat";
+			case 22:
+				return "There's no such thing as a free lunch";
+			case 23:
+				return "Regain your honor- with a prison job!";
+			case 24:
+				return "Check the job board for new vacancies";
+			case 25:
+				return "Click on the job board to apply for a job";
+			case 26:
+				return "A working prisoner is a happy prisoner";
+			case 27:
+				return "The devil finds work for idle hands";
+			case 28:
+				return "Check back regular for new vacancies";
+			case 29:
+				return "Make your family proud- get a prison job!";
+			case 30:
+				return "No skills required";
+			case 31:
+				return "On the job training given";
 			}
 			break;
 		}
