@@ -61,6 +61,7 @@
 - [x] Molten chocolate
 - [x] Roof mechanics (grappling hook, rope)
 - [x] Job board
+- [x] Owned items (needed for favors, mail and library)
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
@@ -70,10 +71,10 @@
   - [x] Woodshop
   - [x] Deliveries
   - [x] Metalshop
+  - [x] Mailman
+  - [x] Librarian
   - [ ] Kitchen
   - [ ] Laundry
-  - [ ] Mailman
-  - [ ] Librarian
 - [ ] Guards vision
   - [ ] Guards reacting to holes in walls, floors and vents
   - [ ] Guards check if player is in cell at lights out
@@ -91,7 +92,6 @@
 - [ ] Spotlights
 - [ ] Electric fences and generator
 - [ ] Gifting items
-- [ ] Owned items (needed for favors and mail)
 - [ ] Object states and timers (needed for jobs, toilets, cameras)
 - [ ] Stun rods (irongate)
 - [ ] Ziplines

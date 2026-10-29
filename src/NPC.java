@@ -1610,7 +1610,7 @@ class NPC implements Constants {
 					aiState = AI_RESET;
 				}
 			} else if (targetReached) {
-				if (aiWorkState != 0 && map.removeIllegalItems(aiWorkState) && aiWorkState == map.getContainerByOwner(0)) {
+				if (aiWorkState != 0 && map.removeIllegalItems(aiWorkState) && aiWorkState == player.desk) {
 					map.note = NOTE_SOLITARY;
 					map.solitaryReason = REASON_CONTRABAND;
 				}
@@ -2980,6 +2980,10 @@ class NPC implements Constants {
 		int slot = map.selectedInventory;
 		int item = slot != -1 && inventory[slot] != Items.ITEM_NULL ?
 				inventory[slot] & Items.ITEM_ID_MASK : -1;
+		int itemOwner = -1;
+		if (item != -1) {
+			itemOwner = (inventory[slot] & Items.ITEM_OWNER_MASK) >> Items.ITEM_OWNER_SHIFT;
+		}
 		if (slot != -1) {
 			map.lastSelectedInventory = map.selectedInventory;
 			map.selectedInventory = -1;
@@ -3458,6 +3462,27 @@ class NPC implements Constants {
 					inventory[slot] = Items.ITEM_NULL;
 					return;
 				}
+			} else if (b == COLL_DESK) {
+				int objIdx = map.getObjectIdxAt(x, y, layer);
+				int container = map.getContainer(objIdx);
+
+				if (item == Items.LETTER || item == Items.BOOK) {
+					if (itemOwner == map.containers[container + 1]) {
+						inventory[slot] = Items.ITEM_NULL;
+						if (jobQuota < MAX_JOB_QUOTA && job == (item == Items.LETTER ? JOB_MAILMAN : JOB_LIBRARY)
+								&& map.routine == SC_WORK_PERIOD) {
+							if ((jobQuota += (MAX_JOB_QUOTA / 5)) >= MAX_JOB_QUOTA) {
+								Sound.playEffect(Sound.SFX_HP);
+								jobQuota = MAX_JOB_QUOTA;
+								map.money += job == JOB_MAILMAN ? 65 : 15;
+							} else {
+								Sound.playEffect(Sound.SFX_BUY);
+							}
+						}
+					}
+
+					return;
+				}
 			}
 
 			if (item == Items.UNSIGNED_ID_PAPERS || item == Items.ID_PAPERS) {
@@ -3770,6 +3795,22 @@ class NPC implements Constants {
 						addItem(rng.nextInt(2) == 0 ?
 								(Items.PACKAGE_A | Items.ITEM_DEFAULT_DURABILITY) :
 								(Items.PACKAGE_B | Items.ITEM_DEFAULT_DURABILITY), true);
+					}
+					return;
+				case Objects.JOB_MAILROOM_FILE:
+					if (job == JOB_MAILMAN && map.routine == SC_WORK_PERIOD) {
+						addItem(Items.LETTER | Items.ITEM_DEFAULT_DURABILITY
+								| (map.pickRandomNPC(false, true).id << Items.ITEM_OWNER_SHIFT), true);
+					}
+					return;
+				case Objects.JOB_BOOK_CHEST:
+					if (job == JOB_LIBRARY) {
+						if (map.routine == SC_WORK_PERIOD) {
+							addItem(Items.BOOK | Items.ITEM_DEFAULT_DURABILITY, true);
+						} else {
+							addItem(Items.BOOK | Items.ITEM_DEFAULT_DURABILITY
+									| (map.pickRandomNPC(false, true).id << Items.ITEM_OWNER_SHIFT), true);
+						}
 					}
 					return;
 

@@ -4109,7 +4109,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);
 
 			// TODO reset containers
-			removeIllegalItems(getContainerByOwner(0));
+			removeIllegalItems(player.desk);
 
 			// reset player
 			NPC player = this.player;
@@ -6080,6 +6080,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// from container to inventory
 	void takeItem(int idx, int slot) {
 		if (slot == -1) return;
+
 		int item = containers[idx + 3 + slot];
 		if (player.addItem(item, true)) {
 			containers[idx + 3 + slot] = Items.ITEM_NULL;
@@ -6087,6 +6088,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	boolean removeIllegalItems(int idx) {
+		if (idx == 0) return false;
+
 		boolean res = false;
 		int slots = containers[idx + 2];
 		for (int i = 0; i < slots; ++i) {
