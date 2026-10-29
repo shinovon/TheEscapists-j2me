@@ -2165,7 +2165,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								if (player.statIntellect < intellect) {
 									note = NOTE_JOB_LOW_INTELLECT;
 								} else {
-									if (player.job != 0) {
+									if (player.job != JOB_UNEMPLOYED) {
 										jobs[player.job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
 									}
 									jobs[player.job = jobBoardOpen] = JOB_EXISTING_BIT | player.id;
@@ -3138,7 +3138,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				jobs[0] = in.readByte();
 				for (int i = 1; i < COUNT_JOBS; ++i) {
 					if (in.readByte() != 0) {
-						jobs[i] = JOB_EXISTING_BIT | (player.job == i ? player.id : JOB_UNOCCUPIED);
+						jobs[i] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
 					}
 				}
 
@@ -3392,8 +3392,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				day = saveData.readInt();
 				money = saveData.readInt();
-				for (int i = 0; i < jobs[0]; ++i) {
-					jobs[1 + i] = saveData.readInt();
+				for (int i = 1; i < COUNT_JOBS; ++i) {
+					jobs[i] = saveData.readInt();
 				}
 
 				checkpointOpen = saveData.readBoolean();
@@ -3598,8 +3598,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 			d.writeInt(day);
 			d.writeInt(money);
-			for (int i = 0; i < jobs[0]; ++i) {
-				d.writeInt(jobs[1 + i]);
+			for (int i = 1; i < COUNT_JOBS; ++i) {
+				d.writeInt(jobs[i]);
 			}
 
 			d.writeBoolean(checkpointOpen);
