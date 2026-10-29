@@ -68,7 +68,7 @@ Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on
 - Alpha blending support is required for shadows.
 - Audio mixing and WAV support are required to play sound effects.
 
-See [Builds.md](/Builds.md)
+See [Releases.md](/Releases.md)
 
 ## Tested devices
 
