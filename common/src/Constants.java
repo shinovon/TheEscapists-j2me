@@ -216,7 +216,11 @@ public interface Constants {
 	static final int NOTE_WELCOME = 0,
 			NOTE_FIRED = 1,
 			NOTE_SOLITARY = 2,
-			NOTE_RIOT = 3;
+			NOTE_RIOT = 3,
+			NOTE_JOB_APPLIED = 4,
+			NOTE_JOB_HIGH_HEAT = 5,
+			NOTE_JOB_WORK_PERIOD = 6,
+			NOTE_JOB_LOW_INTELLECT = 7;
 
 	// solitary reasons enum
 	static final int REASON_JEEP = 2,
@@ -243,8 +247,9 @@ public interface Constants {
 
 	static final int MAX_JOB_QUOTA = 20;
 	static final int NPC_JOB_QUOTA_THRESHOLD = 10;
-	static final int JOB_EXISTING_BIT = 1;
-	static final int JOB_OCCUPIED_BIT = 2;
+	static final int JOB_OWNER_MASK = (1 << 8) - 1;
+	static final int JOB_UNOCCUPIED = JOB_OWNER_MASK;
+	static final int JOB_EXISTING_BIT = 1 << 8;
 
 	static final byte COLL_BIT_SOLID_AI = 1 << 4;
 	static final byte COLL_BIT_AVOID_AI = 1 << 5;
@@ -257,6 +262,7 @@ public interface Constants {
 	static final byte COLL_SOLID_TRANSPARENT = 3 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_SOLID_NO_SHADOW = 3 | COLL_BIT_SOLID_AI;
 	static final byte COLL_SOLID_INTERACT = 4 | COLL_BIT_AVOID_AI;
+	static final byte COLL_WALL_INTERACT = 4 | COLL_BIT_SOLID_AI | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_DOOR = 5 | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_DOOR_STAFF = 6 | COLL_BIT_CAST_SHADOW;
 	static final byte COLL_DESK = 7 | COLL_BIT_AVOID_AI;
@@ -343,7 +349,11 @@ public interface Constants {
 			FONT_COLOR_LIGHTBLUE = 10, // 0x9BC4F3
 			FONT_COLOR_YELLOW = 11, // 0xFFFF00
 			FONT_COLOR_DARKBLUE = 12, // 0x003D80
-			FONT_COLOR_GREEN = 13; // 0x00FF00
+			FONT_COLOR_GREEN = 13, // 0x00FF00
+			FONT_COLOR_RED_C0 = 14, // 0xC00000
+			FONT_COLOR_RED_80 = 15, // 0x800000
+			FONT_COLOR_BLUE_0071AA = 16, // 0x0071AA
+			FONT_COLOR_GREEN_80 = 17; // 0x008000
 
 	static final String FONT_REGULAR_RES = "/fontr";
 	static final String FONT_BOLD_RES = "/fontb";

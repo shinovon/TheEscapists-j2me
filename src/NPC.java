@@ -387,8 +387,8 @@ class NPC implements Constants {
 			if (map.routine == SC_WORK_PERIOD && map.prevRoutine != SC_WORK_PERIOD) {
 				jobQuota = 0;
 			} else if (ai && map.prevRoutine == SC_WORK_PERIOD && map.routine != SC_WORK_PERIOD && jobQuota < NPC_JOB_QUOTA_THRESHOLD) {
-				map.jobs[job] &= ~JOB_OCCUPIED_BIT;
-				job = 0;
+				map.jobs[job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
+				job = JOB_UNEMPLOYED;
 			}
 		}
 
@@ -1777,7 +1777,7 @@ class NPC implements Constants {
 		if (s == COLL_NONE || s == COLL_NOT_SOLID_INTERACT || s == COLL_DIGGED_WALL) {
 			return false;
 		}
-		if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_SOLID_INTERACT) {
+		if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_SOLID_INTERACT || s == COLL_WALL_INTERACT) {
 			canClimb = false;
 			return true;
 		}
@@ -1967,7 +1967,7 @@ class NPC implements Constants {
 			if ((x1 != x0 || y1 != y0)
 					&& x1 >= 0 && y1 >= 0 && x1 < w && y1 < h) {
 				byte s = solid[x1 + y1 * w];
-				if (s == COLL_SOLID || s == COLL_POSTER) {
+				if (s == COLL_SOLID || s == COLL_POSTER || s == COLL_WALL_INTERACT) {
 					return false;
 				}
 				if (guard && s == COLL_DIGGED_WALL) {
@@ -3833,6 +3833,15 @@ class NPC implements Constants {
 						dialog = "Inventory full";
 						dialogTimer = TPS * 2;
 					}
+					return;
+				}
+			}
+			if (b == COLL_WALL_INTERACT) {
+				switch (obj) {
+				case Objects.JOB_SELECTION:
+					Sound.playEffect(Sound.SFX_OPEN);
+					map.jobBoardOpen = 0;
+					map.selectedSlot = 0;
 					return;
 				}
 			}

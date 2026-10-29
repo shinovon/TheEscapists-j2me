@@ -60,6 +60,7 @@
 - [x] Bed dummy
 - [x] Molten chocolate
 - [x] Roof mechanics (grappling hook, rope)
+- [x] Job board
 - [ ] NPC interaction (WIP)
 - [ ] Cameras
 - [ ] Player jobs (WIP)
@@ -83,7 +84,6 @@
 - [ ] Help
 - [ ] NPC opinions (WIP)
 - [ ] Recruiting
-- [ ] Employment board
 - [ ] Stepladder
 - [ ] Tying npcs
 - [ ] Jeep

@@ -180,6 +180,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	int animateHeat;
 	int animateItem = -1;
 	int animateItemTimer;
+	int jobBoardOpen = -1;
 
 	boolean debugFreecam;
 
@@ -875,6 +876,19 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					case NOTE_RIOT:
 						t = "Okay ".concat(player.name).concat(", you've made your point!\n\nThe main prison gate is now unlocked as requested, just please.. don't hurt anyone else!");
 						break;
+					case NOTE_JOB_APPLIED:
+						t = "I've stamped your application as approved- welcome to prison industries!\n\nComplete your quota and you'll get paid, fail to meet it and consider yourself fired!";
+						break;
+					case NOTE_JOB_HIGH_HEAT:
+						t = "The cheek of applying for a job while you're in bad standing with the guards!\n\nLearn to respect the basic rules of our fine prison and try again later. Scoot!";
+						break;
+					case NOTE_JOB_WORK_PERIOD:
+						t = "I'm far too busy to be processing requests like this during a work period!\n\nMove along and try again later..";
+						break;
+					case NOTE_JOB_LOW_INTELLECT:
+						// TODO
+						t = "You need at least $int intellect to apply for that job, so your application has been declined and filed neatly away down my toilet.\n\nSmarten yourself up boy!";
+						break;
 					default:
 						t = "Error!";
 						break;
@@ -1119,6 +1133,149 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				if (npc.inmate && npc.ai) {
 					// TODO tabs
+				}
+			} else if (jobBoardOpen != -1) {
+				pausedOverlay = true;
+
+				int nw = 180;
+				int nh = 180;
+				int nx = (w - nw) >> 1;
+				int ny = (h - nh) >> 1;
+
+				g.setColor(0x7B3323);
+				g.fillRect(nx, ny, nw, nh);
+				g.setColor(0xEBEBEB);
+				g.fillRect(nx + 4, ny + 4, nw - 8, nh - 8);
+				g.setColor(0x974B33);
+				g.drawRect(nx + 1, ny + 1, nw - 2, nh - 2);
+				g.setColor(0x080000);
+				g.drawRect(nx + 4, ny + 4, nw - 9, nh - 9);
+				g.setColor(0xBBBBBB);
+				g.drawRect(nx + 5, ny + 5, nw - 11, nh - 11);
+				g.setColor(0);
+				g.drawRect(nx, ny, nw - 1, nh - 1);
+
+				fontColor = FONT_COLOR_RED_C0;
+
+				if (jobBoardOpen == 0) {
+					drawCenteredText(g, "JOB BOARD", w, ny + 15, FONT_BOLD);
+
+					int[] jobs = this.jobs;
+					int n = jobs[0];
+					int ty = (nh - n * 18) >> 1;
+					StringBuffer sb = stringBuffer;
+					int i = 0;
+					for (int job = 1; job < COUNT_JOBS; ++job) {
+						if ((jobs[job] & JOB_EXISTING_BIT) == 0) continue;
+						sb.setLength(0);
+						sb.append(jobStrings[job]).append(": ");
+						int owner = jobs[job] & JOB_OWNER_MASK;
+						if (owner == JOB_UNOCCUPIED) {
+							fontColor = FONT_COLOR_GREEN_80;
+							sb.append("Vacancy");
+						} else if (owner == 0) {
+							fontColor = FONT_COLOR_BLUE_0071AA;
+							sb.append(player.name);
+						} else {
+							fontColor = FONT_COLOR_RED_80;
+							sb.append(chars[owner].name);
+						}
+						if (i == selectedSlot) {
+							g.setColor(0xFFFFCB);
+							g.fillRect(nx + 30, ny + ty, 120, 14);
+						}
+						g.setColor(0xBBBBBB);
+						g.drawRect(nx + 30, ny + ty, 120, 14);
+						drawCenteredText(g, sb.toString(), w, ny + ty + 3, FONT_REGULAR);
+						ty += 18;
+						i++;
+					}
+				} else {
+					String[] a = noteText;
+					int ty = 37;
+					int tx = 10;
+					init: {
+						String t;
+						switch (jobBoardOpen) {
+						case JOB_LAUNDRY:
+							drawCenteredText(g, "LAUNDRY POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "Your criminal attitude stinks, and so do your overalls! The only thing I want to smell on you inmates is the fresh scent of justice.\n\nTake dirty outfits from the container in the laundry room and place them into the washers. Once spun, take them out and put them into the clean laundry container.";
+							break;
+						case JOB_GARDENING:
+							drawCenteredText(g, "GARDENER POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "Dream of working in the great outdoors Being at one with nature and all that Then introduce yourself to the weeds plaguing our courtyards.\n\nCollect a hoe from the gardening office and use it to remove weeds around the prison grounds.";
+							break;
+						case JOB_JANITOR:
+							drawCenteredText(g, "JANITOR POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "Clean up your act and clean up our floors whilst you're at it! I want you to make those floors, the foundations of YOUR reform, look their best.\n\nCollect a mop or broom from the janitor office and use it to remove patches of dirt you find around the prison.";
+							break;
+						case JOB_WOODSHOP:
+							drawCenteredText(g, "WOODSHOP POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "Responsibly sourced by us, irresponsibly hammered together by you lot. Our wood shop has found quite the market for our ‘vintage inspired’ furniture. No craftsmanship required, the prison is NOT responsible for splinters.\n\nTake three timbers from the container in the woodshop and craft them into furniture. Place the finished product in the furniture container.";
+							break;
+						case JOB_METALSHOP:
+							drawCenteredText(g, "METALSHOP POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "The automotive industry is booming! The only booming you will hear is the sound of licence plates being pressed. The harder you work, the sooner I get my sporty little convertible.\n\nTake metal sheets from the container in the metalshop and use them on the presses to create license plates. Put the finished plates in the relevant container.";
+							break;
+						case JOB_KITCHEN:
+							drawCenteredText(g, "KITCHEN POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "The inspectors call it hazardous, I call it 'Rustic'. A sense of taste andor smell is not essential. Don’t worry about washing your hands.\n\nTake uncooked food from the freezer in the kitchen and place them in the ovens. Once cooked, take them out and put them on the serving trays in the canteen.";
+							break;
+						case JOB_DELIVERIES:
+							drawCenteredText(g, "DELIVERIES POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "What's inside those boxes isn't of concern to you. I just want them moving UNTAMPERED to where they need to go. \n\nTake packages from the delivery truck and place them in the relevant storage containers.\n";
+							break;
+						case JOB_TAILOR:
+							drawCenteredText(g, "TAILOR POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "As a prison, we are proud of our contract with famous clothing brand 'Adidoodoo' and are determined to meet their need for high quality, hand crafted garments.\n\nTake three pieces of fabric from the container in the tailorshop and craft them into an item of clothing. Place the finished product in the clothing container.\n";
+							break;
+						case JOB_MAILMAN:
+							drawCenteredText(g, "MAILMAN POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "I hate to be the bearer of bad news, which is why I'm asking you to do it for me.\n\nCollect mail from the mailroom and deliver it to the inmates it's addressed to. You can either give it to them personally or leave it ON (not in) their cell desk.";
+							break;
+						case JOB_LIBRARY:
+							drawCenteredText(g, "LIBRARIAN POSITION", w, ny + 15, FONT_BOLD);
+							if (a != null) break init;
+
+							t = "You lot accuse the library of being understocked, but I assure you it’s a 'modest' collection of the finest literary works available. Not the inane jumble of expletives and filth you rabble are used to on the outside.\n\nCollect books from the library and deliver them to the inmates they’re addressed to. You can either give it to them personally or leave it ON (not in) their cell desk.";
+							break;
+						default:
+							break init;
+						}
+						a = noteText = getStringArray(noteText = new String[30], t, nw - tx * 2, FONT_REGULAR);
+					}
+					fontColor = FONT_COLOR_GREY_23;
+					int n = a.length;
+					for (int i = 0; i < n; ++i) {
+						if (a[i] == null) break;
+						drawText(g, a[i], nx + tx, ny + ty, FONT_REGULAR);
+						ty += fontCharHeight[FONT_REGULAR];
+					}
+
+					fontColor = FONT_COLOR_GREY_B4;
+					if (player.job == jobBoardOpen) {
+						drawCenteredText(g, "PRESS FIRE TO RESIGN", w, ny + nh - 16, FONT_REGULAR);
+					} else if ((jobs[jobBoardOpen] & JOB_OWNER_MASK) == JOB_UNOCCUPIED) {
+						drawCenteredText(g, "PRESS FIRE TO APPLY", w, ny + nh - 16, FONT_REGULAR);
+					}
 				}
 			} else {
 				pausedOverlay = false;
@@ -1959,6 +2116,62 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									Sound.playEffect(Sound.SFX_BUY);
 								}
 								break;
+							}
+						}
+					}
+				} else if (jobBoardOpen != -1) {
+					if (key == -7) {
+						if (jobBoardOpen == 0) {
+							jobBoardOpen = -1;
+						} else {
+							jobBoardOpen = 0;
+						}
+						noteText = null;
+					} else if (jobBoardOpen == 0) {
+						if (gameAction == UP) {
+							if (--selectedSlot == -1) {
+								selectedSlot = jobs[0] - 1;
+							}
+						} else if (gameAction == DOWN) {
+							if (++selectedSlot == jobs[0]) {
+								selectedSlot = 0;
+							}
+						} else if (gameAction == FIRE) {
+							int i = 0;
+							for (int job = 1; job < COUNT_JOBS; ++job) {
+								if ((jobs[job] & JOB_EXISTING_BIT) == 0) continue;
+								if (selectedSlot == i) {
+									jobBoardOpen = job;
+									break;
+								}
+								i++;
+							}
+						}
+					} else if (gameAction == FIRE) {
+						if (jobBoardOpen == player.job) {
+							// resign
+							jobBoardOpen = 0;
+							jobs[player.job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
+							player.job = JOB_UNEMPLOYED;
+						} else if ((jobs[jobBoardOpen] & JOB_OWNER_MASK) == JOB_UNOCCUPIED) {
+							// apply
+							noteText = null;
+							if (heat >= 50) {
+								note = NOTE_JOB_HIGH_HEAT;
+							} else if (routine == SC_WORK_PERIOD) {
+								note = NOTE_JOB_WORK_PERIOD;
+							} else {
+								int intellect = 1; // TODO
+								if (player.statIntellect < intellect) {
+									note = NOTE_JOB_LOW_INTELLECT;
+								} else {
+									if (player.job != 0) {
+										jobs[player.job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
+									}
+									jobs[player.job = jobBoardOpen] = JOB_EXISTING_BIT | player.id;
+									note = NOTE_JOB_APPLIED;
+									jobBoardOpen = 0;
+								}
 							}
 						}
 					}
@@ -2925,7 +3138,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				jobs[0] = in.readByte();
 				for (int i = 1; i < COUNT_JOBS; ++i) {
 					if (in.readByte() != 0) {
-						jobs[i] |= JOB_EXISTING_BIT;
+						jobs[i] = JOB_EXISTING_BIT | (player.job == i ? player.id : JOB_UNOCCUPIED);
 					}
 				}
 
@@ -3584,7 +3797,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// assign jobs
 			int jobsLeft = jobs[0];
 			if (player.job != JOB_UNEMPLOYED) {
-				jobs[player.job] |= JOB_OCCUPIED_BIT;
+				jobs[player.job] = JOB_EXISTING_BIT | player.id;
 				jobsLeft -= 1;
 			}
 
@@ -3605,10 +3818,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (npc.inmate) {
 					if (jobsLeft > 0) {
 						for (int k = 1; k < COUNT_JOBS; ++k) {
-							if ((jobs[k] & JOB_EXISTING_BIT) == 0 || (jobs[k] & JOB_OCCUPIED_BIT) != 0)
+							if ((jobs[k] & JOB_EXISTING_BIT) == 0 || (jobs[k] & JOB_OWNER_MASK) != JOB_UNOCCUPIED)
 								continue;
 							npc.job = k;
-							jobs[k] |= JOB_OCCUPIED_BIT;
+							jobs[k] = JOB_EXISTING_BIT | npc.id;
 							jobsLeft--;
 							break;
 						}
@@ -3710,7 +3923,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								if ((x1 != x0 || y1 != y0)
 										&& x1 >= 0 && y1 >= 0 && x1 < width && y1 < height) {
 									byte s = solid[x1 + y1 * width];
-									if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_DOOR) {
+									if (s == COLL_SOLID || s == COLL_SOLID_TRANSPARENT || s == COLL_WALL_INTERACT || s == COLL_DOOR) {
 										break;
 									}
 								}
@@ -3768,10 +3981,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				npc.updateItems();
 				if (npc.job == 0) {
 					for (int k = 1; k < COUNT_JOBS; ++k) {
-						if ((jobs[k] & JOB_EXISTING_BIT) == 0 || (jobs[k] & JOB_OCCUPIED_BIT) != 0)
+						if ((jobs[k] & JOB_EXISTING_BIT) == 0 || (jobs[k] & JOB_OWNER_MASK) != JOB_UNOCCUPIED)
 							continue;
 						npc.job = k;
-						jobs[k] |= JOB_OCCUPIED_BIT;
+						jobs[k] = JOB_EXISTING_BIT | npc.id;
 						break;
 					}
 				}
@@ -4016,8 +4229,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					case SC_WORK_PERIOD:
 						if (player.job != 0 && player.jobQuota < MAX_JOB_QUOTA) {
 							// fire player
-							jobs[player.job] &= ~JOB_OCCUPIED_BIT;
-							player.job = 0;
+							jobs[player.job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
+							player.job = JOB_UNEMPLOYED;
 							note = NOTE_FIRED;
 //				Sound.playEffect(Sound.SFX_OPEN);
 						}
@@ -4410,7 +4623,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							// wall shadows
 							if (drawShadows && i + yoff > 1 && j + xoff > 1) {
 								byte s = solid[pos];
-								if (s != COLL_SOLID && s != COLL_SOLID_TRANSPARENT) {
+								if (s != COLL_SOLID && s != COLL_SOLID_TRANSPARENT && s != COLL_WALL_INTERACT) {
 									byte t = solid[j + xoff + (i + yoff - 1) * width];
 									byte l = solid[j + xoff - 1 + (i + yoff) * width];
 									byte tl = solid[j + xoff - 1 + (i + yoff - 1) * width];
@@ -5003,6 +5216,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 											break interact;
 										case Objects.PAYPHONE:
 											s = "Payphone";
+											break interact;
+										}
+									}
+									if (b == COLL_WALL_INTERACT) {
+										switch (obj) {
+										case Objects.SECURITY_CAMERA:
+											s = "Camera";
+											break interact;
+										case Objects.JOB_SELECTION:
+											s = "Job Board";
 											break interact;
 										}
 									}
@@ -6002,7 +6225,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.CABLE_TV:
 		case Objects.WASHING_MACHINE:
 		case Objects.STASH:
-		case Objects.JOB_SELECTION:
 		case Objects.SINK:
 		case Objects.GUARD_BED:
 		case Objects.TRAINING_BOOKSHELF:
@@ -6017,6 +6239,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		case Objects.GENERATOR:
 		case Objects.SUN_LOUNGER:
 			return Game.COLL_SOLID_INTERACT;
+		case Objects.JOB_SELECTION:
+		case Objects.SECURITY_CAMERA:
+			return Game.COLL_WALL_INTERACT;
 		case Objects.FREEZER:
 		case Objects.JOB_DIRTY_LAUNDRY:
 		case Objects.JOB_CLEAN_LAUNDRY:
@@ -8733,6 +8958,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			0xFFFFFF00,
 			0xFF003D80,
 			0xFF00FF00,
+			0xFFC00000,
+			0xFF800000,
+			0xFF0071AA,
+			0xFF008000,
 	};
 
 	static int[] fontCharWidth;
