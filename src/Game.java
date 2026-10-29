@@ -5310,6 +5310,25 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									break interact;
 								}
 								break box;
+							} else if (item == Items.BOOK || item == Items.LETTER) {
+								int idx = getObjectIdxAt(x, y, layer);
+								int obj = idx == -1 ? -1 : objects[idx + 1];
+
+								if (b == COLL_DESK) {
+									if (obj == Objects.PLAYER_DESK) {
+										s = "Your desk";
+										break interact;
+									}
+
+									int owner = this.containers[getContainer(idx) + 1];
+									if (owner < 0) {
+										s = "Unoccupied Desk";
+									} else {
+										s = chars[owner].name.concat("s desk");
+									}
+									break interact;
+								}
+								break box;
 							} else {
 								byte t = layer == LAYER_VENT && objects != null
 										&& (objects[getObjectIdxAt(x, y, layer) + 1] & 0xFF) == Objects.VENT_SLATS
