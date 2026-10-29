@@ -19,6 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+import com.mascotcapsule.micro3d.v3.AffineTrans;
+import com.mascotcapsule.micro3d.v3.Effect3D;
+import com.mascotcapsule.micro3d.v3.FigureLayout;
 import com.nokia.mid.ui.DirectGraphics;
 import com.nokia.mid.ui.DirectUtils;
 
@@ -397,7 +400,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				i++;
 			}
 
-			if (USE_M3G) {
+			if (USE_M3G || USE_MASCOT_CAPSULE) {
 				fontColor = selectedSetting == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
 				x = drawText(g, "Light effects: ", 40, 60 + i * 12, FONT_REGULAR);
 				drawText(g, use3D ? "On" : "Off", x, 60 + i * 12, FONT_REGULAR);
@@ -440,7 +443,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
 			int vw = w, vh = h;
 			if (player.layer == LAYER_UNDERGROUND) {
-				if (USE_M3G && undergroundLightSize != prevUndergroundLightSize) {
+				if (undergroundLightSize != prevUndergroundLightSize) {
 					prevUndergroundLightSize = undergroundLightSize;
 					resetCamera = true;
 				}
@@ -1401,7 +1404,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				viewWidth = w;
 				viewHeight = h;
 			}
-			if (USE_M3G) update3DSize = true;
+			if (USE_M3G || USE_MASCOT_CAPSULE) update3DSize = true;
 		}
 
 		if (!BUFFER_SCREEN) {
@@ -2382,7 +2385,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (!NO_SFX) numSettings++;
 				numSettings++; // music volume
 				if (DRAW_SHADOWS && supportsAlpha) numSettings++;
-				if (USE_M3G) numSettings++;
+				if (USE_M3G || USE_MASCOT_CAPSULE) numSettings++;
 				numSettings++; // alt controls
 
 				if (gameAction == UP) {
@@ -2430,7 +2433,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							i--;
 						}
 
-						if (USE_M3G) {
+						if (USE_M3G || USE_MASCOT_CAPSULE) {
 							if (i == 0) {
 								use3D = !use3D;
 								break set;
@@ -2545,6 +2548,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
+
+					player.layer = LAYER_UNDERGROUND;
 
 //					int desk = player.desk;
 //					containers[3 + desk + 4] = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
@@ -2733,7 +2738,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					i = d.readInt();
 					if (!NO_SFX) Sound.volumeSfx = i;
 					b = d.readBoolean();
-					if (USE_M3G) use3D = b;
+					if (USE_M3G || USE_MASCOT_CAPSULE) use3D = b;
 					b = d.readBoolean();
 					if (DRAW_SHADOWS) enableShadows = b;
 					b = d.readBoolean();
@@ -2886,7 +2891,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 							x = Math.min(Math.max(x, 0), width * TILE_SIZE - viewWidth);
 							y = Math.min(Math.max(y, 0), height * TILE_SIZE - viewHeight);
 						} else if (resetCamera) {
-							if (USE_M3G) update3DSize = true;
+							if (USE_M3G || USE_MASCOT_CAPSULE) update3DSize = true;
 							resetCamera = false;
 							x = Math.min(Math.max(player.x - (viewWidth >> 1) + (TILE_SIZE >> 1), 0), width * TILE_SIZE - viewWidth);
 							y = Math.min(Math.max(player.y - (viewHeight >> 1) + (TILE_SIZE >> 1), 0), height * TILE_SIZE - viewHeight);
@@ -2984,7 +2989,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			d.writeInt(CONFIG_VERSION);
 			d.writeInt(Sound.volumeMusic);
 			d.writeInt(NO_SFX ? 0 : Sound.volumeSfx);
-			d.writeBoolean(USE_M3G && use3D);
+			d.writeBoolean((USE_M3G || USE_MASCOT_CAPSULE) && use3D);
 			d.writeBoolean(DRAW_SHADOWS && enableShadows);
 			d.writeBoolean(altControls);
 
@@ -4074,7 +4079,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		fatigue = 20;
 		cellsClosed = true;
 
-		if (USE_M3G) update3DLightingColor();
+		if (USE_M3G || USE_MASCOT_CAPSULE) update3DLightingColor();
 	}
 
 	void startLockdown() {
@@ -4327,7 +4332,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			}
 
-			if (USE_M3G && time >= 7 * 60 && time <= 21 * 60 + 128 && globalVertexBuffer != null) {
+			if (((USE_M3G && globalVertexBuffer != null) || (USE_MASCOT_CAPSULE && globalColors != null))
+					&& time >= 7 * 60 && time <= 21 * 60 + 128) {
 				update3DLightingColor();
 			}
 		}
@@ -4929,6 +4935,90 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				}
 			}
 			release3D();
+		} else if (USE_MASCOT_CAPSULE) {
+			setupMascot(g, viewWidth, viewHeight);
+			if (use3D) {
+				int xOffset = TILE_SIZE - (viewWidth >> 1);
+				int yOffset = viewHeight >> 1;
+				if (DRAW_LIGHTS) {
+					if (layer == LAYER_GROUND && lights != null) {
+						short[] lights = this.lights;
+						int n = lights[0];
+						for (int i = 0; i < n; ++i) {
+							int idx = i << 1;
+
+							int x = lights[idx + 1] * TILE_SIZE - viewX, y = lights[idx + 2] * TILE_SIZE - viewY;
+							// off-screen culling
+							if (x < -TILE_SIZE * 3 || y < -TILE_SIZE * 3 || x >= viewWidth + TILE_SIZE * 3 || y >= viewHeight + TILE_SIZE * 3) {
+								continue;
+							}
+
+							mascotGraphics.renderPrimitives(lightMascotTexture,
+									x + xOffset, y - yOffset,
+									figureLayout, effect3d,
+									com.mascotcapsule.micro3d.v3.Graphics3D.PRIMITVE_QUADS
+											| com.mascotcapsule.micro3d.v3.Graphics3D.PDATA_TEXURE_COORD
+											| com.mascotcapsule.micro3d.v3.Graphics3D.PATTR_BLEND_ADD,
+									1,
+									lightVertexCoords, lightVertexCoords,
+									lightTextureCoords, lightVertexCoords);
+						}
+					} else if (layer == LAYER_UNDERGROUND) {
+						int scale = (int) ((undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f)) * (TILE_SIZE * 512));
+						figureLayout.setScale(scale, scale);
+						mascotGraphics.renderPrimitives(undergroundMascotTexture,
+								0, 0,
+								figureLayout, effect3d,
+								com.mascotcapsule.micro3d.v3.Graphics3D.PRIMITVE_QUADS
+										| com.mascotcapsule.micro3d.v3.Graphics3D.PDATA_TEXURE_COORD
+										| com.mascotcapsule.micro3d.v3.Graphics3D.PATTR_BLEND_SUB,
+								1,
+								lightVertexCoords, lightVertexCoords,
+								lightTextureCoords, lightVertexCoords);
+					}
+				}
+
+				figureLayout.setParallelSize(viewWidth, viewHeight);
+				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
+					// vent tint
+					mascotGraphics.renderPrimitives(null,
+							0, 0,
+							figureLayout, effect3d,
+							com.mascotcapsule.micro3d.v3.Graphics3D.PRIMITVE_QUADS
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PDATA_COLOR_PER_FACE
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PATTR_BLEND_HALF,
+							1,
+							globalVertexCoords, globalVertexCoords,
+							lightTextureCoords, tintColors);
+				} else if (layer != LAYER_UNDERGROUND
+						&& (time < 7 * 60 + 128 || time > 21 * 60)
+						&& (player.climbed ? layer == LAYER_VENT : layer == player.layer)) {
+					mascotGraphics.renderPrimitives(null,
+							0, 0,
+							figureLayout, effect3d,
+							com.mascotcapsule.micro3d.v3.Graphics3D.PRIMITVE_QUADS
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PDATA_COLOR_PER_FACE
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PATTR_BLEND_SUB,
+							1,
+							globalVertexCoords, globalVertexCoords,
+							lightTextureCoords, globalColors);
+				}
+
+				if (pausedOverlay && layer == (player.climbed ? LAYER_VENT : player.layer)) {
+					// pause tint
+					mascotGraphics.renderPrimitives(null,
+							0, 0,
+							figureLayout, effect3d,
+							com.mascotcapsule.micro3d.v3.Graphics3D.PRIMITVE_QUADS
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PDATA_COLOR_PER_FACE
+									| com.mascotcapsule.micro3d.v3.Graphics3D.PATTR_BLEND_HALF,
+							1,
+							globalVertexCoords, globalVertexCoords,
+							lightTextureCoords, tintColors);
+				}
+				mascotGraphics.flush();
+			}
+			releaseMascot(g);
 		}
 
 		if (layer == LAYER_UNDERGROUND) {
@@ -5632,6 +5722,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// endregion Map render
 
 	// region 3D
+	static Image2D light3dTexture;
+	static Image2D underground3dTexture;
+
 	Graphics3D graphics3D;
 	Transform cameraTransform;
 	Camera camera;
@@ -5752,7 +5845,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						(short) -viewWidth, (short) -viewHeight, 0,
 						(short) viewWidth,  (short) -viewHeight, 0,
 						(short) viewWidth,  (short) viewHeight, 0,
-						(short) -viewWidth, (short)  viewHeight, 0
+						(short) -viewWidth, (short) viewHeight, 0
 				};
 
 				int[] strips = { 0, 1, 3, 2 };
@@ -5797,7 +5890,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	}
 
 	private void update3DLightingColor() {
-		int r = 255, g = 255, b = 255;
 		int add = 0;
 		if (time > 7 * 60 && time < 7 * 60 + 128) {
 			add = 128 - time + 7 * 60;
@@ -5806,13 +5898,95 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		} else if (time <= 7 * 60 || time >= 23 * 60) {
 			add = 128;
 		}
-		r -= ((r * add * 390) >> 16);
-		g -= ((g * add * 385) >> 16);
-		b -= ((b * add * 260) >> 16);
-		globalLightColor = (r << 16) | (g << 8) | b;
+
+		if (USE_MASCOT_CAPSULE) {
+			if (globalColors == null) {
+				globalColors = new int[4];
+				tintColors = new int[4];
+			}
+			int color = (((add * 180 * 390) >> 16) << 16)
+					| (((add * 180 * 385) >> 16) << 8)
+					| ((add * 180 * 260) >> 16);
+			globalColors[0] = globalColors[1] = globalColors[2] = globalColors[3] = color;
+		} else if (USE_M3G) {
+			globalLightColor = ((255 - ((add * 255 * 390) >> 16)) << 16)
+					| ((255 - ((add * 255 * 385) >> 16)) << 8)
+					| (255 - ((add * 255 * 260) >> 16));
+		}
 	}
 
 	// endregion 3D
+
+	// region Mascot 3D
+
+	static com.mascotcapsule.micro3d.v3.Texture lightMascotTexture;
+	static com.mascotcapsule.micro3d.v3.Texture undergroundMascotTexture;
+
+	com.mascotcapsule.micro3d.v3.Graphics3D mascotGraphics;
+	FigureLayout figureLayout;
+	Effect3D effect3d;
+	AffineTrans affineTrans;
+	boolean mascotBound;
+
+	int[] lightVertexCoords;
+	int[] lightTextureCoords;
+	int[] globalVertexCoords;
+	int[] globalColors;
+	int[] tintColors;
+
+	private void setupMascot(Graphics g, int viewWidth, int viewHeight) {
+		if (!use3D) return;
+
+		try {
+			if (mascotGraphics == null) {
+				mascotGraphics = new com.mascotcapsule.micro3d.v3.Graphics3D();
+				figureLayout = new FigureLayout();
+				effect3d = new Effect3D();
+				effect3d.setTransparency(true);
+
+				lightVertexCoords = new int[] {
+						-TILE_SIZE * 2, -TILE_SIZE * 2, 0,
+						TILE_SIZE * 2,  -TILE_SIZE * 2, 0,
+						TILE_SIZE * 2,  TILE_SIZE * 2,  0,
+						-TILE_SIZE * 2, TILE_SIZE * 2,  0
+				};
+
+				lightTextureCoords = new int[]{
+						0, 64,
+						64, 64,
+						64, 0,
+						0, 0
+				};
+
+				globalVertexCoords = new int[] {
+						-viewWidth, -viewHeight, 0,
+						viewWidth,  -viewHeight, 0,
+						viewWidth,  viewHeight, 0,
+						-viewWidth, viewHeight, 0
+				};
+
+				affineTrans = new AffineTrans();
+				affineTrans.setIdentity();
+				figureLayout.setAffineTrans(affineTrans);
+
+				update3DLightingColor();
+			}
+			figureLayout.setCenter(this.viewWidth >> 1, this.viewHeight >> 1);
+			figureLayout.setParallelSize(viewWidth, viewHeight);
+			mascotGraphics.bind(g);
+			mascotBound = true;
+		} catch (Throwable e) {
+			use3D = false;
+		}
+	}
+
+	private void releaseMascot(Graphics g) {
+		if (mascotGraphics == null || !mascotBound) return;
+		mascotGraphics.release(g);
+		mascotBound = false;
+	}
+
+	// endregion Mascot 3D
 
 	// region Map items
 
@@ -9345,8 +9519,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	static Image objectsTexture;
 	static Image groundTexture;
 	static Image shadowsTexture;
-	static Image2D light3dTexture;
-	static Image2D underground3dTexture;
 	static Image hudSymbolsTexture;
 	static Image markersTexture;
 
@@ -9359,9 +9531,14 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			itemsTexture = loadTiles("/items.png");
 			objectsTexture = loadTiles("/objects.png");
 			if (DRAW_SHADOWS) shadowsTexture = loadTiles("/shadow.png");
-			if (DRAW_LIGHTS && USE_M3G) {
-				light3dTexture = (Image2D) Loader.load("/light.png")[0];
-				underground3dTexture = (Image2D) Loader.load("/underground.png")[0];
+			if (DRAW_LIGHTS) {
+				if (USE_M3G) {
+					light3dTexture = (Image2D) Loader.load("/light.png")[0];
+					underground3dTexture = (Image2D) Loader.load("/underground.png")[0];
+				} else if (USE_MASCOT_CAPSULE) {
+					lightMascotTexture = new com.mascotcapsule.micro3d.v3.Texture("/light.bmp", true);
+					undergroundMascotTexture = new com.mascotcapsule.micro3d.v3.Texture("/underground.bmp", true);
+				}
 			}
 
 			loadSpritesheet(Textures.INMATE4, "/inmate4.png");

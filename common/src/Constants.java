@@ -69,6 +69,8 @@ public interface Constants {
 	static final boolean NOKIAUI_SHADOWS = false;
 	// Use M3G for light effects
 	static final boolean USE_M3G = true;
+	// Use MascotCapsule for light effects
+	static final boolean USE_MASCOT_CAPSULE = false;
 	// Use TiledLayer instead of drawRegion
 	//  more heap usage and slower on s60, but faster on s40
 	static final boolean USE_TILED_LAYER = false;
@@ -119,6 +121,12 @@ public interface Constants {
 //#	static final boolean USE_M3G = true;
 //#else
 //#expand static final boolean USE_M3G = %USE_M3G%;
+//#endif
+
+//#if USE_MASCOT_CAPSULE == ""
+//#	static final boolean USE_MASCOT_CAPSULE = true;
+//#else
+//#expand static final boolean USE_MASCOT_CAPSULE = %USE_MASCOT_CAPSULE%;
 //#endif
 
 //#if USE_TILED_LAYER == ""

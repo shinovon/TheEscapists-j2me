@@ -27,6 +27,17 @@ unix2dos META-INF/MANIFEST.MF && \
 zip -u TE_S40.jar META-INF/*
 cp TE_S40.jar "$TE_DEPLOY_DIR/TE_S40.jar"
 
+# SE
+cd ../SE || exit 1
+cp TE.jar TE_SE.jar
+mkdir META-INF
+unzip -p TE_SE.jar META-INF/MANIFEST.MF > META-INF/MANIFEST.MF && \
+dos2unix META-INF/MANIFEST.MF && \
+sed -i "s/TE-Build: development/TE-Build: SE ($REVISION)/g" META-INF/MANIFEST.MF && \
+unix2dos META-INF/MANIFEST.MF && \
+zip -u TE_SE.jar META-INF/*
+cp TE_SE.jar "$TE_DEPLOY_DIR/TE_SE.jar"
+
 # S60
 cd ../S60 || exit 1
 cp TE.jar TE_S60.jar

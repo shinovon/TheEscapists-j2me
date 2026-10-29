@@ -6,6 +6,7 @@
         <element id="file-copy" output-file-name="MANIFEST.MF" path="$PROJECT_DIR$/Application Descriptor" />
       </element>
       <element id="module-output" name="TE" />
+      <element id="module-output" name="common" />
     </root>
   </artifact>
 </component>
