@@ -79,7 +79,7 @@ Main testing and target devices:
 | Nokia E52          | S60   | 240x320                     | S60v3.2, ARM11 600 MHz |
 | Nokia E72          | S60   | 320x240                     | S60v3.2, ARM11 600 MHz |
 | Nokia 6700c        | S40   | 240x320                     | S40v6, ARM11 600 Mhz   |
-| Sony Ericsson C510 | S40   | 240x320                     | A200                   |
+| Sony Ericsson C510 | SE    | 240x320                     | A200                   |
 | Sony Ericsson K770 | S40   | 240x320                     | A100, ARM9 220 MHz     |
 | Nokia E6           | E6/E7 | 320x240 upscaled to 640x480 | S60v5.2, ARM11 680 MHz |
 
