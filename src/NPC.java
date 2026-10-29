@@ -386,7 +386,8 @@ class NPC implements Constants {
 			}
 			if (map.routine == SC_WORK_PERIOD && map.prevRoutine != SC_WORK_PERIOD) {
 				jobQuota = 0;
-			} else if (ai && map.prevRoutine == SC_WORK_PERIOD && map.routine != SC_WORK_PERIOD && jobQuota < NPC_JOB_QUOTA_THRESHOLD) {
+			} else if (ai && map.prevRoutine == SC_WORK_PERIOD && map.routine != SC_WORK_PERIOD
+					&& job != JOB_UNEMPLOYED && jobQuota < NPC_JOB_QUOTA_THRESHOLD) {
 				map.jobs[job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
 				job = JOB_UNEMPLOYED;
 			}

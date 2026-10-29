@@ -4227,7 +4227,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						}
 						break;
 					case SC_WORK_PERIOD:
-						if (player.job != 0 && player.jobQuota < MAX_JOB_QUOTA) {
+						if (player.job != JOB_UNEMPLOYED && player.jobQuota < MAX_JOB_QUOTA) {
 							// fire player
 							jobs[player.job] = JOB_EXISTING_BIT | JOB_UNOCCUPIED;
 							player.job = JOB_UNEMPLOYED;
@@ -4267,7 +4267,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						music = Sound.MUSIC_CANTEEN;
 						break;
 					case SC_WORK_PERIOD:
-						music = player.job != 0 ? Sound.MUSIC_WORK : Sound.MUSIC_GENERIC;
+						music = player.job != JOB_UNEMPLOYED ? Sound.MUSIC_WORK : Sound.MUSIC_GENERIC;
 						player.jobQuota = 0;
 						break;
 					case SC_AFTERNOON_ROLLCALL:
