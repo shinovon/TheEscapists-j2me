@@ -616,7 +616,7 @@ class NPC implements Constants {
 				if (aiState == AI_ROAM) {
 					p = 20;
 					delay = 5;
-					textType = Game.TEXT_BANTER;
+					textType = -1;
 					textCount = Game.TEXT_BANTER_COUNT;
 				} else if (aiState == AI_MEAL && sitting) {
 					p = 70;
@@ -650,8 +650,13 @@ class NPC implements Constants {
 					if (rng.nextInt(p) != 0) {
 						nextDialogTimer = TPS >> 1;
 					} else {
-						dialog = map.getInmateText(textType, rng.nextInt(textCount));
+						if (textType == -1) {
+							dialog = map.getBanterText(rng.nextInt(textCount));
+						} else {
+							dialog = Game.getSpeechText(textType, rng.nextInt(textCount));
+						}
 						dialogTimer = (TPS * 2);
+						dialogNeedLayout = true;
 						nextDialogTimer = TPS * delay;
 					}
 				}
@@ -2055,7 +2060,7 @@ class NPC implements Constants {
 		}
 
 		if (inmate) {
-			dialog = Game.getAttackedText(rng.nextInt(Game.TEXT_ATTACKED_COUNT));
+			dialog = Game.getSpeechText(Game.TEXT_ATTACKED, rng.nextInt(Game.TEXT_ATTACKED_COUNT));
 			dialogTimer = (TPS * 2);
 		}
 		aiState = AI_RESET;
@@ -4235,11 +4240,29 @@ class NPC implements Constants {
 //								map.outOfRange = map.player.canSee(this);
 				Sound.playEffect(Sound.SFX_OPEN);
 
-				// TODO talk
-				if (!talked) {
-					npc.statOpinion++;
-					talked = true;
-				} else talked = false;
+				if (npc.dialogTimer == 0) {
+					if (!talked) {
+						npc.statOpinion++;
+						talked = true;
+					} else talked = false;
+
+					if (npc.guard) {
+						npc.dialog = Game.getSpeechText(Game.TEXT_GUARD_TALK, rng.nextInt(Game.TEXT_GUARD_TALK_COUNT));
+					} else {
+						// TODO
+						if (npc.statOpinion < 50) {
+							npc.dialog = Game.getSpeechText(Game.TEXT_REP_1, rng.nextInt(Game.TEXT_REP_1_COUNT));
+						} else if (npc.statOpinion < 80) {
+							npc.dialog = Game.getSpeechText(Game.TEXT_REP_2, rng.nextInt(Game.TEXT_REP_2_COUNT));
+						} else {
+							npc.dialog = Game.getSpeechText(Game.TEXT_REP_3, rng.nextInt(Game.TEXT_REP_3_COUNT));
+						}
+					}
+					npc.dialogNeedLayout = true;
+					npc.dialogTimer = TPS * 2;
+
+					map.addHitMarker(-108, npc.x + 6, npc.y - 6);
+				}
 			}
 		}
 	}
