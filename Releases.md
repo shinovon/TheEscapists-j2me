@@ -5,7 +5,7 @@
 - **TE_S60.jar** - Optimized for S60v3
 - **TE_S60_scaled.jar** - Upscaled 320x240 image with virtual keyboard for S60v5, S^3
 - **TE_E6_E7.jar** - Upscaled 320x240 image without virtual keyboard for Nokia E6, E7
-- **TE_SE.jar** - Optimized for Sony Ericsson
+- **TE_SE.jar** - Optimized for Sony Ericsson, uses Mascot Capsule for light effects
 - **TE_Minimum.jar** - Reduced build for devices with low memory or no M3G support
 
 # Building resources

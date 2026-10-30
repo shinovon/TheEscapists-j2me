@@ -64,7 +64,7 @@ Tested heap usage is about 700 KB and 1 MB of image memory. (strongly depends on
 
 ### Optional requirements
 
-- M3G 1.1 support is required for lights and ambient effects.
+- M3G 1.1 (or Mascot Capsule) support is required for lights and ambient effects.
 - Alpha blending support is required for shadows.
 - Audio mixing and WAV support are required to play sound effects.
 
