@@ -5904,9 +5904,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				globalColors = new int[4];
 				tintColors = new int[4];
 			}
-			int color = (((add * 180 * 390) >> 16) << 16)
-					| (((add * 180 * 385) >> 16) << 8)
-					| ((add * 180 * 260) >> 16);
+			int color = (((add * 170 * 390) >> 16) << 16)
+					| (((add * 170 * 387) >> 16) << 8)
+					| ((add * 170 * 270) >> 16);
 			globalColors[0] = globalColors[1] = globalColors[2] = globalColors[3] = color;
 		} else if (USE_M3G) {
 			globalLightColor = ((255 - ((add * 255 * 390) >> 16)) << 16)
