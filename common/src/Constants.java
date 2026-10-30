@@ -76,6 +76,7 @@ public interface Constants {
 	static final boolean USE_TILED_LAYER = false;
 	// Use more sprite variations for inmates
 	static final boolean MORE_INMATES = true;
+	static final boolean USE_RGB_FONT_CACHE = true;
 
 	// Disable sound effects
 	static final boolean NO_SFX = false;
@@ -139,6 +140,12 @@ public interface Constants {
 //#	static final boolean MORE_INMATES = true;
 //#else
 //#expand static final boolean MORE_INMATES = %MORE_INMATES%;
+//#endif
+
+//#if USE_RGB_FONT_CACHE == ""
+//#	static final boolean USE_RGB_FONT_CACHE = false;
+//#else
+//#expand static final boolean USE_RGB_FONT_CACHE = %USE_RGB_FONT_CACHE%;
 //#endif
 
 //#if NO_SFX == ""
