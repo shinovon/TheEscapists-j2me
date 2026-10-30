@@ -80,7 +80,7 @@ Main testing and target devices:
 | Nokia E72          | S60   | 320x240                     | S60v3.2, ARM11 600 MHz |
 | Nokia 6700c        | S40   | 240x320                     | S40v6, ARM11 600 Mhz   |
 | Sony Ericsson C510 | SE    | 240x320                     | A200                   |
-| Sony Ericsson K770 | S40   | 240x320                     | A100, ARM9 220 MHz     |
+| Sony Ericsson K770 | SE    | 240x320                     | A100, ARM9 220 MHz     |
 | Nokia E6           | E6/E7 | 320x240 upscaled to 640x480 | S60v5.2, ARM11 680 MHz |
 
 
@@ -90,7 +90,7 @@ Secondary (Works but low performance):
 |--------------------|-------------------------------|-----------------------------|------------------------|
 | Nokia E90, N95     | S60, SFX off                  | 240x320                     | S60v3.1, ARM11 332 MHz |
 | Nokia E7           | E6/E7                         | 320x240 upscaled to 640x360 | S60v5.3, ARM11 680 MHz |
-| Sony Ericsson W810 | S40, SFX off                  | 176x220                     | A100, ARM9 110 MHz     |
+| Sony Ericsson W810 | SE, SFX off                   | 176x220                     | A100, ARM9 110 MHz     |
 | Nokia N72          | S40, everything off / Minimum | 176x208                     | S60v2.8, ARM9 220 MHz  |
 | PS Vita Adrenaline | Minimum                       | 480x272                     | PSPKVM, MIPS 300 MHz   |
 | Sony Ericsson P1i  | S40, everything off / Minimum | 240x320                     | UIQ 3.0, ARM9 208 MHz  |
