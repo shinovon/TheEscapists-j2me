@@ -92,7 +92,7 @@
 - [ ] Spotlights
 - [ ] Electric fences and generator
 - [ ] Gifting items
-- [ ] Object states and timers (needed for jobs, toilets, cameras)
+- [ ] Object states and timers (needed for jobs, toilets, cameras, metal detectors, tvs)
 - [ ] Stun rods (irongate)
 - [ ] Ziplines
 
