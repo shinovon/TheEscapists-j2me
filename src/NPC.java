@@ -2856,7 +2856,7 @@ class NPC implements Constants {
 				yFloat = y;
 
 				if (map.firePressed) {
-					playerMsk();
+					playerFire();
 					map.updateInteractFocus = true;
 				}
 				if (map.softPressed) {
@@ -2920,7 +2920,7 @@ class NPC implements Constants {
 		}
 	}
 
-	private void playerMsk() {
+	private void playerFire() {
 		if (climbed) {
 			// vents
 			int slot = map.selectedInventory;
@@ -3055,9 +3055,10 @@ class NPC implements Constants {
 		x = (this.x + x) / TILE_SIZE;
 		y = (this.y + y) / TILE_SIZE;
 
-		if (b == COLL_SOLID_INTERACT) {
+		if (b == COLL_SOLID_INTERACT || b == COLL_CHEST) {
 			int idx = map.getObjectIdxAt(x, y, layer);
-			switch (map.objects[layer][idx + 1]) {
+			int obj = map.objects[layer][idx + 1];
+			switch (obj) {
 			case Objects.PLAYER_BED:
 				if (map.bedDummyPlaced) {
 					if (!addItem(Items.BED_DUMMY | Items.ITEM_DEFAULT_DURABILITY, true)) return;
@@ -3086,6 +3087,118 @@ class NPC implements Constants {
 				yFloat = this.y = (map.objects[layer][idx + 4] - 1) * TILE_SIZE + 2;
 				animation = ANIM_LYING;
 				return;
+
+			case Objects.JOB_METAL_TOOLS:
+				if (item == Items.SHEET_OF_METAL) {
+					Sound.playEffect(Sound.SFX_RUMBLE);
+					// TODO animate
+					inventory[slot] = Items.LICENSE_PLATE;
+					return;
+				}
+				break;
+			case Objects.WASHING_MACHINE:
+				if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
+					// TODO
+					Sound.playEffect(Sound.SFX_BUY);
+					inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
+							Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
+					return;
+				}
+				break;
+			case Objects.OVEN:
+				if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
+					// TODO
+					Sound.playEffect(Sound.SFX_BUY);
+					inventory[slot] = item == Items.UNCOOKED_FOOD ?
+							Items.COOKED_FOOD : Items.BURRITO;
+					return;
+				}
+				break;
+
+			case Objects.JOB_DELIVERIES_RED_BOX:
+			case Objects.JOB_DELIVERIES_BLUE_BOX:
+				if ((item == Items.PACKAGE_A && obj == Objects.JOB_DELIVERIES_BLUE_BOX)
+						|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
+							&& map.routine == SC_WORK_PERIOD) {
+						if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
+							Sound.playEffect(Sound.SFX_HP);
+							jobQuota = MAX_JOB_QUOTA;
+							map.money += 55;
+						} else {
+							Sound.playEffect(Sound.SFX_BUY);
+						}
+					}
+					return;
+				}
+				break;
+			case Objects.JOB_CLEAN_LAUNDRY:
+				// put clean laundry
+				if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
+							&& map.routine == SC_WORK_PERIOD) {
+						if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+							Sound.playEffect(Sound.SFX_HP);
+							jobQuota = MAX_JOB_QUOTA;
+							map.money += map.map == MAP_PERKS ? 40 : 30;
+						} else {
+							Sound.playEffect(Sound.SFX_BUY);
+						}
+					}
+					return;
+				}
+				break;
+			case Objects.JOB_PREPARED_METAL:
+				if (item == Items.LICENSE_PLATE) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
+							&& map.routine == SC_WORK_PERIOD) {
+						if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
+							Sound.playEffect(Sound.SFX_HP);
+							jobQuota = MAX_JOB_QUOTA;
+							map.money += 70;
+						} else {
+							Sound.playEffect(Sound.SFX_BUY);
+						}
+					}
+					return;
+				}
+				break;
+			case Objects.JOB_PREPARED_WOOD:
+				if (item == Items.UNVARNISHED_CHAIR) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
+							&& map.routine == SC_WORK_PERIOD) {
+						if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+							Sound.playEffect(Sound.SFX_HP);
+							jobQuota = MAX_JOB_QUOTA;
+							map.money += 45;
+						} else {
+							Sound.playEffect(Sound.SFX_BUY);
+						}
+					}
+					return;
+				}
+				break;
+			case Objects.JOB_CLOTHING_STORAGE:
+				if (item == Items.HAT || item == Items.VEST
+						|| item == Items.UNDERPANTS || item == Items.SHORTS) {
+					inventory[slot] = Items.ITEM_NULL;
+					if (jobQuota < MAX_JOB_QUOTA && job == JOB_TAILOR
+							&& map.routine == SC_WORK_PERIOD) {
+						if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
+							Sound.playEffect(Sound.SFX_HP);
+							jobQuota = MAX_JOB_QUOTA;
+							map.money += 25;
+						} else {
+							Sound.playEffect(Sound.SFX_BUY);
+						}
+					}
+					return;
+				}
+				break;
 			}
 		}
 
@@ -3835,52 +3948,6 @@ class NPC implements Constants {
 					}
 					return;
 
-				case Objects.JOB_METAL_TOOLS:
-					if (item == Items.SHEET_OF_METAL) {
-						Sound.playEffect(Sound.SFX_RUMBLE);
-						// TODO animate
-						inventory[slot] = Items.LICENSE_PLATE;
-						return;
-					}
-					break;
-				case Objects.WASHING_MACHINE:
-					if (item == Items.DIRTY_INMATE_OUTFIT || item == Items.DIRTY_GUARD_OUTFIT) {
-						// TODO
-						Sound.playEffect(Sound.SFX_BUY);
-						inventory[slot] = item == Items.DIRTY_INMATE_OUTFIT ?
-								Items.INMATE_OUTFIT : Items.GUARD_OUTFIT;
-						return;
-					}
-					break;
-				case Objects.OVEN:
-					if (item == Items.UNCOOKED_FOOD || item == Items.UNCOOKED_BURRITO) {
-						// TODO
-						Sound.playEffect(Sound.SFX_BUY);
-						inventory[slot] = item == Items.UNCOOKED_FOOD ?
-								Items.COOKED_FOOD : Items.BURRITO;
-						return;
-					}
-					break;
-
-				case Objects.JOB_DELIVERIES_RED_BOX:
-				case Objects.JOB_DELIVERIES_BLUE_BOX:
-					if ((item == Items.PACKAGE_A && obj == Objects.JOB_DELIVERIES_BLUE_BOX)
-							|| (item == Items.PACKAGE_B && obj == Objects.JOB_DELIVERIES_RED_BOX)) {
-						inventory[slot] = Items.ITEM_NULL;
-						if (jobQuota < MAX_JOB_QUOTA && job == JOB_DELIVERIES
-								&& map.routine == SC_WORK_PERIOD) {
-							if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
-								Sound.playEffect(Sound.SFX_HP);
-								jobQuota = MAX_JOB_QUOTA;
-								map.money += 55;
-							} else {
-								Sound.playEffect(Sound.SFX_BUY);
-							}
-						}
-						return;
-					}
-					break;
-
 				case Objects.STASH:
 					// open stash
 					//noinspection StatementWithEmptyBody
@@ -3933,72 +4000,6 @@ class NPC implements Constants {
 				case Objects.JOB_FABRIC_CHEST:
 					addItem(Items.FABRIC | Items.ITEM_DEFAULT_DURABILITY, true);
 					return;
-				case Objects.JOB_CLEAN_LAUNDRY:
-					// put clean laundry
-					if (item == Items.INMATE_OUTFIT || item == Items.GUARD_OUTFIT) {
-						inventory[slot] = Items.ITEM_NULL;
-						if (jobQuota < MAX_JOB_QUOTA && job == JOB_LAUNDRY
-								&& map.routine == SC_WORK_PERIOD) {
-							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-								Sound.playEffect(Sound.SFX_HP);
-								jobQuota = MAX_JOB_QUOTA;
-								map.money += map.map == MAP_PERKS ? 40 : 30;
-							} else {
-								Sound.playEffect(Sound.SFX_BUY);
-							}
-						}
-						return;
-					}
-					break;
-				case Objects.JOB_PREPARED_METAL:
-					if (item == Items.LICENSE_PLATE) {
-						inventory[slot] = Items.ITEM_NULL;
-						if (jobQuota < MAX_JOB_QUOTA && job == JOB_METALSHOP
-								&& map.routine == SC_WORK_PERIOD) {
-							if ((jobQuota += (MAX_JOB_QUOTA / 20)) >= MAX_JOB_QUOTA) {
-								Sound.playEffect(Sound.SFX_HP);
-								jobQuota = MAX_JOB_QUOTA;
-								map.money += 70;
-							} else {
-								Sound.playEffect(Sound.SFX_BUY);
-							}
-						}
-						return;
-					}
-					break;
-				case Objects.JOB_PREPARED_WOOD:
-					if (item == Items.UNVARNISHED_CHAIR) {
-						inventory[slot] = Items.ITEM_NULL;
-						if (jobQuota < MAX_JOB_QUOTA && job == JOB_WOODSHOP
-								&& map.routine == SC_WORK_PERIOD) {
-							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-								Sound.playEffect(Sound.SFX_HP);
-								jobQuota = MAX_JOB_QUOTA;
-								map.money += 45;
-							} else {
-								Sound.playEffect(Sound.SFX_BUY);
-							}
-						}
-						return;
-					}
-					break;
-				case Objects.JOB_CLOTHING_STORAGE:
-					if (item == Items.HAT || item == Items.VEST
-							|| item == Items.UNDERPANTS || item == Items.SHORTS) {
-						inventory[slot] = Items.ITEM_NULL;
-						if (jobQuota < MAX_JOB_QUOTA && job == JOB_TAILOR
-								&& map.routine == SC_WORK_PERIOD) {
-							if ((jobQuota += (MAX_JOB_QUOTA / 10)) >= MAX_JOB_QUOTA) {
-								Sound.playEffect(Sound.SFX_HP);
-								jobQuota = MAX_JOB_QUOTA;
-								map.money += 25;
-							} else {
-								Sound.playEffect(Sound.SFX_BUY);
-							}
-						}
-						return;
-					}
-					break;
 				}
 			}
 			if (b == COLL_GYM) {
