@@ -7,8 +7,8 @@ The Escapists fan demake for J2ME platform.
 ## Project state
 
 - NPC behavior is finished.
-- Original maps parser is finished.
-- Rendering engine is finished, but needs optimization.
+- Original assets parser is finished.
+- Rendering engine is finished.
 - The game can be beaten without cheats. (except some maps)
 - Some important mechanics are not yet implemented, e.g. journal and favors.
 
