@@ -258,6 +258,8 @@ class NPC implements Constants {
 			}
 			body.setFrameSequence(animationSequence);
 			if (outfit != null) outfit.setFrameSequence(animationSequence);
+			prevDirection = direction;
+			prevAnimation = animation;
 		}
 		
 		body.setPosition(x, y);
@@ -495,6 +497,7 @@ class NPC implements Constants {
 		if (bodyId == Textures.SNIPER
 				|| ((bodyId == Textures.EMPLOYMENT_OFFICER || bodyId == Textures.DOCTOR)
 				&& targetReached)) {
+			correctPath = false;
 			if (tick % (TPS * 4) == 0) {
 				direction = rng.nextInt(4);
 			}
