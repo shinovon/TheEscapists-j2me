@@ -4969,7 +4969,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									lightTextureCoords, lightVertexCoords);
 						}
 					} else if (layer == LAYER_UNDERGROUND) {
-						int scale = (int) ((undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f)) * (TILE_SIZE * 256));
+						int scale = (int) ((undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f)) * (TILE_SIZE * 512));
 						figureLayout.setScale(scale, scale);
 						mascotGraphics.renderPrimitives(undergroundMascotTexture,
 								0, 0,

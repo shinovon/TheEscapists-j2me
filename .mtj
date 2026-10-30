@@ -5,7 +5,7 @@
       <alias/>
    </signing>
    <configurations>
-      <configuration active="false" name="S60">
+      <configuration active="true" name="S60">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="PREFETCH_SFX" value="true"/>
@@ -30,7 +30,7 @@
             <symbol name="USE_TILED_LAYER" value="false"/>
          </symbolSet>
       </configuration>
-      <configuration active="true" name="SE">
+      <configuration active="false" name="SE">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="USE_RGB_FONT_CACHE" value="true"/>
