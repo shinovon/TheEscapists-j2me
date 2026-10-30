@@ -73,6 +73,9 @@ cd ../../res
 for archive in $TE_DEPLOY_DIR/public/*.jar; do
 	zip -d "$archive" "*.wav" "*.png" "map_*"
 	zip -u "$archive" "*"
+	if [[ "$archive" != *"TE_SE.jar" ]]; then
+		zip -d "$archive" "*.bmp"
+	fi
 done
 
 zip -d "$TE_DEPLOY_DIR/TE_Minimum.jar" "shadow.png"
