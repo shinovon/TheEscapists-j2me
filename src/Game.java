@@ -4964,7 +4964,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									lightTextureCoords, lightVertexCoords);
 						}
 					} else if (layer == LAYER_UNDERGROUND) {
-						int scale = (int) ((undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f)) * (TILE_SIZE * 512));
+						int scale = (int) ((undergroundLightSize + .1f + 0.04f * (float)Math.sin(ticks * 1.5f)) * (TILE_SIZE * 256));
 						figureLayout.setScale(scale, scale);
 						mascotGraphics.renderPrimitives(undergroundMascotTexture,
 								0, 0,
@@ -4975,10 +4975,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 								1,
 								lightVertexCoords, lightVertexCoords,
 								lightTextureCoords, lightVertexCoords);
+						figureLayout.setParallelSize(viewWidth, viewHeight);
 					}
 				}
 
-				figureLayout.setParallelSize(viewWidth, viewHeight);
 				if (layer == LAYER_GROUND && (player.climbed || player.layer == LAYER_VENT)) {
 					// vent tint
 					mascotGraphics.renderPrimitives(null,
@@ -5959,10 +5959,10 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				};
 
 				globalVertexCoords = new int[] {
-						-viewWidth, -viewHeight, 0,
-						viewWidth,  -viewHeight, 0,
-						viewWidth,  viewHeight, 0,
-						-viewWidth, viewHeight, 0
+						-viewWidth / 2, -viewHeight / 2, 0,
+						viewWidth / 2,  -viewHeight / 2, 0,
+						viewWidth / 2,  viewHeight / 2, 0,
+						-viewWidth / 2, viewHeight / 2, 0
 				};
 
 				affineTrans = new AffineTrans();
