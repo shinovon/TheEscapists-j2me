@@ -5815,6 +5815,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				cm.setAlphaThreshold(0f);
 				cm.setDepthTestEnable(false);
 				cm.setDepthWriteEnable(false);
+				cm.setAlphaWriteEnable(false);
 				lightAppearance.setCompositingMode(cm);
 
 				PolygonMode pm = new PolygonMode();
@@ -5841,6 +5842,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				cm.setAlphaThreshold(0f);
 				cm.setDepthTestEnable(false);
 				cm.setDepthWriteEnable(false);
+				cm.setAlphaWriteEnable(false);
 				undergroundAppearance.setCompositingMode(cm);
 			}
 
