@@ -62,7 +62,7 @@
 - [x] Roof mechanics (grappling hook, rope)
 - [x] Job board
 - [x] Owned items (needed for favors, mail and library)
-- [ ] NPC interaction (WIP)
+- [x] NPC interaction
 - [ ] Cameras
 - [ ] Player jobs (WIP)
   - [x] Janitor
