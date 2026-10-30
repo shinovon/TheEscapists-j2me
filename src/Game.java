@@ -443,9 +443,9 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			int x = (int) (this.x + 0.5f), y = (int) (this.y + 0.5f);
 			int vw = w, vh = h;
 			if (player.layer == LAYER_UNDERGROUND) {
-				if (undergroundLightSize != prevUndergroundLightSize) {
+				if ((USE_M3G || USE_MASCOT_CAPSULE) && undergroundLightSize != prevUndergroundLightSize) {
 					prevUndergroundLightSize = undergroundLightSize;
-					resetCamera = true;
+					update3DSize = true;
 				}
 				vw = 64 * undergroundLightSize;
 				vh = 64 * undergroundLightSize;
