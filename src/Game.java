@@ -9877,11 +9877,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 				}
 
-//				int n = charWidth * charHeight;
-//				for (int i = 0; i < n; ++i) {
-//					rgb[i] = charsData[c][i] != 0 ? color : 0;
-//				}
-
 				// put to cache
 				if (USE_RGB_FONT_CACHE) {
 					fontCacheRgb[idx] = rgb;
@@ -9971,11 +9966,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 						rgb[dest++] = charsData[src++] != 0 ? color : 0;
 					}
 				}
-
-//				int n = charWidth * charHeight;
-//				for (int i = 0; i < n; ++i) {
-//					rgb[i] = charsData[c][i] != 0 ? color : 0;
-//				}
 
 				// put to cache
 				if (USE_RGB_FONT_CACHE) {
