@@ -2549,7 +2549,12 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					player.outfitItem = Items.PADDED_INMATE_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
 					player.weapon = Items.NUNCHUKS | Items.ITEM_DEFAULT_DURABILITY;
 
-					player.layer = LAYER_UNDERGROUND;
+					if (player.layer == LAYER_UNDERGROUND) {
+						player.layer = LAYER_GROUND;
+					} else {
+						player.layer = LAYER_UNDERGROUND;
+					}
+					resetCamera = true;
 
 //					int desk = player.desk;
 //					containers[3 + desk + 4] = Items.GUARD_OUTFIT | Items.ITEM_DEFAULT_DURABILITY;
@@ -5865,6 +5870,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				cm.setBlending(CompositingMode.MODULATE);
 				cm.setDepthTestEnable(false);
 				cm.setDepthWriteEnable(false);
+				cm.setAlphaWriteEnable(false);
 				globalAppearance.setCompositingMode(cm);
 
 				PolygonMode pm = new PolygonMode();
@@ -5899,7 +5905,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			add = 128;
 		}
 
-		if (USE_MASCOT_CAPSULE) {
+		if (USE_M3G) {
+			globalLightColor = ((255 - ((add * 255 * 390) >> 16)) << 16)
+					| ((255 - ((add * 255 * 385) >> 16)) << 8)
+					| (255 - ((add * 255 * 260) >> 16));
+		} else if (USE_MASCOT_CAPSULE) {
 			if (globalColors == null) {
 				globalColors = new int[4];
 				tintColors = new int[4];
@@ -5908,10 +5918,6 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					| (((add * 170 * 387) >> 16) << 8)
 					| ((add * 170 * 270) >> 16);
 			globalColors[0] = globalColors[1] = globalColors[2] = globalColors[3] = color;
-		} else if (USE_M3G) {
-			globalLightColor = ((255 - ((add * 255 * 390) >> 16)) << 16)
-					| ((255 - ((add * 255 * 385) >> 16)) << 8)
-					| (255 - ((add * 255 * 260) >> 16));
 		}
 	}
 

@@ -125,7 +125,7 @@ public interface Constants {
 //#endif
 
 //#if USE_MASCOT_CAPSULE == ""
-//#	static final boolean USE_MASCOT_CAPSULE = true;
+//#	static final boolean USE_MASCOT_CAPSULE = false;
 //#else
 //#expand static final boolean USE_MASCOT_CAPSULE = %USE_MASCOT_CAPSULE%;
 //#endif
