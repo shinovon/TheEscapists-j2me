@@ -71,10 +71,12 @@ mkdir "$TE_DEPLOY_DIR/public"
 cp $TE_DEPLOY_DIR/*.jar "$TE_DEPLOY_DIR/public"
 cd ../../res
 for archive in $TE_DEPLOY_DIR/public/*.jar; do
-	zip -d "$archive" "*.wav" "*.png" "map_*"
-	zip -u "$archive" "*"
-	if [[ "$archive" != *"TE_SE.jar" ]]; then
-		zip -d "$archive" "*.bmp"
+	if [[ "$archive" != *"ResourceBuilder.jar" ]]; then
+		zip -d "$archive" "*.wav" "*.png" "map_*"
+		zip -u "$archive" "*"
+		if [[ "$archive" != *"TE_SE.jar" ]]; then
+			zip -d "$archive" "*.bmp"
+		fi
 	fi
 done
 
