@@ -403,7 +403,8 @@ class NPC implements Constants {
 
 				int tx = chaseTarget.x, ty = chaseTarget.y;
 				int dx = tx - x, dy = ty - y;
-				if (!ai && (dx * dx + dy * dy > NPC_CHASE_LOSE_DISTANCE || chaseTarget.health <= 0)) {
+				if (!ai && (dx * dx + dy * dy > NPC_CHASE_LOSE_DISTANCE
+						|| chaseTarget.health <= 0 || !chaseTarget.visible)) {
 					chaseTarget = null;
 					break attack;
 				}
@@ -426,7 +427,7 @@ class NPC implements Constants {
 				animation = ANIM_PUNCH;
 				animationTimer = TPS >> 2;
 
-				fighting = 4;
+				fighting = TPS >> 2;
 
 				if (visible) {
 					Sound.playEffect(NPC.rng.nextInt(2) == 0 ? Sound.SFX_ENHIT : SFX_HIT1);
@@ -3222,7 +3223,7 @@ class NPC implements Constants {
 
 						npc.health = 0;
 						npc.statOpinion = 0;
-						fighting = 4;
+						fighting = TPS >> 2;
 						inventory[slot] = Items.ITEM_NULL;
 						Sound.playEffect(Constants.SFX_ENHIT);
 					}

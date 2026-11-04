@@ -76,7 +76,9 @@ public interface Constants {
 	static final boolean USE_TILED_LAYER = false;
 	// Use more sprite variations for inmates
 	static final boolean MORE_INMATES = true;
-	static final boolean USE_RGB_FONT_CACHE = true;
+	// Use int[] rgb arrays with drawRGB for rendering text,
+	//  slower but fixes huge stutters on W810i because Image.createRGBImage is very slow there
+	static final boolean USE_RGB_FONT_CACHE = false;
 
 	// Disable sound effects
 	static final boolean NO_SFX = false;
