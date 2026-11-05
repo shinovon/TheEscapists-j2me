@@ -76,7 +76,9 @@ public interface Constants {
 	static final boolean USE_TILED_LAYER = false;
 	// Use more sprite variations for inmates
 	static final boolean MORE_INMATES = true;
-	// Use int[] rgb arrays with drawRGB for rendering text,
+	// Use font cache, all characters will be pre-allocated otherwise
+	static final boolean USE_FONT_CACHE = false;
+	// Use int[] rgb arrays with drawRGB for rendering text, works with USE_FONT_CACHE
 	//  slower but fixes huge stutters on W810i because Image.createRGBImage is very slow there
 	static final boolean USE_RGB_FONT_CACHE = false;
 
@@ -142,6 +144,12 @@ public interface Constants {
 //#	static final boolean MORE_INMATES = true;
 //#else
 //#expand static final boolean MORE_INMATES = %MORE_INMATES%;
+//#endif
+
+//#if USE_FONT_CACHE == ""
+//#	static final boolean USE_FONT_CACHE = true;
+//#else
+//#expand static final boolean USE_FONT_CACHE = %USE_FONT_CACHE%;
 //#endif
 
 //#if USE_RGB_FONT_CACHE == ""
@@ -370,7 +378,8 @@ public interface Constants {
 			FONT_COLOR_RED_C0 = 14, // 0xC00000
 			FONT_COLOR_RED_80 = 15, // 0x800000
 			FONT_COLOR_BLUE_0071AA = 16, // 0x0071AA
-			FONT_COLOR_GREEN_80 = 17; // 0x008000
+			FONT_COLOR_GREEN_80 = 17,
+			COUNT_FONT_COLORS = 18; // 0x008000
 
 	static final String FONT_REGULAR_RES = "/fontr";
 	static final String FONT_BOLD_RES = "/fontb";

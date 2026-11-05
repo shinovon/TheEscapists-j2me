@@ -9,6 +9,7 @@
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
             <symbol name="PREFETCH_SFX" value="true"/>
+            <symbol name="USE_FONT_CACHE" value="false"/>
             <symbol name="USE_TILED_LAYER" value="false"/>
             <symbol name="PREFETCH_MUSIC" value="true"/>
          </symbolSet>
@@ -33,8 +34,8 @@
       <configuration active="false" name="SE">
          <device group="KEmulator nnmod" name="KEmulator"/>
          <symbolSet name="KEmulator">
-            <symbol name="USE_RGB_FONT_CACHE" value="true"/>
             <symbol name="USE_M3G" value="false"/>
+            <symbol name="USE_FONT_CACHE" value="false"/>
             <symbol name="USE_MASCOT_CAPSULE" value="true"/>
             <symbol name="USE_TILED_LAYER" value="true"/>
          </symbolSet>

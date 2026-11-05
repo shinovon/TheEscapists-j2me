@@ -25,6 +25,8 @@ import com.mascotcapsule.micro3d.v3.FigureLayout;
 import com.nokia.mid.ui.DirectGraphics;
 import com.nokia.mid.ui.DirectUtils;
 
+import javax.microedition.lcdui.Alert;
+import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
@@ -252,25 +254,22 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// title screen
 			g.drawImage(bgImg, (viewWidth - bgImg.getWidth()) >> 1, (viewHeight - bgImg.getHeight()) >> 2, 0);
 			String s;
-			int f, i = 0;
+			int i = 0;
 
-			fontColor = FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "New game", w, h - 80, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "New game", w, h - 80, FONT_REGULAR);
 			i++;
 
-			fontColor = hasSave ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Continue", w, h - 60, f);
+			fontColor = hasSave ? selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4 : FONT_COLOR_GREY_23;
+			drawCenteredText(g, "Continue", w, h - 60, FONT_REGULAR);
 			i++;
 
-			fontColor = FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Settings", w, h - 40, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Settings", w, h - 40, FONT_REGULAR);
 			i++;
 
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Exit", w, h - 20, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Exit", w, h - 20, FONT_REGULAR);
 
 			fontColor = FONT_COLOR_GREY_7F;
 			if (version != null) {
@@ -304,29 +303,25 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// paused
 			fontColor = FONT_COLOR_ORANGE;
 			String s = "GAME PAUSED";
-			int f, i = 0;
+			int i = 0;
 			drawCenteredText(g, s, w, 40, FONT_BOLD);
 
 			int hh = h >> 1;
 
-			fontColor = FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Continue", w, hh - 30, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Continue", w, hh - 30, FONT_REGULAR);
 			i++;
 
-			fontColor = FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Settings", w, hh - 10, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Settings", w, hh - 10, FONT_REGULAR);
 			i++;
 
-			fontColor = newGame ? FONT_COLOR_GREY_B4 : FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Load", w, hh + 10, f);
+			fontColor = newGame ? FONT_COLOR_GREY_23 : selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Load", w, hh + 10, FONT_REGULAR);
 			i++;
 
-			fontColor = FONT_COLOR_WHITE;
-			f = selectedMenu == i ? FONT_BOLD : FONT_REGULAR;
-			drawCenteredText(g, "Quit", w, hh + 30, f);
+			fontColor = selectedMenu == i ? FONT_COLOR_WHITE : FONT_COLOR_GREY_B4;
+			drawCenteredText(g, "Quit", w, hh + 30, FONT_REGULAR);
 			i++;
 
 			if (loadDialog) {
@@ -2710,13 +2705,13 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			if (!"true".equals(System.getProperty("supports.mixing"))) {
 				Sound.volumeSfx = 0;
 			}
-			loadFonts();
 			bgImg = Image.createImage("/logo.png");
 			Thread.sleep(100);
 
 			if (BUFFER_SCREEN) drawGame();
 			drawScreen();
 
+			loadFonts();
 			loadTextures();
 
 			if (objectsTexture == null) {
@@ -9655,6 +9650,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	private static int[][][] fontCacheRgb;
 	private static int[] fontCacheIdx;
 
+	private static Image[][][] fontImages;
+
 	// preallocated temp buffers
 	static char[] charBuffer = new char[100];
 	static StringBuffer stringBuffer = new StringBuffer();
@@ -9666,12 +9663,16 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		fontCharHeight = new int[FONTS_COUNT];
 		fontWidths = new int[FONTS_COUNT][];
 		fontData = new byte[FONTS_COUNT][][];
-		fontCacheChars = new int[FONT_CACHE_SIZE][];
-		fontCacheIdx = new int[FONT_CACHE_SIZE];
-		if (USE_RGB_FONT_CACHE) {
-			fontCacheRgb = new int[FONT_CACHE_SIZE][][];
+		if (USE_FONT_CACHE) {
+			fontCacheChars = new int[FONT_CACHE_SIZE][];
+			fontCacheIdx = new int[FONT_CACHE_SIZE];
+			if (USE_RGB_FONT_CACHE) {
+				fontCacheRgb = new int[FONT_CACHE_SIZE][][];
+			} else {
+				fontCacheImages = new Image[FONT_CACHE_SIZE][];
+			}
 		} else {
-			fontCacheImages = new Image[FONT_CACHE_SIZE][];
+			fontImages = new Image[FONTS_COUNT][][];
 		}
 
 		if (!loadFont(FONT_REGULAR, FONT_REGULAR_RES)) {
@@ -9698,7 +9699,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				int cols = d.read();
 				int rows = d.read();
 
-				// reading char map is unnecessary since it's offset of ascii
+				// reading char map is unnecessary since it's subset of ascii
 //				Object j;
 //				d.read((byte[])(j = new byte[d.readInt()]));
 //				j = new String((byte[])j).toCharArray();
@@ -9738,15 +9739,50 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				for (i = 0; i < charsNum; ++i) {
 					widths[i] = d.readByte();
 				}
+
+				if (USE_FONT_CACHE) {
+					fontCacheChars[idx] = new int[FONT_CACHE_SIZE];
+					if (USE_RGB_FONT_CACHE) {
+						fontCacheRgb[idx] = new int[FONT_CACHE_SIZE][];
+					} else {
+						fontCacheImages[idx] = new Image[FONT_CACHE_SIZE];
+					}
+				} else {
+					Image[][] fontImages = Game.fontImages[idx] = new Image[COUNT_FONT_COLORS][charsNum];
+					int[] fontWidths = Game.fontWidths[idx];
+					int[] rgb = Game.intBuffer;
+
+					for (i = 0; i < COUNT_FONT_COLORS; ++i) {
+						if (idx == FONT_BOLD
+								&& i != FONT_COLOR_WHITE && i != FONT_COLOR_ORANGE && i != FONT_COLOR_RED_C0) {
+							continue;
+						}
+
+						for (int j = 0; j < charsNum; ++j) {
+							int c = j + '!';
+							if (idx == FONT_BOLD
+									&& (c < 'A' || c > 'Z') && c != '?') {
+								continue;
+							}
+
+							byte[] charsData = bitmap[j];
+							int color = FONT_COLORS[i];
+							int w = fontWidths[j];
+							int dest = 0;
+							for (int cy = 0; cy < charHeight; ++cy) {
+								int src = cy * charWidth;
+								int end = src + w;
+
+								while (src < end) {
+									rgb[dest++] = charsData[src++] != 0 ? color : 0;
+								}
+							}
+							fontImages[i][j] = Image.createRGBImage(rgb, w, charHeight, true);
+						}
+					}
+				}
 			} finally {
 				d.close();
-			}
-
-			fontCacheChars[idx] = new int[FONT_CACHE_SIZE];
-			if (USE_RGB_FONT_CACHE) {
-				fontCacheRgb[idx] = new int[FONT_CACHE_SIZE][];
-			} else {
-				fontCacheImages[idx] = new Image[FONT_CACHE_SIZE];
 			}
 			return true;
 		} catch (Exception e) {
@@ -9773,6 +9809,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
+//			if (font == FONT_BOLD && (c >= 'a' && c <= 'z')) c -= ('a' - 'A');
 			c -= '!';
 			x += fontWidths[c] + 1;
 		}
@@ -9791,6 +9828,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
+//			if (font == FONT_BOLD && (c >= 'a' && c <= 'z')) c -= ('a' - 'A');
 			c -= '!';
 			x += fontWidths[c] + 1;
 		}
@@ -9809,6 +9847,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
+//			if (font == FONT_BOLD && (c >= 'a' && c <= 'z')) c -= ('a' - 'A');
 			c -= '!';
 			x += fontWidths[c] + 1;
 		}
@@ -9831,10 +9870,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		int[] fontWidths = Game.fontWidths[font];
 		byte[][] fontData = Game.fontData[font];
 
-		int[] cacheChars = fontCacheChars[font];
-		int[] fontCacheIdx = Game.fontCacheIdx;
-		Image[] fontCacheImages = USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
-		int[][] fontCacheRgb = USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		int[] cacheChars = USE_FONT_CACHE ? fontCacheChars[font] : null;
+		int[] fontCacheIdx = USE_FONT_CACHE ? Game.fontCacheIdx : null;
+		Image[] fontCacheImages = !USE_FONT_CACHE || USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
+		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		Image[][] fontImages = USE_FONT_CACHE ? null : Game.fontImages[font];
 
 		int i = 0;
 		while (i < l) {
@@ -9845,59 +9885,69 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
+//			if (font == FONT_BOLD && (c >= 'a' && c <= 'z')) c -= ('a' - 'A');
 			c -= '!';
 
 			int w = fontWidths[c];
 
-			Image img;
-			img: {
-				int id = c | (fontColor << 16);
+			if (USE_FONT_CACHE) {
+				Image img;
+				img: {
+					int id = c | (fontColor << 16);
 
-				// try to get from cache
-				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
-					if (cacheChars[j] == id) {
-						if (USE_RGB_FONT_CACHE) {
-							rgb = fontCacheRgb[j];
-						} else {
-							img = fontCacheImages[j];
+					// try to get from cache
+					for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+						if (cacheChars[j] == id) {
+							if (USE_RGB_FONT_CACHE) {
+								rgb = fontCacheRgb[j];
+							} else {
+								img = fontCacheImages[j];
+							}
+							break img;
 						}
-						break img;
 					}
+					// not in cache, create image
+					byte[] charsData = fontData[c];
+					int dest = 0;
+					int idx = fontCacheIdx[font];
+
+					if (USE_RGB_FONT_CACHE) {
+						rgb = fontCacheRgb[idx];
+						if (rgb == null) {
+							fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
+						}
+					}
+
+					for (int cy = 0; cy < charHeight; ++cy) {
+						int src = cy * charWidth;
+						int end = src + w;
+
+						while (src < end) {
+							rgb[dest++] = charsData[src++] != 0 ? color : 0;
+						}
+					}
+
+					// put to cache
+					if (USE_RGB_FONT_CACHE) {
+						fontCacheRgb[idx] = rgb;
+					} else {
+						fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+					}
+					cacheChars[idx] = id;
+					fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 				}
-				// not in cache, create image
-				byte[] charsData = fontData[c];
-				int dest = 0;
-				int idx = fontCacheIdx[font];
 
 				if (USE_RGB_FONT_CACHE) {
-					rgb = fontCacheRgb[idx];
-					if (rgb == null) {
-						fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
-					}
-				}
-
-				for (int cy = 0; cy < charHeight; ++cy) {
-					int src = cy * charWidth;
-					int end = src + w;
-
-					while (src < end) {
-						rgb[dest++] = charsData[src++] != 0 ? color : 0;
-					}
-				}
-
-				// put to cache
-				if (USE_RGB_FONT_CACHE) {
-					fontCacheRgb[idx] = rgb;
+					g.drawRGB(rgb, 0, w, x, y, w, charHeight, true);
 				} else {
-					fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+					g.drawImage(img, x, y, 0);
 				}
-				cacheChars[idx] = id;
-				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
-			}
-
-			if (USE_RGB_FONT_CACHE) {
-				g.drawRGB(rgb, 0, w, x, y, w, charHeight,true);
 			} else {
+				Image img = fontImages[fontColor][c];
+				if (img == null) {
+					// fallback
+					img = fontImages[FONT_COLOR_WHITE][c];
+				}
 				g.drawImage(img, x, y, 0);
 			}
 			x += w + 1;
@@ -9922,10 +9972,11 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		int[] fontWidths = Game.fontWidths[font];
 		byte[][] fontData = Game.fontData[font];
 
-		int[] cacheChars = fontCacheChars[font];
-		int[] fontCacheIdx = Game.fontCacheIdx;
-		Image[] fontCacheImages = USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
-		int[][] fontCacheRgb = USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		int[] cacheChars = USE_FONT_CACHE ? fontCacheChars[font] : null;
+		int[] fontCacheIdx = USE_FONT_CACHE ? Game.fontCacheIdx : null;
+		Image[] fontCacheImages = !USE_FONT_CACHE || USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
+		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		Image[][] fontImages = USE_FONT_CACHE ? null : Game.fontImages[font];
 
 		while (i < chars.length && chars[i] != 0) {
 			// x = drawChar(g, chars[idx++], x, y, font);
@@ -9935,59 +9986,69 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				continue;
 			}
 			if (c < ' ' || c > '~') continue;
+//			if (font == FONT_BOLD && (c >= 'a' && c <= 'z')) c -= ('a' - 'A');
 			c -= '!';
 
 			int w = fontWidths[c];
 
-			Image img;
-			img: {
-				int id = c | (fontColor << 16);
+			if (USE_FONT_CACHE) {
+				Image img;
+				img: {
+					int id = c | (fontColor << 16);
 
-				// try to get from cache
-				for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
-					if (cacheChars[j] == id) {
-						if (USE_RGB_FONT_CACHE) {
-							rgb = fontCacheRgb[j];
-						} else {
-							img = fontCacheImages[j];
+					// try to get from cache
+					for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
+						if (cacheChars[j] == id) {
+							if (USE_RGB_FONT_CACHE) {
+								rgb = fontCacheRgb[j];
+							} else {
+								img = fontCacheImages[j];
+							}
+							break img;
 						}
-						break img;
 					}
+					// not in cache, create image
+					byte[] charsData = fontData[c];
+					int dest = 0;
+					int idx = fontCacheIdx[font];
+
+					if (USE_RGB_FONT_CACHE) {
+						rgb = fontCacheRgb[idx];
+						if (rgb == null) {
+							fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
+						}
+					}
+
+					for (int cy = 0; cy < charHeight; ++cy) {
+						int src = cy * charWidth;
+						int end = src + w;
+
+						while (src < end) {
+							rgb[dest++] = charsData[src++] != 0 ? color : 0;
+						}
+					}
+
+					// put to cache
+					if (USE_RGB_FONT_CACHE) {
+						fontCacheRgb[idx] = rgb;
+					} else {
+						fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+					}
+					cacheChars[idx] = id;
+					fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 				}
-				// not in cache, create image
-				byte[] charsData = fontData[c];
-				int dest = 0;
-				int idx = fontCacheIdx[font];
 
 				if (USE_RGB_FONT_CACHE) {
-					rgb = fontCacheRgb[idx];
-					if (rgb == null) {
-						fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
-					}
-				}
-
-				for (int cy = 0; cy < charHeight; ++cy) {
-					int src = cy * charWidth;
-					int end = src + w;
-
-					while (src < end) {
-						rgb[dest++] = charsData[src++] != 0 ? color : 0;
-					}
-				}
-
-				// put to cache
-				if (USE_RGB_FONT_CACHE) {
-					fontCacheRgb[idx] = rgb;
+					g.drawRGB(rgb, 0, w, x, y, w, charHeight, true);
 				} else {
-					fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
+					g.drawImage(img, x, y, 0);
 				}
-				cacheChars[idx] = id;
-				fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
-			}
-
-			if (USE_RGB_FONT_CACHE) {
-				g.drawRGB(rgb, 0, w, x, y, w, charHeight,true);
 			} else {
+				Image img = fontImages[fontColor][c];
+				if (img == null) {
+					// fallback
+					img = fontImages[FONT_COLOR_WHITE][c];
+				}
 				g.drawImage(img, x, y, 0);
 			}
 			x += w + 1;
