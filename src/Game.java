@@ -9777,6 +9777,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									rgb[dest++] = charsData[src++] != 0 ? color : 0;
 								}
 							}
+							// TODO make sheet instead and use drawRegion, too many image instances causs w810i to freeze a lot
 							fontImages[i][j] = Image.createRGBImage(rgb, w, charHeight, true);
 						}
 					}
