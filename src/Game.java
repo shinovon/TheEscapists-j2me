@@ -371,7 +371,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			// settings
 			int i = 0, x;
 			fontColor = FONT_COLOR_ORANGE;
-			String s = "Settings";
+			String s = "SETTINGS";
 			drawCenteredText(g, s, w, 20, FONT_BOLD);
 
 			if (!NO_SFX) {
