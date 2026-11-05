@@ -25,8 +25,6 @@ import com.mascotcapsule.micro3d.v3.FigureLayout;
 import com.nokia.mid.ui.DirectGraphics;
 import com.nokia.mid.ui.DirectUtils;
 
-import javax.microedition.lcdui.Alert;
-import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
@@ -198,6 +196,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	// platform
 	static boolean nokiaE6;
 	static boolean seP1;
+	static boolean seJP7onwards;
 
 	int selectedMenu;
 	boolean hasSave;
@@ -2694,6 +2693,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 				if (p == null) p = "null";
 				nokiaE6 = p.startsWith("NokiaE6-") || p.startsWith("NokiaE7-");
 				seP1 = p.startsWith("SonyEricssonP1") || p.startsWith("SonyEricssonM600");
+				seJP7onwards = System.getProperty("com.sonyericsson.java.platform") != null;
 				boolean j2meloader = false;
 				try {
 					//noinspection ConstantValue
@@ -9666,7 +9666,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		if (USE_FONT_CACHE) {
 			fontCacheChars = new int[FONT_CACHE_SIZE][];
 			fontCacheIdx = new int[FONT_CACHE_SIZE];
-			if (USE_RGB_FONT_CACHE) {
+			if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 				fontCacheRgb = new int[FONT_CACHE_SIZE][][];
 			} else {
 				fontCacheImages = new Image[FONT_CACHE_SIZE][];
@@ -9742,7 +9742,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 				if (USE_FONT_CACHE) {
 					fontCacheChars[idx] = new int[FONT_CACHE_SIZE];
-					if (USE_RGB_FONT_CACHE) {
+					if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 						fontCacheRgb[idx] = new int[FONT_CACHE_SIZE][];
 					} else {
 						fontCacheImages[idx] = new Image[FONT_CACHE_SIZE];
@@ -9777,7 +9777,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 									rgb[dest++] = charsData[src++] != 0 ? color : 0;
 								}
 							}
-							// TODO make sheet instead and use drawRegion, too many image instances causs w810i to freeze a lot
+							// TODO make sheet instead and use drawRegion, too many image instances cause w810i to freeze a lot
 							fontImages[i][j] = Image.createRGBImage(rgb, w, charHeight, true);
 						}
 					}
@@ -9873,8 +9873,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int[] cacheChars = USE_FONT_CACHE ? fontCacheChars[font] : null;
 		int[] fontCacheIdx = USE_FONT_CACHE ? Game.fontCacheIdx : null;
-		Image[] fontCacheImages = !USE_FONT_CACHE || USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
-		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		Image[] fontCacheImages = !USE_FONT_CACHE || (USE_RGB_FONT_CACHE && !seJP7onwards) ? null : Game.fontCacheImages[font];
+		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE && !seJP7onwards ? Game.fontCacheRgb[font] : null;
 		Image[][] fontImages = USE_FONT_CACHE ? null : Game.fontImages[font];
 
 		int i = 0;
@@ -9899,7 +9899,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// try to get from cache
 					for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
 						if (cacheChars[j] == id) {
-							if (USE_RGB_FONT_CACHE) {
+							if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 								rgb = fontCacheRgb[j];
 							} else {
 								img = fontCacheImages[j];
@@ -9912,7 +9912,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int dest = 0;
 					int idx = fontCacheIdx[font];
 
-					if (USE_RGB_FONT_CACHE) {
+					if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 						rgb = fontCacheRgb[idx];
 						if (rgb == null) {
 							fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
@@ -9929,7 +9929,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 
 					// put to cache
-					if (USE_RGB_FONT_CACHE) {
+					if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 						fontCacheRgb[idx] = rgb;
 					} else {
 						fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
@@ -9938,7 +9938,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 				}
 
-				if (USE_RGB_FONT_CACHE) {
+				if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 					g.drawRGB(rgb, 0, w, x, y, w, charHeight, true);
 				} else {
 					g.drawImage(img, x, y, 0);
@@ -9975,8 +9975,8 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		int[] cacheChars = USE_FONT_CACHE ? fontCacheChars[font] : null;
 		int[] fontCacheIdx = USE_FONT_CACHE ? Game.fontCacheIdx : null;
-		Image[] fontCacheImages = !USE_FONT_CACHE || USE_RGB_FONT_CACHE ? null : Game.fontCacheImages[font];
-		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE ? Game.fontCacheRgb[font] : null;
+		Image[] fontCacheImages = !USE_FONT_CACHE || (USE_RGB_FONT_CACHE && !seJP7onwards) ? null : Game.fontCacheImages[font];
+		int[][] fontCacheRgb = USE_FONT_CACHE && USE_RGB_FONT_CACHE && !seJP7onwards ? Game.fontCacheRgb[font] : null;
 		Image[][] fontImages = USE_FONT_CACHE ? null : Game.fontImages[font];
 
 		while (i < chars.length && chars[i] != 0) {
@@ -10000,7 +10000,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					// try to get from cache
 					for (int j = 0; j < FONT_CACHE_SIZE; ++j) {
 						if (cacheChars[j] == id) {
-							if (USE_RGB_FONT_CACHE) {
+							if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 								rgb = fontCacheRgb[j];
 							} else {
 								img = fontCacheImages[j];
@@ -10013,7 +10013,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					int dest = 0;
 					int idx = fontCacheIdx[font];
 
-					if (USE_RGB_FONT_CACHE) {
+					if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 						rgb = fontCacheRgb[idx];
 						if (rgb == null) {
 							fontCacheRgb[idx] = rgb = new int[charWidth * charHeight];
@@ -10030,7 +10030,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					}
 
 					// put to cache
-					if (USE_RGB_FONT_CACHE) {
+					if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 						fontCacheRgb[idx] = rgb;
 					} else {
 						fontCacheImages[idx] = img = Image.createRGBImage(rgb, /*charWidth*/ w, charHeight, true);
@@ -10039,7 +10039,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 					fontCacheIdx[font] = (idx + 1) % FONT_CACHE_SIZE;
 				}
 
-				if (USE_RGB_FONT_CACHE) {
+				if (USE_RGB_FONT_CACHE && !seJP7onwards) {
 					g.drawRGB(rgb, 0, w, x, y, w, charHeight, true);
 				} else {
 					g.drawImage(img, x, y, 0);
