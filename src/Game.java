@@ -3035,6 +3035,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 	boolean bedDummyPlaced;
 
 	int guardsDown;
+	int inmatesDown;
 	int guards;
 	int inmates;
 	int npcNum;
@@ -3071,6 +3072,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 		checkpointOpen = false;
 		bedDummyPlaced = false;
 		guardsDown = 0;
+		inmatesDown = 0;
 
 		player = new NPC(this);
 		player.name = "Player";
@@ -4076,6 +4078,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 
 		time = routineSet[8] == SC_LIGHTSOUT ? 8 * 60 + 50 : (7 * 60 + 50);
 		guardsDown = 0;
+		inmatesDown = 0;
 		fatigue = 20;
 		cellsClosed = true;
 
@@ -4109,6 +4112,7 @@ public class Game extends GameCanvas implements Runnable, Constants {
 			entranceOpen = false;
 			resetCamera = true;
 			guardsDown = 0;
+			inmatesDown = 0;
 			checkpointOpen = false;
 			bedDummyPlaced = false;
 			Sound.playMusic(Constants.MUSIC_LIGHTSOUT);

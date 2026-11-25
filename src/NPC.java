@@ -550,6 +550,8 @@ class NPC implements Constants {
 					if (map.guardsDown >= (map.guards * 2) / 5 && !map.lockdown) {
 						map.startLockdown();
 					}
+				} else if (inmate) {
+					map.inmatesDown++;
 				}
 				int x = (this.x + 7) / TILE_SIZE;
 				int y = (this.y + 7) / TILE_SIZE;
@@ -591,6 +593,8 @@ class NPC implements Constants {
 							map.solitaryReason = REASON_KEY;
 						}
 					}
+				} else if (inmate) {
+					map.inmatesDown--;
 				}
 				wakeupTimer = -1;
 				animation = ANIM_REGULAR;
@@ -1072,45 +1076,45 @@ class NPC implements Constants {
 			NPC[] chars = map.chars;
 			int n = chars.length;
 			boolean attack = (targetReached || !correctPath || aiState == AI_ROAM)
-					&& aiState != AI_WAYPOINT && aiState != AI_SLEEP
-					&& angerTimer == 0 && rng.nextInt(20) == 0;
+					&& map.inmatesDown < 4 && aiState != AI_WAYPOINT && aiState != AI_SLEEP
+					&& angerTimer == 0;
 			if (attack && rng.nextInt(120 - map.fightFreq * 20) != 0) {
-				angerTimer = TPS;
+				angerTimer = TPS * 4;
 				attack = false;
 			}
 
-			boolean found = false;
-			for (int i = 1; i < n; ++i) {
-				NPC other = chars[i];
-				if (other == null || other == this || other.guard || other.health <= 0 || !canSee(other)) {
-					continue;
-				}
+			if (guard || attack) {
+				for (int i = 1; i < n; ++i) {
+					NPC other = chars[i];
+					if (other == null || other == this || other.guard || other.health <= 0 || !canSee(other)) {
+						continue;
+					}
 
-				if (guard) {
-					// attack if inmate is fighting
-					if (other.fighting != 0) {
-						aiState = AI_ATTACK;
-						chaseTarget = other;
-						aiWaitTimer = 0;
-						StringBuffer sb = Game.stringBuffer;
-						sb.setLength(0);
-						heat(sb.append("Oi! ").append(other.name).toString(), 0);
-						break;
-					}
-				} else if (inmate && other.inmate) {
-					// attack someone in random interval if not busy
-					found = true;
-					if (attack && rng.nextInt(30) == 0) {
-						animation = ANIM_REGULAR;
-						aiState = AI_RESET;
-						chaseTarget = other;
-						break;
+					if (guard) {
+						// attack if inmate is fighting
+						if (other.fighting != 0) {
+							aiState = AI_ATTACK;
+							chaseTarget = other;
+							aiWaitTimer = 0;
+							StringBuffer sb = Game.stringBuffer;
+							sb.setLength(0);
+							heat(sb.append("Oi! ").append(other.name).toString(), 0);
+							break;
+						}
+					} else if (inmate && other.inmate) {
+						// attack someone in random interval if not busy
+						if (attack && rng.nextInt(map.inmates) == 0) {
+							animation = ANIM_REGULAR;
+							aiState = AI_RESET;
+							chaseTarget = other;
+							break;
+						}
 					}
 				}
 			}
-			if (attack && found) {
-				angerTimer = TPS + rng.nextInt(TPS * 3);
-			}
+//			if (attack && found) {
+//				angerTimer = TPS + rng.nextInt(TPS * 3);
+//			}
 		}
 
 		// TODO scan area for illegal items
